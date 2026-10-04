@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "flansmod",
+  "version": "${version}",
+  "name": "Flan's Mod: Recoded",
+  "description": "Data-driven gun and vehicle framework. All content is loaded from content packs.",
+  "authors": ["Noel"],
+  "license": "All-Rights-Reserved",
+  "icon": "assets/flansmod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.FlansMod" }],
+    "client": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.client.FlansModClient" }]
+  },
+  "mixins": [
+    "flansmod.mixins.json",
+    { "config": "flansmod.client.mixins.json", "environment": "client" }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*",
+    "fabric-language-kotlin": ">=1.14.1+kotlin.2.4.20",
+    "geckolib": "*",
+    "cloth-config": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}
