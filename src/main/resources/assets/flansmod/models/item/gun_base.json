@@ -1,0 +1,4 @@
+{
+  "textures": { "particle": "minecraft:item/iron_ingot" },
+  "gui_light": "front"
+}

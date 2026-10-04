@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext
 import net.minecraft.resources.Identifier
 import com.mojang.blaze3d.platform.InputConstants
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext
+import net.minecraft.client.CameraType
 import net.minecraft.client.Minecraft
 import net.minecraft.server.MinecraftServer
 
@@ -34,6 +35,17 @@ class GunClientGameTest : FabricClientGameTest {
             check(context.client { Guns[rifle] != null }) { "client never received gun definitions" }
             check(context.client { it.player!!.mainHandItem.gunId == rifle }) { "rifle not in hand" }
             context.takeScreenshot("flansmod-hipfire")
+
+            // Display transforms in other perspectives.
+            context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.THIRD_PERSON_FRONT }
+            context.waitTicks(2)
+            context.takeScreenshot("flansmod-thirdperson")
+            context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.FIRST_PERSON }
+            context.input.pressKey { it.keyInventory }
+            context.waitTicks(2)
+            context.takeScreenshot("flansmod-inventory")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+            context.waitTicks(2)
 
             // Aim down sights (right mouse).
             context.input.holdMouse(InputConstants.MOUSE_BUTTON_RIGHT)

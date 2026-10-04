@@ -43,6 +43,12 @@ data class GunDefinition(
     val recoil: Recoil = Recoil(),
     val ammo: Ammo? = null,
     val sounds: Sounds = Sounds(),
+    /**
+     * Item display transforms in Blockbench/vanilla format, keyed by display context
+     * (`firstperson_righthand`, `thirdperson_righthand`, `gui`, `ground`, `fixed`, `head`, ...)
+     * plus `ads` for the first-person pose while fully aimed. Missing keys fall back to [Transform.DEFAULTS].
+     */
+    val display: Map<String, Transform> = emptyMap(),
 ) {
     val ticksBetweenShots: Int get() = (1200 / rpm.coerceIn(1, 1200)).coerceAtLeast(1)
 
@@ -51,6 +57,7 @@ data class GunDefinition(
         geo = model.geo ?: id.withPrefix("gun/"),
         texture = model.texture ?: id.withPath("textures/gun/${id.path}.png"),
         animations = model.animations ?: id.withPrefix("gun/"),
+        display = Transform.DEFAULTS + display,
     )
 }
 
@@ -69,7 +76,29 @@ data class ModelInfo(
     @Serializable(IdentifierSerializer::class) val animations: Identifier? = null,
 )
 
-data class ResolvedModel(val geo: Identifier, val texture: Identifier, val animations: Identifier)
+data class ResolvedModel(val geo: Identifier, val texture: Identifier, val animations: Identifier, val display: Map<String, Transform>)
+
+/** Same semantics as a vanilla item model `display` entry: degrees, 1/16 block units, scale factors. */
+@Serializable
+data class Transform(
+    val rotation: List<Float> = listOf(0f, 0f, 0f),
+    val translation: List<Float> = listOf(0f, 0f, 0f),
+    val scale: List<Float> = listOf(1f, 1f, 1f),
+) {
+    companion object {
+        const val ADS = "ads"
+
+        /** Defaults for a gun modelled in Blockbench with the barrel pointing north (-Z). */
+        val DEFAULTS = mapOf(
+            "firstperson_righthand" to Transform(translation = listOf(6f, 2f, 0f)),
+            ADS to Transform(translation = listOf(0f, 6.2f, -6f)),
+            "thirdperson_righthand" to Transform(rotation = listOf(90f, 0f, 0f), scale = listOf(0.8f, 0.8f, 0.8f)),
+            "gui" to Transform(rotation = listOf(0f, -90f, 0f), translation = listOf(-1.5f, -0.5f, 0f), scale = listOf(0.65f, 0.65f, 0.65f)),
+            "fixed" to Transform(rotation = listOf(0f, -90f, 0f), translation = listOf(-1.5f, -0.5f, 0f), scale = listOf(0.65f, 0.65f, 0.65f)),
+            "ground" to Transform(translation = listOf(0f, -2f, 0f), scale = listOf(0.5f, 0.5f, 0.5f)),
+        )
+    }
+}
 
 @Serializable
 data class Recoil(

@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:special",
-    "base": "minecraft:item/iron_ingot",
+    "base": "flansmod:item/gun_base",
     "model": { "type": "geckolib:geckolib" }
   }
 }
