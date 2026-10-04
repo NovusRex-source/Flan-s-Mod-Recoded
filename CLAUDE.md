@@ -32,3 +32,10 @@ Wenn Code generiert wird, nutze zwingend diese Frameworks für die jeweiligen Au
 * Kommentiere Mixins ausführlich, um Seiteneffekte mit anderen Mods (wie Sodium) zu vermeiden.
 * Mixins werden in Java geschrieben (`src/*/java/.../mixin`), die eigentliche Logik in Kotlin.
 * Build: `./gradlew build`, Test: `./gradlew runClient` / `runServer`. Der Gradle-Daemon nutzt Java 25 (`gradle/gradle-daemon-jvm.properties`).
+
+## 6. Architektur (Stand)
+* **Waffen-Item:** Es gibt genau ein Item `flansmod:gun`. Welche Waffe ein Stack ist, steht in der Data Component `flansmod:gun` (Id der Definition), geladene Munition in `flansmod:ammo`. Dadurch brauchen Content Packs keine Item-Registrierung und Waffen funktionieren nach `/reload`.
+* **Definitionen:** `data/<ns>/flansmod/guns/<name>.json` → `GunDefinition` (kotlinx.serialization), geladen von `Guns` (Fabric Resource Loader v1), an Clients per `GunSyncPayload` synchronisiert.
+* **Modelle:** GeckoLib-Dateien pro Waffe, Default-Pfade aus der Id abgeleitet: `assets/<ns>/geckolib/models/gun/<name>.geo.json`, `geckolib/animations/gun/<name>.animation.json`, `textures/gun/<name>.png`. Trigger-Animationen: `shoot`, `reload`.
+* **Ballistik:** `Ballistics` simuliert Kugeln serverseitig als Punkte (kein Entity) mit Gravitation/Drag und Raycasts pro Tick. `GunHandler` erzwingt Feuerrate, Munition und Nachladen.
+* **Tests:** `./gradlew runGameTest` (Server-GameTests) und `./gradlew runClientGameTest` (echter Client, Screenshots unter `build/run/clientGameTest/screenshots`). Neue Gameplay-Features bekommen einen GameTest in `src/gametest`.

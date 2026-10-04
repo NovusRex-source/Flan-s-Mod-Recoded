@@ -1,3 +1,23 @@
 {
-  "pack.source.flansmod": "content pack"
+  "pack.source.flansmod": "content pack",
+  "itemGroup.flansmod.guns": "Flan's Mod Guns",
+  "item.flansmod.gun": "Gun",
+  "item.flansmod.gun.unknown": "Unknown gun (content pack missing?)",
+  "item.flansmod.gun.ammo": "Ammo: %s / %s",
+  "item.flansmod.gun.damage": "Damage: %s",
+  "item.flansmod.gun.rpm": "%s RPM, %s",
+  "item.flansmod.gun.ammo_item": "Uses: %s",
+  "item.flansmod.gun.mode.semi": "semi-auto",
+  "item.flansmod.gun.mode.auto": "full-auto",
+  "item.flansmod.gun.mode.burst": "burst",
+  "death.attack.flansmod.gun": "%1$s was shot",
+  "death.attack.flansmod.gun.player": "%1$s was shot by %2$s",
+  "key.category.flansmod.flansmod": "Flan's Mod",
+  "key.flansmod.reload": "Reload",
+  "text.autoconfig.flansmod.title": "Flan's Mod: Recoded",
+  "text.autoconfig.flansmod.option.recoilMultiplier": "Recoil strength",
+  "text.autoconfig.flansmod.option.adsSensitivity": "Aiming mouse sensitivity",
+  "text.autoconfig.flansmod.option.toggleAim": "Toggle aim (instead of hold)",
+  "text.autoconfig.flansmod.option.showAmmoHud": "Show ammo counter",
+  "text.autoconfig.flansmod.option.hideCrosshairWhileAiming": "Hide crosshair while aiming"
 }

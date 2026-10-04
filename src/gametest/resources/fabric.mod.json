@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "id": "flansmod-test",
+  "version": "1.0.0",
+  "name": "Flan's Mod: Recoded GameTests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunGameTests" }],
+    "fabric-client-gametest": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" }]
+  },
+  "depends": { "flansmod": "*" }
+}

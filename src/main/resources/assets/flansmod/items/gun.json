@@ -1,0 +1,7 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "minecraft:item/iron_ingot",
+    "model": { "type": "geckolib:geckolib" }
+  }
+}

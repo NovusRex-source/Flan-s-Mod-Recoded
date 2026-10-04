@@ -29,6 +29,16 @@ loom {
     }
 }
 
+fabricApi {
+    // Server GameTests in src/gametest (./gradlew runGameTest, also part of ./gradlew check)
+    configureTests {
+        createSourceSet = true
+        modId = "flansmod-test"
+        eula = true
+        enableClientGameTests = true
+    }
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:${prop("minecraft_version")}")
     implementation("net.fabricmc:fabric-loader:${prop("loader_version")}")
