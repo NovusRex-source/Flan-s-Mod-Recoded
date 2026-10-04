@@ -15,6 +15,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.EntityTypes
+import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.GameType
@@ -45,7 +46,7 @@ class GunGameTests {
         val zombie = helper.spawnWithNoFreeWill(EntityTypes.HUSK, BlockPos(6, 1, 1))
         helper.aimAt(player, Vec3(1.5, 1.0, 1.5), zombie.eyePosition.subtract(helper.absoluteVec(Vec3.ZERO)).add(0.0, -0.6, 0.0))
 
-        GunHandler.trigger(player, aiming = false)
+        GunHandler.trigger(player)
         helper.assertValueEqual(stack.ammo, 4, "ammo after one shot")
         helper.succeedWhen {
             helper.assertTrue(zombie.lastDamageSource?.`is`(FlansDamageTypes.GUN) == true, "target should be hit by a bullet")
@@ -56,7 +57,7 @@ class GunGameTests {
     @GameTest(maxTicks = 30)
     fun fireRateIsEnforced(helper: GameTestHelper) {
         val (player, stack) = helper.withGun("slow", accurate.copy(rpm = 60))
-        repeat(5) { GunHandler.trigger(player, aiming = false) }
+        repeat(5) { GunHandler.trigger(player) }
         helper.assertValueEqual(stack.ammo, 4, "only one shot per cooldown")
         helper.succeed()
     }
@@ -68,7 +69,7 @@ class GunGameTests {
         val zombie = helper.spawnWithNoFreeWill(EntityTypes.HUSK, BlockPos(6, 1, 1))
         helper.aimAt(player, Vec3(1.5, 1.0, 1.5), Vec3(6.5, 2.6, 1.5))
 
-        GunHandler.trigger(player, aiming = false)
+        GunHandler.trigger(player)
         helper.runAfterDelay(30) {
             helper.assertTrue(zombie.lastDamageSource == null, "dropping bullet should fall short")
             helper.succeed()
@@ -99,12 +100,25 @@ class GunGameTests {
     }
 
     @GameTest(maxTicks = 20)
+    fun aimingSlowsMovementUntilGunIsPutAway(helper: GameTestHelper) {
+        val (player, _) = helper.withGun("ads", accurate.copy(adsMoveSpeed = 0.5f))
+        val speed = player.getAttribute(Attributes.MOVEMENT_SPEED)!!
+        val base = speed.value
+
+        GunHandler.setAiming(player, true)
+        helper.assertTrue(kotlin.math.abs(speed.value - base * 0.5) < 1e-6, "aiming should halve speed, was ${speed.value} of $base")
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY)
+        helper.succeedWhen { helper.assertTrue(speed.value == base, "slowdown should end when the gun is put away") }
+    }
+
+    @GameTest(maxTicks = 20)
     fun emptyGunDoesNotFire(helper: GameTestHelper) {
         val (player, stack) = helper.withGun("empty", accurate.copy(ammo = Ammo(Identifier.withDefaultNamespace("iron_nugget"))))
         stack.ammo = 0
         val zombie = helper.spawnWithNoFreeWill(EntityTypes.HUSK, BlockPos(4, 1, 1))
         helper.aimAt(player, Vec3(1.5, 1.0, 1.5), Vec3(4.5, 2.0, 1.5))
-        GunHandler.trigger(player, aiming = false)
+        GunHandler.trigger(player)
         helper.runAfterDelay(10) {
             helper.assertTrue(zombie.lastDamageSource == null, "no bullet without ammo")
             helper.succeed()

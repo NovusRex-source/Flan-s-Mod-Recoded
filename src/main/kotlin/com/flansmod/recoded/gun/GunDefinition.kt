@@ -40,6 +40,8 @@ data class GunDefinition(
     @SerialName("ads_spread") val adsSpread: Float = 0.3f,
     /** FOV divisor while aiming down sights. */
     @SerialName("ads_zoom") val adsZoom: Float = 1.3f,
+    /** Movement speed multiplier while aiming down sights. */
+    @SerialName("ads_move_speed") val adsMoveSpeed: Float = 0.6f,
     val recoil: Recoil = Recoil(),
     val ammo: Ammo? = null,
     val sounds: Sounds = Sounds(),

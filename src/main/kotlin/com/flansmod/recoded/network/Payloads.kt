@@ -15,13 +15,33 @@ import net.minecraft.resources.Identifier
 private fun <T : CustomPacketPayload> type(name: String) = CustomPacketPayload.Type<T>(FlansMod.id(name))
 
 /** Client → server: trigger pulled (once per tick while held for automatic guns). */
-data class ShootPayload(val aiming: Boolean) : CustomPacketPayload {
+object ShootPayload : CustomPacketPayload {
+    val TYPE = type<ShootPayload>("shoot")
+    val CODEC: StreamCodec<FriendlyByteBuf, ShootPayload> = StreamCodec.unit(this)
+    override fun type() = TYPE
+}
+
+/** Client → server: started or stopped aiming down sights. */
+data class AimPayload(val aiming: Boolean) : CustomPacketPayload {
     override fun type() = TYPE
 
     companion object {
-        val TYPE = type<ShootPayload>("shoot")
-        val CODEC: StreamCodec<FriendlyByteBuf, ShootPayload> =
-            ByteBufCodecs.BOOL.map(::ShootPayload, ShootPayload::aiming).cast()
+        val TYPE = type<AimPayload>("aim")
+        val CODEC: StreamCodec<FriendlyByteBuf, AimPayload> = ByteBufCodecs.BOOL.map(::AimPayload, AimPayload::aiming).cast()
+    }
+}
+
+/** Server → client: one of your bullets hit a living target. */
+data class HitPayload(val headshot: Boolean, val kill: Boolean) : CustomPacketPayload {
+    override fun type() = TYPE
+
+    companion object {
+        val TYPE = type<HitPayload>("hit")
+        val CODEC: StreamCodec<FriendlyByteBuf, HitPayload> = StreamCodec.composite(
+            ByteBufCodecs.BOOL, HitPayload::headshot,
+            ByteBufCodecs.BOOL, HitPayload::kill,
+            ::HitPayload,
+        ).cast()
     }
 }
 
@@ -51,6 +71,8 @@ object FlansNetworking {
     fun init() {
         PayloadTypeRegistry.serverboundPlay().register(ShootPayload.TYPE, ShootPayload.CODEC)
         PayloadTypeRegistry.serverboundPlay().register(ReloadPayload.TYPE, ReloadPayload.CODEC)
+        PayloadTypeRegistry.serverboundPlay().register(AimPayload.TYPE, AimPayload.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(HitPayload.TYPE, HitPayload.CODEC)
         PayloadTypeRegistry.clientboundPlay().registerLarge(GunSyncPayload.TYPE, GunSyncPayload.CODEC, 8 * 1024 * 1024)
     }
 }

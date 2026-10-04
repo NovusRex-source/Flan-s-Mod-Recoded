@@ -6,6 +6,7 @@ import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.item.ammo
 import com.flansmod.recoded.item.definition
+import com.flansmod.recoded.network.AimPayload
 import com.flansmod.recoded.network.ReloadPayload
 import com.flansmod.recoded.network.ShootPayload
 import com.mojang.blaze3d.platform.InputConstants
@@ -42,6 +43,7 @@ object GunInput {
     private var cooldown = 0
     private var burstLeft = 0
     private var useWasDown = false
+    private var wasAiming = false
 
     // Recoil: kick still to be applied, and kick already applied that will be recovered.
     private var pendingPitch = 0f
@@ -67,7 +69,7 @@ object GunInput {
     }
 
     private fun trigger(player: LocalPlayer, gun: GunDefinition) {
-        ClientPlayNetworking.send(ShootPayload(aiming))
+        ClientPlayNetworking.send(ShootPayload)
         if (player.mainHandItem.ammo <= 0) {
             cooldown = 10
             return
@@ -109,6 +111,10 @@ object GunInput {
             else -> useDown
         }
         useWasDown = useDown
+        if (aiming != wasAiming) {
+            wasAiming = aiming
+            ClientPlayNetworking.send(AimPayload(aiming))
+        }
         prevAimProgress = aimProgress
         aimProgress = Mth.approach(aimProgress, if (aiming) 1f else 0f, 0.25f)
     }

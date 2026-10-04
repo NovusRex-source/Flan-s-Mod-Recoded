@@ -3,7 +3,6 @@ package com.flansmod.recoded.gun
 import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.network.GunSyncPayload
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromStream
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -57,7 +56,7 @@ object Guns {
         override fun prepare(state: PreparableReloadListener.SharedState): Map<Identifier, GunDefinition> =
             FILES.listMatchingResources(state.resourceManager()).mapNotNull { (file, resource) ->
                 val id = FILES.fileToId(file)
-                runCatching { resource.open().use { JSON.decodeFromStream<GunDefinition>(it) } }
+                runCatching { resource.openAsReader().use { JSON.decodeFromString<GunDefinition>(it.readText()) } }
                     .onFailure { FlansMod.LOGGER.error("Invalid gun definition {}: {}", file, it.message) }
                     .getOrNull()?.let { id to it }
             }.toMap()

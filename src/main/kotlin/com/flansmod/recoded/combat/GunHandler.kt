@@ -8,6 +8,10 @@ import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.item.gunId
 import com.flansmod.recoded.network.ReloadPayload
 import com.flansmod.recoded.network.ShootPayload
+import com.flansmod.recoded.network.AimPayload
+import com.flansmod.recoded.FlansMod
+import net.minecraft.world.entity.ai.attributes.AttributeModifier
+import net.minecraft.world.entity.ai.attributes.Attributes
 import com.geckolib.animatable.GeoItem
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -42,18 +46,18 @@ object GunHandler {
     private val ServerPlayer.gunState get() = states.getOrPut(this, ::State)
 
     fun init() {
-        ServerPlayNetworking.registerGlobalReceiver(ShootPayload.TYPE) { payload, ctx -> trigger(ctx.player(), payload.aiming) }
+        ServerPlayNetworking.registerGlobalReceiver(ShootPayload.TYPE) { _, ctx -> trigger(ctx.player()) }
+        ServerPlayNetworking.registerGlobalReceiver(AimPayload.TYPE) { payload, ctx -> setAiming(ctx.player(), payload.aiming) }
         ServerPlayNetworking.registerGlobalReceiver(ReloadPayload.TYPE) { _, ctx -> reload(ctx.player()) }
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> states.remove(handler.player) }
         ServerTickEvents.END_SERVER_TICK.register { states.toList().forEach { (player, state) -> tick(player, state) } }
     }
 
     /** Trigger pulled by [player]; also the entry point for tests. */
-    fun trigger(player: ServerPlayer, aiming: Boolean) {
+    fun trigger(player: ServerPlayer) {
         val stack = player.mainHandItem
         val gun = stack.definition ?: return
         val state = player.gunState
-        state.aiming = aiming
         if (state.reloadDoneTick >= 0 || state.burstLeft > 0) return
         if (player.level().gameTime < state.nextShotTick) return
 
@@ -79,10 +83,25 @@ object GunHandler {
         triggerAnim(player, stack, GunItem.ANIM_SHOOT)
     }
 
+    /** Aim-down-sights state: affects spread and applies the gun's movement slowdown. */
+    fun setAiming(player: ServerPlayer, aiming: Boolean) {
+        val gun = player.mainHandItem.definition
+        val state = player.gunState
+        state.aiming = aiming && gun != null
+        val speed = player.getAttribute(Attributes.MOVEMENT_SPEED) ?: return
+        speed.removeModifier(ADS_SLOWDOWN)
+        if (state.aiming && gun!!.adsMoveSpeed < 1f) {
+            speed.addTransientModifier(AttributeModifier(ADS_SLOWDOWN, gun.adsMoveSpeed - 1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL))
+        }
+    }
+
+    private val ADS_SLOWDOWN = FlansMod.id("ads_slowdown")
+
     private fun tick(player: ServerPlayer, state: State) {
         val now = player.level().gameTime
         val stack = player.mainHandItem
         val gun = stack.definition
+        if (state.aiming && gun == null) setAiming(player, false)
 
         if (state.burstLeft > 0) {
             when {

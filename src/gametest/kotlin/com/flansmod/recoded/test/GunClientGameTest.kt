@@ -1,6 +1,9 @@
 package com.flansmod.recoded.test
 
+import com.flansmod.recoded.FlansMod
+import com.flansmod.recoded.client.hud.GunHud
 import com.flansmod.recoded.client.input.GunInput
+import net.minecraft.world.entity.ai.attributes.Attributes
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.item.ammo
 import com.flansmod.recoded.item.gunId
@@ -51,12 +54,16 @@ class GunClientGameTest : FabricClientGameTest {
             context.input.holdMouse(InputConstants.MOUSE_BUTTON_RIGHT)
             context.waitTicks(10)
             check(context.client { GunInput.aiming }) { "holding right mouse should aim" }
+            world.connection.waitForServerboundPackets()
+            val slowed = server.compute { it.playerList.players.first().getAttribute(Attributes.MOVEMENT_SPEED)!!.hasModifier(FlansMod.id("ads_slowdown")) }
+            check(slowed) { "server should apply the aiming slowdown" }
             context.takeScreenshot("flansmod-ads")
             context.input.releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT)
 
             // Full-auto burst (left mouse): 10 ticks at 600 rpm = 5 shots.
             context.input.holdMouseFor(InputConstants.MOUSE_BUTTON_LEFT, 10)
             context.waitTicks(5)
+            check(context.client { GunHud.hitsReceived } > 0) { "hitting the husk should report a hit to the client" }
             val afterFiring = server.compute { it.playerList.players.first().mainHandItem.ammo }
             check(afterFiring in 1..28) { "expected several shots to be fired, ammo is $afterFiring" }
             context.takeScreenshot("flansmod-fired")
@@ -67,6 +74,15 @@ class GunClientGameTest : FabricClientGameTest {
             val afterReload = server.compute { it.playerList.players.first().mainHandItem.ammo }
             check(afterReload == 30) { "reload should refill to 30, ammo is $afterReload (was $afterFiring)" }
             context.takeScreenshot("flansmod-reloaded")
+
+            // Single shot at a fresh target to capture the hit marker.
+            server.runCommand("kill @e[type=minecraft:husk]")
+            server.runCommand("execute at @a run summon minecraft:husk ^ ^ ^5 {NoAI:1b}")
+            context.waitTicks(10)
+            val hitsBefore = context.client { GunHud.hitsReceived }
+            context.input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT)
+            context.waitFor({ GunHud.hitsReceived > hitsBefore }, 20)
+            context.takeScreenshot("flansmod-hitmarker")
         }
     }
 

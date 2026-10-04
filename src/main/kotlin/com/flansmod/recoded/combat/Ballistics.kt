@@ -2,7 +2,9 @@ package com.flansmod.recoded.combat
 
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.registry.FlansDamageTypes
+import com.flansmod.recoded.network.HitPayload
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.core.particles.BlockParticleOption
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.core.registries.Registries
@@ -77,7 +79,10 @@ object Ballistics {
 
         // Automatic weapons would otherwise be throttled by the 10 tick hurt cooldown.
         target.invulnerableTime = 0
-        target.hurtServer(level, DamageSource(type, bullet.shooter), damage)
+        val hurt = target.hurtServer(level, DamageSource(type, bullet.shooter), damage)
+        if (hurt && target is LivingEntity && ServerPlayNetworking.canSend(bullet.shooter, HitPayload.TYPE)) {
+            ServerPlayNetworking.send(bullet.shooter, HitPayload(headshot, !target.isAlive))
+        }
         level.sendParticles(ParticleTypes.DAMAGE_INDICATOR, at.x, at.y, at.z, if (headshot) 4 else 1, 0.1, 0.1, 0.1, 0.0)
     }
 
