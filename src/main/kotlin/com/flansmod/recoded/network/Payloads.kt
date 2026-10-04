@@ -11,6 +11,7 @@ import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import net.minecraft.resources.Identifier
+import net.minecraft.world.phys.Vec3
 
 private fun <T : CustomPacketPayload> type(name: String) = CustomPacketPayload.Type<T>(FlansMod.id(name))
 
@@ -67,12 +68,29 @@ data class GunSyncPayload(val guns: Map<Identifier, GunDefinition>) : CustomPack
     }
 }
 
+/** Server → clients near the shooter: a shot was fired, so clients can draw muzzle flash and tracers. */
+data class ShotPayload(val shooter: Int, val gun: Identifier, val origin: Vec3, val directions: List<Vec3>) : CustomPacketPayload {
+    override fun type() = TYPE
+
+    companion object {
+        val TYPE = type<ShotPayload>("shot")
+        val CODEC: StreamCodec<FriendlyByteBuf, ShotPayload> = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT, ShotPayload::shooter,
+            Identifier.STREAM_CODEC, ShotPayload::gun,
+            Vec3.STREAM_CODEC, ShotPayload::origin,
+            ByteBufCodecs.collection(::ArrayList, Vec3.STREAM_CODEC, 64), { ArrayList(it.directions) },
+            ::ShotPayload,
+        ).cast()
+    }
+}
+
 object FlansNetworking {
     fun init() {
         PayloadTypeRegistry.serverboundPlay().register(ShootPayload.TYPE, ShootPayload.CODEC)
         PayloadTypeRegistry.serverboundPlay().register(ReloadPayload.TYPE, ReloadPayload.CODEC)
         PayloadTypeRegistry.serverboundPlay().register(AimPayload.TYPE, AimPayload.CODEC)
         PayloadTypeRegistry.clientboundPlay().register(HitPayload.TYPE, HitPayload.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(ShotPayload.TYPE, ShotPayload.CODEC)
         PayloadTypeRegistry.clientboundPlay().registerLarge(GunSyncPayload.TYPE, GunSyncPayload.CODEC, 8 * 1024 * 1024)
     }
 }

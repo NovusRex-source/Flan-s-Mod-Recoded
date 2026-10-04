@@ -51,6 +51,8 @@ data class GunDefinition(
      * plus `ads` for the first-person pose while fully aimed. Missing keys fall back to [Transform.DEFAULTS].
      */
     val display: Map<String, Transform> = emptyMap(),
+    /** Visual bullet trail; `null` disables tracers for this gun. */
+    val tracer: Tracer? = Tracer(),
 ) {
     val ticksBetweenShots: Int get() = (1200 / rpm.coerceIn(1, 1200)).coerceAtLeast(1)
 
@@ -100,6 +102,16 @@ data class Transform(
             "ground" to Transform(translation = listOf(0f, -2f, 0f), scale = listOf(0.5f, 0.5f, 0.5f)),
         )
     }
+}
+
+/** Client-side bullet trail. [color] is `#RRGGBB`, sizes in blocks. */
+@Serializable
+data class Tracer(
+    val color: String = "#FFD27F",
+    val width: Float = 0.04f,
+    val length: Float = 3f,
+) {
+    val argb: Int get() = (0xFF000000 or color.removePrefix("#").toLong(16)).toInt()
 }
 
 @Serializable

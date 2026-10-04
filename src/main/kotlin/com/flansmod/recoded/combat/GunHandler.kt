@@ -8,6 +8,8 @@ import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.item.gunId
 import com.flansmod.recoded.network.ReloadPayload
 import com.flansmod.recoded.network.ShootPayload
+import com.flansmod.recoded.network.ShotPayload
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup
 import com.flansmod.recoded.network.AimPayload
 import com.flansmod.recoded.FlansMod
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -76,9 +78,9 @@ object GunHandler {
         if (state.burstLeft > 0) state.burstLeft--
 
         val spread = if (state.aiming) gun.adsSpread else gun.spread
-        repeat(gun.pellets.coerceAtLeast(1)) {
-            Ballistics.fire(player, gun, scatter(player, player.lookAngle, spread))
-        }
+        val directions = List(gun.pellets.coerceAtLeast(1)) { scatter(player, player.lookAngle, spread) }
+        directions.forEach { Ballistics.fire(player, gun, it) }
+        broadcastShot(player, stack, directions)
         playSound(player, gun.sounds.shoot)
         triggerAnim(player, stack, GunItem.ANIM_SHOOT)
     }
@@ -178,6 +180,14 @@ object GunHandler {
         val realUp = right.cross(dir).normalize()
         val offset = right.scale(cos(roll)).add(realUp.scale(sin(roll))).scale(kotlin.math.tan(angle))
         return dir.add(offset).normalize()
+    }
+
+    /** Lets the shooter and everyone tracking them draw muzzle flash and tracers. */
+    private fun broadcastShot(player: ServerPlayer, stack: ItemStack, directions: List<Vec3>) {
+        val payload = ShotPayload(player.id, stack.gunId ?: return, player.eyePosition, directions)
+        (PlayerLookup.tracking(player) + player).toSet()
+            .filter { ServerPlayNetworking.canSend(it, ShotPayload.TYPE) }
+            .forEach { ServerPlayNetworking.send(it, payload) }
     }
 
     private fun playSound(player: ServerPlayer, id: Identifier?) {

@@ -23,7 +23,7 @@ import java.util.WeakHashMap
 /**
  * Server-authoritative bullet simulation. Bullets are not entities: each one is a point that moves
  * [GunDefinition.velocity] blocks per tick, loses height through [GunDefinition.gravity] and is raycast
- * against blocks and entities along every tick's segment. Clients only see particles.
+ * against blocks and entities along every tick's segment. Clients draw tracers from [com.flansmod.recoded.network.ShotPayload].
  */
 object Ballistics {
     private class Bullet(var pos: Vec3, var velocity: Vec3, val shooter: ServerPlayer, val gun: GunDefinition, var ticksLeft: Int)
@@ -52,8 +52,6 @@ object Ballistics {
             level, bullet.shooter, start, end, AABB(start, end).inflate(1.0),
             { it != bullet.shooter && it.isPickable && !it.isSpectator && it.isAlive }, 0.1f,
         )
-
-        trail(level, start, entityHit?.location ?: end)
 
         when {
             entityHit != null -> {
@@ -84,14 +82,5 @@ object Ballistics {
             ServerPlayNetworking.send(bullet.shooter, HitPayload(headshot, !target.isAlive))
         }
         level.sendParticles(ParticleTypes.DAMAGE_INDICATOR, at.x, at.y, at.z, if (headshot) 4 else 1, 0.1, 0.1, 0.1, 0.0)
-    }
-
-    private fun trail(level: ServerLevel, from: Vec3, to: Vec3) {
-        val delta = to.subtract(from)
-        val count = (delta.length() / 2.0).toInt().coerceIn(1, 16)
-        repeat(count) { i ->
-            val p = from.add(delta.scale((i + 0.5) / count))
-            level.sendParticles(ParticleTypes.CRIT, p.x, p.y, p.z, 1, 0.0, 0.0, 0.0, 0.0)
-        }
     }
 }

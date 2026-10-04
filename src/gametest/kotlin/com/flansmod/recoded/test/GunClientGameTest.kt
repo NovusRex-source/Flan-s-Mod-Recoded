@@ -1,6 +1,7 @@
 package com.flansmod.recoded.test
 
 import com.flansmod.recoded.FlansMod
+import com.flansmod.recoded.client.fx.ShotEffects
 import com.flansmod.recoded.client.hud.GunHud
 import com.flansmod.recoded.client.input.GunInput
 import net.minecraft.world.entity.ai.attributes.Attributes
@@ -61,7 +62,12 @@ class GunClientGameTest : FabricClientGameTest {
             context.input.releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT)
 
             // Full-auto burst (left mouse): 10 ticks at 600 rpm = 5 shots.
-            context.input.holdMouseFor(InputConstants.MOUSE_BUTTON_LEFT, 10)
+            context.input.holdMouse(InputConstants.MOUSE_BUTTON_LEFT)
+            context.waitTicks(3)
+            context.takeScreenshot("flansmod-tracers")
+            context.waitTicks(7)
+            context.input.releaseMouse(InputConstants.MOUSE_BUTTON_LEFT)
+            check(context.client { ShotEffects.shotsSeen } > 0) { "clients should receive shot effects" }
             context.waitTicks(5)
             check(context.client { GunHud.hitsReceived } > 0) { "hitting the husk should report a hit to the client" }
             val afterFiring = server.compute { it.playerList.players.first().mainHandItem.ammo }
