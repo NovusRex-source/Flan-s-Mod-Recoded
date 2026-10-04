@@ -7,7 +7,9 @@ import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.gun.ResolvedModel
 import com.flansmod.recoded.gun.Transform
 import com.flansmod.recoded.item.GunItem
+import com.flansmod.recoded.item.attachments
 import com.flansmod.recoded.item.gunId
+import com.geckolib.renderer.base.BoneSnapshots
 import com.geckolib.constant.DataTickets
 import com.geckolib.constant.dataticket.DataTicket
 import com.geckolib.model.GeoModel
@@ -23,6 +25,10 @@ import org.joml.Vector3f
 
 private val MODEL: DataTicket<ResolvedModel> = DataTicket.create("flansmod_gun_model", ResolvedModel::class.java)
 private val AIM: DataTicket<Float> = DataTicket.create("flansmod_aim", Float::class.javaObjectType)
+
+/** Installed attachments by slot, for bone visibility. */
+private class InstalledAttachments(val bySlot: Map<String, Identifier>)
+private val ATTACHMENTS: DataTicket<InstalledAttachments> = DataTicket.create("flansmod_attachments", InstalledAttachments::class.java)
 private val MISSING = GunDefinition("missing").resolvedModel(FlansMod.id("missing"))
 
 private val GeoRenderState.gunModel get() = getGeckolibData(MODEL) ?: MISSING
@@ -43,6 +49,7 @@ class GunGeoModel : GeoModel<GunItem>() {
         }
         val model = stack?.gunId?.let { id -> Guns[id]?.resolvedModel(id) } ?: MISSING
         renderState.addGeckolibData(MODEL, model)
+        renderState.addGeckolibData(ATTACHMENTS, InstalledAttachments(stack?.attachments ?: emptyMap()))
         currentAnimations = model.animations
     }
 
@@ -57,6 +64,11 @@ class GunGeoModel : GeoModel<GunItem>() {
  * left hand). In first person the pose blends towards the `ads` transform while aiming.
  */
 class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
+    private companion object {
+        const val ATTACHMENT_BONE = "attachment_"
+        const val DEFAULT_BONE = "default_"
+    }
+
     override fun addRenderData(animatable: GunItem, relatedObject: RenderData?, renderState: GeoRenderState, partialTick: Float) {
         renderState.addGeckolibData(AIM, GunInput.aimProgress(partialTick))
     }
@@ -77,6 +89,23 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
             translate(-0.5f, -0.5f, -0.5f)
         }
         super.adjustRenderPose(renderPassInfo)
+    }
+
+    /**
+     * Attachment bones: `attachment_<name>` renders only while that attachment is installed,
+     * `default_<slot>` (e.g. iron sights) only while the slot is empty.
+     */
+    override fun adjustModelBonesForRender(renderPassInfo: RenderPassInfo<GeoRenderState>, snapshots: BoneSnapshots) {
+        val installed = renderPassInfo.renderState().getGeckolibData(ATTACHMENTS)?.bySlot ?: emptyMap()
+        val names = installed.values.mapTo(HashSet()) { it.path }
+        for (bone in renderPassInfo.model().boneLookup().get().keys) {
+            val hidden = when {
+                bone.startsWith(ATTACHMENT_BONE) -> bone.removePrefix(ATTACHMENT_BONE) !in names
+                bone.startsWith(DEFAULT_BONE) -> bone.removePrefix(DEFAULT_BONE) in installed
+                else -> continue
+            }
+            snapshots.ifPresent(bone) { it.skipRender(hidden).skipChildrenRender(hidden) }
+        }
     }
 
     private fun Map<String, Transform>.forContext(context: ItemDisplayContext): Transform =

@@ -1,8 +1,9 @@
 package com.flansmod.recoded
 
+import com.flansmod.recoded.combat.AttachmentHandler
 import com.flansmod.recoded.combat.Ballistics
 import com.flansmod.recoded.combat.GunHandler
-import com.flansmod.recoded.gun.Guns
+import com.flansmod.recoded.gun.Content
 import com.flansmod.recoded.network.FlansNetworking
 import com.flansmod.recoded.registry.FlansComponents
 import com.flansmod.recoded.registry.FlansItems
@@ -22,8 +23,9 @@ object FlansMod : ModInitializer {
         FlansItems.init()
         GeoItem.registerSyncedAnimatable(FlansItems.GUN)
         FlansNetworking.init()
-        Guns.init()
+        Content.init()
         Ballistics.init()
         GunHandler.init()
+        AttachmentHandler.init()
     }
 }

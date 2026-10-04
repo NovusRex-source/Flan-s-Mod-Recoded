@@ -53,6 +53,8 @@ data class GunDefinition(
     val display: Map<String, Transform> = emptyMap(),
     /** Visual bullet trail; `null` disables tracers for this gun. */
     val tracer: Tracer? = Tracer(),
+    /** Attachment slots this gun offers, e.g. `["sight", "barrel"]`. */
+    @SerialName("attachment_slots") val attachmentSlots: List<String> = emptyList(),
 ) {
     val ticksBetweenShots: Int get() = (1200 / rpm.coerceIn(1, 1200)).coerceAtLeast(1)
 

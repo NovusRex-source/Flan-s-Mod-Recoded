@@ -19,5 +19,14 @@
   "text.autoconfig.flansmod.option.adsSensitivity": "Aiming mouse sensitivity",
   "text.autoconfig.flansmod.option.toggleAim": "Toggle aim (instead of hold)",
   "text.autoconfig.flansmod.option.showAmmoHud": "Show ammo counter",
-  "text.autoconfig.flansmod.option.hideCrosshairWhileAiming": "Hide crosshair while aiming"
+  "text.autoconfig.flansmod.option.hideCrosshairWhileAiming": "Hide crosshair while aiming",
+  "key.flansmod.attach": "Attach / detach (sneak)",
+  "item.flansmod.attachment": "Attachment",
+  "item.flansmod.attachment.slot": "Slot: %s",
+  "item.flansmod.attachment.how": "Hold in offhand, gun in main hand, press the attach key",
+  "attachment.flansmod.sight": "Sight",
+  "attachment.flansmod.barrel": "Barrel",
+  "attachment.flansmod.grip": "Grip",
+  "attachment.flansmod.stock": "Stock",
+  "message.flansmod.attachment.incompatible": "%s does not fit this gun"
 }

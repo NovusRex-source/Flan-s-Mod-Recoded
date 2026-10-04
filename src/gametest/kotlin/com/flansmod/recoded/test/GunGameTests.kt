@@ -1,6 +1,13 @@
 package com.flansmod.recoded.test
 
+import com.flansmod.recoded.combat.AttachmentHandler
 import com.flansmod.recoded.combat.GunHandler
+import com.flansmod.recoded.gun.AttachmentDefinition
+import com.flansmod.recoded.gun.Attachments
+import com.flansmod.recoded.item.AttachmentItem
+import com.flansmod.recoded.item.attachmentId
+import com.flansmod.recoded.item.attachments
+import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.gun.Ammo
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.gun.Guns
@@ -110,6 +117,51 @@ class GunGameTests {
 
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY)
         helper.succeedWhen { helper.assertTrue(speed.value == base, "slowdown should end when the gun is put away") }
+    }
+
+    private fun GameTestHelper.withAttachment(player: ServerPlayer, id: String, def: AttachmentDefinition) {
+        val attachmentId = Identifier.fromNamespaceAndPath("test", id)
+        Attachments.replace(Attachments.all + (attachmentId to def))
+        player.setItemInHand(InteractionHand.OFF_HAND, AttachmentItem.stackFor(attachmentId))
+    }
+
+    private val scope = AttachmentDefinition("Scope", slot = "sight", spreadMultiplier = 0.5f, adsZoom = 4f)
+
+    @GameTest(maxTicks = 5)
+    fun attachmentChangesStats(helper: GameTestHelper) {
+        val (player, stack) = helper.withGun("slotted", accurate.copy(spread = 2f, attachmentSlots = listOf("sight")))
+        helper.withAttachment(player, "scope", scope)
+
+        helper.assertTrue(AttachmentHandler.install(player), "scope should install")
+        helper.assertTrue(stack.attachments["sight"] == Identifier.fromNamespaceAndPath("test", "scope"), "installed sight")
+        helper.assertTrue(player.offhandItem.isEmpty, "attachment item should be consumed")
+        helper.assertValueEqual(stack.definition!!.spread, 1f, "effective spread")
+        helper.assertValueEqual(stack.definition!!.adsZoom, 4f, "effective zoom")
+        helper.succeed()
+    }
+
+    @GameTest(maxTicks = 5)
+    fun attachmentNeedsMatchingSlot(helper: GameTestHelper) {
+        val (player, stack) = helper.withGun("no_slots", accurate)
+        helper.withAttachment(player, "scope2", scope)
+
+        helper.assertFalse(AttachmentHandler.install(player), "gun without sight slot must reject a scope")
+        helper.assertTrue(stack.attachments.isEmpty(), "nothing installed")
+        helper.assertFalse(player.offhandItem.isEmpty, "attachment stays in hand")
+        helper.succeed()
+    }
+
+    @GameTest(maxTicks = 5)
+    fun removingAttachmentsReturnsThem(helper: GameTestHelper) {
+        val (player, stack) = helper.withGun("removable", accurate.copy(attachmentSlots = listOf("sight")))
+        helper.withAttachment(player, "scope3", scope)
+        AttachmentHandler.install(player)
+
+        helper.assertTrue(AttachmentHandler.removeAll(player), "remove should succeed")
+        helper.assertTrue(stack.attachments.isEmpty(), "gun should be bare")
+        helper.assertTrue(player.offhandItem.attachmentId == Identifier.fromNamespaceAndPath("test", "scope3"), "scope back in offhand")
+        helper.assertValueEqual(stack.definition!!.spread, accurate.spread, "stats back to base")
+        helper.succeed()
     }
 
     @GameTest(maxTicks = 20)

@@ -1,10 +1,11 @@
 package com.flansmod.recoded.network
 
 import com.flansmod.recoded.FlansMod
+import com.flansmod.recoded.gun.AttachmentDefinition
+import com.flansmod.recoded.gun.Content
 import com.flansmod.recoded.gun.GunDefinition
-import com.flansmod.recoded.gun.Guns
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.serializer
+import com.flansmod.recoded.gun.IdentifierSerializer
+import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
@@ -53,18 +54,30 @@ object ReloadPayload : CustomPacketPayload {
     override fun type() = TYPE
 }
 
-/** Server → client: the full set of gun definitions, serialized with kotlinx.serialization. */
-data class GunSyncPayload(val guns: Map<Identifier, GunDefinition>) : CustomPacketPayload {
+/** Server → client: all content-pack definitions, serialized with kotlinx.serialization. */
+@Serializable
+data class ContentSyncPayload(
+    val guns: Map<@Serializable(IdentifierSerializer::class) Identifier, GunDefinition>,
+    val attachments: Map<@Serializable(IdentifierSerializer::class) Identifier, AttachmentDefinition>,
+) : CustomPacketPayload {
     override fun type() = TYPE
 
     companion object {
-        val TYPE = type<GunSyncPayload>("gun_sync")
-        private val SERIALIZER = MapSerializer(String.serializer(), GunDefinition.serializer())
-
-        val CODEC: StreamCodec<FriendlyByteBuf, GunSyncPayload> = ByteBufCodecs.stringUtf8(Int.MAX_VALUE).map(
-            { json -> GunSyncPayload(Guns.JSON.decodeFromString(SERIALIZER, json).mapKeys { Identifier.parse(it.key) }) },
-            { payload -> Guns.JSON.encodeToString(SERIALIZER, payload.guns.mapKeys { it.key.toString() }) },
+        val TYPE = type<ContentSyncPayload>("content_sync")
+        val CODEC: StreamCodec<FriendlyByteBuf, ContentSyncPayload> = ByteBufCodecs.stringUtf8(Int.MAX_VALUE).map(
+            { Content.JSON.decodeFromString(serializer(), it) },
+            { Content.JSON.encodeToString(serializer(), it) },
         ).cast()
+    }
+}
+
+/** Client → server: install the offhand attachment, or ([remove]) take all attachments off. */
+data class AttachPayload(val remove: Boolean) : CustomPacketPayload {
+    override fun type() = TYPE
+
+    companion object {
+        val TYPE = type<AttachPayload>("attach")
+        val CODEC: StreamCodec<FriendlyByteBuf, AttachPayload> = ByteBufCodecs.BOOL.map(::AttachPayload, AttachPayload::remove).cast()
     }
 }
 
@@ -91,6 +104,7 @@ object FlansNetworking {
         PayloadTypeRegistry.serverboundPlay().register(AimPayload.TYPE, AimPayload.CODEC)
         PayloadTypeRegistry.clientboundPlay().register(HitPayload.TYPE, HitPayload.CODEC)
         PayloadTypeRegistry.clientboundPlay().register(ShotPayload.TYPE, ShotPayload.CODEC)
-        PayloadTypeRegistry.clientboundPlay().registerLarge(GunSyncPayload.TYPE, GunSyncPayload.CODEC, 8 * 1024 * 1024)
+        PayloadTypeRegistry.serverboundPlay().register(AttachPayload.TYPE, AttachPayload.CODEC)
+        PayloadTypeRegistry.clientboundPlay().registerLarge(ContentSyncPayload.TYPE, ContentSyncPayload.CODEC, 8 * 1024 * 1024)
     }
 }

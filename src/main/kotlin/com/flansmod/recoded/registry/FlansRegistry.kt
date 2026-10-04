@@ -1,7 +1,9 @@
 package com.flansmod.recoded.registry
 
 import com.flansmod.recoded.FlansMod
+import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Guns
+import com.flansmod.recoded.item.AttachmentItem
 import com.flansmod.recoded.item.GunItem
 import com.mojang.serialization.Codec
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab
@@ -22,6 +24,17 @@ object FlansComponents {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     }
 
+    /** Installed attachments on a gun, by slot. */
+    val ATTACHMENTS: DataComponentType<Map<String, Identifier>> = register("attachments") {
+        persistent(Codec.unboundedMap(Codec.STRING, Identifier.CODEC))
+            .networkSynchronized(ByteBufCodecs.map(::HashMap, ByteBufCodecs.STRING_UTF8, Identifier.STREAM_CODEC))
+    }
+
+    /** Which [com.flansmod.recoded.gun.AttachmentDefinition] an attachment stack represents. */
+    val ATTACHMENT: DataComponentType<Identifier> = register("attachment") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
     /** Rounds currently loaded. */
     val AMMO: DataComponentType<Int> = register("ammo") {
         persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT)
@@ -39,13 +52,21 @@ object FlansItems {
         GunItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("gun"))).stacksTo(1)),
     )
 
+    val ATTACHMENT: AttachmentItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("attachment"),
+        AttachmentItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("attachment")))),
+    )
+
     init {
         Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB, FlansMod.id("guns"),
             FabricCreativeModeTab.builder()
                 .title(Component.translatable("itemGroup.flansmod.guns"))
                 .icon { GunItem.stackFor(Guns.all.keys.firstOrNull()) }
-                .displayItems { _, output -> Guns.all.keys.sorted().forEach { output.accept(GunItem.stackFor(it)) } }
+                .displayItems { _, output ->
+                    Guns.all.keys.sorted().forEach { output.accept(GunItem.stackFor(it)) }
+                    Attachments.all.keys.sorted().forEach { output.accept(AttachmentItem.stackFor(it)) }
+                }
                 .build(),
         )
     }

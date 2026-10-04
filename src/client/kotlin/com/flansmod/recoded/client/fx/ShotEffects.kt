@@ -3,7 +3,10 @@ package com.flansmod.recoded.client.fx
 import com.flansmod.recoded.client.input.GunInput
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.gun.Guns
+import com.flansmod.recoded.item.definition
+import com.flansmod.recoded.item.gunId
 import com.flansmod.recoded.network.ShotPayload
+import net.minecraft.world.entity.LivingEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
@@ -53,7 +56,9 @@ object ShotEffects {
         shotsSeen++
         val mc = Minecraft.getInstance()
         val level = mc.level ?: return
-        val gun = Guns[shot.gun] ?: return
+        // Prefer the shooter's held gun so attachments (e.g. suppressors hiding tracers) apply.
+        val shooter = level.getEntity(shot.shooter) as? LivingEntity
+        val gun = shooter?.mainHandItem?.takeIf { it.gunId == shot.gun }?.definition ?: Guns[shot.gun] ?: return
         val muzzle = muzzlePosition(mc, level, shot)
 
         flashes += Flash(muzzle)

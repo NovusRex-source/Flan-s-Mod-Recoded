@@ -1,7 +1,9 @@
 package com.flansmod.recoded.item
 
 import com.flansmod.recoded.gun.GunDefinition
+import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Guns
+import com.flansmod.recoded.gun.withAttachments
 import com.flansmod.recoded.registry.FlansComponents
 import com.flansmod.recoded.registry.FlansItems
 import com.geckolib.animatable.GeoItem
@@ -45,6 +47,9 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
         line("ammo", stack.ammo, def.magazine)
         line("damage", if (def.pellets > 1) "${def.damage}×${def.pellets}" else def.damage)
         line("rpm", def.rpm, Component.translatable("item.flansmod.gun.mode.${def.fireMode.name.lowercase()}"))
+        stack.attachments.values.mapNotNull { Attachments[it] }.forEach {
+            add.accept(Component.literal(" + ").append(Component.translatableWithFallback("attachment.flansmod.${'$'}{it.slot}", it.slot)).append(": ${'$'}{it.name}").withStyle(ChatFormatting.DARK_AQUA))
+        }
         def.ammo?.let { line("ammo_item", Component.translatable(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(it.item).descriptionId)) }
     }
 
@@ -92,7 +97,22 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
 }
 
 val ItemStack.gunId: Identifier? get() = get(FlansComponents.GUN)
-val ItemStack.definition: GunDefinition? get() = if (item is GunItem) Guns[gunId] else null
+
+/** Installed attachments by slot. */
+var ItemStack.attachments: Map<String, Identifier>
+    get() = getOrDefault(FlansComponents.ATTACHMENTS, emptyMap())
+    set(value) { if (value.isEmpty()) remove(FlansComponents.ATTACHMENTS) else set(FlansComponents.ATTACHMENTS, value) }
+
+/** The gun definition without attachments. */
+val ItemStack.baseDefinition: GunDefinition? get() = if (item is GunItem) Guns[gunId] else null
+
+/** The effective gun stats: base definition with all installed attachments applied. */
+val ItemStack.definition: GunDefinition?
+    get() {
+        val base = baseDefinition ?: return null
+        val installed = attachments.values.mapNotNull { Attachments[it] }
+        return if (installed.isEmpty()) base else base.withAttachments(installed)
+    }
 var ItemStack.ammo: Int
     get() = getOrDefault(FlansComponents.AMMO, 0)
     set(value) { set(FlansComponents.AMMO, value) }

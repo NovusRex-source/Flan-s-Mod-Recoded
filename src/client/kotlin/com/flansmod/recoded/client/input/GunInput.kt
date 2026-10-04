@@ -7,6 +7,7 @@ import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.item.ammo
 import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.network.AimPayload
+import com.flansmod.recoded.network.AttachPayload
 import com.flansmod.recoded.network.ReloadPayload
 import com.flansmod.recoded.network.ShootPayload
 import com.mojang.blaze3d.platform.InputConstants
@@ -28,6 +29,10 @@ object GunInput {
     private val CATEGORY = KeyMapping.Category(FlansMod.id("flansmod"))
     private val RELOAD = KeyMappingHelper.registerKeyMapping(
         KeyMapping("key.flansmod.reload", InputConstants.Type.KEYBOARD, InputConstants.KEY_R, CATEGORY)
+    )
+
+    private val ATTACH = KeyMappingHelper.registerKeyMapping(
+        KeyMapping("key.flansmod.attach", InputConstants.Type.KEYBOARD, InputConstants.KEY_J, CATEGORY)
     )
 
     /** True while aiming down sights. Read by the FOV/sensitivity mixins and the HUD. */
@@ -100,6 +105,7 @@ object GunInput {
 
         updateAim(client, gun)
         while (RELOAD.consumeClick()) if (gun != null) ClientPlayNetworking.send(ReloadPayload)
+        while (ATTACH.consumeClick()) if (gun != null) ClientPlayNetworking.send(AttachPayload(remove = player.isShiftKeyDown))
         applyRecoil(player, gun)
     }
 

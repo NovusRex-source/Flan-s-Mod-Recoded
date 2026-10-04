@@ -7,6 +7,7 @@ import com.flansmod.recoded.client.input.GunInput
 import net.minecraft.world.entity.ai.attributes.Attributes
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.item.ammo
+import com.flansmod.recoded.item.attachments
 import com.flansmod.recoded.item.gunId
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext
@@ -89,6 +90,25 @@ class GunClientGameTest : FabricClientGameTest {
             context.input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT)
             context.waitFor({ GunHud.hitsReceived > hitsBefore }, 20)
             context.takeScreenshot("flansmod-hitmarker")
+
+            // Attachments: red dot + suppressor via the attach key.
+            server.runCommand("item replace entity @a weapon.offhand with flansmod:attachment[flansmod:attachment=\"example:red_dot\"]")
+            context.waitTicks(2)
+            context.input.pressKey(InputConstants.KEY_J)
+            world.connection.waitForServerboundPackets()
+            context.waitTicks(2)
+            server.runCommand("item replace entity @a weapon.offhand with flansmod:attachment[flansmod:attachment=\"example:suppressor\"]")
+            context.waitTicks(2)
+            context.input.pressKey(InputConstants.KEY_J)
+            context.waitTicks(5)
+            val installed = server.compute { it.playerList.players.first().mainHandItem.attachments.keys }
+            check(installed == setOf("sight", "barrel")) { "expected sight and barrel attachments, got $installed" }
+            context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.THIRD_PERSON_FRONT }
+            context.input.pressKey { it.keyInventory }
+            context.waitTicks(2)
+            context.takeScreenshot("flansmod-attachments")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+            context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.FIRST_PERSON }
         }
     }
 

@@ -1,0 +1,7 @@
+{
+  "name": "Suppressor",
+  "slot": "barrel",
+  "damage_multiplier": 0.9,
+  "hide_tracer": true,
+  "shoot_sound": "minecraft:entity.arrow.shoot"
+}
