@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "P",
+    "G",
+    "N"
+  ],
+  "key": {
+    "G": "minecraft:gunpowder",
+    "N": "minecraft:iron_nugget",
+    "P": "minecraft:paper"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 8,
+    "components": {
+      "flansmod:ammo_type": "flansbasic:12gauge",
+      "minecraft:item_model": "flansbasic:12gauge"
+    }
+  }
+}

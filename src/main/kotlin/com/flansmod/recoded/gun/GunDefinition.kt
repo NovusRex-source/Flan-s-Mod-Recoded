@@ -126,7 +126,10 @@ data class Recoil(
     @SerialName("ads_multiplier") val adsMultiplier: Float = 0.6f,
 )
 
-/** If set, reloading consumes [item]; each item refills [roundsPerItem] rounds. Without it, reloading is free. */
+/**
+ * If set, reloading consumes [item]: either an ammo definition id (`data/<ns>/flansmod/ammo/`) or any
+ * item id. Each item refills [roundsPerItem] rounds. Without it, reloading is free.
+ */
 @Serializable
 data class Ammo(
     @Serializable(IdentifierSerializer::class) val item: Identifier,

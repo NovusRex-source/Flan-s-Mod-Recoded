@@ -1,0 +1,6 @@
+{
+  "name": "Compensator",
+  "slot": "barrel",
+  "icon": "flansbasic:compensator",
+  "recoil_multiplier": 0.7
+}

@@ -1,6 +1,7 @@
 package com.flansmod.recoded.network
 
 import com.flansmod.recoded.FlansMod
+import com.flansmod.recoded.gun.AmmoDefinition
 import com.flansmod.recoded.gun.AttachmentDefinition
 import com.flansmod.recoded.gun.Content
 import com.flansmod.recoded.gun.GunDefinition
@@ -59,6 +60,7 @@ object ReloadPayload : CustomPacketPayload {
 data class ContentSyncPayload(
     val guns: Map<@Serializable(IdentifierSerializer::class) Identifier, GunDefinition>,
     val attachments: Map<@Serializable(IdentifierSerializer::class) Identifier, AttachmentDefinition>,
+    val ammo: Map<@Serializable(IdentifierSerializer::class) Identifier, AmmoDefinition>,
 ) : CustomPacketPayload {
     override fun type() = TYPE
 

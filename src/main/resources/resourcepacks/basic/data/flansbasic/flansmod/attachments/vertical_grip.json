@@ -1,0 +1,7 @@
+{
+  "name": "Vertical Grip",
+  "slot": "grip",
+  "icon": "flansbasic:vertical_grip",
+  "recoil_multiplier": 0.8,
+  "spread_multiplier": 0.85
+}

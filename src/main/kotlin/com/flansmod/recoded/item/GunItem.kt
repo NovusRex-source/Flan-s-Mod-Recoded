@@ -50,7 +50,7 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
         stack.attachments.values.mapNotNull { Attachments[it] }.forEach {
             add.accept(Component.literal(" + ").append(Component.translatableWithFallback("attachment.flansmod.${'$'}{it.slot}", it.slot)).append(": ${'$'}{it.name}").withStyle(ChatFormatting.DARK_AQUA))
         }
-        def.ammo?.let { line("ammo_item", Component.translatable(net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(it.item).descriptionId)) }
+        def.ammo?.let { line("ammo_item", AmmoItem.displayName(it.item)) }
     }
 
     // Right click is aiming (handled client side), so the vanilla use action does nothing.

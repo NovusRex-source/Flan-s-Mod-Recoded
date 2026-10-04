@@ -4,6 +4,13 @@ import com.flansmod.recoded.combat.AttachmentHandler
 import com.flansmod.recoded.combat.GunHandler
 import com.flansmod.recoded.gun.AttachmentDefinition
 import com.flansmod.recoded.gun.Attachments
+import com.flansmod.recoded.gun.AmmoTypes
+import com.flansmod.recoded.gun.Transform
+import com.flansmod.recoded.item.AmmoItem
+import com.flansmod.recoded.item.gunId
+import com.flansmod.recoded.registry.FlansItems
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.ResourceKey
 import com.flansmod.recoded.item.AttachmentItem
 import com.flansmod.recoded.item.attachmentId
 import com.flansmod.recoded.item.attachments
@@ -161,6 +168,54 @@ class GunGameTests {
         helper.assertTrue(stack.attachments.isEmpty(), "gun should be bare")
         helper.assertTrue(player.offhandItem.attachmentId == Identifier.fromNamespaceAndPath("test", "scope3"), "scope back in offhand")
         helper.assertValueEqual(stack.definition!!.spread, accurate.spread, "stats back to base")
+        helper.succeed()
+    }
+
+    private fun basic(path: String) = Identifier.fromNamespaceAndPath("flansbasic", path)
+
+    /** The built-in Basic pack is enabled in new worlds and internally consistent. */
+    @GameTest(maxTicks = 5)
+    fun basicPackIsComplete(helper: GameTestHelper) {
+        val guns = listOf("pistol", "smg", "rifle", "shotgun", "sniper")
+        guns.forEach { helper.assertTrue(Guns[basic(it)] != null, "missing gun $it") }
+        helper.assertValueEqual(AmmoTypes.all.keys.count { it.namespace == "flansbasic" }, 4, "ammo types")
+        helper.assertValueEqual(Attachments.all.keys.count { it.namespace == "flansbasic" }, 5, "attachments")
+        for (id in guns.map(::basic)) {
+            val gun = Guns[id]!!
+            val ammoId = gun.ammo!!.item
+            helper.assertTrue(AmmoTypes[ammoId] != null, "$id uses unknown ammo $ammoId")
+            helper.assertTrue(Attachments.all.values.any { it.fits(id, gun) }, "$id accepts no attachment")
+            helper.assertTrue(helper.level.server.recipeManager.byKey(ResourceKey.create(Registries.RECIPE, id)).isPresent, "$id has no recipe")
+        }
+        helper.succeed()
+    }
+
+    @GameTest(maxTicks = 60)
+    fun basicPistolReloadsFromAmmoItems(helper: GameTestHelper) {
+        val player = helper.makeMockServerPlayerInLevel()
+        player.abilities.instabuild = false
+        val stack = GunItem.stackFor(basic("pistol"))
+        stack.ammo = 0
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack)
+        player.inventory.add(AmmoItem.stackFor(basic("9mm"), 10))
+        player.inventory.add(ItemStack(Items.IRON_NUGGET, 5)) // must not count as 9mm
+
+        GunHandler.reload(player)
+        helper.succeedWhen {
+            helper.assertValueEqual(stack.ammo, 10, "rounds loaded from 9mm items")
+            helper.assertValueEqual(player.inventory.countItem(FlansItems.AMMO), 0, "9mm items used up")
+            helper.assertValueEqual(player.inventory.countItem(Items.IRON_NUGGET), 5, "unrelated items untouched")
+        }
+    }
+
+    @GameTest(maxTicks = 5)
+    fun redDotLowersAimPose(helper: GameTestHelper) {
+        val (player, stack) = helper.withGun("ads_height", accurate.copy(attachmentSlots = listOf("sight")))
+        helper.withAttachment(player, "high_sight", scope.copy(adsHeight = 2f))
+        val before = stack.definition!!.resolvedModel(stack.gunId!!).display.getValue(Transform.ADS).translation[1]
+        AttachmentHandler.install(player)
+        val after = stack.definition!!.resolvedModel(stack.gunId!!).display.getValue(Transform.ADS).translation[1]
+        helper.assertTrue(kotlin.math.abs((before - after) - 2f) < 1e-4, "aim pose should drop by 2px, was $before -> $after")
         helper.succeed()
     }
 

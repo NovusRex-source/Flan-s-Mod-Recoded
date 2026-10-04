@@ -5,6 +5,9 @@ import com.flansmod.recoded.client.fx.ShotEffects
 import com.flansmod.recoded.client.hud.GunHud
 import com.flansmod.recoded.client.input.GunInput
 import net.minecraft.world.entity.ai.attributes.Attributes
+import net.fabricmc.fabric.api.client.creativetab.v1.FabricCreativeModeInventoryScreen
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
+import net.minecraft.core.registries.BuiltInRegistries
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.item.ammo
 import com.flansmod.recoded.item.attachments
@@ -109,6 +112,39 @@ class GunClientGameTest : FabricClientGameTest {
             context.takeScreenshot("flansmod-attachments")
             context.input.pressKey(InputConstants.KEY_ESCAPE)
             context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.FIRST_PERSON }
+
+            // The built-in pack has its own creative tab listing guns, ammo and attachments.
+            server.runCommand("gamemode creative @a")
+            context.waitTicks(5)
+            context.input.pressKey { it.keyInventory }
+            context.waitForScreen(CreativeModeInventoryScreen::class.java)
+            val tabItems = context.client { mc ->
+                val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(FlansMod.id("pack/basic"))
+                    ?: error("no creative tab for the built-in pack")
+                check((mc.gui.screen() as FabricCreativeModeInventoryScreen).setSelectedTab(tab)) { "could not select pack tab" }
+                tab.displayItems.size
+            }
+            check(tabItems == 14) { "basic pack tab should list 5 guns + 4 ammo + 5 attachments, has $tabItems" }
+            context.waitTicks(2)
+            context.takeScreenshot("flansmod-pack-tab")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+
+            // Basic pack guns in hand: scoped sniper (aimed) and shotgun (hip).
+            server.runCommand("gamemode survival @a")
+            server.runCommand("item replace entity @a weapon.mainhand with flansmod:gun[flansmod:gun=\"flansbasic:sniper\",flansmod:ammo=5,flansmod:attachments={sight:\"flansbasic:scope_4x\"}]")
+            context.waitTicks(20)
+            context.takeScreenshot("flansmod-basic-sniper-hip")
+            context.input.holdMouse(InputConstants.MOUSE_BUTTON_RIGHT)
+            context.waitTicks(10)
+            context.takeScreenshot("flansmod-basic-sniper-ads")
+            context.input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT)
+            context.waitTicks(3)
+            context.input.releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT)
+            val sniperAmmo = server.compute { it.playerList.players.first().mainHandItem.ammo }
+            check(sniperAmmo == 4) { "sniper should have fired once, ammo $sniperAmmo" }
+            server.runCommand("item replace entity @a weapon.mainhand with flansmod:gun[flansmod:gun=\"flansbasic:shotgun\",flansmod:ammo=6]")
+            context.waitTicks(20)
+            context.takeScreenshot("flansmod-basic-shotgun")
         }
     }
 

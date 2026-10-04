@@ -4,6 +4,9 @@ import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.item.GunItem
 import com.flansmod.recoded.item.ammo
+import com.flansmod.recoded.item.AmmoItem
+import com.flansmod.recoded.item.ammoTypeId
+import com.flansmod.recoded.gun.AmmoTypes
 import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.item.gunId
 import com.flansmod.recoded.network.ReloadPayload
@@ -167,7 +170,9 @@ object GunHandler {
         return wanted - left
     }
 
-    private fun ItemStack.isAmmo(item: Identifier) = !isEmpty && BuiltInRegistries.ITEM.getKey(this.item) == item
+    /** Matches either an ammo definition ([AmmoItem] stacks) or a plain item id. */
+    private fun ItemStack.isAmmo(item: Identifier) = !isEmpty &&
+        (if (AmmoTypes[item] != null) ammoTypeId == item else BuiltInRegistries.ITEM.getKey(this.item) == item)
 
     /** Rotates [dir] by a random angle inside a cone of [degrees] half-angle. */
     private fun scatter(player: ServerPlayer, dir: Vec3, degrees: Float): Vec3 {

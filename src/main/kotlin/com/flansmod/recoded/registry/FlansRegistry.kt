@@ -1,7 +1,9 @@
 package com.flansmod.recoded.registry
 
 import com.flansmod.recoded.FlansMod
+import com.flansmod.recoded.gun.AmmoTypes
 import com.flansmod.recoded.gun.Attachments
+import com.flansmod.recoded.item.AmmoItem
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.item.AttachmentItem
 import com.flansmod.recoded.item.GunItem
@@ -17,6 +19,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.damagesource.DamageType
 import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 
 object FlansComponents {
     /** Which [com.flansmod.recoded.gun.GunDefinition] a gun stack represents. */
@@ -32,6 +35,11 @@ object FlansComponents {
 
     /** Which [com.flansmod.recoded.gun.AttachmentDefinition] an attachment stack represents. */
     val ATTACHMENT: DataComponentType<Identifier> = register("attachment") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
+    /** Which [com.flansmod.recoded.gun.AmmoDefinition] an ammo stack represents. */
+    val AMMO_TYPE: DataComponentType<Identifier> = register("ammo_type") {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     }
 
@@ -57,19 +65,29 @@ object FlansItems {
         AttachmentItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("attachment")))),
     )
 
+    val AMMO: AmmoItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("ammo"),
+        AmmoItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("ammo")))),
+    )
+
     init {
         Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB, FlansMod.id("guns"),
             FabricCreativeModeTab.builder()
                 .title(Component.translatable("itemGroup.flansmod.guns"))
-                .icon { GunItem.stackFor(Guns.all.keys.firstOrNull()) }
+                .icon { ItemStack(AMMO) } // a bare gun has no model; the ammo item falls back to a vanilla one
                 .displayItems { _, output ->
-                    Guns.all.keys.sorted().forEach { output.accept(GunItem.stackFor(it)) }
-                    Attachments.all.keys.sorted().forEach { output.accept(AttachmentItem.stackFor(it)) }
+                    fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filterNot(coveredByPackTab).sorted()
+                    ids(Guns.all).forEach { output.accept(GunItem.stackFor(it)) }
+                    ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
+                    ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
                 }
                 .build(),
         )
     }
+
+    /** Set on the client: ids whose content pack has its own creative tab are left out of the generic tab. */
+    var coveredByPackTab: (Identifier) -> Boolean = { false }
 
     fun init() = Unit
 }

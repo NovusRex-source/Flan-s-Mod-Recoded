@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NIN",
+    "NGN"
+  ],
+  "key": {
+    "G": "minecraft:gunpowder",
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 8,
+    "components": {
+      "flansmod:ammo_type": "flansbasic:308",
+      "minecraft:item_model": "flansbasic:308"
+    }
+  }
+}

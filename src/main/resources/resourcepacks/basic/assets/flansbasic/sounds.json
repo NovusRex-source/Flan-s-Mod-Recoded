@@ -1,0 +1,92 @@
+{
+  "gun.pistol.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/blast1",
+        "volume": 0.9,
+        "pitch": 1.5
+      }
+    ],
+    "subtitle": "subtitles.flansbasic.gun.pistol.shoot"
+  },
+  "gun.smg.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/blast1",
+        "volume": 0.7,
+        "pitch": 1.8
+      }
+    ],
+    "subtitle": "subtitles.flansbasic.gun.smg.shoot"
+  },
+  "gun.rifle.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/largeblast1",
+        "volume": 1.0,
+        "pitch": 1.4
+      }
+    ],
+    "subtitle": "subtitles.flansbasic.gun.rifle.shoot"
+  },
+  "gun.shotgun.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode1",
+        "volume": 0.6,
+        "pitch": 1.6
+      },
+      {
+        "name": "minecraft:random/explode2",
+        "volume": 0.6,
+        "pitch": 1.6
+      }
+    ],
+    "subtitle": "subtitles.flansbasic.gun.shotgun.shoot"
+  },
+  "gun.sniper.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/largeblast1",
+        "volume": 1.5,
+        "pitch": 0.8
+      }
+    ],
+    "subtitle": "subtitles.flansbasic.gun.sniper.shoot"
+  },
+  "gun.suppressed": {
+    "sounds": [
+      {
+        "name": "minecraft:item/crossbow/shoot1",
+        "volume": 0.6,
+        "pitch": 1.7
+      },
+      {
+        "name": "minecraft:item/crossbow/shoot2",
+        "volume": 0.6,
+        "pitch": 1.7
+      }
+    ],
+    "subtitle": "subtitles.flansbasic.gun.suppressed"
+  },
+  "gun.reload": {
+    "sounds": [
+      {
+        "name": "minecraft:item/crossbow/loading_middle1",
+        "volume": 0.8,
+        "pitch": 1.2
+      }
+    ],
+    "subtitle": "subtitles.flansbasic.gun.reload"
+  },
+  "gun.empty": {
+    "sounds": [
+      {
+        "name": "minecraft:random/click",
+        "volume": 0.6,
+        "pitch": 1.8
+      }
+    ],
+    "subtitle": "subtitles.flansbasic.gun.empty"
+  }
+}

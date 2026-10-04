@@ -51,6 +51,7 @@ open class DefinitionRegistry<T : Any>(val folder: String, val serializer: KSeri
 
 object Guns : DefinitionRegistry<GunDefinition>("guns", GunDefinition.serializer())
 object Attachments : DefinitionRegistry<AttachmentDefinition>("attachments", AttachmentDefinition.serializer())
+object AmmoTypes : DefinitionRegistry<AmmoDefinition>("ammo", AmmoDefinition.serializer())
 
 /** Loading and client sync for all content-pack definitions. */
 object Content {
@@ -63,18 +64,23 @@ object Content {
 
     fun init() {
         val loader = ResourceLoader.get(PackType.SERVER_DATA)
-        listOf(Guns, Attachments).forEach { loader.registerReloadListener(FlansMod.id(it.folder), it.listener) }
+        listOf(Guns, Attachments, AmmoTypes).forEach { loader.registerReloadListener(FlansMod.id(it.folder), it.listener) }
 
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ -> ServerPlayNetworking.send(handler.player, syncPayload()) }
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register { server, _, success -> if (success) resync(server) }
     }
 
-    fun syncPayload() = ContentSyncPayload(Guns.all, Attachments.all)
+    fun syncPayload() = ContentSyncPayload(Guns.all, Attachments.all, AmmoTypes.all)
+
+    /** Called after definitions change on this side (reload or sync), e.g. to refresh creative tabs. */
+    val onChanged = mutableListOf<() -> Unit>()
 
     private fun resync(server: MinecraftServer) = PlayerLookup.all(server).forEach { ServerPlayNetworking.send(it, syncPayload()) }
 
     fun apply(payload: ContentSyncPayload) {
         Guns.replace(payload.guns)
         Attachments.replace(payload.attachments)
+        AmmoTypes.replace(payload.ammo)
+        onChanged.forEach { it() }
     }
 }

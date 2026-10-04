@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "CameraMixin",
+    "CreativeModeTabsAccessor",
     "MouseHandlerMixin"
   ],
   "injectors": { "defaultRequire": 1 }

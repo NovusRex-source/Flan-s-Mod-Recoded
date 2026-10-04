@@ -9,12 +9,19 @@ import com.flansmod.recoded.registry.FlansComponents
 import com.flansmod.recoded.registry.FlansItems
 import com.geckolib.animatable.GeoItem
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader
+import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType
+import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import org.slf4j.LoggerFactory
 
 object FlansMod : ModInitializer {
     const val MOD_ID = "flansmod"
     val LOGGER = LoggerFactory.getLogger(MOD_ID)
+
+    /** The built-in content pack shipped in the jar under `resourcepacks/<name>`. */
+    const val BUILTIN_PACK = "basic"
 
     fun id(path: String): Identifier = Identifier.fromNamespaceAndPath(MOD_ID, path)
 
@@ -24,6 +31,9 @@ object FlansMod : ModInitializer {
         GeoItem.registerSyncedAnimatable(FlansItems.GUN)
         FlansNetworking.init()
         Content.init()
+        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent {
+            ResourceLoader.registerBuiltinPack(id(BUILTIN_PACK), it, Component.literal("Flan's Mod: Basic Pack"), PackActivationType.DEFAULT_ENABLED)
+        }
         Ballistics.init()
         GunHandler.init()
         AttachmentHandler.init()

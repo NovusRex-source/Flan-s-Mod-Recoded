@@ -28,5 +28,6 @@
   "attachment.flansmod.barrel": "Barrel",
   "attachment.flansmod.grip": "Grip",
   "attachment.flansmod.stock": "Stock",
-  "message.flansmod.attachment.incompatible": "%s does not fit this gun"
+  "message.flansmod.attachment.incompatible": "%s does not fit this gun",
+  "item.flansmod.ammo": "Ammo"
 }

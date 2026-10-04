@@ -1,0 +1,8 @@
+{
+  "name": "Suppressor",
+  "slot": "barrel",
+  "icon": "flansbasic:suppressor",
+  "damage_multiplier": 0.9,
+  "hide_tracer": true,
+  "shoot_sound": "flansbasic:gun.suppressed"
+}
