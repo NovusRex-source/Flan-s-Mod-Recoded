@@ -25,8 +25,8 @@ object FlansMod : ModInitializer {
     const val MOD_ID = "flansmod"
     val LOGGER = LoggerFactory.getLogger(MOD_ID)
 
-    /** The built-in content pack shipped in the jar under `resourcepacks/<name>`. */
-    const val BUILTIN_PACK = "basic"
+    /** Built-in content packs shipped in the jar under `resourcepacks/<name>`, with their display names. */
+    val BUILTIN_PACKS = mapOf("basic" to "Flan's Mod: Basic Pack", "vehicles" to "Flan's Mod: Vehicles Pack")
 
     fun id(path: String): Identifier = Identifier.fromNamespaceAndPath(MOD_ID, path)
 
@@ -43,11 +43,14 @@ object FlansMod : ModInitializer {
         FlansNetworking.init()
         Content.init()
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent {
-            ResourceLoader.registerBuiltinPack(id(BUILTIN_PACK), it, Component.literal("Flan's Mod: Basic Pack"), PackActivationType.DEFAULT_ENABLED)
+            for ((pack, title) in BUILTIN_PACKS) {
+                ResourceLoader.registerBuiltinPack(id(pack), it, Component.literal(title), PackActivationType.DEFAULT_ENABLED)
+            }
         }
         Ballistics.init()
         GunHandler.init()
         AttachmentHandler.init()
+        com.flansmod.recoded.combat.VehicleWeapons.init()
         com.flansmod.recoded.item.ClothingItem.init()
         com.flansmod.recoded.bench.WeaponMenu.init()
     }

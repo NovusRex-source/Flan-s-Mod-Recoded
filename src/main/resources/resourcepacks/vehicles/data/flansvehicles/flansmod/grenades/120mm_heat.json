@@ -1,0 +1,12 @@
+{
+  "name": "120mm HEAT",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.01,
+  "explosion": {
+    "power": 4.0,
+    "break_blocks": true
+  },
+  "icon": "flansvehicles:120mm_heat"
+}

@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "TCCC",
+    " UU "
+  ],
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "T": "minecraft:tnt",
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 2,
+    "components": {
+      "flansmod:ammo_type": "flansvehicles:120mm_heat",
+      "minecraft:max_stack_size": 4
+    }
+  }
+}

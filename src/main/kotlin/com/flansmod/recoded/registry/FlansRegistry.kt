@@ -28,6 +28,9 @@ import com.flansmod.recoded.gun.Magazines
 import com.flansmod.recoded.item.MagazineItem
 import com.flansmod.recoded.item.GrenadeItem
 import com.flansmod.recoded.entity.GrenadeEntity
+import com.flansmod.recoded.entity.DriveableEntity
+import com.flansmod.recoded.gun.Vehicles
+import com.flansmod.recoded.item.VehicleItem
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobCategory
 import com.flansmod.recoded.item.AmmoItem
@@ -79,6 +82,16 @@ object FlansComponents {
     /** Which [com.flansmod.recoded.gun.ClothingDefinition] a clothing stack represents. */
     val CLOTHING: DataComponentType<Identifier> = register("clothing") {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
+    /** Which [com.flansmod.recoded.gun.VehicleDefinition] a vehicle stack represents. */
+    val VEHICLE: DataComponentType<Identifier> = register("vehicle") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
+    /** Fuel left in a picked-up vehicle. */
+    val FUEL: DataComponentType<Int> = register("fuel") {
+        persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT)
     }
 
     /** Selected fire mode of a gun stack (see GunDefinition.fire_modes). */
@@ -151,6 +164,11 @@ object FlansItems {
         GrenadeItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("grenade"))).stacksTo(16)),
     )
 
+    val VEHICLE: VehicleItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("vehicle"),
+        VehicleItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("vehicle"))).stacksTo(1)),
+    )
+
     init {
         Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB, FlansMod.id("guns"),
@@ -161,12 +179,13 @@ object FlansItems {
                     fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filterNot(coveredByPackTab).sorted()
                     output.accept(WEAPONS_BENCH)
                     ids(Parts.all).forEach { output.accept(PartItem.stackFor(it)) }
-                    ids(Guns.all).forEach { output.accept(GunItem.stackFor(it)) }
+                    ids(Guns.all).filterNot { Guns[it]!!.mounted }.forEach { output.accept(GunItem.stackFor(it)) }
                     ids(Magazines.all).forEach { output.accept(MagazineItem.stackFor(it, full = true)) }
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
                     ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
                     ids(Grenades.all).filter { Grenades[it]!!.throwable }.forEach { output.accept(GrenadeItem.stackFor(it)) }
                     ids(Clothing.all).forEach { output.accept(ClothingItem.stackFor(it)) }
+                    ids(Vehicles.all).forEach { output.accept(VehicleItem.stackFor(it)) }
                 }
                 .build(),
         )
@@ -223,11 +242,21 @@ object FlansEntities {
         EntityType.Builder.of(::GrenadeEntity, MobCategory.MISC).sized(0.25f, 0.25f).clientTrackingRange(4).updateInterval(10).build(GRENADE_KEY),
     )
 
-    fun init() = Unit
+    private val DRIVEABLE_KEY = ResourceKey.create(Registries.ENTITY_TYPE, FlansMod.id("vehicle"))
+
+    /** Every content-pack vehicle; the real size comes from its definition ([DriveableEntity.getDimensions]). */
+    val DRIVEABLE: EntityType<DriveableEntity> = Registry.register(
+        BuiltInRegistries.ENTITY_TYPE, DRIVEABLE_KEY,
+        EntityType.Builder.of(::DriveableEntity, MobCategory.MISC).sized(2f, 1.5f).clientTrackingRange(10).build(DRIVEABLE_KEY),
+    )
+
+    fun init() = DriveableEntity.registerDataSerializers()
 }
 
 object FlansDamageTypes {
     val GUN: ResourceKey<DamageType> = ResourceKey.create(Registries.DAMAGE_TYPE, FlansMod.id("gun"))
     /** Armour-piercing rounds; tagged `minecraft:bypasses_armor`. */
     val GUN_AP: ResourceKey<DamageType> = ResourceKey.create(Registries.DAMAGE_TYPE, FlansMod.id("gun_ap"))
+    /** Run over by a vehicle. */
+    val VEHICLE: ResourceKey<DamageType> = ResourceKey.create(Registries.DAMAGE_TYPE, FlansMod.id("vehicle"))
 }

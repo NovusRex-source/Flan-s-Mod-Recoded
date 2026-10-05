@@ -1,0 +1,11 @@
+{
+  "pack": {
+    "description": "Flan's Mod: Recoded - jeeps, Humvees and tanks",
+    "min_format": 97,
+    "max_format": 121
+  },
+  "flansmod": {
+    "name": "Flan's Vehicles",
+    "icon": "flansvehicles:m1_abrams"
+  }
+}

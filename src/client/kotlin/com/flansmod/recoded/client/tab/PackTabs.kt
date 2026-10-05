@@ -81,7 +81,8 @@ object PackTabs {
                 .icon { info.icon?.let(::stackFor) ?: ItemStack(FlansItems.GUN) }
                 .displayItems { _, output ->
                     fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filter { it.namespace in tab.namespaces }.sorted()
-                    ids(Guns.all).forEach { output.accept(GunItem.stackFor(it)) }
+                    ids(com.flansmod.recoded.gun.Vehicles.all).forEach { output.accept(com.flansmod.recoded.item.VehicleItem.stackFor(it)) }
+                    ids(Guns.all).filterNot { Guns[it]!!.mounted }.forEach { output.accept(GunItem.stackFor(it)) }
                     ids(Parts.all).forEach { output.accept(PartItem.stackFor(it)) }
                     ids(Magazines.all).forEach { output.accept(MagazineItem.stackFor(it, full = true)) }
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
@@ -101,14 +102,17 @@ object PackTabs {
         Magazines[id] != null -> MagazineItem.stackFor(id, full = true)
         Parts[id] != null -> PartItem.stackFor(id)
         com.flansmod.recoded.gun.Clothing[id] != null -> com.flansmod.recoded.item.ClothingItem.stackFor(id)
+        com.flansmod.recoded.gun.Vehicles[id] != null -> com.flansmod.recoded.item.VehicleItem.stackFor(id)
         else -> GunItem.stackFor(id)
     }
 
     /** Built-in pack from the mod jar plus everything in `contentpacks/`, opened with vanilla pack classes. */
     private fun discoverPacks(): List<PackResources> {
         val packs = mutableListOf<PackResources>()
-        FabricLoader.getInstance().getModContainer(FlansMod.MOD_ID).flatMap { it.findPath("resourcepacks/${FlansMod.BUILTIN_PACK}") }.ifPresent { path ->
-            packs += PathPackResources(PackLocationInfo(FlansMod.BUILTIN_PACK, Component.literal(FlansMod.BUILTIN_PACK), PackSource.BUILT_IN, Optional.empty()), path)
+        for (name in FlansMod.BUILTIN_PACKS.keys) {
+            FabricLoader.getInstance().getModContainer(FlansMod.MOD_ID).flatMap { it.findPath("resourcepacks/$name") }.ifPresent { path ->
+                packs += PathPackResources(PackLocationInfo(name, Component.literal(name), PackSource.BUILT_IN, Optional.empty()), path)
+            }
         }
         ContentPackSource(PackType.SERVER_DATA).loadPacks { pack -> pack.open().forEach(packs::add) }
         return packs

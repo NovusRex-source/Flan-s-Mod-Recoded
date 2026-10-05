@@ -1,0 +1,16 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "BBBBBB"
+  ],
+  "key": {
+    "B": "minecraft:iron_block"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansvehicles:cannon_barrel"
+    }
+  }
+}

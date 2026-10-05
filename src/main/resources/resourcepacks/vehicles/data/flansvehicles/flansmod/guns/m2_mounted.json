@@ -1,0 +1,21 @@
+{
+  "name": "M2 Browning (mounted)",
+  "mounted": true,
+  "damage": 11,
+  "rpm": 550,
+  "fire_mode": "auto",
+  "reload_ticks": 80,
+  "velocity": 16,
+  "spread": 1.2,
+  "lifetime_ticks": 60,
+  "gravity": 0.015,
+  "recoil": {
+    "pitch": 0.4,
+    "yaw": 0.3
+  },
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.hmg.shoot",
+    "reload": "flansvehicles:vehicle.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  }
+}

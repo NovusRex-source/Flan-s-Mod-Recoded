@@ -74,6 +74,7 @@ object GunHandler {
 
     /** Trigger pulled by [player]; also the entry point for tests. */
     fun trigger(player: ServerPlayer) {
+        if (VehicleWeapons.trigger(player)) return
         val stack = player.mainHandItem
         val gun = stack.shotDefinition ?: return
         val state = player.gunState
@@ -196,6 +197,7 @@ object GunHandler {
 
     /** Starts swapping in the fullest compatible magazine from the inventory. Entry point for tests. */
     fun reload(player: ServerPlayer) {
+        if (VehicleWeapons.reload(player)) return
         val stack = player.mainHandItem
         val gun = stack.definition ?: return
         val state = player.gunState
@@ -250,8 +252,10 @@ object GunHandler {
     }
 
     /** Inventory slot and contents of the loaded magazine with the most rounds that fits [gun]. */
-    private fun bestMagazine(player: ServerPlayer, gun: ItemStack): Pair<Int, MagazineContents>? {
-        val accepted = GunItem.acceptedMagazines(gun.gunId ?: return null).toSet()
+    private fun bestMagazine(player: ServerPlayer, gun: ItemStack): Pair<Int, MagazineContents>? = bestMagazine(player, gun.gunId ?: return null)
+
+    internal fun bestMagazine(player: ServerPlayer, gunId: Identifier): Pair<Int, MagazineContents>? {
+        val accepted = GunItem.acceptedMagazines(gunId).toSet()
         val items = player.inventory.nonEquipmentItems
         return items.indices
             .mapNotNull { slot -> items[slot].takeIf { it.item is MagazineItem }?.loadedMagazine?.let { slot to it } }
@@ -268,7 +272,7 @@ object GunHandler {
     }
 
     /** Rotates [dir] by a random angle inside a cone of [degrees] half-angle. */
-    private fun scatter(player: ServerPlayer, dir: Vec3, degrees: Float): Vec3 {
+    internal fun scatter(player: ServerPlayer, dir: Vec3, degrees: Float): Vec3 {
         if (degrees <= 0f) return dir
         val random = player.random
         val angle = Math.toRadians(degrees * random.nextDouble())

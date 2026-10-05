@@ -9,9 +9,13 @@
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GrenadeGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BenchGameTests" },
-      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.ClothingGameTests" }
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.ClothingGameTests" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleGameTests" }
     ],
-    "fabric-client-gametest": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" }]
+    "fabric-client-gametest": [
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleClientGameTest" }
+    ]
   },
   "depends": { "flansmod": "*" }
 }

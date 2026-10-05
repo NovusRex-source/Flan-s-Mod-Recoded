@@ -2,6 +2,7 @@ package com.flansmod.recoded.client.input
 
 import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.client.config.FlansConfig
+import com.flansmod.recoded.client.vehicle.VehicleClient
 import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.item.ammo
@@ -72,6 +73,7 @@ object GunInput {
 
     /** Fires every tick while the attack key is held; returning true cancels mining/attacking. */
     private fun onAttack(client: Minecraft, player: LocalPlayer, clicks: Int): Boolean {
+        VehicleClient.seatGun(player)?.let { return onAttackMounted(client, player, it, clicks) }
         val gun = player.mainHandItem.shotDefinition ?: return false
         if (client.gui.screen() != null || player.isSpectator) return true
         val mode = player.mainHandItem.fireMode
@@ -80,6 +82,22 @@ object GunInput {
             FireMode.SEMI, FireMode.BURST, FireMode.SAFE -> clicks > 0
         }
         if (wantsShot && cooldown <= 0 && burstLeft <= 0) trigger(player, gun)
+        return true
+    }
+
+    /** A vehicle seat's gun: fires in its definition's mode; ammo and reloads live on the vehicle (server side). */
+    private fun onAttackMounted(client: Minecraft, player: LocalPlayer, gun: GunDefinition, clicks: Int): Boolean {
+        if (client.gui.screen() != null || player.isSpectator) return true
+        if ((gun.fireMode == FireMode.AUTO || clicks > 0) && cooldown <= 0) {
+            ClientPlayNetworking.send(ShootPayload)
+            val vehicle = player.vehicle as? com.flansmod.recoded.entity.DriveableEntity
+            if (vehicle?.seatMagazines?.get(vehicle.seatOf(player))?.isEmpty == false) {
+                burstLeft = 1
+                localShot(player, gun)
+            } else {
+                cooldown = 10
+            }
+        }
         return true
     }
 
@@ -105,7 +123,8 @@ object GunInput {
 
     private fun tick(client: Minecraft) {
         val player = client.player ?: return
-        val gun = player.mainHandItem.shotDefinition
+        val mounted = VehicleClient.seatGun(player)
+        val gun = if (mounted == null) player.mainHandItem.shotDefinition else null
         if (cooldown > 0) cooldown--
         ticksSinceShot++
 
@@ -119,11 +138,14 @@ object GunInput {
             player.xBob = player.xRot; player.xBobO = player.xRot
             player.yBob = player.yRot; player.yBobO = player.yRot
         }
-        while (RELOAD.consumeClick()) if (gun != null) ClientPlayNetworking.send(ReloadPayload(unload = player.isShiftKeyDown))
+        while (RELOAD.consumeClick()) {
+            if (mounted != null) ClientPlayNetworking.send(ReloadPayload(unload = false))
+            else if (gun != null) ClientPlayNetworking.send(ReloadPayload(unload = player.isShiftKeyDown))
+        }
         while (FIRE_MODE.consumeClick()) if (gun != null) ClientPlayNetworking.send(FireModePayload)
         while (WEAPON_MENU.consumeClick()) if (gun != null) ClientPlayNetworking.send(OpenWeaponMenuPayload)
         while (ATTACH.consumeClick()) if (gun != null) ClientPlayNetworking.send(AttachPayload(remove = player.isShiftKeyDown))
-        applyRecoil(player, gun)
+        applyRecoil(player, gun ?: mounted)
     }
 
     private fun updateAim(client: Minecraft, gun: GunDefinition?) {

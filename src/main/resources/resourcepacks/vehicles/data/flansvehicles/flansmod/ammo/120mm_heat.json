@@ -1,0 +1,7 @@
+{
+  "name": "120mm HEAT Shell",
+  "caliber": "120mm",
+  "max_stack": 4,
+  "projectile": "flansvehicles:120mm_heat",
+  "icon": "flansvehicles:120mm_heat"
+}

@@ -1,0 +1,9 @@
+{
+  "subtitles.flansvehicles.vehicle.engine": "Engine runs",
+  "subtitles.flansvehicles.vehicle.tank.engine": "Engine runs",
+  "subtitles.flansvehicles.vehicle.hmg.shoot": "Gun fires",
+  "subtitles.flansvehicles.vehicle.cannon.shoot": "Gun fires",
+  "subtitles.flansvehicles.vehicle.cannon.reload": "Gun reloads",
+  "subtitles.flansvehicles.vehicle.reload": "Gun reloads",
+  "subtitles.flansvehicles.vehicle.empty": "Gun clicks"
+}

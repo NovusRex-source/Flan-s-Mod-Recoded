@@ -1,0 +1,59 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "  TBBB",
+    " AAAE ",
+    "AHHHA ",
+    "KKKKK "
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:armor_plate"
+      }
+    },
+    "B": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:cannon_barrel"
+      }
+    },
+    "E": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:diesel_engine"
+      }
+    },
+    "H": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:heavy_chassis"
+      }
+    },
+    "K": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:track"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:turret_ring"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:vehicle",
+    "components": {
+      "flansmod:vehicle": "flansvehicles:m1_abrams"
+    }
+  }
+}

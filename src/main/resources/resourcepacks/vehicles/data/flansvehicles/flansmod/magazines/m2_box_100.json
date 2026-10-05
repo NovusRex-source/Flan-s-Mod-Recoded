@@ -1,0 +1,10 @@
+{
+  "name": ".50 BMG Ammo Box (100)",
+  "caliber": "50bmg",
+  "capacity": 100,
+  "guns": [
+    "flansvehicles:m2_mounted"
+  ],
+  "reload_multiplier": 1.0,
+  "icon": "flansvehicles:m2_box_100"
+}

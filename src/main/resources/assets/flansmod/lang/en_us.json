@@ -59,5 +59,16 @@
   "itemGroup.flansmod.type.attachments": "Flan's: Attachments",
   "itemGroup.flansmod.type.parts": "Flan's: Gun Parts",
   "itemGroup.flansmod.type.explosives": "Flan's: Explosives",
-  "itemGroup.flansmod.type.clothing": "Flan's: Clothing"
+  "itemGroup.flansmod.type.clothing": "Flan's: Clothing",
+  "item.flansmod.vehicle": "Vehicle",
+  "item.flansmod.vehicle.seats": "Seats: %s",
+  "item.flansmod.vehicle.health": "Health: %s",
+  "item.flansmod.vehicle.fuel": "Fuel: %s%%",
+  "entity.flansmod.vehicle": "Vehicle",
+  "itemGroup.flansmod.type.vehicles": "Flan's: Vehicles",
+  "hud.flansmod.vehicle.health": "Health: %s / %s",
+  "hud.flansmod.vehicle.fuel": "Fuel: %s%%",
+  "hud.flansmod.vehicle.speed": "%s km/h",
+  "death.attack.flansmod.vehicle": "%1$s was run over",
+  "death.attack.flansmod.vehicle.player": "%1$s was run over by %2$s"
 }

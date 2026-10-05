@@ -35,10 +35,13 @@ object Ballistics {
         ServerTickEvents.END_LEVEL_TICK.register { level -> bullets[level]?.removeIf { !step(level, it) } }
     }
 
-    /** [gun] must already include ammo modifiers ([com.flansmod.recoded.gun.withAmmo]); [ammo] adds its on-hit effects. */
-    fun fire(shooter: ServerPlayer, gun: GunDefinition, ammo: AmmoDefinition?, direction: Vec3) {
+    /**
+     * [gun] must already include ammo modifiers ([com.flansmod.recoded.gun.withAmmo]); [ammo] adds its on-hit effects.
+     * [origin] defaults to the shooter's eyes; vehicle guns fire from their muzzle.
+     */
+    fun fire(shooter: ServerPlayer, gun: GunDefinition, ammo: AmmoDefinition?, direction: Vec3, origin: Vec3 = shooter.eyePosition) {
         bullets.getOrPut(shooter.level()) { mutableListOf() } +=
-            Bullet(shooter.eyePosition, direction.normalize().scale(gun.velocity), shooter, gun, ammo, gun.lifetimeTicks)
+            Bullet(origin, direction.normalize().scale(gun.velocity), shooter, gun, ammo, gun.lifetimeTicks)
     }
 
     /** Advances one bullet by one tick. Returns false when the bullet is gone. */
@@ -52,7 +55,8 @@ object Ballistics {
 
         val entityHit = ProjectileUtil.getEntityHitResult(
             level, bullet.shooter, start, end, AABB(start, end).inflate(1.0),
-            { it != bullet.shooter && it.isPickable && !it.isSpectator && it.isAlive }, 0.1f,
+            // Never the shooter, their own vehicle or its crew.
+            { it != bullet.shooter && !bullet.shooter.isPassengerOfSameVehicle(it) && it.isPickable && !it.isSpectator && it.isAlive }, 0.1f,
         )
 
         when {

@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "N N",
+    "NIN"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansvehicles:120mm_breech"
+      }
+    }
+  }
+}

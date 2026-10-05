@@ -1,0 +1,77 @@
+{
+  "vehicle.engine": {
+    "sounds": [
+      {
+        "name": "minecraft:minecart/base",
+        "volume": 0.6,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.flansvehicles.vehicle.engine"
+  },
+  "vehicle.tank.engine": {
+    "sounds": [
+      {
+        "name": "minecraft:minecart/base",
+        "volume": 0.9,
+        "pitch": 0.35
+      }
+    ],
+    "subtitle": "subtitles.flansvehicles.vehicle.tank.engine"
+  },
+  "vehicle.hmg.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode3",
+        "volume": 0.8,
+        "pitch": 1.6
+      }
+    ],
+    "subtitle": "subtitles.flansvehicles.vehicle.hmg.shoot"
+  },
+  "vehicle.cannon.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode1",
+        "volume": 2.5,
+        "pitch": 0.5
+      },
+      {
+        "name": "minecraft:random/explode2",
+        "volume": 2.5,
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.flansvehicles.vehicle.cannon.shoot"
+  },
+  "vehicle.cannon.reload": {
+    "sounds": [
+      {
+        "name": "minecraft:block/iron_door/close1",
+        "volume": 1.0,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.flansvehicles.vehicle.cannon.reload"
+  },
+  "vehicle.reload": {
+    "sounds": [
+      {
+        "name": "minecraft:item/crossbow/loading_middle1",
+        "volume": 0.9,
+        "pitch": 0.9
+      }
+    ],
+    "subtitle": "subtitles.flansvehicles.vehicle.reload"
+  },
+  "vehicle.empty": {
+    "sounds": [
+      {
+        "name": "minecraft:random/click",
+        "volume": 0.6,
+        "pitch": 1.4
+      }
+    ],
+    "subtitle": "subtitles.flansvehicles.vehicle.empty"
+  }
+}

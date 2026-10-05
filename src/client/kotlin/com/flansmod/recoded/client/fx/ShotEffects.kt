@@ -83,6 +83,8 @@ object ShotEffects {
      */
     private fun muzzlePosition(mc: Minecraft, level: ClientLevel, shot: ShotPayload): Vec3 {
         val shooter = level.getEntity(shot.shooter)
+        // Mounted guns: the server already sent the muzzle position.
+        if (shooter is net.minecraft.world.entity.player.Player && com.flansmod.recoded.client.vehicle.VehicleClient.seatGun(shooter) != null) return shot.origin
         val look = shooter?.lookAngle ?: shot.directions.first().normalize()
         val right = look.cross(Vec3(0.0, 1.0, 0.0)).normalize()
         val up = right.cross(look).normalize()

@@ -30,7 +30,8 @@ object TypeTabs {
     private class TypeTab(val key: String, val items: () -> List<ItemStack>)
 
     private val tabs = listOf(
-        TypeTab("guns") { Guns.all.keys.sorted().map { GunItem.stackFor(it) } },
+        TypeTab("guns") { Guns.all.filterValues { !it.mounted }.keys.sorted().map { GunItem.stackFor(it) } },
+        TypeTab("vehicles") { com.flansmod.recoded.gun.Vehicles.all.keys.sorted().map { com.flansmod.recoded.item.VehicleItem.stackFor(it) } },
         TypeTab("ammo") {
             Magazines.all.keys.sorted().map { MagazineItem.stackFor(it, full = true) } + AmmoTypes.all.keys.sorted().map { AmmoItem.stackFor(it) }
         },

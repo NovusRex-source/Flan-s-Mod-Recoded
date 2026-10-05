@@ -60,6 +60,8 @@ data class GunDefinition(
     val tracer: Tracer? = Tracer(),
     /** Attachment slots this gun offers, e.g. `["sight", "barrel"]`. */
     @SerialName("attachment_slots") val attachmentSlots: List<String> = emptyList(),
+    /** Vehicle weapon: only fired from a vehicle seat, never listed as an item. */
+    val mounted: Boolean = false,
 ) {
     val availableModes: List<FireMode> get() = fireModes.ifEmpty { listOf(FireMode.SAFE, fireMode) }.distinct()
 

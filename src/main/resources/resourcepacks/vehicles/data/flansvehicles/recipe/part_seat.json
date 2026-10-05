@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "J  ",
+    "JJJ"
+  ],
+  "key": {
+    "J": "minecraft:leather"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansvehicles:seat"
+    }
+  }
+}

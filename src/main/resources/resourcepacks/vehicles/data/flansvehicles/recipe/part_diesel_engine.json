@@ -1,0 +1,22 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "BPB",
+    "IRI",
+    "BCB"
+  ],
+  "key": {
+    "B": "minecraft:iron_block",
+    "C": "minecraft:copper_ingot",
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:piston",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansvehicles:diesel_engine"
+    }
+  }
+}

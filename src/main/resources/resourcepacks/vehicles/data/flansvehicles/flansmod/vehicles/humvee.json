@@ -1,0 +1,75 @@
+{
+  "name": "M1114 Humvee",
+  "type": "car",
+  "width": 2.4,
+  "height": 2.0,
+  "health": 140,
+  "armor": 0.5,
+  "max_speed": 0.85,
+  "max_reverse_speed": 0.25,
+  "acceleration": 0.02,
+  "braking": 0.06,
+  "drag": 0.015,
+  "turn_speed": 4.0,
+  "water_speed": 0.2,
+  "collision_damage": 22,
+  "death_explosion": 3.0,
+  "camera_distance": 8,
+  "fuel": {
+    "capacity": 36000,
+    "consumption": 1
+  },
+  "seats": [
+    {
+      "position": [
+        -0.45,
+        1.25,
+        0.0
+      ]
+    },
+    {
+      "position": [
+        0.45,
+        1.25,
+        0.0
+      ]
+    },
+    {
+      "position": [
+        0.0,
+        1.55,
+        -0.75
+      ],
+      "gun": "flansvehicles:m2_mounted",
+      "turret": true,
+      "pivot": [
+        0.0,
+        2.4,
+        -0.3
+      ],
+      "muzzle": [
+        0.0,
+        0.0,
+        1.15
+      ],
+      "min_pitch": -20,
+      "max_pitch": 50,
+      "yaw_bone": "turret",
+      "pitch_bone": "mg"
+    },
+    {
+      "position": [
+        0.45,
+        1.25,
+        -1.1
+      ]
+    }
+  ],
+  "model": {
+    "texture": "flansvehicles:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansvehicles:humvee",
+  "sounds": {
+    "engine": "flansvehicles:vehicle.engine"
+  }
+}

@@ -53,6 +53,7 @@ class DefinitionIconModel(private val fallback: ItemModel) : ItemModel {
         is GrenadeItem -> Grenades[stack.grenadeId]?.icon
         is MagazineItem -> Magazines[stack.loadedMagazine?.magazine]?.icon
         is com.flansmod.recoded.item.ClothingItem -> com.flansmod.recoded.gun.Clothing[stack.get(com.flansmod.recoded.registry.FlansComponents.CLOTHING)]?.icon
+        is com.flansmod.recoded.item.VehicleItem -> com.flansmod.recoded.gun.Vehicles[stack.get(com.flansmod.recoded.registry.FlansComponents.VEHICLE)]?.icon
         else -> null
     }?.takeIf { it != BuiltInRegistries.ITEM.getKey(stack.item) } // never point back at this model (endless loop)
 
