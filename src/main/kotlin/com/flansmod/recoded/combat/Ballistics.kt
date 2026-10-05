@@ -62,6 +62,8 @@ object Ballistics {
             }
             blockHit.type != HitResult.Type.MISS -> {
                 val state = level.getBlockState(blockHit.blockPos)
+                // Incendiary rounds set the struck surface alight.
+                if ((bullet.ammo?.fireSeconds ?: 0f) > 0f) Incendiary.ignite(level, blockHit.blockPos.relative(blockHit.direction))
                 level.sendParticles(BlockParticleOption(ParticleTypes.BLOCK, state), end.x, end.y, end.z, 6, 0.05, 0.05, 0.05, 0.1)
                 return false
             }

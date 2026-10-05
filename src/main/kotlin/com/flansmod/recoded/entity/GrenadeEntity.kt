@@ -1,5 +1,6 @@
 package com.flansmod.recoded.entity
 
+import com.flansmod.recoded.combat.Incendiary
 import com.flansmod.recoded.gun.GrenadeDefinition
 import com.flansmod.recoded.item.grenadeDefinition
 import com.flansmod.recoded.registry.FlansEntities
@@ -100,6 +101,8 @@ class GrenadeEntity : ThrowableItemProjectile {
 
         def.explosion?.let { e ->
             level.explode(this, x, y, z, e.power, e.fire, if (e.breakBlocks) Level.ExplosionInteraction.TNT else Level.ExplosionInteraction.NONE)
+            // Vanilla only sets fire where the explosion destroyed blocks; incendiaries must burn either way.
+            if (e.fire) Incendiary.spreadFire(level, position(), e.power.toDouble() + 1.0, random)
         }
         def.flash?.let { flash(level, it) }
 

@@ -52,8 +52,16 @@ object ShotEffects {
         }
     }
 
+    private val lastShot = HashMap<Int, Long>()
+
+    /** True for a few frames after [entityId] fired (drives the muzzle-flash bone). */
+    fun recentlyFired(entityId: Int) = lastShot[entityId]?.let { System.nanoTime() - it < FLASH_NANOS } == true
+
+    private const val FLASH_NANOS = 60_000_000L
+
     fun onShot(shot: ShotPayload) {
         shotsSeen++
+        lastShot[shot.shooter] = System.nanoTime()
         val mc = Minecraft.getInstance()
         val level = mc.level ?: return
         // Prefer the shooter's held gun so attachments (e.g. suppressors hiding tracers) apply.

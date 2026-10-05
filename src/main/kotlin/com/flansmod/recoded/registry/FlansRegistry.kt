@@ -58,6 +58,7 @@ object FlansComponents {
     val ATTACHMENTS: DataComponentType<Map<String, Identifier>> = register("attachments") {
         persistent(Codec.unboundedMap(Codec.STRING, Identifier.CODEC))
             .networkSynchronized(ByteBufCodecs.map(::HashMap, ByteBufCodecs.STRING_UTF8, Identifier.STREAM_CODEC))
+            .ignoreSwapAnimation()
     }
 
     /** Which [com.flansmod.recoded.gun.AttachmentDefinition] an attachment stack represents. */
@@ -84,6 +85,12 @@ object FlansComponents {
     val FIRE_MODE: DataComponentType<FireMode> = register("fire_mode") {
         persistent(Codec.STRING.xmap({ FireMode.valueOf(it.uppercase()) }, { it.name.lowercase() }))
             .networkSynchronized(ByteBufCodecs.VAR_INT.map({ FireMode.entries[it] }, FireMode::ordinal))
+            .ignoreSwapAnimation()
+    }
+
+    /** Set by the server while a reload is in progress (not saved); keeps a launcher's round visible during it. */
+    val RELOADING: DataComponentType<Boolean> = register("reloading") {
+        networkSynchronized(ByteBufCodecs.BOOL).ignoreSwapAnimation()
     }
 
     /** Which [com.flansmod.recoded.gun.PartDefinition] a part stack represents. */
@@ -93,7 +100,8 @@ object FlansComponents {
 
     /** Magazine contents: on a magazine item, or the magazine inserted in a gun. */
     val MAGAZINE: DataComponentType<MagazineContents> = register("magazine") {
-        persistent(MagazineContents.CODEC).networkSynchronized(MagazineContents.STREAM_CODEC)
+        // Changes on every shot: must not replay the held-item swap animation.
+        persistent(MagazineContents.CODEC).networkSynchronized(MagazineContents.STREAM_CODEC).ignoreSwapAnimation()
     }
 
     private fun <T : Any> register(name: String, build: DataComponentType.Builder<T>.() -> Unit): DataComponentType<T> =

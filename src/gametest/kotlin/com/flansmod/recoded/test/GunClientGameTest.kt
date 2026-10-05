@@ -290,7 +290,65 @@ class GunClientGameTest : FabricClientGameTest {
                 context.input.pressKey(InputConstants.KEY_ESCAPE)
                 context.waitTicks(2)
             }
+
+            // ---- Holding, firing and reloading visuals with the M4A1 (looking straight ahead, nothing in the way).
+            server.runCommand("kill @e[type=!minecraft:player]")
+            context.input.lookAt(0f, 0f)
+            server.runCommand("gamemode survival @a")
+            server.runCommand("clear @a")
+            server.runCommand("time set noon")
+            server.runCommand("item replace entity @a weapon.mainhand with flansmod:gun[flansmod:gun=\"flansbasic:m4a1\",flansmod:magazine={magazine:\"flansbasic:stanag_30\",ammo:\"flansbasic:556\",rounds:30}]")
+            server.runCommand("give @a flansmod:magazine[flansmod:magazine={magazine:\"flansbasic:stanag_30\",ammo:\"flansbasic:556\",rounds:30}]")
+            context.waitTicks(20)
+            context.takeScreenshot("flansmod-fp-hands")
+            context.input.pressKey { it.keyInventory }
+            context.waitTicks(2)
+            context.input.setCursorPos(0.0, 150.0)
+            context.waitTicks(3)
+            context.takeScreenshot("flansmod-tp-pose")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+            context.waitTicks(3)
+            context.input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT)
+            context.waitTicks(1)
+            context.takeScreenshot("flansmod-muzzle-flash")
+            context.waitTicks(10)
+            context.input.pressKey(InputConstants.KEY_R)
+            context.waitTicks(20)
+            context.takeScreenshot("flansmod-reload-hands")
+            context.waitTicks(40)
+
+            // ---- RPG-7: warhead visible when loaded, gone after the shot; the rocket breaks blocks.
+            server.runCommand("item replace entity @a weapon.mainhand with flansmod:gun[flansmod:gun=\"flansbasic:rpg7\",flansmod:magazine={magazine:\"flansbasic:pg7_loader\",ammo:\"flansbasic:pg7\",rounds:1}]")
+            server.runCommand("kill @e[type=minecraft:husk]")
+            context.input.lookAt(0f, 0f)
+            server.runCommand("execute at @a rotated ~ 0 run fill ^-2 ^ ^12 ^2 ^3 ^12 minecraft:stone")
+            context.waitTicks(20)
+            val wallBefore = server.compute { s -> countBlocks(s, net.minecraft.world.level.block.Blocks.STONE, 16) }
+            context.takeScreenshot("flansmod-rpg-loaded")
+            context.input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT)
+            context.waitTicks(40)
+            context.takeScreenshot("flansmod-rpg-fired")
+            val wallAfter = server.compute { s -> countBlocks(s, net.minecraft.world.level.block.Blocks.STONE, 16) }
+            check(wallAfter < wallBefore) { "the rocket should destroy part of the wall ($wallBefore -> $wallAfter stone)" }
+
+            // ---- Incendiary grenade leaves fire.
+            server.runCommand("execute at @a run fill ~-6 ~-1 ~-6 ~6 ~-1 ~6 minecraft:grass_block")
+            server.runCommand("item replace entity @a weapon.mainhand with flansmod:grenade[flansmod:grenade=\"flansbasic:molotov\"]")
+            context.input.lookAt(server.compute { s -> s.playerList.players.first().blockPosition().relative(s.playerList.players.first().direction, 4).below() })
+            context.waitTicks(5)
+            context.input.pressMouse(InputConstants.MOUSE_BUTTON_RIGHT)
+            context.waitTicks(30)
+            val fires = server.compute { s -> countBlocks(s, net.minecraft.world.level.block.Blocks.FIRE, 10) }
+            check(fires > 0) { "the incendiary grenade should start fires" }
+            context.takeScreenshot("flansmod-incendiary")
         }
+    }
+
+    private fun countBlocks(server: MinecraftServer, block: net.minecraft.world.level.block.Block, radius: Int): Int {
+        val player = server.playerList.players.first()
+        val center = player.blockPosition()
+        return net.minecraft.core.BlockPos.betweenClosed(center.offset(-radius, -3, -radius), center.offset(radius, 6, radius))
+            .count { player.level().getBlockState(it).`is`(block) }
     }
 
     // Kotlin cannot infer the exception type parameter of the Failable* interfaces.

@@ -21,11 +21,13 @@ ROOT = Path(__file__).resolve().parent.parent / "src/main/resources/resourcepack
 DATA = ROOT / "data" / NS
 ASSETS = ROOT / "assets" / NS
 
-# Gun texture: 256x128, eight 64x64 noisy material blocks (box UV).
+# Gun texture: 256x192, twelve 64x64 noisy material blocks (box UV).
 MATERIALS = {"metal": (0, 0), "polymer": (64, 0), "wood": (128, 0), "red": (192, 0),
-             "olive": (0, 64), "tan": (64, 64), "steel": (128, 64), "lens": (192, 64)}
+             "olive": (0, 64), "tan": (64, 64), "steel": (128, 64), "lens": (192, 64),
+             "black": (0, 128), "brass": (64, 128), "glass": (128, 128), "flash": (192, 128)}
 COLOURS = {"metal": (58, 61, 66), "polymer": (34, 36, 40), "wood": (122, 82, 48), "red": (200, 30, 30),
-           "olive": (82, 92, 58), "tan": (176, 150, 108), "steel": (128, 132, 138), "lens": (70, 120, 140)}
+           "olive": (82, 92, 58), "tan": (176, 150, 108), "steel": (128, 132, 138), "lens": (70, 120, 140),
+           "black": (20, 21, 23), "brass": (205, 165, 60), "glass": (60, 70, 72), "flash": (255, 226, 130)}
 
 
 def write(path: Path, data):
@@ -302,106 +304,13 @@ GRENADES = {
                     explosion={"power": 1.2, "fire": True, "break_blocks": False}),
     # Launcher projectiles (not throwable)
     "40mm_he": dict(name="40mm HE", throwable=False, contact=True, gravity=0.03, fuse_ticks=200,
-                    explosion={"power": 2.2, "fire": False, "break_blocks": False}),
+                    explosion={"power": 2.2, "fire": False, "break_blocks": True}),
     "rocket": dict(name="Rocket", throwable=False, contact=True, gravity=0.004, fuse_ticks=120, trail=True,
-                   explosion={"power": 3.5, "fire": False, "break_blocks": False}),
+                   explosion={"power": 3.5, "fire": False, "break_blocks": True}),
 }
 
 
 # ------------------------------------------------------------------------------------------- models
-def gun_geometry(gid, g):
-    """Returns dict with body cubes, moving part, magazine cubes per kind, sight/muzzle/under positions, iron sights."""
-    a, L, f = g["arch"], g["L"], g["furniture"]
-    body = g.get("body", "metal")
-    s = lambda v: v * L  # noqa: E731  scale lengths (z)
-
-    if a == "pistol":
-        top, front = 7.2, -s(6)
-        parts = [cube((-1, 5, front), (2, 2.2, s(9)), body), cube((-0.75, 0, 0.5), (1.5, 5, 2), f),
-                 cube((-0.25, 3.5, -1.5), (0.5, 0.5, 2))]
-        moving = ("slide", [cube((-1.05, 6.1, front - 0.2), (2.1, 1.1, s(9) + 0.4), body)])
-        mag = [cube((-0.6, -0.8, 0.7), (1.2, 1, 1.6))]
-        return dict(parts=parts, moving=moving, mag=mag, drum=None, sight=(top, 0), muzzle=(6.1, front), under=None,
-                    iron=[cube((-0.4, top, 1.8), (0.8, 0.6, 0.6)), cube((-0.2, top, front + 0.4), (0.4, 0.5, 0.4))])
-    if a == "revolver":
-        front = -s(8)
-        parts = [cube((-0.6, 6, front), (1.2, 1.2, s(5))), cube((-1.2, 5, -3), (2.4, 2.4, 3.5), body),
-                 cube((-0.9, 5, 0.5), (1.8, 2.2, 1.5)), cube((-0.75, 0, 1), (1.5, 5, 2), f)]
-        moving = ("hammer", [cube((-0.3, 7, 1.5), (0.6, 1, 0.6))])
-        mag = [cube((-1.25, 5.2, -2.8), (2.5, 2, 3), "steel")]
-        return dict(parts=parts, moving=moving, mag=mag, drum=None, sight=(7.4, -1), muzzle=(6.6, front), under=None,
-                    iron=[cube((-0.2, 7.2, front + 0.3), (0.4, 0.6, 0.5))])
-    if a in ("smg", "bullpup_smg"):
-        front = -s(12)
-        if a == "bullpup_smg":
-            parts = [cube((-1.3, 4, -8), (2.6, 4, 14), f), cube((-0.5, 5.5, front), (1, 1, 4)), cube((-0.75, 0.5, -4), (1.5, 3.5, 2), f)]
-            mag = [cube((-1, 8, -6), (2, 0.8, 11), "steel")]
-            return dict(parts=parts, moving=("bolt", [cube((1.2, 6, -2), (0.4, 0.6, 1.5))]), mag=mag, drum=None,
-                        sight=(8.8, -2), muzzle=(6, front), under=None,
-                        iron=[cube((-0.5, 8.8, 0), (1, 1, 1))])
-        parts = [cube((-1, 4, -8), (2, 3, s(12))), cube((-0.75, 0, 0), (1.5, 4, 2), f),
-                 cube((-0.5, 5, front), (1, 1, s(12) - 8 + 0.01) if s(12) > 8 else (1, 1, 0.5)),
-                 cube((-0.5, 4.5, 4), (1, 1.5, 5), f), cube((-1.1, 3.6, -7.5), (2.2, 1, 4), f)]
-        mag_z = 0.2 if g.get("mag_in_grip") else -5
-        mag = [cube((-0.6, -1, mag_z), (1.2, 5, 1.6), "steel")]
-        drum = [cube((-1.2, -2.5, -7), (2.4, 5, 5), "steel")]
-        return dict(parts=parts, moving=("bolt", [cube((0.9, 5.5, -3), (0.4, 0.6, 1.5))]), mag=mag, drum=drum,
-                    sight=(7, -2), muzzle=(5.5, front), under=(3.6, -6.5),
-                    iron=[cube((-0.5, 7, 0), (1, 1, 1)), cube((-0.25, 7, -7.5), (0.5, 0.8, 0.5))])
-    if a in ("rifle", "dmr", "lmg"):
-        front = -s(16 if a == "rifle" else 20)
-        stock_len = 6 if a != "lmg" else 7
-        parts = [cube((-0.5, 7, front), (1, 1, -front - 6)), cube((-1, 6, -8), (2, 3, 12), body),
-                 cube((-1, 4, 4), (2, 4, stock_len), f), cube((-0.5, 3, -1), (1, 3, 2), f),
-                 cube((-1.1, 5.5, -12), (2.2, 2.2, 5), f)]
-        if a == "lmg":
-            parts += [cube((-0.3, 4, front + 3), (0.6, 3, 0.6)), cube((-1.5, 9, -6), (3, 1, 6))]
-        mag = [cube((-0.6, 1, -6), (1.2, 5, 2), "steel")] if not g.get("curved_mag") else \
-            [cube((-0.6, 2, -6), (1.2, 4, 2), "steel"), cube((-0.6, 0, -7.2), (1.2, 2.2, 2), "steel")]
-        drum = [cube((-1.4, -1, -8.5), (2.8, 6, 6), "steel")]
-        if a == "lmg":
-            mag = [cube((-2.6, 2, -7), (2, 4, 4), "olive")]
-            drum = None
-        return dict(parts=parts, moving=("bolt", [cube((0.9, 7, -3), (0.4, 0.6, 2))]), mag=mag, drum=drum,
-                    sight=(9, -2), muzzle=(7.5, front), under=(5.5, -9.5),
-                    iron=[cube((-0.5, 9, 0), (1, 1.2, 1.5)), cube((-0.3, 9, -10.5), (0.6, 1, 0.5))])
-    if a == "sniper":
-        front = -s(18)
-        parts = [cube((-0.5, 6.5, front), (1, 1, -front - 8)), cube((-1, 5, -8), (2, 3, 10), body),
-                 cube((-1, 3, 2), (2, 4, 8), f), cube((-0.5, 2, -1), (1, 3, 1.5), f), cube((-1.2, 4, -14), (2.4, 2.5, 6), f)]
-        if gid == "barrett":
-            parts += [cube((-1.5, 6.2, front - 2), (3, 1.6, 2)), cube((-1.2, 5, -12), (2.4, 4, 14), body)]
-        mag = [cube((-0.6, 2.5, -5), (1.2, 2.5, 2), "steel")]
-        return dict(parts=parts, moving=("bolt", [cube((1, 7, -2), (1.5, 0.6, 0.6))]), mag=mag, drum=None,
-                    sight=(8, -3), muzzle=(7, front), under=None,
-                    iron=[cube((-0.3, 8, front + 1), (0.6, 0.6, 0.6))])
-    if a == "shotgun":
-        front = -s(16)
-        parts = [cube((-0.75, 6, front), (1.5, 1.5, -front - 2)), cube((-1, 4.5, -2), (2, 3, 6), body),
-                 cube((-1, 2.5, 4), (2, 3.5, 7), f), cube((-0.5, 1.5, 1), (1, 3, 1.5), f)]
-        moving = ("pump", [cube((-0.9, 4.6, -11), (1.8, 1.3, 5), f)])
-        mag = [cube((-0.6, 4.8, front + 1.5), (1.2, 1.2, 3))] if not g.get("box_mag") else [cube((-0.8, 1.5, -1.5), (1.6, 3, 2.5), "steel")]
-        drum = [cube((-1.3, -1, -3), (2.6, 5.5, 5.5), "steel")] if g.get("box_mag") else None
-        return dict(parts=parts, moving=moving, mag=mag, drum=drum, sight=(7.5, -1), muzzle=(6.75, front), under=(4.5, -8),
-                    iron=[cube((-0.25, 7.5, front + 0.5), (0.5, 0.5, 0.5))])
-    if a == "launcher":
-        front = -s(12)
-        parts = [cube((-1.4, 4.5, front), (2.8, 2.8, -front)), cube((-1, 2.5, 0), (2, 3.5, 8), f), cube((-0.5, 1.5, -1), (1, 3, 1.5), f)]
-        mag = [cube((-1.2, 4.7, -1.5), (2.4, 2.4, 1.2), "olive")]
-        return dict(parts=parts, moving=("breech", [cube((-1.5, 4.4, -0.5), (3, 3, 0.6))]), mag=mag, drum=None,
-                    sight=(7.3, -3), muzzle=(5.9, front), under=None,
-                    iron=[cube((-0.5, 7.3, -4), (1, 1.5, 0.4))])
-    if a == "rpg":
-        front = -s(14)
-        parts = [cube((-1, 5, front), (2, 2, 26)), cube((-1.3, 4.7, -2), (2.6, 2.6, 6), f),
-                 cube((-0.5, 1.5, -1), (1, 3.5, 1.5), f), cube((-0.5, 1.5, 4), (1, 3.5, 1.5), f), cube((-1.5, 4.5, 10), (3, 3, 3))]
-        mag = [cube((-1.6, 4.4, front - 5), (3.2, 3.2, 5), "olive"), cube((-0.8, 5.2, front - 7), (1.6, 1.6, 2), "olive")]
-        return dict(parts=parts, moving=("trigger", [cube((-0.2, 3.5, 0), (0.4, 0.8, 0.4))]), mag=mag, drum=None,
-                    sight=(7, -1), muzzle=(6, front - 7), under=None,
-                    iron=[cube((-0.5, 7, -1), (1, 1.5, 1))])
-    raise ValueError(a)
-
-
 def attachment_cubes(name, geo):
     top, sz = geo["sight"]
     my, mz = geo["muzzle"]
@@ -432,9 +341,266 @@ def attachment_cubes(name, geo):
     return None
 
 
+def bx(x0, y0, z0, x1, y1, z1, mat="metal"):
+    """Box from min to max corner (model pixels; barrel points to -Z, grip bottom at y=0)."""
+    return cube((x0, y0, z0), (x1 - x0, y1 - y0, z1 - z0), mat)
+
+
+def rod(z0, z1, y, r, mat="metal", x=0.0):
+    """Square rod along Z (barrels, tubes) centred on (x, y)."""
+    return bx(x - r, y - r, z0, x + r, y + r, z1, mat)
+
+
+def trigger(z=0.0, y=4.0):
+    return [bx(-0.3, y - 0.3, z - 0.2, 0.3, y, z + 2.2), bx(-0.15, y, z + 0.6, 0.15, y + 0.8, z + 0.9, "black")]
+
+
+def pistol_grip(mat="polymer", z=1.4, top=4.7):
+    return [bx(-0.8, 1.6, z, 0.8, top, z + 1.8, mat), bx(-0.8, 0.0, z + 0.6, 0.8, 1.7, z + 2.5, mat)]
+
+
+def result(parts, moving, mag, sight, muzzle, rhand, lhand, mag_at, under=None, iron=(), drum=None, round_bone=False):
+    return dict(parts=parts, moving=moving, mag=mag, drum=drum, sight=sight, muzzle=muzzle, under=under, iron=list(iron),
+                rhand=rhand, lhand=lhand, mag_at=mag_at, round=round_bone)
+
+
+def gun_geometry(gid, g):
+    f = g["furniture"]
+    # ---------------------------------------------------------------- pistols
+    if gid in ("glock17", "m1911", "deagle"):
+        slide_mat = {"glock17": "black", "m1911": "steel", "deagle": "steel"}[gid]
+        frame_mat = {"glock17": "polymer", "m1911": "steel", "deagle": "steel"}[gid]
+        front = {"glock17": -6.0, "m1911": -6.5, "deagle": -8.0}[gid]
+        h = 2.2 if gid == "deagle" else 1.8
+        parts = [bx(-0.95, 4.6, front + 0.4, 0.95, 5.8, 2.6, frame_mat), *trigger(-2.4, 3.9),
+                 bx(-0.85, 0.6, 0.5, 0.85, 4.6, 2.7, frame_mat if gid == "glock17" else "wood"),
+                 bx(-0.9, 0.2, 0.9, 0.9, 0.6, 2.9, "black")]
+        if gid == "m1911":
+            parts.append(bx(-0.3, 7.2, 2.6, 0.3, 8.0, 3.2, "black"))  # hammer spur
+        slide = [bx(-1.0, 5.8, front, 1.0, 5.8 + h, 2.8, slide_mat), rod(front - 0.2, front, 5.8 + h / 2, 0.35, "black")]
+        slide += [bx(-1.02, 6.0 + i * 0.35, 1.2, 1.02, 6.15 + i * 0.35, 2.6, "black") for i in range(3)]  # serrations
+        mag = [bx(-0.7, -0.6, 0.7, 0.7, 4.0, 2.4, "black")]
+        top = 5.8 + h
+        return result(parts, ("slide", slide), mag, (top, 0), (5.8 + h / 2, front), rhand=(0, 2.4, 1.6), lhand=(-0.4, 1.8, 0.8),
+                      mag_at=(0, 0, 1.6), iron=[bx(-0.45, top, 2.0, 0.45, top + 0.6, 2.5, "black"), bx(-0.2, top, front + 0.6, 0.2, top + 0.5, front + 1.0, "black")])
+    if gid == "revolver":
+        parts = [rod(-9, -3.5, 7.0, 0.5, "steel"), bx(-0.3, 7.5, -9, 0.3, 7.9, -3.5, "steel"),  # barrel + rib
+                 bx(-0.4, 5.6, -9, 0.4, 6.5, -4, "steel"),  # ejector housing
+                 bx(-1.0, 5.2, -3.5, 1.0, 8.0, 1.6, "steel"), *trigger(-1.0, 4.4),
+                 bx(-0.85, 0.8, 1.0, 0.85, 5.2, 2.8, "wood"), bx(-0.85, 0.2, 1.8, 0.85, 1.0, 3.4, "wood")]
+        cylinder = [bx(-1.3, 5.4, -3.2, 1.3, 8.0, -0.2, "steel"), bx(-1.32, 6.4, -3.0, 1.32, 7.0, -0.4, "black")]
+        hammer = ("hammer", [bx(-0.3, 7.6, 1.2, 0.3, 8.6, 1.8, "steel")])
+        return result(parts, hammer, cylinder, (7.9, -1), (7.0, -9), rhand=(0, 2.6, 1.9), lhand=(-0.4, 2.0, 1.0),
+                      mag_at=(0, 6.6, -1.7), iron=[bx(-0.2, 7.9, -8.6, 0.2, 8.6, -8.1, "steel")])
+    # ---------------------------------------------------------------- SMGs
+    if gid == "mp5":
+        parts = [rod(-15, -11, 7.6, 0.4), rod(-11, 4, 7.6, 1.0, "black"), rod(-14.5, -12.5, 8.9, 0.8, "black"),  # barrel, receiver, sight hood
+                 rod(-15, -6, 8.7, 0.35, "black"), bx(-1.25, 5.6, -11, 1.25, 7.4, -4.5, "polymer"),  # cocking tube, handguard
+                 bx(-0.9, 4.6, -3, 0.9, 6.6, 3.2, "polymer"), *trigger(0, 3.9), *pistol_grip("polymer", 1.2, 4.6),
+                 rod(4, 10, 8.0, 0.25, "metal", x=0.7), rod(4, 10, 8.0, 0.25, "metal", x=-0.7), bx(-1.0, 5.4, 10, 1.0, 9.0, 10.8, "black")]
+        mag = [bx(-0.7, 2.0, -4.2, 0.7, 6.6, -2.4, "steel"), bx(-0.7, -1.5, -5.3, 0.7, 2.1, -3.4, "steel")]
+        return result(parts, ("bolt", [bx(-0.2, 8.4, -10, 0.2, 9.4, -9.4, "black")]), mag, (8.6, 1), (7.6, -15), under=(5.6, -8),
+                      rhand=(0, 2.4, 2.2), lhand=(0, 5.2, -8), mag_at=(0, 1.0, -3.8),
+                      iron=[rod(1.5, 2.5, 9.2, 0.6, "black")], drum=None)
+    if gid == "uzi":
+        parts = [rod(-12.5, -9, 7.2, 0.4), bx(-1.2, 5.6, -9, 1.2, 8.8, 4.5, "metal"), bx(-1.0, 4.4, -2, 1.0, 5.6, 2.8, "polymer"),
+                 *trigger(-1.5, 4.0), bx(-0.85, 0.4, 0.2, 0.85, 4.4, 2.6, "polymer"),
+                 rod(4.5, 10, 6.4, 0.2, "metal", x=0.8), rod(4.5, 10, 6.4, 0.2, "metal", x=-0.8), bx(-1.0, 5.6, 10, 1.0, 7.4, 10.6, "metal")]
+        mag = [bx(-0.6, -2.2, 0.6, 0.6, 3.0, 2.2, "steel")]
+        return result(parts, ("bolt", [bx(-0.3, 8.8, -4, 0.3, 9.4, -2.8, "black")]), mag, (8.8, 1), (7.2, -12.5),
+                      rhand=(0, 2.2, 1.4), lhand=(-0.3, 1.6, 1.2), mag_at=(0, -1.0, 1.4),
+                      iron=[bx(-0.4, 8.8, 3, 0.4, 9.8, 3.8, "black"), bx(-0.2, 8.8, -8.6, 0.2, 9.8, -8.2, "black")])
+    if gid == "p90":
+        parts = [bx(-1.3, 4.0, -9, 1.3, 7.8, 6, "polymer"), bx(-1.1, 1.0, 2, 1.1, 4.0, 6, "polymer"),  # body, stock below
+                 bx(-1.1, 1.0, -5, 1.1, 2.4, -3, "polymer"), bx(-1.1, 2.4, -5.4, 1.1, 4.0, -4.4, "polymer"),  # thumbhole front grip
+                 rod(-11, -9, 6.4, 0.4), bx(-0.8, 3.3, -7, 0.8, 4.0, -5.4, "polymer"), *trigger(-4.8, 3.6)]
+        mag = [bx(-0.95, 7.8, -8.6, 0.95, 8.6, 3.8, "glass"), bx(-0.8, 7.9, -8.4, 0.8, 8.3, 3.6, "brass")]
+        return result(parts, ("bolt", [bx(1.3, 6.2, -6, 1.7, 6.8, -5, "black")]), mag, (10.4, -2), (6.4, -11),
+                      rhand=(0, 1.6, -4.2), lhand=(0, 2.0, -7.6), mag_at=(0, 8.2, -2),
+                      iron=[bx(-0.6, 8.6, -3.5, 0.6, 10.4, 1, "black")])
+    if gid == "thompson":
+        parts = [rod(-17, -8, 7.4, 0.55), *[rod(-15 + i, -14.6 + i, 7.4, 0.8, "metal") for i in range(0, 6)],  # finned barrel
+                 rod(-18, -17, 7.4, 0.7, "steel"), bx(-1.1, 5.6, -8, 1.1, 8.6, 4, "steel"),
+                 bx(-0.6, 2.0, -13, 0.6, 6.8, -11.6, "wood"),  # vertical foregrip
+                 *trigger(0, 4.0), bx(-0.8, 0.6, 1.4, 0.8, 5.6, 3.0, "wood"),
+                 bx(-1.0, 5.2, 4, 1.0, 8.2, 8, "wood"), bx(-1.0, 3.6, 8, 1.0, 7.8, 13, "wood"), bx(-1.1, 3.4, 13, 1.1, 8.0, 13.4, "metal")]
+        mag = [bx(-0.7, -0.8, -3.8, 0.7, 5.6, -2.0, "steel")]
+        drum = [bx(-1.0, -3.0, -6.6, 1.0, 5.4, 0.8, "steel"), bx(-1.2, -1.8, -5.4, 1.2, 4.2, -0.4, "steel")]
+        return result(parts, ("bolt", [bx(-0.3, 8.6, -2, 0.3, 9.2, -1, "black")]), mag, (8.6, 0), (7.4, -18),
+                      rhand=(0, 2.6, 2.2), lhand=(0, 4.0, -12.3), mag_at=(0, 1.5, -2.9), drum=drum,
+                      iron=[bx(-0.4, 8.6, 2.5, 0.4, 9.6, 3.2, "steel"), bx(-0.15, 8.6, -17.6, 0.15, 9.2, -17.2, "steel")])
+    # ---------------------------------------------------------------- AR-15 family, AK, SCAR
+    if gid in ("m4a1", "m16a4", "m249"):
+        long = gid != "m4a1"
+        front = -27.0 if long else -23.0
+        parts = [rod(front + 1.5, -12, 7.5, 0.45), rod(front, front + 1.5, 7.5, 0.65, "polymer"),
+                 bx(-0.6, 7.9, -13, 0.6, 8.9, -11.8), bx(-0.9, 8.9, -13.1, 0.9, 9.4, -12.2), bx(-0.25, 9.4, -12.9, 0.25, 11.0, -12.4),
+                 bx(-1.3, 5.9, -12, 1.3, 9.0, -3.2, "polymer"), bx(-0.9, 9.0, -12, 0.9, 9.5, -3.2),
+                 bx(-1.1, 6.6, -3.2, 1.1, 9.4, 4.6, "polymer"), bx(-0.9, 9.4, -3.2, 0.9, 9.9, 4.6), bx(1.1, 7.4, -1.2, 1.18, 8.6, 1.6, "black"),
+                 bx(-1.0, 4.7, -2.6, 1.0, 6.6, 3.6, "polymer"), bx(-1.15, 3.2, -2.4, 1.15, 4.7, -0.1, "polymer"),
+                 *trigger(-0.1, 4.0), *pistol_grip("polymer", 1.4, 4.7)]
+        if gid == "m4a1":
+            parts += [rod(4.6, 10, 8.2, 0.65), bx(-1.0, 5.4, 8.5, 1.0, 9.2, 12.5, "polymer"), bx(-1.1, 5.0, 12.5, 1.1, 9.4, 13.1, "black")]
+        else:
+            parts += [bx(-1.0, 4.4, 4.6, 1.0, 9.0, 13, "polymer"), bx(-1.1, 4.0, 13, 1.1, 9.3, 13.6, "black")]
+        if gid == "m249":
+            parts += [bx(-1.5, 9.4, -3, 1.5, 10.4, 3.5), bx(-0.4, 10.4, -6, 0.4, 11.4, -5.4), bx(-0.4, 11.0, -6, 0.4, 11.4, -1),  # feed cover, carry handle
+                      bx(-1.3, 4.8, -20, -0.9, 5.3, -12), bx(0.9, 4.8, -20, 1.3, 5.3, -12)]  # folded bipod
+            mag = [bx(-3.4, 2.4, -6.5, -1.2, 6.8, -1.5, "olive"), bx(-3.5, 6.8, -6.0, -1.1, 7.2, -2.0, "olive")]
+            return result(parts, ("bolt", [bx(1.1, 7.6, -5, 1.7, 8.2, -4, "black")]), mag, (10.4, 0), (7.5, front), under=(5.9, -9),
+                          rhand=(0, 2.6, 2.6), lhand=(0, 5.6, -8.5), mag_at=(-2.3, 4.6, -4),
+                          iron=[bx(-0.6, 10.4, 2.4, 0.6, 11.4, 3.2, "black")])
+        mag = [bx(-0.8, -1.2, -2.3, 0.8, 3.3, -0.2, "steel"), bx(-0.8, -4.0, -2.8, 0.8, -1.2, -0.6, "steel"), bx(-0.85, -4.4, -2.9, 0.85, -4.0, -0.5, "black")]
+        drum = [bx(-1.6, -4.0, -5.0, 1.6, 2.5, 1.5, "steel"), bx(-0.8, 2.5, -2.3, 0.8, 3.3, -0.2, "steel")]
+        return result(parts, ("bolt", [bx(-0.4, 9.4, 4.6, 0.4, 9.9, 5.4), bx(1.1, 7.6, -1, 1.5, 8.2, 0.5, "steel")]), mag,
+                      (9.9, 0.5), (7.5, front), under=(5.9, -9), rhand=(0, 2.6, 2.6), lhand=(0, 5.6, -8.5), mag_at=(0, 0.0, -1.4),
+                      drum=drum, iron=[bx(-0.6, 9.9, 2.6, 0.6, 11.2, 3.6), bx(-0.2, 11.2, 2.9, 0.2, 11.4, 3.3, "black")])
+    if gid in ("ak47", "pkm"):
+        front = -24.0 if gid == "ak47" else -28.0
+        parts = [rod(front + 1, -11, 7.3, 0.45), rod(front, front + 1, 7.3, 0.6, "black"),
+                 bx(-0.5, 7.0, front + 2, 0.5, 8.6, front + 3), bx(-0.15, 8.6, front + 2.3, 0.15, 9.8, front + 2.7),
+                 rod(-14, -5, 8.6, 0.45), bx(-0.6, 8.2, -14.6, 0.6, 9.0, -13.8),
+                 bx(-1.2, 5.8, -11, 1.2, 7.8, -4.5, f), bx(-0.9, 8.2, -11, 0.9, 9.1, -6, f),
+                 bx(-1.1, 5.6, -4.5, 1.1, 8.6, 4.5), bx(-1.0, 8.6, -4, 1.0, 9.2, 4.3), *trigger(-0.2, 4.7),
+                 bx(-0.75, 1.8, 1.6, 0.75, 5.6, 3.2, f), bx(-0.75, 0.0, 2.3, 0.75, 1.9, 3.8, f),
+                 bx(-1.0, 5.2, 4.5, 1.0, 8.2, 8.5, f), bx(-1.0, 3.8, 8.5, 1.0, 7.6, 13, f), bx(-1.1, 3.5, 13, 1.1, 7.8, 13.5)]
+        if gid == "pkm":
+            parts = [p for p in parts if p["size"][2] < 8 or p["origin"][2] > -12] + [
+                *[rod(front + 2 + i * 1.6, front + 2.6 + i * 1.6, 7.3, 0.6) for i in range(6)],  # ribbed barrel
+                bx(-1.3, 4.8, -16, -0.9, 5.3, -6), bx(0.9, 4.8, -16, 1.3, 5.3, -6), bx(-1.3, 9.2, -4, 1.3, 9.8, 2)]
+            mag = [bx(-1.4, 0.8, -5.5, 1.4, 5.6, -0.8, "olive")]
+            return result(parts, ("bolt", [bx(1.1, 7.2, -1.5, 1.9, 7.8, -0.9)]), mag, (9.8, -1), (7.3, front),
+                          rhand=(0, 2.8, 2.6), lhand=(0, 6.0, -8), mag_at=(0, 3.0, -3), iron=[bx(-0.5, 9.8, -3.4, 0.5, 10.3, -2.4)])
+        mag = [bx(-0.8, 1.8, -3.6, 0.8, 5.6, -1.2, "steel"), bx(-0.8, -1.2, -4.6, 0.8, 1.9, -2.0, "steel"), bx(-0.8, -3.6, -5.8, 0.8, -1.1, -3.1, "steel")]
+        drum = [bx(-1.7, -3.5, -6.5, 1.7, 3.0, 0.5, "steel"), bx(-0.8, 3.0, -3.6, 0.8, 5.6, -1.2, "steel")]
+        return result(parts, ("bolt", [bx(1.1, 7.2, -1.5, 1.9, 7.8, -0.9)]), mag, (9.2, -1), (7.3, front), under=(5.8, -8.5),
+                      rhand=(0, 2.8, 2.6), lhand=(0, 5.4, -8), mag_at=(0, 1.5, -3), drum=drum,
+                      iron=[bx(-0.5, 9.2, -4.4, 0.5, 9.7, -3.4)])
+    if gid in ("scar_h", "m14"):
+        front = -24.0 if gid == "scar_h" else -28.0
+        mat = "tan" if gid == "scar_h" else "polymer"
+        parts = [rod(front + 1.5, -14, 7.6, 0.5), rod(front, front + 1.5, 7.6, 0.7, "black"),
+                 bx(-1.25, 6.2, -14, 1.25, 9.6, 2, mat), bx(-0.9, 9.6, -14, 0.9, 10.1, 4.5),
+                 bx(-1.25, 4.6, -3, 1.25, 6.2, 4, mat), bx(-1.2, 3.0, -2.6, 1.2, 4.6, -0.2, mat), *trigger(-0.1, 3.9),
+                 *pistol_grip("polymer", 1.4, 4.6), bx(-1.0, 5.4, 2, 1.0, 9.6, 5, mat),
+                 bx(-0.9, 6.6, 5, 0.9, 8.2, 10, "polymer"), bx(-1.0, 4.6, 10, 1.0, 9.2, 12.5, "polymer"), bx(-1.1, 4.2, 12.5, 1.1, 9.4, 13, "black")]
+        mag = [bx(-0.9, -2.5, -2.4, 0.9, 3.0, -0.2, mat), bx(-0.95, -2.9, -2.5, 0.95, -2.5, -0.1, "black")]
+        return result(parts, ("bolt", [bx(1.25, 8.2, -5, 1.9, 8.8, -4.2, "black")]), mag, (10.1, 0), (7.6, front), under=(6.2, -10),
+                      rhand=(0, 2.6, 2.6), lhand=(0, 5.8, -9), mag_at=(0, 0.2, -1.3),
+                      iron=[bx(-0.5, 10.1, 2.8, 0.5, 11.3, 3.6, "black"), bx(-0.3, 10.1, -13.5, 0.3, 11.2, -13, "black")])
+    if gid == "svd":
+        front = -30.0
+        parts = [rod(front + 1.5, -12, 7.4, 0.42), rod(front, front + 1.5, 7.4, 0.6, "black"),
+                 bx(-1.1, 6.0, -12, 1.1, 8.6, -4, "wood"), bx(-1.05, 5.8, -4, 1.05, 8.7, 4), bx(-0.95, 8.7, -3.6, 0.95, 9.2, 3.8), *trigger(-0.4, 4.9),
+                 bx(-0.9, 5.2, 4, 0.9, 8.4, 7, "wood"), bx(-0.9, 7.6, 7, 0.9, 8.4, 12, "wood"), bx(-0.9, 1.6, 7, 0.9, 3.2, 12, "wood"),
+                 bx(-0.9, 1.6, 3.2, 0.9, 5.4, 4.8, "wood"), bx(-1.0, 1.4, 12, 1.0, 8.6, 13, "black")]
+        mag = [bx(-0.8, 1.4, -3.4, 0.8, 5.8, -1.0, "steel")]
+        pso = [bx(-0.4, 9.2, -2, 0.4, 10, 1), rod(-5, 4, 11, 0.9, "polymer", x=-0.6), bx(-1.6, 9.9, 3.6, 0.4, 12.1, 5, "polymer")]
+        return result(parts, ("bolt", [bx(1.05, 7.4, -1, 1.7, 8.0, 0)]), mag, (9.2, -1), (7.4, front),
+                      rhand=(0, 2.8, 4.0), lhand=(0, 5.6, -8), mag_at=(0, 3.0, -2.2), iron=pso)
+    # ---------------------------------------------------------------- bolt-action / anti-materiel
+    if gid in ("m24", "awm"):
+        front = -32.0
+        mat = g["furniture"]
+        parts = [rod(front, -10, 7.4, 0.5), rod(-10, 3, 7.6, 1.0), *trigger(0.4, 4.5),
+                 bx(-1.2, 5.2, -18, 1.2, 6.8, -10, mat), bx(-1.2, 4.6, -10, 1.2, 6.8, 2.6, mat),
+                 bx(-0.9, 1.8, 2.5, 0.9, 5.2, 4.3, mat), bx(-1.1, 3.4, 4, 1.1, 7.6, 13, mat), bx(-1.2, 3.0, 13, 1.2, 8.0, 13.6, "black")]
+        if gid == "awm":
+            parts += [bx(-1.3, front - 0.4, -0.0, 1.3, 0, 0, "black")] if False else [bx(-1.2, 6.6, front - 2, 1.2, 8.2, front, "black"),
+                                                                                       bx(-0.9, 1.8, 6, 0.9, 4.0, 11, "black")]
+        mag = [bx(-0.8, 3.6, -4, 0.8, 4.8, -1, "steel")]
+        bolt = [bx(1.0, 7.4, 1.0, 2.6, 7.9, 1.6), bx(2.2, 6.6, 1.2, 2.8, 7.4, 2.0, "black")]
+        return result(parts, ("bolt", bolt), mag, (8.6, -3), (7.4, front - (2 if gid == "awm" else 0)),
+                      rhand=(0, 2.8, 3.4), lhand=(0, 5.2, -12), mag_at=(0, 4.2, -2.5), iron=[])
+    if gid == "barrett":
+        front = -36.0
+        parts = [rod(front + 3, -12, 7.6, 0.65), bx(-1.6, 6.8, front, 1.6, 8.4, front + 3, "steel"), bx(-1.62, 7.3, front + 0.6, 1.62, 7.9, front + 2.4, "black"),
+                 bx(-1.4, 5.4, -12, 1.4, 9.4, 8, "metal"), bx(-1.0, 9.4, -10, 1.0, 9.9, 6), bx(-0.4, 9.9, -6, 0.4, 11.0, -5.4),
+                 bx(-0.4, 10.6, -6, 0.4, 11.0, -2), bx(-1.3, 4.8, -24, -0.9, 5.3, -12), bx(0.9, 4.8, -24, 1.3, 5.3, -12),
+                 *trigger(0.4, 4.3), *pistol_grip("polymer", 1.8, 5.4), bx(-1.1, 4.0, 8, 1.1, 9.0, 13, "polymer"), bx(-1.2, 3.6, 13, 1.2, 9.4, 13.8, "black")]
+        mag = [bx(-1.0, 1.5, -6, 1.0, 5.4, -2.5, "steel")]
+        return result(parts, ("bolt", [bx(1.4, 7.6, -2, 2.2, 8.4, -1)]), mag, (9.9, -2), (7.6, front),
+                      rhand=(0, 3.0, 3.0), lhand=(0, 5.0, -14), mag_at=(0, 3.0, -4.2), iron=[])
+    # ---------------------------------------------------------------- shotguns
+    if gid in ("m870", "spas12"):
+        front = -26.0
+        parts = [rod(front, -2, 7.6, 0.6), rod(front + 3, -8, 6.3, 0.5), bx(-1.1, 5.4, -2, 1.1, 8.6, 5), *trigger(0.5, 4.4)]
+        if gid == "spas12":
+            parts += [bx(-0.9, 6.9, -18, 0.9, 8.6, -4, "black"), bx(-0.9, 1.6, 4.6, 0.9, 5.4, 6.4, "polymer"),
+                      bx(-0.25, 8.0, 5, 0.25, 8.6, 13), bx(-0.25, 4.0, 13, 0.25, 8.6, 13.5), bx(-0.8, 5.0, 13.4, 0.8, 7.6, 14.2, "black")]
+            pump_mat = "polymer"
+        else:
+            parts += [bx(-1, 4.4, 5, 1, 7.6, 9, "wood"), bx(-1, 2.8, 9, 1, 7.2, 14, "wood"), bx(-1.1, 2.6, 14, 1.1, 7.4, 14.6, "black"),
+                      bx(-0.8, 1.6, 4.4, 0.8, 5.0, 6.2, "wood")]
+            pump_mat = "wood"
+        pump = [bx(-1.0, 5.6, -14, 1.0, 7.0, -8, pump_mat), *[bx(-1.05, 5.8 + i * 0.4, -13.5, 1.05, 5.9 + i * 0.4, -8.5, "black") for i in range(3)]]
+        mag = [rod(front + 2.4, front + 3.2, 6.3, 0.55, "steel")]  # magazine tube cap
+        return result(parts, ("pump", pump), mag, (8.6, 2), (7.6, front),
+                      rhand=(0, 2.6, 5.0), lhand=(0, 5.2, -11), mag_at=(0, 5.0, 1.0),
+                      iron=[bx(-0.2, 8.2, front + 0.5, 0.2, 8.6, front + 1, "steel")])
+    if gid == "aa12":
+        front = -22.0
+        parts = [rod(front, -12, 7.4, 0.6), bx(-1.3, 4.6, -12, 1.3, 9.0, 6, "polymer"), bx(-1.0, 9.0, -10, 1.0, 9.5, 4), *trigger(0, 3.9),
+                 *pistol_grip("polymer", 1.2, 4.6), bx(-1.1, 4.4, 6, 1.1, 8.6, 12, "polymer"), bx(-1.2, 4.0, 12, 1.2, 9.0, 12.6, "black")]
+        mag = [bx(-1.0, 0.6, -6, 1.0, 4.6, -1.5, "steel")]
+        drum = [bx(-1.6, -3.5, -8.5, 1.6, 4.6, 0.5, "steel"), bx(-1.8, -2.3, -7.3, 1.8, 3.4, -0.7, "steel")]
+        return result(parts, ("bolt", [bx(1.3, 7.8, -6, 1.8, 8.4, -5, "black")]), mag, (9.5, 0), (7.4, front), under=(4.6, -9),
+                      rhand=(0, 2.4, 2.2), lhand=(0, 4.4, -9), mag_at=(0, 2.4, -3.8), drum=drum,
+                      iron=[bx(-0.5, 9.5, 2, 0.5, 10.6, 2.8, "black")])
+    # ---------------------------------------------------------------- launchers
+    if gid == "m79":
+        parts = [rod(-14, -0.8, 7.0, 1.4, "olive"), bx(-1.2, 5.2, -0.8, 1.2, 8.4, 2.5), *trigger(1.0, 4.4),
+                 bx(-0.8, 1.6, 2.2, 0.8, 5.2, 3.8, "wood"), bx(-1.0, 3.2, 3.8, 1.0, 7.8, 10, "wood"), bx(-1.1, 3.0, 10, 1.1, 8.0, 10.6, "black"),
+                 bx(-1.2, 5.2, -9, 1.2, 5.8, -3, "wood")]
+        shell = [rod(-0.8, 0.2, 7.0, 1.25, "brass")]
+        return result(parts, ("breech", [bx(-0.3, 8.4, 1.6, 0.3, 9.2, 2.2, "black")]), shell, (8.6, -2), (7.0, -14),
+                      rhand=(0, 2.8, 3.0), lhand=(0, 4.6, -6), mag_at=(0, 7.0, -0.3), round_bone=True,
+                      iron=[bx(-0.6, 8.4, -2, 0.6, 9.8, -1.6, "black")])
+    if gid == "rpg7":
+        parts = [rod(-13, 12, 7.0, 0.9), bx(-1.2, 5.8, -4, 1.2, 8.2, 4, "wood"), bx(-0.5, 2.0, -3, 0.5, 6.0, -1.6, "wood"),
+                 bx(-0.5, 2.0, 2, 0.5, 6.0, 3.4, "wood"), rod(12, 16, 7.0, 1.4), *trigger(-1.2, 5.0),
+                 bx(-2.4, 8.2, -2, -1.2, 9.6, 1, "black"), bx(-2.0, 7.4, -1.6, -1.2, 8.2, 0.6)]
+        warhead = [rod(-15.5, -13, 7.0, 0.5, "olive"), rod(-19, -15.5, 7.0, 1.6, "olive"), rod(-21, -19, 7.0, 1.1, "olive"),
+                   rod(-22.4, -21, 7.0, 0.5, "olive"), bx(-1.8, 6.8, -15, 1.8, 7.2, -13.6, "olive")]
+        return result(parts, ("trigger", [bx(-0.2, 4.6, -1.4, 0.2, 5.4, -1.0, "black")]), warhead, (9.6, -1), (7.0, -22.4),
+                      rhand=(0, 3.4, -2.3), lhand=(0, 3.4, 2.7), mag_at=(0, 7.0, -17), round_bone=True,
+                      iron=[bx(-0.4, 7.9, -11, 0.4, 9.0, -10.4, "black")])
+    raise ValueError(gid)
+
+
+# First-person arms (shown only in first person): gloved hand on the anchor bone, sleeved forearm running back
+# towards the camera. Rotations are Bedrock cube rotations around the hand.
+ARM_ANGLES = {"right": [-25, -35, 0], "left": [-18, 52, 0]}
+
+
+def arm_bone(name, parent, hand, angles):
+    hx, hy, hz = hand
+    pivot = [round(v, 3) for v in hand]
+
+    def rotated(c):
+        c["pivot"] = pivot
+        c["rotation"] = angles
+        return c
+
+    cubes = [rotated(cube((hx - 1.7, hy - 1.9, hz - 1.7), (3.4, 3.6, 3.4), "black")),         # glove
+             rotated(cube((hx - 1.5, hy - 1.6, hz + 1.7), (3.0, 3.0, 4.0), "black")),         # cuff
+             rotated(cube((hx - 1.8, hy - 1.9, hz + 5.7), (3.6, 3.6, 12.0), "olive"))]        # sleeve
+    return {"name": name, "parent": parent, "pivot": pivot, "cubes": cubes}
+
+
 def gun_model(gid, g, geo):
+    def anchor(name, pos):
+        return {"name": name, "parent": "gun", "pivot": [round(v, 3) for v in pos], "cubes": []}
+
+    my, mz = geo["muzzle"]
+    flash = [bx(-1.6, my - 0.4, mz - 4.5, 1.6, my + 0.4, mz - 0.2, "flash"), bx(-0.4, my - 1.6, mz - 4.5, 0.4, my + 1.6, mz - 0.2, "flash"),
+             bx(-0.9, my - 0.9, mz - 2.5, 0.9, my + 0.9, mz - 0.1, "flash")]
+    mag_bone = "round" if geo["round"] else "magazine"
     bones = [bone("gun", [], parent=None), bone("body", geo["parts"]), bone(geo["moving"][0], geo["moving"][1]),
-             bone("magazine", geo["mag"]), bone("default_sight", geo["iron"])]
+             bone(mag_bone, geo["mag"]), bone("default_sight", geo["iron"]), bone("muzzle_flash", flash),
+             anchor("right_hand", geo["rhand"]), anchor("left_hand", geo["lhand"]),
+             arm_bone("arm_right", "right_hand", geo["rhand"], ARM_ANGLES["right"]),
+             arm_bone("arm_left", "left_hand", geo["lhand"], ARM_ANGLES["left"])]
     for mid, m in MAGAZINES.items():
         if gid in m["guns"] and m["kind"] == "drum" and geo["drum"]:
             bones.append(bone(f"magazine_{mid}", geo["drum"]))
@@ -444,32 +610,57 @@ def gun_model(gid, g, geo):
             if cubes:
                 bones.append(bone(f"attachment_{aid}", cubes))
     return {"format_version": "1.12.0", "minecraft:geometry": [{
-        "description": {"identifier": f"geometry.{gid}", "texture_width": 256, "texture_height": 128}, "bones": bones}]}
+        "description": {"identifier": f"geometry.{gid}", "texture_width": 256, "texture_height": 192}, "bones": bones}]}
 
 
 def gun_animations(g, geo):
     moving = geo["moving"][0]
-    kick = {"bolt": [0, 0, 1.5], "slide": [0, 0, 1.5], "pump": [0, 0, 2.5], "hammer": [0, 0, 0.5],
+    kick = {"bolt": [0, 0, 1.5], "slide": [0, 0, 1.6], "pump": [0, 0, 2.5], "hammer": [0, 0, 0.5],
             "breech": [0, 0, 1], "trigger": [0, 0, 0.3]}[moving]
-    reload_s = g["reload"] / 20
-    shoot_len = max(0.12, min(60 / g["rpm"], 1.0))
     r = lambda v: str(round(v, 3))  # noqa: E731
+    shoot_len = max(0.12, min(60 / g["rpm"], 1.0))
+    shoot = {"gun": {"position": {"0.0": [0, 0, 0], "0.03": [0, 0.1, 0.6], r(shoot_len): [0, 0, 0]},
+                     "rotation": {"0.0": [0, 0, 0], "0.03": [-3, 0, 0], r(shoot_len): [0, 0, 0]}},
+             moving: {"position": {"0.0": [0, 0, 0], "0.04": kick, r(shoot_len): [0, 0, 0]}}}
+    if g["arch"] in ("sniper",) and g["rpm"] <= 60:  # bolt action: cycle the bolt after the shot
+        shoot[moving] = {"position": {"0.0": [0, 0, 0], r(shoot_len * 0.35): [0, 0, 0], r(shoot_len * 0.55): [0, 0, 3],
+                                      r(shoot_len * 0.8): [0, 0, 0]}}
+
+    # Reload: the left hand leaves the handguard, pulls the magazine (or round) out and down, comes back with a
+    # new one and seats it, then returns. Bone offsets are relative to rest positions.
+    t = g["reload"] / 20
+    lx, ly, lz = geo["lhand"]
+    mx, my, mz = geo["mag_at"]
+    to_mag = [mx - lx, my - ly, mz - lz]
+    out = [-3.0, -11.0, 2.0] if not geo["round"] else [0.0, -4.0, -8.0]
+    below = [0.0, -4.0, 0.0] if not geo["round"] else [0.0, 0.0, -5.0]
+    add = lambda a, b: [round(a[i] + b[i], 3) for i in range(3)]  # noqa: E731
+    mag_bone = "round" if geo["round"] else "magazine"
+    reload = {
+        "gun": {"rotation": {"0.0": [0, 0, 0], r(t * 0.12): [8, 0, -14], r(t * 0.85): [8, 0, -14], r(t): [0, 0, 0]}},
+        "left_hand": {"position": {"0.0": [0, 0, 0], r(t * 0.15): to_mag, r(t * 0.35): add(to_mag, out), r(t * 0.5): add(to_mag, out),
+                                   r(t * 0.65): add(to_mag, below), r(t * 0.75): to_mag, r(t * 0.9): [0, 0, 0]}},
+        mag_bone: {"position": {"0.0": [0, 0, 0], r(t * 0.15): [0, 0, 0], r(t * 0.35): out, r(t * 0.5): out,
+                                r(t * 0.65): below, r(t * 0.75): [0, 0, 0]},
+                   "scale": {"0.0": [1, 1, 1], r(t * 0.36): [1, 1, 1], r(t * 0.37): [0, 0, 0], r(t * 0.49): [0, 0, 0], r(t * 0.5): [1, 1, 1]}},
+        moving: {"position": {"0.0": [0, 0, 0], r(t * 0.78): [0, 0, 0], r(t * 0.84): [0, 0, kick[2] * 1.5], r(t * 0.9): [0, 0, 0]}},
+    }
+    if geo["round"]:  # launchers start empty: the new round only appears when the hand brings it
+        reload[mag_bone]["scale"] = {"0.0": [0, 0, 0], r(t * 0.49): [0, 0, 0], r(t * 0.5): [1, 1, 1]}
     return {"format_version": "1.8.0", "animations": {
-        "shoot": {"animation_length": shoot_len, "bones": {
-            "gun": {"position": {"0.0": [0, 0, 0], "0.03": [0, 0.1, 0.6], r(shoot_len): [0, 0, 0]},
-                    "rotation": {"0.0": [0, 0, 0], "0.03": [-3, 0, 0], r(shoot_len): [0, 0, 0]}},
-            moving: {"position": {"0.0": [0, 0, 0], "0.04": kick, r(shoot_len): [0, 0, 0]}}}},
-        "reload": {"animation_length": reload_s, "bones": {
-            "gun": {"rotation": {"0.0": [0, 0, 0], r(reload_s * 0.2): [15, 0, -20], r(reload_s * 0.8): [15, 0, -20], r(reload_s): [0, 0, 0]}},
-            "magazine": {"position": {"0.0": [0, 0, 0], r(reload_s * 0.3): [0, -8, 0], r(reload_s * 0.6): [0, -8, 0], r(reload_s * 0.75): [0, 0, 0]}}}},
+        "shoot": {"animation_length": shoot_len, "bones": shoot},
+        "reload": {"animation_length": t, "bones": reload},
     }}
 
 
 def gun_definition(gid, g, geo):
     length = -geo["muzzle"][1] + 10
     gui_scale = round(min(0.8, 13 / length), 2)
-    sight_top = geo["sight"][0] + 1  # line of sight ~1px above the rail
-    ads_y = round(6.2 + (10 - sight_top) - g.get("ads_height", 0), 2)
+    # Line of sight: just below the top of the iron sights, or ~1px above the rail for guns without irons.
+    irons_top = max((c["origin"][1] + c["size"][1] for c in geo["iron"]), default=None)
+    sight_line = irons_top - 0.4 if irons_top is not None and not g.get("scope") else geo["sight"][0] + 1
+    # Calibrated in game (M4A1 irons): this pose puts the sight line on the screen centre.
+    ads_y = round(6.0 + (10 - sight_line) - g.get("ads_height", 0), 2)
     d = {
         "name": g["name"],
         "model": {"texture": f"{NS}:textures/gun/basic.png"},
@@ -484,7 +675,7 @@ def gun_definition(gid, g, geo):
         "display": {
             "gui": {"rotation": [0, -90, 0], "translation": [-1.5, -0.5, 0], "scale": [gui_scale] * 3},
             "fixed": {"rotation": [0, -90, 0], "translation": [-1.5, -0.5, 0], "scale": [gui_scale] * 3},
-            "ads": {"translation": [0, ads_y, -6]},
+            "ads": {"translation": [-1.0, ads_y, -6]},
         },
     }
     for key, field in (("lifetime", "lifetime_ticks"), ("headshot", "headshot_multiplier"), ("scope", "scope")):
@@ -508,7 +699,7 @@ def noise_block(img, ox, oy, base, rng, wood=False, w=64, h=64):
 
 def gun_texture(path: Path):
     rng = random.Random(1)
-    img = Image.new("RGBA", (256, 128))
+    img = Image.new("RGBA", (256, 192))
     for mat, (ox, oy) in MATERIALS.items():
         noise_block(img, ox, oy, COLOURS[mat], rng, wood=mat == "wood")
     path.parent.mkdir(parents=True, exist_ok=True)

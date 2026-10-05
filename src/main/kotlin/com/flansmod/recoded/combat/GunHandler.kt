@@ -115,6 +115,7 @@ object GunHandler {
                     player.level().addFreshEntity(this)
                 }
             }
+            broadcastShot(player, stack, directions)
         } else {
             directions.forEach { Ballistics.fire(player, gun, ammo, it) }
             broadcastShot(player, stack, directions)
@@ -166,10 +167,14 @@ object GunHandler {
 
         if (state.reloadDoneTick >= 0) {
             when {
-                gun == null || player.inventory.selectedSlot != state.reloadSlot -> state.reloadDoneTick = -1
+                gun == null || player.inventory.selectedSlot != state.reloadSlot -> {
+                    state.reloadDoneTick = -1
+                    player.inventory.nonEquipmentItems.forEach { it.remove(com.flansmod.recoded.registry.FlansComponents.RELOADING) }
+                }
                 now >= state.reloadDoneTick -> {
                     state.reloadDoneTick = -1
                     finishReload(player, stack)
+                    stack.remove(com.flansmod.recoded.registry.FlansComponents.RELOADING)
                 }
             }
         }
@@ -211,6 +216,7 @@ object GunHandler {
 
         val newMag = candidate?.second?.definition ?: current?.definition
             ?: GunItem.acceptedMagazines(stack.gunId!!).firstNotNullOfOrNull { com.flansmod.recoded.gun.Magazines[it] }
+        stack.set(com.flansmod.recoded.registry.FlansComponents.RELOADING, true)
         state.reloadDoneTick = player.level().gameTime + (gun.reloadTicks * (newMag?.reloadMultiplier ?: 1f)).toInt().coerceAtLeast(1)
         state.reloadSlot = player.inventory.selectedSlot
         state.burstLeft = 0

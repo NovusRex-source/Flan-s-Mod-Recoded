@@ -8,7 +8,7 @@
   "explosion": {
     "power": 3.5,
     "fire": false,
-    "break_blocks": false
+    "break_blocks": true
   },
   "icon": "flansbasic:pg7"
 }

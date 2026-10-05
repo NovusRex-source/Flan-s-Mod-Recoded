@@ -7,7 +7,7 @@
   "explosion": {
     "power": 2.2,
     "fire": false,
-    "break_blocks": false
+    "break_blocks": true
   },
   "icon": "flansbasic:40mm_he"
 }

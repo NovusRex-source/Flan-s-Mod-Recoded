@@ -3,7 +3,9 @@
   "package": "com.flansmod.recoded.client.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
+    "AvatarRendererMixin",
     "CameraMixin",
+    "GameRendererMixin",
     "CreativeModeTabsAccessor",
     "MinecraftGlowMixin",
     "MouseHandlerMixin"

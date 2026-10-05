@@ -53,6 +53,11 @@ Wenn Code generiert wird, nutze zwingend diese Frameworks für die jeweiligen Au
 * **Creative-Tabs nach Typ:** `TypeTabs` (Waffen, Magazine & Munition, Aufsätze, Teile, Sprengstoff, Kleidung) zusätzlich zu den Pack-Tabs.
 * **3D-Items:** Teile, Munition, Magazine, Aufsätze und Granaten des Basis-Packs sind Vanilla-Element-Modelle (Elternmodell `block/block`, Farb-Atlas `item/materials`), erzeugt vom Generator.
 * **Tasten:** R Nachladen, J Aufsatz anbringen, K Feuermodus, U Waffenmenü.
+* **Waffenhaltung:** Dritte Person: Spieler mit Waffe nutzen Vanillas Armpose `CROSSBOW_HOLD` (`AvatarRendererMixin`). Erste Person: Arme (Handschuh + Ärmel) sind Teil des Waffenmodells (Bones `arm_right`/`arm_left` unter den Ankern `right_hand`/`left_hand`), werden nur in der Ego-Perspektive gezeichnet und folgen so den Animationen (Nachladen: linke Hand holt/setzt Magazin).
+* **Spezial-Bones:** `muzzle_flash` (kurz nach jedem Schuss sichtbar), `round` (Projektil von Werfern, nur sichtbar wenn geladen oder während des Nachladens – Component `flansmod:reloading`), `magazine`/`magazine_<id>`.
+* **Zielen:** ADS-Pose kalibriert (x = -1, y aus Visierlinie; im Generator), beim Zielen kein View-Bobbing (`GameRendererMixin`) und kein Hand-Schwanken.
+* **Sprengstoff:** Explosionen mit `fire` legen selbst Feuer (`Incendiary`), Brandmunition entzündet getroffene Flächen; Raketen/40mm zerstören Blöcke.
+* **Visuelles Tuning:** `ProbeTest` (Dev-Werkzeug, Konfiguration über Umgebungsvariable `FLANS_PROBE`) rendert Transform-Varianten bzw. mehrere Waffen als Screenshots.
 * **Visiere:** `scope` (an Waffe oder Sicht-Aufsatz): `overlay`-Textur (wie Fernrohr, versteckt das Waffenmodell), `night_vision` (Server vergibt Effekt nur beim Zielen), `thermal` (Leucht-Umriss für Lebewesen, `MinecraftGlowMixin`).
 * **Basis-Inhalte:** Standardwaffen/-munition/-aufsätze liegen als eingebautes Content Pack in `src/main/resources/resourcepacks/basic` (Namespace `flansbasic`, standardmäßig aktiv, abschaltbar). Erzeugt von `tools/generate_basic_pack.py` – Änderungen dort machen und das Skript erneut ausführen, nicht die generierten Dateien bearbeiten.
 * **Creative-Tabs:** Ein Tab pro Content Pack (nur clientseitig registriert), konfiguriert über einen `flansmod`-Abschnitt in `pack.mcmeta` (`name`, `icon`). Inhalte ohne Pack-Tab landen im allgemeinen Tab.

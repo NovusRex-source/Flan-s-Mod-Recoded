@@ -90,7 +90,10 @@ data class ModelInfo(
     @Serializable(IdentifierSerializer::class) val animations: Identifier? = null,
 )
 
-data class ResolvedModel(val geo: Identifier, val texture: Identifier, val animations: Identifier, val display: Map<String, Transform>)
+data class ResolvedModel(
+    val geo: Identifier, val texture: Identifier, val animations: Identifier,
+    val display: Map<String, Transform>,
+)
 
 /** Same semantics as a vanilla item model `display` entry: degrees, 1/16 block units, scale factors. */
 @Serializable
@@ -105,8 +108,8 @@ data class Transform(
         /** Defaults for a gun modelled in Blockbench with the barrel pointing north (-Z). */
         val DEFAULTS = mapOf(
             "firstperson_righthand" to Transform(translation = listOf(6f, 2f, 0f)),
-            ADS to Transform(translation = listOf(0f, 6.2f, -6f)),
-            "thirdperson_righthand" to Transform(rotation = listOf(90f, 0f, 0f), scale = listOf(0.8f, 0.8f, 0.8f)),
+            ADS to Transform(translation = listOf(-1f, 6f, -6f)),
+            "thirdperson_righthand" to Transform(scale = listOf(0.8f, 0.8f, 0.8f)),
             "gui" to Transform(rotation = listOf(0f, -90f, 0f), translation = listOf(-1.5f, -0.5f, 0f), scale = listOf(0.65f, 0.65f, 0.65f)),
             "fixed" to Transform(rotation = listOf(0f, -90f, 0f), translation = listOf(-1.5f, -0.5f, 0f), scale = listOf(0.65f, 0.65f, 0.65f)),
             "ground" to Transform(translation = listOf(0f, -2f, 0f), scale = listOf(0.5f, 0.5f, 0.5f)),

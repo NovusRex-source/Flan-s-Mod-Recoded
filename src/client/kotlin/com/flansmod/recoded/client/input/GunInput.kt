@@ -114,6 +114,11 @@ object GunInput {
         if (gun == null) burstLeft = 0
 
         updateAim(client, gun)
+        if (aiming) {
+            // No hand sway while aiming: the gun stays locked to the view.
+            player.xBob = player.xRot; player.xBobO = player.xRot
+            player.yBob = player.yRot; player.yBobO = player.yRot
+        }
         while (RELOAD.consumeClick()) if (gun != null) ClientPlayNetworking.send(ReloadPayload(unload = player.isShiftKeyDown))
         while (FIRE_MODE.consumeClick()) if (gun != null) ClientPlayNetworking.send(FireModePayload)
         while (WEAPON_MENU.consumeClick()) if (gun != null) ClientPlayNetworking.send(OpenWeaponMenuPayload)

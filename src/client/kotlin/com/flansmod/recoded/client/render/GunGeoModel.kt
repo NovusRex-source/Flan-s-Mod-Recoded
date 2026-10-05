@@ -11,6 +11,7 @@ import com.flansmod.recoded.item.attachments
 import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.item.loadedMagazine
 import com.flansmod.recoded.client.hud.ScopeOverlay
+import com.flansmod.recoded.client.fx.ShotEffects
 import com.flansmod.recoded.item.gunId
 import com.geckolib.renderer.base.BoneSnapshots
 import com.geckolib.constant.DataTickets
@@ -29,8 +30,11 @@ import org.joml.Vector3f
 private val MODEL: DataTicket<ResolvedModel> = DataTicket.create("flansmod_gun_model", ResolvedModel::class.java)
 private val AIM: DataTicket<Float> = DataTicket.create("flansmod_aim", Float::class.javaObjectType)
 
-/** Installed attachments by slot and the inserted magazine type, for bone visibility. */
-private class InstalledAttachments(val bySlot: Map<String, Identifier>, val magazine: Identifier?, val scoped: Boolean)
+/** Per-stack bone visibility inputs: attachments by slot, inserted magazine, scope, loaded round, muzzle flash. */
+private class InstalledAttachments(
+    val bySlot: Map<String, Identifier>, val magazine: Identifier?, val scoped: Boolean,
+    val loaded: Boolean = false, val flash: Boolean = false,
+)
 private val ATTACHMENTS: DataTicket<InstalledAttachments> = DataTicket.create("flansmod_attachments", InstalledAttachments::class.java)
 private val MISSING = GunDefinition("missing").resolvedModel(FlansMod.id("missing"))
 
@@ -52,8 +56,11 @@ class GunGeoModel : GeoModel<GunItem>() {
         }
         val model = stack?.gunId?.let { id -> Guns[id]?.resolvedModel(id) } ?: MISSING
         renderState.addGeckolibData(MODEL, model)
+        val owner = (relatedObject as? GeoItemRenderer.RenderData)?.itemOwner()?.asLivingEntity()
         renderState.addGeckolibData(ATTACHMENTS, InstalledAttachments(
             stack?.attachments ?: emptyMap(), stack?.loadedMagazine?.magazine, stack?.definition?.scope?.overlay != null,
+            loaded = stack?.loadedMagazine?.isEmpty == false || stack?.has(com.flansmod.recoded.registry.FlansComponents.RELOADING) == true,
+            flash = owner != null && ShotEffects.recentlyFired(owner.id),
         ))
         currentAnimations = model.animations
     }
@@ -69,10 +76,14 @@ class GunGeoModel : GeoModel<GunItem>() {
  * left hand). In first person the pose blends towards the `ads` transform while aiming.
  */
 class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
+
     private companion object {
         const val ATTACHMENT_BONE = "attachment_"
         const val DEFAULT_BONE = "default_"
         const val MAGAZINE_BONE = "magazine"
+        const val ROUND_BONE = "round"
+        const val ARM_BONE = "arm_"
+        const val FLASH_BONE = "muzzle_flash"
     }
 
     override fun addRenderData(animatable: GunItem, relatedObject: RenderData?, renderState: GeoRenderState, partialTick: Float) {
@@ -111,12 +122,18 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
             bones.forEach { b -> snapshots.ifPresent(b) { it.skipRender(true).skipChildrenRender(true) } }
             return
         }
+        val firstPerson = context?.firstPerson() == true
         val names = info.bySlot.values.mapTo(HashSet()) { it.path }
         val specificMagazine = info.magazine?.let { "${MAGAZINE_BONE}_${it.path}" }?.takeIf { it in bones }
         for (bone in bones) {
             val hidden = when {
                 bone.startsWith(ATTACHMENT_BONE) -> bone.removePrefix(ATTACHMENT_BONE) !in names
                 bone.startsWith(DEFAULT_BONE) -> bone.removePrefix(DEFAULT_BONE) in info.bySlot
+                // `round`: the visible projectile of launchers (RPG warhead, 40mm), gone once fired.
+                // First-person arms are part of the gun model; nobody else sees them.
+                bone.startsWith(ARM_BONE) -> !firstPerson
+                bone == ROUND_BONE -> !info.loaded
+                bone == FLASH_BONE -> !info.flash
                 // `magazine` shows any inserted magazine; `magazine_<id>` replaces it for that magazine type.
                 bone == MAGAZINE_BONE -> info.magazine == null || specificMagazine != null
                 bone.startsWith("${MAGAZINE_BONE}_") -> bone != specificMagazine
@@ -141,7 +158,10 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
 
     private fun List<Float>.lerp(other: List<Float>, t: Float) = indices.map { Mth.lerp(t, this[it], other.getOrElse(it) { this[it] }) }
 
-    private fun List<Float>.vec(divisor: Float = 1f) = Vector3f(getOrElse(0) { 0f } / divisor, getOrElse(1) { 0f } / divisor, getOrElse(2) { 0f } / divisor)
 
-    private fun Transform.toVanilla() = ItemTransform(rotation.vec(), translation.vec(16f), scale.vec())
 }
+
+
+private fun List<Float>.vec(divisor: Float = 1f) = Vector3f(getOrElse(0) { 0f } / divisor, getOrElse(1) { 0f } / divisor, getOrElse(2) { 0f } / divisor)
+
+private fun Transform.toVanilla() = ItemTransform(rotation.vec(), translation.vec(16f), scale.vec())
