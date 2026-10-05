@@ -48,6 +48,18 @@ class VehicleClientGameTest : FabricClientGameTest {
             server.runCommand("tp @a ${base.x} ${base.y + 1} ${base.z} 0 10")
             context.waitTicks(20)
             context.takeScreenshot("flansmod-vehicles-lineup")
+
+            // Upgrades show on the models; a shot-off wheel disappears and its part smokes.
+            server.compute { s ->
+                fun v(i: Int) = s.overworld().getEntity(ids[i]) as DriveableEntity
+                fun up(name: String) = Identifier.fromNamespaceAndPath("flansvehicles", name)
+                v(0).upgrades = mapOf("armor" to up("armor_kit"), "tank" to up("jerry_cans"), "engine" to up("engine_tuning"))
+                v(1).upgrades = mapOf("armor" to up("armor_kit"))
+                v(2).upgrades = mapOf("armor" to up("era_blocks"), "tank" to up("jerry_cans"))
+                v(0).damage = mapOf("wheel_fl" to 100f, "wheel_fr" to 100f, DriveableEntity.HULL to 50f)
+            }
+            context.waitTicks(20)
+            context.takeScreenshot("flansmod-vehicles-upgraded")
             server.runCommand("tp @a ${base.x - 9} ${base.y + 3} ${base.z + 17} facing ${base.x} ${base.y} ${base.z + 10}")
             context.waitTicks(10)
             context.takeScreenshot("flansmod-vehicles-front")
@@ -65,6 +77,18 @@ class VehicleClientGameTest : FabricClientGameTest {
             context.takeScreenshot("flansmod-vehicles-tab")
             context.input.pressKey(InputConstants.KEY_ESCAPE)
             server.runCommand("gamemode survival @a")
+
+            // Vehicle menu (U while riding): upgrade slots, fuel slot and part health.
+            server.compute { s -> s.playerList.players.first().startRiding(s.overworld().getEntity(ids[1])!!, true, true) }
+            context.waitTicks(5)
+            context.input.pressKey(InputConstants.KEY_U)
+            context.waitForScreen(com.flansmod.recoded.client.vehicle.VehicleMenuScreen::class.java)
+            context.takeScreenshot("flansmod-vehicles-menu")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+            server.compute { s -> s.playerList.players.first().stopRiding() }
+            context.waitTicks(5)
+            // The jeep's front wheels were shot off for the screenshot above: repair it before driving.
+            server.compute { s -> (s.overworld().getEntity(ids[0]) as DriveableEntity).damage = emptyMap() }
 
             // Drive the jeep forward with W: the driver's client simulates and the server must follow.
             server.compute { s -> s.playerList.players.first().startRiding(s.overworld().getEntity(ids[0])!!, true, true) }

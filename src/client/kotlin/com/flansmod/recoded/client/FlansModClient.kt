@@ -16,6 +16,7 @@ import com.flansmod.recoded.client.tab.TypeTabs
 import net.fabricmc.api.ClientModInitializer
 import com.flansmod.recoded.client.vehicle.VehicleClient
 import com.flansmod.recoded.client.vehicle.VehicleRenderer
+import com.flansmod.recoded.client.vehicle.VehicleMenuScreen
 import com.flansmod.recoded.client.bench.WeaponsBenchScreen
 import com.flansmod.recoded.client.bench.WeaponMenuScreen
 import com.flansmod.recoded.registry.FlansMenus
@@ -41,6 +42,7 @@ object FlansModClient : ClientModInitializer {
         VehicleClient.init()
         MenuScreens.register(FlansMenus.WEAPONS_BENCH, ::WeaponsBenchScreen)
         MenuScreens.register(FlansMenus.WEAPON, ::WeaponMenuScreen)
+        MenuScreens.register(FlansMenus.VEHICLE, ::VehicleMenuScreen)
         GunInput.init()
         GunHud.init()
     }

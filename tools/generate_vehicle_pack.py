@@ -2,7 +2,8 @@
 """
 Generates the built-in "Vehicles" content pack (src/main/resources/resourcepacks/vehicles): driveable vehicles in the
 spirit of the original Flan's Mod vehicle packs - a jeep, a Humvee with a .50 cal turret and an M1 Abrams tank - plus
-their mounted guns, tank shells, vehicle parts and Weapons Bench recipes, GeckoLib models, textures and item icons.
+their hit-box parts, upgrades, mounted guns, tank shells, vehicle parts and Weapons Bench recipes, GeckoLib models,
+textures and item icons.
 
 It is a normal content pack; the mod code contains no vehicles. Edit the tables below and re-run:
     python3 tools/generate_vehicle_pack.py
@@ -104,9 +105,11 @@ class Model:
             "bones": [{"name": "body", "pivot": [0, 0, 0], "cubes": []}] + self.bones}]}
 
     def boxes(self):
-        """All boxes back in vehicle space (for the item icon)."""
+        """All boxes back in vehicle space (for the item icon), without upgrades and the muzzle flash."""
         out = []
         for b in self.bones:
+            if b["name"].startswith("upgrade_") or b["name"] == "muzzle_flash":
+                continue
             for c in b["cubes"]:
                 x0, y0, z0 = c["origin"]
                 sx, sy, sz = c["size"]
@@ -133,6 +136,13 @@ def jeep_model(paint="olive"):
         box(0.95, 0.6, -1.5, 1.05, 1.3, -0.9, paint),             # spare wheel mount
         box(-0.3, 0.9, -1.75, 0.3, 1.5, -1.6, "tyre"),           # spare wheel
     ])
+    m.bone("upgrade_armor_kit", [
+        box(-0.9, 0.5, -1.5, -0.85, 1.25, 0.5, "olive_dark"), box(0.85, 0.5, -1.5, 0.9, 1.25, 0.5, "olive_dark"),   # door plates
+        box(-0.7, 0.55, 1.62, 0.7, 0.62, 1.75, "metal"), box(-0.7, 0.55, 1.62, -0.62, 1.1, 1.75, "metal"),
+        box(0.62, 0.55, 1.62, 0.7, 1.1, 1.75, "metal"),                                                              # bull bar
+    ])
+    m.bone("upgrade_jerry_cans", [box(-0.75, 0.95, -1.78, -0.4, 1.45, -1.6, "olive_dark"), box(0.4, 0.95, -1.78, 0.75, 1.45, -1.6, "olive_dark")])
+    m.bone("upgrade_engine_tuning", [box(-0.25, 1.15, 0.8, 0.25, 1.28, 1.3, "black")])                            # hood scoop
     for name, r, f in (("fl", -0.75, 1.05), ("fr", 0.75, 1.05), ("rl", -0.75, -1.05), ("rr", 0.75, -1.05)):
         m.wheel(name, r, f, 0.38, 0.3, steer=f > 0)
     return m
@@ -151,6 +161,12 @@ def humvee_model(paint="sand"):
         box(-1.2, 1.0, -1.9, -1.1, 1.08, 1.85, paint), box(1.1, 1.0, -1.9, 1.2, 1.08, 1.85, paint),
         box(-0.75, 1.95, -0.85, 0.75, 2.0, 0.05, "olive_dark"),    # roof ring base
     ])
+    m.bone("upgrade_armor_kit", [
+        box(-1.13, 0.6, -1.5, -1.07, 1.3, 0.5, "olive_dark"), box(1.07, 0.6, -1.5, 1.13, 1.3, 0.5, "olive_dark"),
+        box(-0.9, 0.55, 2.0, 0.9, 0.65, 2.15, "metal"), box(-0.9, 0.55, 2.0, -0.8, 1.2, 2.15, "metal"), box(0.8, 0.55, 2.0, 0.9, 1.2, 2.15, "metal"),
+    ])
+    m.bone("upgrade_jerry_cans", [box(-0.9, 1.2, -2.0, -0.5, 1.7, -1.9, "olive_dark"), box(0.5, 1.2, -2.0, 0.9, 1.7, -1.9, "olive_dark")])
+    m.bone("upgrade_engine_tuning", [box(-0.3, 1.35, 1.0, 0.3, 1.5, 1.6, "black")])
     for name, r, f in (("fl", -0.92, 1.25), ("fr", 0.92, 1.25), ("rl", -0.92, -1.25), ("rr", 0.92, -1.25)):
         m.wheel(name, r, f, 0.45, 0.38, steer=f > 0)
     # Roof turret: shield ring turns with the gunner, the M2 tilts with their aim.
@@ -182,6 +198,9 @@ def tank_model(paint="olive"):
         box(-1.85, 0.55, -2.4, -1.75, 1.0, 2.2, "olive_dark"), box(1.75, 0.55, -2.4, 1.85, 1.0, 2.2, "olive_dark"),  # side skirts
         box(-0.3, 1.25, 1.6, 0.3, 1.38, 2.05, "metal"),             # driver hatch
     ])
+    era = [box(-1.95, 0.6 + 0.3 * (i % 2), -2.2 + 0.5 * i, -1.85, 0.9 + 0.3 * (i % 2), -1.8 + 0.5 * i, "olive_dark") for i in range(9)]
+    m.bone("upgrade_era_blocks", era + [box(-b[3], b[1], b[2], -b[0], b[4], b[5], b[6]) for b in era])
+    m.bone("upgrade_jerry_cans", [box(-0.9, 1.0, -2.95, -0.2, 1.35, -2.75, "olive_dark"), box(0.2, 1.0, -2.95, 0.9, 1.35, -2.75, "olive_dark")])
     for side, r in (("l", -1.5), ("r", 1.5)):
         m.bone(f"track_{side}", [
             box(r - 0.25, 0.0, -2.5, r + 0.25, 0.12, 2.5, "track"),
@@ -233,35 +252,77 @@ PROJECTILES = {
                    "explosion": {"power": 4.0, "break_blocks": True}, "icon": f"{NS}:120mm_heat"},
 }
 
-SEAT = 0.0  # seat positions are the cushion tops (vanilla subtracts the rider's own attachment offset)
+def wheel_part(r, f, radius=0.38, width=0.3, health=20, armor=0.0):
+    return {"box": [r - width / 2, 0, f - radius, r + width / 2, 2 * radius, f + radius], "health": health, "armor": armor,
+            "role": "propulsion", "core_damage": 0.1}
+
+
+def car_parts(hull, engine, fuel_tank, wheels, radius, width, wheel_health, armor, extra=None):
+    """Hull/engine/fuel tank boxes must not overlap (a shot hits the first box it enters); wheels hide their bone when shot off."""
+    parts = {"hull": {"box": hull, "armor": armor, "role": "hull"},
+             "engine": {"box": engine, "health": 30 + armor * 60, "armor": armor, "role": "engine", "core_damage": 0.4},
+             "fuel_tank": {"box": fuel_tank, "health": 20 + armor * 30, "armor": armor, "role": "fuel_tank", "core_damage": 0.3}}
+    for name, r, f in wheels:
+        parts[f"wheel_{name}"] = {**wheel_part(r, f, radius, width, wheel_health, armor * 0.3), "bones": [f"wheel_{name}"]}
+    parts.update(extra or {})
+    return parts
+
+
+# A seated player: vanilla puts their feet 0.6 below the seat point, legs forward at seat + 0.15, head top at seat + 1.2.
+# So a seat's height is about the cushion top, and roofs must be 1.2 above it (or the head sticks out on purpose).
 VEHICLES = {
     "jeep": dict(model=jeep_model, recipe=["S S E", "CCCC ", "W  W "], definition={
         "name": "Willys Jeep", "type": "car", "width": 2.0, "height": 1.4, "health": 60, "armor": 0.1,
         "max_speed": 0.95, "max_reverse_speed": 0.3, "acceleration": 0.028, "braking": 0.07, "drag": 0.015, "turn_speed": 5.0,
         "water_speed": 0.25, "collision_damage": 16, "death_explosion": 2.5, "camera_distance": 6,
         "fuel": {"capacity": 24000, "consumption": 1},
-        "seats": [{"position": [-0.4, 1.0 - SEAT, -0.05]}, {"position": [0.4, 1.0 - SEAT, -0.05]},
-                  {"position": [-0.4, 1.0 - SEAT, -1.1]}, {"position": [0.4, 1.0 - SEAT, -1.1]}]}),
+        "upgrade_slots": ["engine", "armor", "tyres", "tank"],
+        "parts": car_parts(hull=[-0.85, 0.45, -1.3, 0.85, 1.15, 0.6], engine=[-0.8, 0.45, 0.6, 0.8, 1.15, 1.6],
+                           fuel_tank=[-0.85, 0.45, -1.6, 0.85, 1.0, -1.3],
+                           wheels=[("fl", -0.75, 1.05), ("fr", 0.75, 1.05), ("rl", -0.75, -1.05), ("rr", 0.75, -1.05)],
+                           radius=0.38, width=0.3, wheel_health=20, armor=0.1),
+        "seats": [{"position": [-0.4, 0.95, -0.05]}, {"position": [0.4, 0.95, -0.05]},
+                  {"position": [-0.4, 0.95, -1.1]}, {"position": [0.4, 0.95, -1.1]}]}),
     "humvee": dict(model=humvee_model, recipe=[" G  ", "SSSE", "AACC", "W  W"], definition={
         "name": "M1114 Humvee", "type": "car", "width": 2.4, "height": 2.0, "health": 140, "armor": 0.5,
         "max_speed": 0.85, "max_reverse_speed": 0.25, "acceleration": 0.02, "braking": 0.06, "drag": 0.015, "turn_speed": 4.0,
         "water_speed": 0.2, "collision_damage": 22, "death_explosion": 3.0, "camera_distance": 8,
         "fuel": {"capacity": 36000, "consumption": 1},
-        "seats": [{"position": [-0.45, 1.25 - SEAT, 0.0]}, {"position": [0.45, 1.25 - SEAT, 0.0]},
-                  {"position": [0.0, 1.55 - SEAT, -0.75], "gun": f"{NS}:m2_mounted", "turret": True,
+        "upgrade_slots": ["engine", "armor", "tyres", "tank"],
+        "parts": car_parts(hull=[-1.1, 0.5, -1.6, 1.1, 1.95, 0.6], engine=[-1.0, 0.5, 0.6, 1.0, 1.35, 2.0],
+                           fuel_tank=[-1.1, 0.5, -1.9, 1.1, 1.2, -1.6],
+                           wheels=[("fl", -0.92, 1.25), ("fr", 0.92, 1.25), ("rl", -0.92, -1.25), ("rr", 0.92, -1.25)],
+                           radius=0.45, width=0.38, wheel_health=35, armor=0.5,
+                           extra={"mg_mount": {"box": [-0.6, 2.0, -0.75, 0.6, 2.6, 0.1], "health": 30, "armor": 0.4, "role": "weapon",
+                                               "seat": 2, "core_damage": 0.1, "bones": ["mg"]}}),
+        # Cabin seats low enough for heads under the 1.95 roof; the gunner stands up through the roof ring.
+        "seats": [{"position": [-0.45, 0.7, 0.0]}, {"position": [0.45, 0.7, 0.0]},
+                  {"position": [0.0, 1.35, -0.75], "gun": f"{NS}:m2_mounted", "turret": True,
                    "pivot": [0.0, 2.4, -0.3], "muzzle": [0.0, 0.0, 1.15], "min_pitch": -20, "max_pitch": 50,
                    "yaw_bone": "turret", "pitch_bone": "mg"},
-                  {"position": [0.45, 1.25 - SEAT, -1.1]}]}),
+                  {"position": [0.45, 0.7, -1.1]}]}),
     "m1_abrams": dict(model=tank_model, recipe=["  TBBB", " AAAE ", "AHHHA ", "KKKKK "], definition={
         "name": "M1 Abrams", "type": "tank", "width": 3.6, "height": 2.3, "health": 400, "armor": 0.9,
         "max_speed": 0.6, "max_reverse_speed": 0.2, "acceleration": 0.012, "braking": 0.05, "drag": 0.03, "turn_speed": 2.5,
         "water_speed": 0.3, "step_height": 1.1, "collision_damage": 40, "death_explosion": 5.0, "camera_distance": 11,
         "fuel": {"capacity": 60000, "consumption": 2},
+        "upgrade_slots": ["engine", "armor", "tank"],
+        "repair": {"item": "minecraft:iron_ingot", "amount": 40},
+        "parts": {
+            "hull": {"box": [-1.25, 0.45, -1.6, 1.25, 1.4, 2.75], "armor": 0.9, "role": "hull"},
+            "engine": {"box": [-1.25, 0.45, -2.75, 1.25, 1.4, -1.6], "health": 150, "armor": 0.8, "role": "engine", "core_damage": 0.4},
+            "turret": {"box": [-1.05, 1.4, -2.1, 1.05, 2.2, 1.45], "health": 250, "armor": 0.92, "role": "weapon", "seat": 0, "core_damage": 0.5},
+            "track_left": {"box": [-1.85, 0.0, -2.6, -1.25, 1.0, 2.6], "health": 150, "armor": 0.6, "role": "propulsion", "core_damage": 0.2,
+                           "bones": ["track_l"]},
+            "track_right": {"box": [1.25, 0.0, -2.6, 1.85, 1.0, 2.6], "health": 150, "armor": 0.6, "role": "propulsion", "core_damage": 0.2,
+                            "bones": ["track_r"]},
+        },
         # The driver also commands the turret (like the original Flan's tanks); the commander mans the .50 cal.
-        "seats": [{"position": [0.0, 1.35 - SEAT, 1.8], "gun": f"{NS}:m256", "turret": True,
+        # Crew inside the hull/turret, heads out of the hatches.
+        "seats": [{"position": [0.0, 0.65, 1.8], "gun": f"{NS}:m256", "turret": True,
                    "pivot": [0.0, 1.8, -0.2], "muzzle": [0.0, 0.0, 4.9], "min_pitch": -8, "max_pitch": 20,
                    "yaw_bone": "turret", "pitch_bone": "cannon"},
-                  {"position": [0.5, 2.3 - SEAT, -0.65], "gun": f"{NS}:m2_mounted", "turret": True,
+                  {"position": [0.5, 1.6, -0.65], "gun": f"{NS}:m2_mounted", "turret": True,
                    "pivot": [0.5, 2.7, -0.65], "muzzle": [0.0, 0.0, 0.8], "min_pitch": -15, "max_pitch": 60}]}),
 }
 
@@ -278,9 +339,31 @@ PARTS = {
     "cannon_barrel": dict(name="120mm Gun Barrel", pattern=["BBBBBB"], icon=[box(-0.1, 0.3, -1.0, 0.1, 0.5, 1.0, "metal"), box(-0.18, 0.22, -1.0, 0.18, 0.58, -0.6, "olive_dark")]),
     "mg_mount": dict(name="Machine Gun Mount", pattern=["NIIN", " R  ", " I  "], icon=[box(-0.06, 0.3, -0.6, 0.06, 0.42, 0.7, "metal"), box(-0.1, 0.25, -0.6, 0.1, 0.45, -0.1, "metal"), box(-0.04, 0, -0.3, 0.04, 0.3, -0.2, "steel")]),
 }
+# Vehicle upgrades: slot, stats, which vehicle types they fit, bench recipe (letters → RAW / parts) and an icon.
+UPGRADES = {
+    "engine_tuning": dict(name="Engine Tuning Kit", slot="engine", types=["car"], recipe=["RER", "NPN"],
+                          stats={"speed_multiplier": 1.2, "acceleration_multiplier": 1.35, "fuel_consumption_multiplier": 1.4},
+                          icon=[box(-0.4, 0, -0.5, 0.4, 0.5, 0.5, "metal"), box(-0.2, 0.5, -0.3, 0.2, 0.7, 0.3, "red")]),
+    "turbo_diesel": dict(name="Turbo Diesel", slot="engine", types=["tank"], recipe=["RDR", "BPB"],
+                         stats={"speed_multiplier": 1.15, "acceleration_multiplier": 1.5, "fuel_consumption_multiplier": 1.25},
+                         icon=[box(-0.5, 0, -0.6, 0.5, 0.6, 0.6, "olive_dark"), box(-0.25, 0.6, -0.25, 0.25, 0.85, 0.25, "steel")]),
+    "armor_kit": dict(name="Armour Kit", slot="armor", types=["car"], recipe=["AAA", "IAI"],
+                      stats={"armor_bonus": 0.2, "health_multiplier": 1.3, "speed_multiplier": 0.9, "acceleration_multiplier": 0.9},
+                      icon=[box(-0.5, 0, -0.6, 0.5, 0.15, 0.6, "olive_dark"), box(-0.5, 0.15, -0.6, -0.4, 0.6, 0.6, "olive_dark")]),
+    "era_blocks": dict(name="Reactive Armour (ERA)", slot="armor", types=["tank"], recipe=["AUA", "AUA", "AUA"],
+                       stats={"armor_bonus": 0.04, "health_multiplier": 1.4, "speed_multiplier": 0.95},
+                       icon=[box(-0.5, 0, -0.5, 0.5, 0.3, 0.5, "olive_dark"), box(-0.4, 0.3, -0.4, 0.4, 0.4, 0.4, "black")]),
+    "offroad_tyres": dict(name="Off-road Tyres", slot="tyres", types=["car"], recipe=["W W", "K K"],
+                          stats={"turn_multiplier": 1.2, "step_height_bonus": 0.25, "water_speed": 0.35, "speed_multiplier": 0.95},
+                          icon=[box(-0.2, 0, -0.45, 0.2, 0.9, 0.45, "tyre"), box(-0.22, 0.3, -0.15, 0.22, 0.6, 0.15, "steel")]),
+    "jerry_cans": dict(name="Jerry Cans", slot="tank", types=[], recipe=["I I", "INI", "III"],
+                       stats={"fuel_capacity_multiplier": 1.5},
+                       icon=[box(-0.3, 0, -0.15, 0.3, 0.8, 0.15, "olive_dark"), box(-0.1, 0.8, -0.05, 0.1, 0.95, 0.05, "black")]),
+}
+
 # Vehicle recipes: letters → parts. Magazines and shells use raw materials.
 RECIPE_PARTS = dict(W="wheel", K="track", E="engine", S="seat", C="chassis", H="heavy_chassis", A="armor_plate",
-                    T="turret_ring", B="cannon_barrel", G="mg_mount")
+                    T="turret_ring", B="cannon_barrel", G="mg_mount", D="diesel_engine")
 VEHICLE_ENGINE = {"m1_abrams": "diesel_engine"}
 RAW = {"I": "minecraft:iron_ingot", "N": "minecraft:iron_nugget", "B": "minecraft:iron_block", "K": "minecraft:black_dye",
        "P": "minecraft:piston", "R": "minecraft:redstone", "C": "minecraft:copper_ingot", "J": "minecraft:leather",
@@ -390,6 +473,16 @@ def main():
         bench(f"part_{pid}", p["pattern"], raw_key(p["pattern"]),
               {"id": "flansmod:part", "count": p.get("count", 1), "components": {"flansmod:part": f"{NS}:{pid}"}})
 
+    for uid, u in UPGRADES.items():
+        definition = {"name": u["name"], "slot": u["slot"], "icon": f"{NS}:{uid}", **u["stats"]}
+        if u["types"]:
+            definition["types"] = u["types"]
+        write(DATA / "flansmod" / "vehicle_upgrades" / f"{uid}.json", definition)
+        item_model(uid, u["icon"])
+        # W wheel, A armour plate, E engine, D diesel engine are vehicle parts; other letters are raw materials.
+        key = {ch: part_ingredient(RECIPE_PARTS[ch]) if ch in "WAED" else RAW[ch] for row in u["recipe"] for ch in row if ch != " "}
+        bench(f"upgrade_{uid}", u["recipe"], key, {"id": "flansmod:vehicle_upgrade", "components": {"flansmod:vehicle_upgrade": f"{NS}:{uid}"}})
+
     for gid, g in MOUNTED_GUNS.items():
         write(DATA / "flansmod" / "guns" / f"{gid}.json", g)
     for mid, m in MAGAZINES.items():
@@ -405,8 +498,9 @@ def main():
 
     lang = {f"subtitles.{NS}.{e}": "Engine runs" if "engine" in e else "Gun fires" if "shoot" in e else "Gun reloads"
             if "reload" in e else "Gun clicks" for e in sounds()}
+    lang.update({f"vehicle_upgrade.{NS}.{uid}": u["name"] for uid, u in UPGRADES.items()})
     write(ASSETS / "lang" / "en_us.json", lang)
-    print(f"Generated {len(VEHICLES)} vehicles, {len(MOUNTED_GUNS)} mounted guns, {len(PARTS)} parts in {ROOT}")
+    print(f"Generated {len(VEHICLES)} vehicles, {len(UPGRADES)} upgrades, {len(MOUNTED_GUNS)} mounted guns, {len(PARTS)} parts in {ROOT}")
 
 
 if __name__ == "__main__":

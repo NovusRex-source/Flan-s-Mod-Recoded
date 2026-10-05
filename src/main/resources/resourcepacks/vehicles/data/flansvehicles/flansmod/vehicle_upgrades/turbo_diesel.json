@@ -1,0 +1,11 @@
+{
+  "name": "Turbo Diesel",
+  "slot": "engine",
+  "icon": "flansvehicles:turbo_diesel",
+  "speed_multiplier": 1.15,
+  "acceleration_multiplier": 1.5,
+  "fuel_consumption_multiplier": 1.25,
+  "types": [
+    "tank"
+  ]
+}

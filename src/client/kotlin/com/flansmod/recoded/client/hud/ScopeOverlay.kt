@@ -22,9 +22,8 @@ object ScopeOverlay {
     /** The scope the local player is looking through right now, if any. */
     val activeScope: Scope?
         get() {
-            val player = Minecraft.getInstance().player ?: return null
             if (!Minecraft.getInstance().options.cameraType.isFirstPerson || GunInput.aimProgress < THRESHOLD) return null
-            return player.mainHandItem.definition?.scope
+            return GunInput.aimedGun?.scope
         }
 
     /** Thermal optics: living entities in range glow (vanilla outline) while aiming. */

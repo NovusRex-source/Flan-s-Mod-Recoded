@@ -1,0 +1,25 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "RDR",
+    "BPB"
+  ],
+  "key": {
+    "B": "minecraft:iron_block",
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:diesel_engine"
+      }
+    },
+    "P": "minecraft:piston",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:vehicle_upgrade",
+    "components": {
+      "flansmod:vehicle_upgrade": "flansvehicles:turbo_diesel"
+    }
+  }
+}

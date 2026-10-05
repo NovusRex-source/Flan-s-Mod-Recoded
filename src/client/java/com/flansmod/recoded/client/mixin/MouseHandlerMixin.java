@@ -20,8 +20,7 @@ public abstract class MouseHandlerMixin {
 	@ModifyExpressionValue(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;"))
 	private Object flansmod$adsSensitivity(Object sensitivity) {
 		if (!GunInput.INSTANCE.getAiming() || !(sensitivity instanceof Double value)) return sensitivity;
-		var player = net.minecraft.client.Minecraft.getInstance().player;
-		var gun = player == null ? null : com.flansmod.recoded.item.GunItemKt.getDefinition(player.getMainHandItem());
+		var gun = GunInput.getAimedGun();
 		double zoom = gun == null ? 1.0 : Math.max(1.0, gun.getAdsZoom());
 		return value * FlansConfig.Companion.getGet().adsSensitivity / 100.0 * Math.min(1.0, 1.5 / zoom);
 	}

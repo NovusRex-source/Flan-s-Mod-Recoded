@@ -1,5 +1,6 @@
 package com.flansmod.recoded.combat
 
+import com.flansmod.recoded.entity.DriveableEntity
 import com.flansmod.recoded.gun.AmmoDefinition
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.registry.FlansDamageTypes
@@ -55,13 +56,16 @@ object Ballistics {
 
         val entityHit = ProjectileUtil.getEntityHitResult(
             level, bullet.shooter, start, end, AABB(start, end).inflate(1.0),
-            // Never the shooter, their own vehicle or its crew.
-            { it != bullet.shooter && !bullet.shooter.isPassengerOfSameVehicle(it) && it.isPickable && !it.isSpectator && it.isAlive }, 0.1f,
+            // Never the shooter, their own vehicle or its crew. Vehicles count only where a part is (gaps, open tops).
+            {
+                it != bullet.shooter && !bullet.shooter.isPassengerOfSameVehicle(it) && it.isPickable && !it.isSpectator && it.isAlive &&
+                    (it !is DriveableEntity || it.raycastParts(start, end) != null)
+            }, 0.1f,
         )
 
         when {
             entityHit != null -> {
-                hit(level, bullet, entityHit.entity, entityHit.location)
+                hit(level, bullet, entityHit.entity, entityHit.location, start, end)
                 return false
             }
             blockHit.type != HitResult.Type.MISS -> {
@@ -78,7 +82,7 @@ object Ballistics {
         return --bullet.ticksLeft > 0
     }
 
-    private fun hit(level: ServerLevel, bullet: Bullet, target: Entity, at: Vec3) {
+    private fun hit(level: ServerLevel, bullet: Bullet, target: Entity, at: Vec3, from: Vec3, to: Vec3) {
         val headshot = target is LivingEntity && at.y >= target.eyeY - 0.25
         val damage = bullet.gun.damage * if (headshot) bullet.gun.headshotMultiplier else 1f
         val typeKey = if (bullet.ammo?.armorPiercing == true) FlansDamageTypes.GUN_AP else FlansDamageTypes.GUN
@@ -87,7 +91,8 @@ object Ballistics {
 
         // Automatic weapons would otherwise be throttled by the 10 tick hurt cooldown.
         target.invulnerableTime = 0
-        val hurt = target.hurtServer(level, DamageSource(type, bullet.shooter), damage)
+        val source = DamageSource(type, bullet.shooter)
+        val hurt = if (target is DriveableEntity) target.hurtAlong(level, source, damage, from, to) else target.hurtServer(level, source, damage)
         if (hurt && target is LivingEntity && ServerPlayNetworking.canSend(bullet.shooter, HitPayload.TYPE)) {
             ServerPlayNetworking.send(bullet.shooter, HitPayload(headshot, !target.isAlive))
         }

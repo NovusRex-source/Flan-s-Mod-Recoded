@@ -51,6 +51,7 @@ class FlansJeiPlugin : IModPlugin {
         registration.registerFromDataComponentTypes(FlansItems.ATTACHMENT, FlansComponents.ATTACHMENT)
         registration.registerFromDataComponentTypes(FlansItems.GRENADE, FlansComponents.GRENADE)
         registration.registerFromDataComponentTypes(FlansItems.VEHICLE, FlansComponents.VEHICLE)
+        registration.registerFromDataComponentTypes(FlansItems.VEHICLE_UPGRADE, FlansComponents.VEHICLE_UPGRADE)
         // Magazines: the type matters, not how many rounds are inside.
         registration.registerSubtypeInterpreter(FlansItems.MAGAZINE, object : ISubtypeInterpreter<ItemStack> {
             override fun getSubtypeData(stack: ItemStack, context: UidContext) = stack.loadedMagazine?.magazine

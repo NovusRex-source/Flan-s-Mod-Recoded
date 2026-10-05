@@ -15,12 +15,22 @@ data class VehicleDefinition(
     val name: String,
     val type: VehicleType = VehicleType.CAR,
     val model: ModelInfo = ModelInfo(),
-    /** Hitbox footprint (square) and height. */
+    /** Footprint (square) and height; only used when there are no [parts] (otherwise the parts are the hitbox). */
     val width: Float = 2.5f,
     val height: Float = 1.6f,
+    /** Hull health: the vehicle is destroyed when it reaches 0. */
     val health: Float = 100f,
-    /** Fraction of bullet/melee damage absorbed; armour-piercing rounds and explosions ignore it. */
+    /** Fraction of bullet/melee damage absorbed by the hull; armour-piercing rounds and explosions ignore it. */
     val armor: Float = 0f,
+    /**
+     * Hit boxes by name. Bullets only hit the vehicle where they pass through a part; each part has its own health and
+     * a [PartRole] that decides what breaks with it. Without parts the whole footprint is one hull part.
+     */
+    val parts: Map<String, VehiclePart> = emptyMap(),
+    /** Upgrade slots (see [VehicleUpgradeDefinition]), e.g. `["engine", "armor"]`. */
+    @SerialName("upgrade_slots") val upgradeSlots: List<String> = emptyList(),
+    /** Right click with this item to repair the hull and every part by [Repair.amount] health. */
+    val repair: Repair = Repair(),
     @SerialName("step_height") val stepHeight: Float = 1f,
     @SerialName("max_speed") val maxSpeed: Double = 0.8,
     @SerialName("max_reverse_speed") val maxReverseSpeed: Double = 0.25,
@@ -55,7 +65,88 @@ data class VehicleDefinition(
 
     val fuelPerTick: Int get() = fuel.consumption
     val needsFuel: Boolean get() = fuel.capacity > 0
+
+    /** Parts that make it move (wheels, tracks). */
+    val propulsion: List<String> get() = parts.filterValues { it.role == PartRole.PROPULSION }.keys.toList()
+
+    /** Where the vehicle touches the ground: the footprint of its wheels/tracks, or of the whole vehicle. */
+    val contactArea: Pair<Vec3, Vec3>
+        get() {
+            val wheels = parts.filterValues { it.role == PartRole.PROPULSION }.values
+            if (wheels.isEmpty()) return bounds
+            // Wheels touch the ground under their axle; tracks along their length (less the curved ends).
+            fun reach(p: VehiclePart) = maxOf(0.0, (p.max.z - p.min.z) / 2 - 0.5)
+            return Vec3(wheels.minOf { it.center.x }, 0.0, wheels.minOf { it.center.z - reach(it) }) to
+                Vec3(wheels.maxOf { it.center.x }, 0.0, wheels.maxOf { it.center.z + reach(it) })
+        }
+
+    /** Vehicle-space bounds `[right, up, forward]` min/max of all parts, or of the square footprint. */
+    val bounds: Pair<Vec3, Vec3>
+        get() = if (parts.isEmpty()) Vec3(-width / 2.0, 0.0, -width / 2.0) to Vec3(width / 2.0, height.toDouble(), width / 2.0)
+        else parts.values.let { ps ->
+            Vec3(ps.minOf { it.min.x }, ps.minOf { it.min.y }, ps.minOf { it.min.z }) to Vec3(ps.maxOf { it.max.x }, ps.maxOf { it.max.y }, ps.maxOf { it.max.z })
+        }
+
+    /** This vehicle with all [upgrades] applied (the base definition stays untouched). */
+    fun withUpgrades(upgrades: Collection<VehicleUpgradeDefinition>): VehicleDefinition = upgrades.fold(this) { v, u ->
+        v.copy(
+            maxSpeed = v.maxSpeed * u.speedMultiplier,
+            maxReverseSpeed = v.maxReverseSpeed * u.speedMultiplier,
+            acceleration = v.acceleration * u.accelerationMultiplier,
+            turnSpeed = v.turnSpeed * u.turnMultiplier,
+            armor = (v.armor + u.armorBonus).coerceIn(0f, 0.95f),
+            health = v.health * u.healthMultiplier,
+            parts = v.parts.mapValues { (_, p) -> p.copy(health = p.health * u.healthMultiplier, armor = (p.armor + u.armorBonus).coerceIn(0f, 0.95f)) },
+            stepHeight = v.stepHeight + u.stepHeightBonus,
+            waterSpeed = maxOf(v.waterSpeed, u.waterSpeed ?: 0.0),
+            fuel = v.fuel.copy(
+                capacity = (v.fuel.capacity * u.fuelCapacityMultiplier).toInt(),
+                consumption = (v.fuel.consumption * u.fuelConsumptionMultiplier).toInt().coerceAtLeast(if (v.fuel.consumption > 0) 1 else 0),
+            ),
+        )
+    }
 }
+
+/** What happens when a part is destroyed. */
+@Serializable
+enum class PartRole {
+    /** Structure: damage goes straight to the hull health (the vehicle's [VehicleDefinition.health]). */
+    @SerialName("hull") HULL,
+    /** Broken engine: no throttle. */
+    @SerialName("engine") ENGINE,
+    /** Wheels/tracks: each broken one costs its share of top speed; all broken and the vehicle cannot move. */
+    @SerialName("propulsion") PROPULSION,
+    /** Gun mount of [VehiclePart.seat]: that seat cannot fire while broken. */
+    @SerialName("weapon") WEAPON,
+    /** Broken tank leaks fuel. */
+    @SerialName("fuel_tank") FUEL_TANK,
+}
+
+/**
+ * A hit box `[right0, up0, forward0, right1, up1, forward1]` in vehicle space (it turns with the hull). Non-hull parts
+ * pass [coreDamage] of every hit on to the hull. [bones] are hidden while the part is broken (e.g. a shot-off wheel).
+ */
+@Serializable
+data class VehiclePart(
+    val box: List<Double>,
+    val health: Float = 50f,
+    val armor: Float = 0f,
+    val role: PartRole = PartRole.HULL,
+    /** For [PartRole.WEAPON]: the seat whose gun this part carries. */
+    val seat: Int = 0,
+    @SerialName("core_damage") val coreDamage: Float = 0.25f,
+    val bones: List<String> = emptyList(),
+) {
+    val min: Vec3 get() = Vec3(minOf(box[0], box[3]), minOf(box[1], box[4]), minOf(box[2], box[5]))
+    val max: Vec3 get() = Vec3(maxOf(box[0], box[3]), maxOf(box[1], box[4]), maxOf(box[2], box[5]))
+    val center: Vec3 get() = min.add(max).scale(0.5)
+}
+
+@Serializable
+data class Repair(
+    @Serializable(IdentifierSerializer::class) val item: Identifier = Identifier.withDefaultNamespace("iron_ingot"),
+    val amount: Float = 25f,
+)
 
 @Serializable
 enum class VehicleType {

@@ -20,11 +20,97 @@
     "capacity": 60000,
     "consumption": 2
   },
+  "upgrade_slots": [
+    "engine",
+    "armor",
+    "tank"
+  ],
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 40
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -1.25,
+        0.45,
+        -1.6,
+        1.25,
+        1.4,
+        2.75
+      ],
+      "armor": 0.9,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -1.25,
+        0.45,
+        -2.75,
+        1.25,
+        1.4,
+        -1.6
+      ],
+      "health": 150,
+      "armor": 0.8,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "turret": {
+      "box": [
+        -1.05,
+        1.4,
+        -2.1,
+        1.05,
+        2.2,
+        1.45
+      ],
+      "health": 250,
+      "armor": 0.92,
+      "role": "weapon",
+      "seat": 0,
+      "core_damage": 0.5
+    },
+    "track_left": {
+      "box": [
+        -1.85,
+        0.0,
+        -2.6,
+        -1.25,
+        1.0,
+        2.6
+      ],
+      "health": 150,
+      "armor": 0.6,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_l"
+      ]
+    },
+    "track_right": {
+      "box": [
+        1.25,
+        0.0,
+        -2.6,
+        1.85,
+        1.0,
+        2.6
+      ],
+      "health": 150,
+      "armor": 0.6,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_r"
+      ]
+    }
+  },
   "seats": [
     {
       "position": [
         0.0,
-        1.35,
+        0.65,
         1.8
       ],
       "gun": "flansvehicles:m256",
@@ -47,7 +133,7 @@
     {
       "position": [
         0.5,
-        2.3,
+        1.6,
         -0.65
       ],
       "gun": "flansvehicles:m2_mounted",

@@ -1,0 +1,12 @@
+{
+  "name": "Off-road Tyres",
+  "slot": "tyres",
+  "icon": "flansvehicles:offroad_tyres",
+  "turn_multiplier": 1.2,
+  "step_height_bonus": 0.25,
+  "water_speed": 0.35,
+  "speed_multiplier": 0.95,
+  "types": [
+    "car"
+  ]
+}

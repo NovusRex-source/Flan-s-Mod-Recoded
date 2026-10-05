@@ -82,6 +82,7 @@ object PackTabs {
                 .displayItems { _, output ->
                     fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filter { it.namespace in tab.namespaces }.sorted()
                     ids(com.flansmod.recoded.gun.Vehicles.all).forEach { output.accept(com.flansmod.recoded.item.VehicleItem.stackFor(it)) }
+                    ids(com.flansmod.recoded.gun.VehicleUpgrades.all).forEach { output.accept(com.flansmod.recoded.item.VehicleUpgradeItem.stackFor(it)) }
                     ids(Guns.all).filterNot { Guns[it]!!.mounted }.forEach { output.accept(GunItem.stackFor(it)) }
                     ids(Parts.all).forEach { output.accept(PartItem.stackFor(it)) }
                     ids(Magazines.all).forEach { output.accept(MagazineItem.stackFor(it, full = true)) }

@@ -1,0 +1,24 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "AUA",
+    "AUA",
+    "AUA"
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:armor_plate"
+      }
+    },
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:vehicle_upgrade",
+    "components": {
+      "flansmod:vehicle_upgrade": "flansvehicles:era_blocks"
+    }
+  }
+}

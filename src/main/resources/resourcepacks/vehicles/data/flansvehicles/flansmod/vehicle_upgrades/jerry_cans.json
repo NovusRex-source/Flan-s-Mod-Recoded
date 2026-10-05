@@ -1,0 +1,6 @@
+{
+  "name": "Jerry Cans",
+  "slot": "tank",
+  "icon": "flansvehicles:jerry_cans",
+  "fuel_capacity_multiplier": 1.5
+}

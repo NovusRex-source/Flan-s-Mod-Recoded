@@ -75,6 +75,8 @@ object GunHandler {
     /** Trigger pulled by [player]; also the entry point for tests. */
     fun trigger(player: ServerPlayer) {
         if (VehicleWeapons.trigger(player)) return
+        // Drivers keep their hands on the wheel; passengers may shoot their own guns.
+        if (VehicleWeapons.isDriver(player)) return
         val stack = player.mainHandItem
         val gun = stack.shotDefinition ?: return
         val state = player.gunState

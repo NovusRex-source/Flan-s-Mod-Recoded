@@ -1,0 +1,12 @@
+{
+  "name": "Armour Kit",
+  "slot": "armor",
+  "icon": "flansvehicles:armor_kit",
+  "armor_bonus": 0.2,
+  "health_multiplier": 1.3,
+  "speed_multiplier": 0.9,
+  "acceleration_multiplier": 0.9,
+  "types": [
+    "car"
+  ]
+}

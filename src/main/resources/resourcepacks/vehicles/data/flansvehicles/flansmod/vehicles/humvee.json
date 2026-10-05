@@ -19,25 +19,159 @@
     "capacity": 36000,
     "consumption": 1
   },
+  "upgrade_slots": [
+    "engine",
+    "armor",
+    "tyres",
+    "tank"
+  ],
+  "parts": {
+    "hull": {
+      "box": [
+        -1.1,
+        0.5,
+        -1.6,
+        1.1,
+        1.95,
+        0.6
+      ],
+      "armor": 0.5,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -1.0,
+        0.5,
+        0.6,
+        1.0,
+        1.35,
+        2.0
+      ],
+      "health": 60.0,
+      "armor": 0.5,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "fuel_tank": {
+      "box": [
+        -1.1,
+        0.5,
+        -1.9,
+        1.1,
+        1.2,
+        -1.6
+      ],
+      "health": 35.0,
+      "armor": 0.5,
+      "role": "fuel_tank",
+      "core_damage": 0.3
+    },
+    "wheel_fl": {
+      "box": [
+        -1.11,
+        0,
+        0.8,
+        -0.73,
+        0.9,
+        1.7
+      ],
+      "health": 35,
+      "armor": 0.15,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_fl"
+      ]
+    },
+    "wheel_fr": {
+      "box": [
+        0.73,
+        0,
+        0.8,
+        1.11,
+        0.9,
+        1.7
+      ],
+      "health": 35,
+      "armor": 0.15,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_fr"
+      ]
+    },
+    "wheel_rl": {
+      "box": [
+        -1.11,
+        0,
+        -1.7,
+        -0.73,
+        0.9,
+        -0.8
+      ],
+      "health": 35,
+      "armor": 0.15,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_rl"
+      ]
+    },
+    "wheel_rr": {
+      "box": [
+        0.73,
+        0,
+        -1.7,
+        1.11,
+        0.9,
+        -0.8
+      ],
+      "health": 35,
+      "armor": 0.15,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_rr"
+      ]
+    },
+    "mg_mount": {
+      "box": [
+        -0.6,
+        2.0,
+        -0.75,
+        0.6,
+        2.6,
+        0.1
+      ],
+      "health": 30,
+      "armor": 0.4,
+      "role": "weapon",
+      "seat": 2,
+      "core_damage": 0.1,
+      "bones": [
+        "mg"
+      ]
+    }
+  },
   "seats": [
     {
       "position": [
         -0.45,
-        1.25,
+        0.7,
         0.0
       ]
     },
     {
       "position": [
         0.45,
-        1.25,
+        0.7,
         0.0
       ]
     },
     {
       "position": [
         0.0,
-        1.55,
+        1.35,
         -0.75
       ],
       "gun": "flansvehicles:m2_mounted",
@@ -60,7 +194,7 @@
     {
       "position": [
         0.45,
-        1.25,
+        0.7,
         -1.1
       ]
     }

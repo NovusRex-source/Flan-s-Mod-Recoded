@@ -1,0 +1,11 @@
+{
+  "name": "Engine Tuning Kit",
+  "slot": "engine",
+  "icon": "flansvehicles:engine_tuning",
+  "speed_multiplier": 1.2,
+  "acceleration_multiplier": 1.35,
+  "fuel_consumption_multiplier": 1.4,
+  "types": [
+    "car"
+  ]
+}

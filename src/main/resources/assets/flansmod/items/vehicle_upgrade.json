@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "flansmod:definition_icon",
+    "fallback": { "type": "minecraft:model", "model": "minecraft:item/iron_ingot" }
+  }
+}

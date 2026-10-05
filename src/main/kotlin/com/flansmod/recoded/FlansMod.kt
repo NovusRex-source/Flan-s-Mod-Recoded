@@ -53,5 +53,6 @@ object FlansMod : ModInitializer {
         com.flansmod.recoded.combat.VehicleWeapons.init()
         com.flansmod.recoded.item.ClothingItem.init()
         com.flansmod.recoded.bench.WeaponMenu.init()
+        com.flansmod.recoded.bench.VehicleMenu.init()
     }
 }

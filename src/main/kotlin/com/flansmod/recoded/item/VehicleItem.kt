@@ -30,9 +30,12 @@ class VehicleItem(properties: Properties) : Item(properties) {
     override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: TooltipDisplay, add: Consumer<Component>, flag: TooltipFlag) {
         val def = stack.vehicleDefinition ?: return
         fun line(key: String, vararg args: Any) = add.accept(Component.translatable("item.flansmod.vehicle.$key", *args).withStyle(ChatFormatting.GRAY))
+        val upgrades = stack.getOrDefault(FlansComponents.VEHICLE_UPGRADES, emptyMap())
+        val effective = def.withUpgrades(upgrades.values.mapNotNull { com.flansmod.recoded.gun.VehicleUpgrades[it] })
         line("seats", def.seats.size)
-        line("health", def.health.toInt())
-        if (def.needsFuel) line("fuel", stack.getOrDefault(FlansComponents.FUEL, 0) * 100 / def.fuel.capacity)
+        line("health", (effective.health - (stack.get(FlansComponents.VEHICLE_DAMAGE)?.get(DriveableEntity.HULL) ?: 0f)).toInt(), effective.health.toInt())
+        upgrades.values.mapNotNull { com.flansmod.recoded.gun.VehicleUpgrades[it] }.forEach { line("upgrade", it.name) }
+        if (effective.needsFuel) line("fuel", stack.getOrDefault(FlansComponents.FUEL, 0) * 100 / effective.fuel.capacity)
     }
 
     override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
@@ -42,7 +45,12 @@ class VehicleItem(properties: Properties) : Item(properties) {
         val hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE)
         if (hit.type != HitResult.Type.BLOCK) return InteractionResult.PASS
 
-        val vehicle = DriveableEntity(level, id, hit.location, player.yRot).apply { fuel = stack.getOrDefault(FlansComponents.FUEL, 0) }
+        val vehicle = DriveableEntity(level, id, hit.location, player.yRot).apply {
+            fuel = stack.getOrDefault(FlansComponents.FUEL, 0)
+            upgrades = stack.getOrDefault(FlansComponents.VEHICLE_UPGRADES, emptyMap())
+            damage = stack.getOrDefault(FlansComponents.VEHICLE_DAMAGE, emptyMap())
+            boundingBox = makeBoundingBoxAt(position())
+        }
         if (!level.noCollision(vehicle, vehicle.boundingBox.deflate(0.05))) return InteractionResult.FAIL
         if (!level.isClientSide()) {
             level.addFreshEntity(vehicle)

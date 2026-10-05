@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "I I",
+    "INI",
+    "III"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:vehicle_upgrade",
+    "components": {
+      "flansmod:vehicle_upgrade": "flansvehicles:jerry_cans"
+    }
+  }
+}

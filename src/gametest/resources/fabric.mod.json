@@ -14,7 +14,8 @@
     ],
     "fabric-client-gametest": [
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" },
-      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleClientGameTest" }
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleClientGameTest" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleSeatsClientGameTest" }
     ]
   },
   "depends": { "flansmod": "*" }

@@ -7,6 +7,7 @@ import com.flansmod.recoded.gun.Guns
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements
 import net.minecraft.client.Minecraft
+import net.minecraft.ChatFormatting
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
@@ -81,13 +82,23 @@ object VehicleClient {
                 val blocksPerTick = vehicle.position().subtract(vehicle.xo, vehicle.yo, vehicle.zo).horizontalDistance()
                 lines += Component.translatable("hud.flansmod.vehicle.speed", (blocksPerTick * 20 * 3.6).toInt())
             }
+            // Broken parts the crew should know about.
+            if (seat == 0) {
+                if (!vehicle.engineWorks) lines += Component.translatable("hud.flansmod.vehicle.engine_broken").withStyle(ChatFormatting.RED)
+                if (vehicle.propulsion < 1f) lines += Component.translatable("hud.flansmod.vehicle.propulsion", (vehicle.propulsion * 100).toInt())
+                    .withStyle(if (vehicle.propulsion <= 0f) ChatFormatting.RED else ChatFormatting.GOLD)
+            }
+            if (vehicle.seat(seat)?.gun != null && !vehicle.weaponWorks(seat)) lines += Component.translatable("hud.flansmod.vehicle.weapon_broken").withStyle(ChatFormatting.RED)
             vehicle.seat(seat)?.gun?.let { gunId ->
                 val mag = vehicle.seatMagazines[seat]
                 lines += if (mag == null) Component.translatable("hud.flansmod.no_magazine")
                 else Component.literal("${Guns[gunId]?.name ?: gunId}: ${mag.rounds} / ${mag.capacity}")
             }
             val x = graphics.guiWidth() / 2 + 100
-            lines.forEachIndexed { i, line -> graphics.text(mc.font, line.string, x, graphics.guiHeight() - 12 - (lines.size - 1 - i) * 10, -1) }
+            lines.forEachIndexed { i, line ->
+                val color = line.style.color?.value?.let { 0xFF000000.toInt() or it } ?: -1
+                graphics.text(mc.font, line.string, x, graphics.guiHeight() - 12 - (lines.size - 1 - i) * 10, color)
+            }
         }
     }
 }

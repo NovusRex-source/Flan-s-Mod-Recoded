@@ -5,5 +5,11 @@
   "subtitles.flansvehicles.vehicle.cannon.shoot": "Gun fires",
   "subtitles.flansvehicles.vehicle.cannon.reload": "Gun reloads",
   "subtitles.flansvehicles.vehicle.reload": "Gun reloads",
-  "subtitles.flansvehicles.vehicle.empty": "Gun clicks"
+  "subtitles.flansvehicles.vehicle.empty": "Gun clicks",
+  "vehicle_upgrade.flansvehicles.engine_tuning": "Engine Tuning Kit",
+  "vehicle_upgrade.flansvehicles.turbo_diesel": "Turbo Diesel",
+  "vehicle_upgrade.flansvehicles.armor_kit": "Armour Kit",
+  "vehicle_upgrade.flansvehicles.era_blocks": "Reactive Armour (ERA)",
+  "vehicle_upgrade.flansvehicles.offroad_tyres": "Off-road Tyres",
+  "vehicle_upgrade.flansvehicles.jerry_cans": "Jerry Cans"
 }

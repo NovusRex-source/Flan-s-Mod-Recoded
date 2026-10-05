@@ -1,0 +1,11 @@
+{
+  "name": "Reactive Armour (ERA)",
+  "slot": "armor",
+  "icon": "flansvehicles:era_blocks",
+  "armor_bonus": 0.04,
+  "health_multiplier": 1.4,
+  "speed_multiplier": 0.95,
+  "types": [
+    "tank"
+  ]
+}

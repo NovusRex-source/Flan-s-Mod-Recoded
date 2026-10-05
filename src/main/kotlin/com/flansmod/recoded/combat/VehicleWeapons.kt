@@ -47,6 +47,9 @@ object VehicleWeapons {
         return Triple(vehicle, seat, gun)
     }
 
+    /** Whether [player] drives a vehicle (seat 0). */
+    fun isDriver(player: ServerPlayer) = (player.vehicle as? DriveableEntity)?.seatOf(player) == 0
+
     /** Fires the seat's gun; returns false if [player] does not operate one (then hand-held guns work as usual). */
     fun trigger(player: ServerPlayer): Boolean {
         val (vehicle, seat, gunId) = seatGun(player) ?: return false
@@ -54,6 +57,11 @@ object VehicleWeapons {
         val state = state(vehicle, seat)
         val now = player.level().gameTime
         if (state.reloadDoneTick >= 0 || now < state.nextShotTick || gun.fireMode == FireMode.SAFE) return true
+        if (!vehicle.weaponWorks(seat)) {
+            state.nextShotTick = now + 20
+            player.sendOverlayMessage(Component.translatable("message.flansmod.vehicle.weapon_broken"))
+            return true
+        }
 
         val magazine = vehicle.seatMagazines[seat]
         if (magazine == null || magazine.isEmpty) {

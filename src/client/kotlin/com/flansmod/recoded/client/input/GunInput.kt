@@ -6,6 +6,7 @@ import com.flansmod.recoded.client.vehicle.VehicleClient
 import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.item.ammo
+import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.item.shotDefinition
 import com.flansmod.recoded.network.AimPayload
 import com.flansmod.recoded.network.AttachPayload
@@ -49,6 +50,14 @@ object GunInput {
     var aiming = false
         private set
 
+    /** The gun being aimed with: the vehicle seat's gun or the held one (zoom, sensitivity, scope overlay). */
+    @JvmStatic
+    var aimedGun: GunDefinition? = null
+        private set
+
+    /** Drivers keep their hands on the wheel: no hand-held guns, only the driver seat's own gun. */
+    private fun isDriver(player: LocalPlayer) = (player.vehicle as? com.flansmod.recoded.entity.DriveableEntity)?.seatOf(player) == 0
+
     /** 0..1 progress of the ADS transition, smoothed per tick. */
     var aimProgress = 0f
         private set
@@ -75,6 +84,7 @@ object GunInput {
     private fun onAttack(client: Minecraft, player: LocalPlayer, clicks: Int): Boolean {
         VehicleClient.seatGun(player)?.let { return onAttackMounted(client, player, it, clicks) }
         val gun = player.mainHandItem.shotDefinition ?: return false
+        if (isDriver(player)) return true
         if (client.gui.screen() != null || player.isSpectator) return true
         val mode = player.mainHandItem.fireMode
         val wantsShot = when (mode) {
@@ -124,7 +134,7 @@ object GunInput {
     private fun tick(client: Minecraft) {
         val player = client.player ?: return
         val mounted = VehicleClient.seatGun(player)
-        val gun = if (mounted == null) player.mainHandItem.shotDefinition else null
+        val gun = if (mounted == null && !isDriver(player)) player.mainHandItem.shotDefinition else null
         if (cooldown > 0) cooldown--
         ticksSinceShot++
 
@@ -132,8 +142,8 @@ object GunInput {
         if (gun != null && burstLeft > 0 && cooldown <= 0 && player.mainHandItem.ammo > 0) localShot(player, gun)
         if (gun == null) burstLeft = 0
 
-        updateAim(client, gun)
-        if (aiming) {
+        updateAim(client, gun, mounted ?: player.mainHandItem.definition?.takeIf { gun != null })
+        if (aiming && gun != null) {
             // No hand sway while aiming: the gun stays locked to the view.
             player.xBob = player.xRot; player.xBobO = player.xRot
             player.yBob = player.yRot; player.yBobO = player.yRot
@@ -143,22 +153,28 @@ object GunInput {
             else if (gun != null) ClientPlayNetworking.send(ReloadPayload(unload = player.isShiftKeyDown))
         }
         while (FIRE_MODE.consumeClick()) if (gun != null) ClientPlayNetworking.send(FireModePayload)
-        while (WEAPON_MENU.consumeClick()) if (gun != null) ClientPlayNetworking.send(OpenWeaponMenuPayload)
+        while (WEAPON_MENU.consumeClick()) {
+            // Riding a vehicle: its menu (upgrades, fuel, parts) instead of the gun's.
+            if (player.vehicle is com.flansmod.recoded.entity.DriveableEntity) ClientPlayNetworking.send(com.flansmod.recoded.network.OpenVehicleMenuPayload)
+            else if (gun != null) ClientPlayNetworking.send(OpenWeaponMenuPayload)
+        }
         while (ATTACH.consumeClick()) if (gun != null) ClientPlayNetworking.send(AttachPayload(remove = player.isShiftKeyDown))
         applyRecoil(player, gun ?: mounted)
     }
 
-    private fun updateAim(client: Minecraft, gun: GunDefinition?) {
+    private fun updateAim(client: Minecraft, gun: GunDefinition?, aimable: GunDefinition?) {
         val useDown = client.options.keyUse.isDown && client.gui.screen() == null
+        aimedGun = aimable
         aiming = when {
-            gun == null -> false
+            aimable == null -> false
             FlansConfig.get.toggleAim -> if (useDown && !useWasDown) !aiming else aiming
             else -> useDown
         }
         useWasDown = useDown
         if (aiming != wasAiming) {
             wasAiming = aiming
-            ClientPlayNetworking.send(AimPayload(aiming))
+            // The server only cares about hand-held guns (spread, slowdown, night vision).
+            ClientPlayNetworking.send(AimPayload(aiming && gun != null))
         }
         prevAimProgress = aimProgress
         aimProgress = Mth.approach(aimProgress, if (aiming) 1f else 0f, 0.25f)

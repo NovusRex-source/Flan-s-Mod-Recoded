@@ -14,6 +14,8 @@ import com.flansmod.recoded.bench.WeaponsBenchBlock
 import com.flansmod.recoded.bench.WeaponsBenchMenu
 import com.flansmod.recoded.bench.WeaponMenu
 import com.flansmod.recoded.bench.WeaponMenuData
+import com.flansmod.recoded.bench.VehicleMenu
+import com.flansmod.recoded.bench.VehicleMenuData
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType
 import net.minecraft.world.flag.FeatureFlags
 import net.minecraft.world.inventory.MenuType
@@ -31,6 +33,8 @@ import com.flansmod.recoded.entity.GrenadeEntity
 import com.flansmod.recoded.entity.DriveableEntity
 import com.flansmod.recoded.gun.Vehicles
 import com.flansmod.recoded.item.VehicleItem
+import com.flansmod.recoded.item.VehicleUpgradeItem
+import com.flansmod.recoded.gun.VehicleUpgrades
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.MobCategory
 import com.flansmod.recoded.item.AmmoItem
@@ -87,6 +91,23 @@ object FlansComponents {
     /** Which [com.flansmod.recoded.gun.VehicleDefinition] a vehicle stack represents. */
     val VEHICLE: DataComponentType<Identifier> = register("vehicle") {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
+    /** Which [com.flansmod.recoded.gun.VehicleUpgradeDefinition] an upgrade stack represents. */
+    val VEHICLE_UPGRADE: DataComponentType<Identifier> = register("vehicle_upgrade") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
+    /** Upgrades installed in a picked-up vehicle, by slot. */
+    val VEHICLE_UPGRADES: DataComponentType<Map<String, Identifier>> = register("vehicle_upgrades") {
+        persistent(Codec.unboundedMap(Codec.STRING, Identifier.CODEC))
+            .networkSynchronized(ByteBufCodecs.map(::HashMap, ByteBufCodecs.STRING_UTF8, Identifier.STREAM_CODEC))
+    }
+
+    /** Damage taken by a picked-up vehicle: `hull` plus each damaged part. */
+    val VEHICLE_DAMAGE: DataComponentType<Map<String, Float>> = register("vehicle_damage") {
+        persistent(Codec.unboundedMap(Codec.STRING, Codec.FLOAT))
+            .networkSynchronized(ByteBufCodecs.map(::HashMap, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.FLOAT))
     }
 
     /** Fuel left in a picked-up vehicle. */
@@ -169,6 +190,11 @@ object FlansItems {
         VehicleItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("vehicle"))).stacksTo(1)),
     )
 
+    val VEHICLE_UPGRADE: VehicleUpgradeItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("vehicle_upgrade"),
+        VehicleUpgradeItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("vehicle_upgrade"))).stacksTo(1)),
+    )
+
     init {
         Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB, FlansMod.id("guns"),
@@ -186,6 +212,7 @@ object FlansItems {
                     ids(Grenades.all).filter { Grenades[it]!!.throwable }.forEach { output.accept(GrenadeItem.stackFor(it)) }
                     ids(Clothing.all).forEach { output.accept(ClothingItem.stackFor(it)) }
                     ids(Vehicles.all).forEach { output.accept(VehicleItem.stackFor(it)) }
+                    ids(VehicleUpgrades.all).forEach { output.accept(VehicleUpgradeItem.stackFor(it)) }
                 }
                 .build(),
         )
@@ -215,6 +242,10 @@ object FlansMenus {
 
     val WEAPON: ExtendedMenuType<WeaponMenu, WeaponMenuData> = Registry.register(
         BuiltInRegistries.MENU, FlansMod.id("weapon"), ExtendedMenuType(::WeaponMenu, WeaponMenuData.STREAM_CODEC),
+    )
+
+    val VEHICLE: ExtendedMenuType<VehicleMenu, VehicleMenuData> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("vehicle"), ExtendedMenuType(::VehicleMenu, VehicleMenuData.STREAM_CODEC),
     )
 
     fun init() = Unit
