@@ -1,0 +1,8 @@
+{
+  "name": "Battledress Blouse",
+  "slot": "chest",
+  "asset": "flansww2:uk",
+  "icon": "flansww2:battledress_blouse",
+  "armor": 4,
+  "faction": "flansww2:uk"
+}

@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IIIR",
+    "N   "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "components": {
+      "flansmod:part": "flansww2:bolt_action_receiver"
+    }
+  }
+}

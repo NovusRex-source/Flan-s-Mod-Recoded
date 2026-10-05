@@ -1,0 +1,187 @@
+{
+  "name": "K\u00fcbelwagen Typ 82",
+  "type": "car",
+  "upgrade_slots": [
+    "engine",
+    "tyres",
+    "tank"
+  ],
+  "health": 50,
+  "armor": 0.05,
+  "max_speed": 0.85,
+  "max_reverse_speed": 0.28,
+  "acceleration": 0.026,
+  "braking": 0.07,
+  "drag": 0.015,
+  "turn_speed": 5.0,
+  "water_speed": 0.2,
+  "collision_damage": 15,
+  "death_explosion": 2.5,
+  "camera_distance": 6,
+  "fuel": {
+    "capacity": 20000,
+    "consumption": 1
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -0.8,
+        0.4,
+        -1.7,
+        0.8,
+        1.0,
+        0.5
+      ],
+      "armor": 0.05,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -0.8,
+        0.4,
+        -2.0,
+        0.8,
+        1.0,
+        -1.7
+      ],
+      "health": 33.0,
+      "armor": 0.05,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "fuel_tank": {
+      "box": [
+        -0.8,
+        0.4,
+        0.5,
+        0.8,
+        1.0,
+        1.6
+      ],
+      "health": 21.5,
+      "armor": 0.05,
+      "role": "fuel_tank",
+      "core_damage": 0.3
+    },
+    "wheel_fl": {
+      "box": [
+        -0.84,
+        0,
+        0.7200000000000001,
+        -0.6,
+        0.76,
+        1.48
+      ],
+      "health": 18,
+      "armor": 0.015,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_fl"
+      ]
+    },
+    "wheel_fr": {
+      "box": [
+        0.6,
+        0,
+        0.7200000000000001,
+        0.84,
+        0.76,
+        1.48
+      ],
+      "health": 18,
+      "armor": 0.015,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_fr"
+      ]
+    },
+    "wheel_rl": {
+      "box": [
+        -0.84,
+        0,
+        -1.58,
+        -0.6,
+        0.76,
+        -0.82
+      ],
+      "health": 18,
+      "armor": 0.015,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_rl"
+      ]
+    },
+    "wheel_rr": {
+      "box": [
+        0.6,
+        0,
+        -1.58,
+        0.84,
+        0.76,
+        -0.82
+      ],
+      "health": 18,
+      "armor": 0.015,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_rr"
+      ]
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        -0.38,
+        0.78,
+        -0.1
+      ]
+    },
+    {
+      "position": [
+        0.38,
+        0.78,
+        -0.1
+      ]
+    },
+    {
+      "position": [
+        0.0,
+        0.78,
+        -1.15
+      ],
+      "gun": "flansww2:mg34_mounted",
+      "turret": true,
+      "pivot": [
+        0,
+        1.62,
+        -0.65
+      ],
+      "muzzle": [
+        0,
+        0,
+        1.05
+      ],
+      "sight": [
+        0,
+        0.17,
+        0.27
+      ],
+      "min_pitch": -15,
+      "max_pitch": 45,
+      "yaw_bone": "turret",
+      "pitch_bone": "mg"
+    }
+  ],
+  "model": {
+    "texture": "flansww2:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansww2:kubelwagen",
+  "sounds": {
+    "engine": "flansww2:vehicle.engine"
+  },
+  "faction": "flansww2:axis"
+}

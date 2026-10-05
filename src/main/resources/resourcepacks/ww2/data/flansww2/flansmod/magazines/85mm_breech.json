@@ -1,0 +1,9 @@
+{
+  "name": "Breech (1)",
+  "caliber": "85mm",
+  "capacity": 1,
+  "guns": [
+    "flansww2:zis_s53"
+  ],
+  "internal": true
+}

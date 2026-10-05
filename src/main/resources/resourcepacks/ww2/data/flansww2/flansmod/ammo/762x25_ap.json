@@ -1,0 +1,7 @@
+{
+  "name": "7.62\u00d725mm Tokarev AP",
+  "caliber": "762x25",
+  "icon": "flansww2:762x25_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

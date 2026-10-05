@@ -1,0 +1,7 @@
+{
+  "name": "8.8cm KwK HE Shell",
+  "caliber": "88mm",
+  "max_stack": 8,
+  "icon": "flansww2:88mm_he",
+  "projectile": "flansww2:88mm_he"
+}

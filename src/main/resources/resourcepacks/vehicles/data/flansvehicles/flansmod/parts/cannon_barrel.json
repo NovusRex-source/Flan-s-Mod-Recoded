@@ -1,4 +1,5 @@
 {
-  "name": "120mm Gun Barrel",
+  "name": "Tank Gun Barrel",
+  "category": "vehicle",
   "icon": "flansvehicles:cannon_barrel"
 }

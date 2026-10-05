@@ -1,0 +1,217 @@
+{
+  "name": "M2 Bradley",
+  "type": "tank",
+  "upgrade_slots": [
+    "engine",
+    "armor",
+    "tank"
+  ],
+  "step_height": 1.1,
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 40
+  },
+  "health": 260,
+  "armor": 0.75,
+  "max_speed": 0.7,
+  "max_reverse_speed": 0.22,
+  "acceleration": 0.016,
+  "braking": 0.05,
+  "drag": 0.03,
+  "turn_speed": 3.0,
+  "water_speed": 0.3,
+  "collision_damage": 34,
+  "death_explosion": 4.5,
+  "camera_distance": 11,
+  "fuel": {
+    "capacity": 54000,
+    "consumption": 2
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -1.0,
+        0.5,
+        -2.0,
+        1.0,
+        1.95,
+        3.2
+      ],
+      "armor": 0.75,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -1.0,
+        0.5,
+        -3.2,
+        1.0,
+        1.95,
+        -2.0
+      ],
+      "health": 104.0,
+      "armor": 0.675,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "track_left": {
+      "box": [
+        -1.6,
+        0,
+        -3.2,
+        -1.0,
+        0.95,
+        3.2
+      ],
+      "health": 120,
+      "armor": 0.48750000000000004,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_l"
+      ]
+    },
+    "track_right": {
+      "box": [
+        1.0,
+        0,
+        -3.2,
+        1.6,
+        0.95,
+        3.2
+      ],
+      "health": 120,
+      "armor": 0.48750000000000004,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_r"
+      ]
+    },
+    "sponson_left": {
+      "box": [
+        -1.6,
+        0.95,
+        -3.2,
+        -1.0,
+        1.95,
+        3.2
+      ],
+      "armor": 0.75,
+      "role": "hull"
+    },
+    "sponson_right": {
+      "box": [
+        1.0,
+        0.95,
+        -3.2,
+        1.6,
+        1.95,
+        3.2
+      ],
+      "armor": 0.75,
+      "role": "hull"
+    },
+    "turret": {
+      "box": [
+        -1.35,
+        1.95,
+        -1.25,
+        0.95,
+        2.65,
+        1.0
+      ],
+      "health": 156.0,
+      "armor": 0.77,
+      "role": "weapon",
+      "seat": 1,
+      "core_damage": 0.5
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        -0.85,
+        1.2,
+        1.55
+      ]
+    },
+    {
+      "position": [
+        0.0,
+        1.95,
+        -0.2
+      ],
+      "gun": "flansvehicles:m242",
+      "turret": true,
+      "pivot": [
+        0,
+        2.275,
+        -0.2
+      ],
+      "muzzle": [
+        0,
+        0,
+        3.62
+      ],
+      "sight": [
+        0.55,
+        0.315,
+        1.07
+      ],
+      "min_pitch": -10,
+      "max_pitch": 55,
+      "yaw_bone": "turret",
+      "pitch_bone": "m242"
+    },
+    {
+      "position": [
+        -1.15,
+        0.66,
+        -1.0
+      ]
+    },
+    {
+      "position": [
+        1.15,
+        0.66,
+        -1.0
+      ]
+    },
+    {
+      "position": [
+        -1.15,
+        0.66,
+        -1.9
+      ]
+    },
+    {
+      "position": [
+        1.15,
+        0.66,
+        -1.9
+      ]
+    },
+    {
+      "position": [
+        -1.15,
+        0.66,
+        -2.8
+      ]
+    },
+    {
+      "position": [
+        1.15,
+        0.66,
+        -2.8
+      ]
+    }
+  ],
+  "model": {
+    "texture": "flansvehicles:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansvehicles:m2_bradley",
+  "sounds": {
+    "engine": "flansvehicles:vehicle.tank.engine"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "name": "Mosin-Nagant M91/30",
+  "model": {
+    "texture": "flansww2:textures/gun/basic.png"
+  },
+  "damage": 13,
+  "rpm": 35,
+  "fire_mode": "semi",
+  "reload_ticks": 70,
+  "velocity": 20,
+  "spread": 2,
+  "ads_spread": 0.1,
+  "ads_zoom": 1.4,
+  "ads_move_speed": 0.6,
+  "rail_ads": 7.0,
+  "recoil": {
+    "pitch": 3.6,
+    "yaw": 0.9
+  },
+  "magazines": [
+    "flansww2:mosin_internal"
+  ],
+  "sounds": {
+    "shoot": "flansww2:gun.sniper.shoot",
+    "reload": "flansww2:gun.reload",
+    "empty": "flansww2:gun.empty"
+  },
+  "fire_modes": [
+    "safe",
+    "semi"
+  ],
+  "attachment_slots": [],
+  "category": "sniper",
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.26,
+        0.26,
+        0.26
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.26,
+        0.26,
+        0.26
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        7.5,
+        -6
+      ]
+    }
+  },
+  "headshot_multiplier": 2.0,
+  "gravity": 0.01,
+  "lifetime_ticks": 60,
+  "faction": "flansww2:ussr"
+}

@@ -1,0 +1,196 @@
+{
+  "name": "T-72B",
+  "type": "tank",
+  "upgrade_slots": [
+    "engine",
+    "armor",
+    "tank"
+  ],
+  "step_height": 1.1,
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 40
+  },
+  "health": 380,
+  "armor": 0.88,
+  "max_speed": 0.62,
+  "max_reverse_speed": 0.15,
+  "acceleration": 0.013,
+  "braking": 0.05,
+  "drag": 0.03,
+  "turn_speed": 2.6,
+  "water_speed": 0.3,
+  "collision_damage": 40,
+  "death_explosion": 5.5,
+  "camera_distance": 11,
+  "fuel": {
+    "capacity": 60000,
+    "consumption": 2
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -1.25,
+        0.45,
+        -1.7,
+        1.25,
+        1.25,
+        3.0
+      ],
+      "armor": 0.88,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -1.25,
+        0.45,
+        -3.1,
+        1.25,
+        1.25,
+        -1.7
+      ],
+      "health": 152.0,
+      "armor": 0.792,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "track_left": {
+      "box": [
+        -1.8,
+        0,
+        -3.1,
+        -1.25,
+        0.9,
+        3.0
+      ],
+      "health": 140,
+      "armor": 0.5720000000000001,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_l"
+      ]
+    },
+    "track_right": {
+      "box": [
+        1.25,
+        0,
+        -3.1,
+        1.8,
+        0.9,
+        3.0
+      ],
+      "health": 140,
+      "armor": 0.5720000000000001,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_r"
+      ]
+    },
+    "sponson_left": {
+      "box": [
+        -1.8,
+        0.9,
+        -3.1,
+        -1.25,
+        1.25,
+        3.0
+      ],
+      "armor": 0.88,
+      "role": "hull"
+    },
+    "sponson_right": {
+      "box": [
+        1.25,
+        0.9,
+        -3.1,
+        1.8,
+        1.25,
+        3.0
+      ],
+      "armor": 0.88,
+      "role": "hull"
+    },
+    "turret": {
+      "box": [
+        -1.15,
+        1.25,
+        -1.15,
+        1.15,
+        2.1,
+        1.15
+      ],
+      "health": 228.0,
+      "armor": 0.9,
+      "role": "weapon",
+      "seat": 0,
+      "core_damage": 0.5
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        0.0,
+        0.6,
+        1.55
+      ],
+      "gun": "flansvehicles:2a46",
+      "turret": true,
+      "pivot": [
+        0,
+        1.6,
+        0.0
+      ],
+      "muzzle": [
+        0,
+        0,
+        5.12
+      ],
+      "sight": [
+        0.6,
+        0.345,
+        0.97
+      ],
+      "min_pitch": -6,
+      "max_pitch": 14,
+      "yaw_bone": "turret",
+      "pitch_bone": "cannon"
+    },
+    {
+      "position": [
+        0,
+        1.59,
+        0.0
+      ],
+      "gun": "flansvehicles:nsvt",
+      "turret": true,
+      "pivot": [
+        0,
+        2.27,
+        0.0
+      ],
+      "muzzle": [
+        0,
+        0,
+        1.43
+      ],
+      "sight": [
+        0,
+        0.17,
+        0.5
+      ],
+      "min_pitch": -5,
+      "max_pitch": 70,
+      "yaw_bone": "cupola",
+      "pitch_bone": "cupola_mg"
+    }
+  ],
+  "model": {
+    "texture": "flansvehicles:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansvehicles:t72",
+  "sounds": {
+    "engine": "flansvehicles:vehicle.tank.engine"
+  }
+}

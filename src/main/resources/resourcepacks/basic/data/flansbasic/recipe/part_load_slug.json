@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "I",
+    "N"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 8,
+    "components": {
+      "flansmod:part": "flansbasic:load_slug"
+    }
+  }
+}

@@ -1,14 +1,13 @@
 {
   "name": "120mm APFSDS Shell",
   "caliber": "120mm",
-  "max_stack": 4,
+  "max_stack": 8,
+  "icon": "flansvehicles:120mm_apfsds",
   "armor_piercing": true,
   "velocity_multiplier": 1.6,
-  "damage_multiplier": 1.0,
   "tracer": {
     "color": "#FFFFFF",
     "width": 0.1,
     "length": 6
-  },
-  "icon": "flansvehicles:120mm_apfsds"
+  }
 }

@@ -1,0 +1,203 @@
+{
+  "name": "M4A3 Sherman",
+  "type": "tank",
+  "upgrade_slots": [
+    "engine",
+    "tank"
+  ],
+  "step_height": 1.1,
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 40
+  },
+  "health": 320,
+  "armor": 0.8,
+  "max_speed": 0.62,
+  "max_reverse_speed": 0.15,
+  "acceleration": 0.011,
+  "braking": 0.05,
+  "drag": 0.03,
+  "turn_speed": 2.6,
+  "water_speed": 0.2,
+  "collision_damage": 36,
+  "death_explosion": 4.5,
+  "camera_distance": 11,
+  "fuel": {
+    "capacity": 48000,
+    "consumption": 2
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -1.2,
+        0.55,
+        -1.3,
+        1.2,
+        1.95,
+        2.6
+      ],
+      "armor": 0.8,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -1.2,
+        0.55,
+        -2.7,
+        1.2,
+        1.95,
+        -1.3
+      ],
+      "health": 128.0,
+      "armor": 0.7200000000000001,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "track_left": {
+      "box": [
+        -1.7,
+        0,
+        -2.7,
+        -1.2,
+        1.0,
+        2.6
+      ],
+      "health": 120,
+      "armor": 0.52,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_l"
+      ]
+    },
+    "track_right": {
+      "box": [
+        1.2,
+        0,
+        -2.7,
+        1.7,
+        1.0,
+        2.6
+      ],
+      "health": 120,
+      "armor": 0.52,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_r"
+      ]
+    },
+    "sponson_left": {
+      "box": [
+        -1.7,
+        1.0,
+        -2.7,
+        -1.2,
+        1.95,
+        2.6
+      ],
+      "armor": 0.8,
+      "role": "hull"
+    },
+    "sponson_right": {
+      "box": [
+        1.2,
+        1.0,
+        -2.7,
+        1.7,
+        1.95,
+        2.6
+      ],
+      "armor": 0.8,
+      "role": "hull"
+    },
+    "turret": {
+      "box": [
+        -1.0,
+        1.95,
+        -1.05,
+        1.0,
+        2.75,
+        1.25
+      ],
+      "health": 192.0,
+      "armor": 0.8200000000000001,
+      "role": "weapon",
+      "seat": 0,
+      "core_damage": 0.5
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        -0.5,
+        0.95,
+        1.2
+      ],
+      "gun": "flansww2:m3_75mm",
+      "turret": true,
+      "pivot": [
+        0,
+        2.3,
+        -0.1
+      ],
+      "muzzle": [
+        0,
+        0,
+        3.42
+      ],
+      "sight": [
+        0.45,
+        0.39,
+        0.77
+      ],
+      "min_pitch": -10,
+      "max_pitch": 25,
+      "yaw_bone": "turret",
+      "pitch_bone": "cannon"
+    },
+    {
+      "position": [
+        0.5,
+        0.95,
+        1.2
+      ]
+    },
+    {
+      "position": [
+        0,
+        2.29,
+        -0.1
+      ],
+      "gun": "flansww2:m2hb_mounted",
+      "turret": true,
+      "pivot": [
+        0,
+        2.97,
+        -0.1
+      ],
+      "muzzle": [
+        0,
+        0,
+        1.38
+      ],
+      "sight": [
+        0,
+        0.17,
+        0.5
+      ],
+      "min_pitch": -10,
+      "max_pitch": 60,
+      "yaw_bone": "cupola",
+      "pitch_bone": "cupola_mg"
+    }
+  ],
+  "model": {
+    "texture": "flansww2:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansww2:sherman",
+  "sounds": {
+    "engine": "flansww2:vehicle.tank.engine"
+  },
+  "faction": "flansww2:usa"
+}

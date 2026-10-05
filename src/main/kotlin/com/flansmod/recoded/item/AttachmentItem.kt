@@ -22,7 +22,21 @@ class AttachmentItem(properties: Properties) : Item(properties) {
 
     override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: TooltipDisplay, add: Consumer<Component>, flag: TooltipFlag) {
         val def = stack.attachmentDefinition ?: return
-        add.accept(Component.translatable("item.flansmod.attachment.slot", Component.translatableWithFallback("attachment.flansmod.${def.slot}", def.slot)).withStyle(ChatFormatting.GRAY))
+        Tooltips.category(add, "attachment", Component.translatableWithFallback("attachment.flansmod.${def.slot}", def.slot))
+        fun percent(key: String, factor: Double, goodWhenLower: Boolean = false) {
+            if (factor == 1.0) return
+            val good = if (goodWhenLower) factor < 1 else factor > 1
+            add.accept(Component.translatable("tooltip.flansmod.attachment.$key", "%+d%%".format(((factor - 1) * 100).toInt()))
+                .withStyle(if (good) ChatFormatting.GREEN else ChatFormatting.RED))
+        }
+        percent("damage", def.damageMultiplier.toDouble())
+        percent("spread", def.spreadMultiplier.toDouble(), goodWhenLower = true)
+        percent("recoil", def.recoilMultiplier.toDouble(), goodWhenLower = true)
+        percent("move", def.adsMoveSpeedMultiplier.toDouble())
+        def.adsZoom?.let { add.accept(Component.translatable("tooltip.flansmod.attachment.zoom", "%.1f".format(it)).withStyle(ChatFormatting.GRAY)) }
+        if (def.hideTracer) add.accept(Component.translatable("tooltip.flansmod.attachment.suppressed").withStyle(ChatFormatting.GRAY))
+        def.scope?.let { if (it.nightVision) add.accept(Component.translatable("tooltip.flansmod.attachment.night_vision").withStyle(ChatFormatting.GREEN)) }
+        def.scope?.let { if (it.thermal) add.accept(Component.translatable("tooltip.flansmod.attachment.thermal").withStyle(ChatFormatting.GREEN)) }
         add.accept(Component.translatable("item.flansmod.attachment.how").withStyle(ChatFormatting.DARK_GRAY))
     }
 

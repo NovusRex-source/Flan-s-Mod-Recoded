@@ -1,0 +1,9 @@
+{
+  "name": "Breech (1)",
+  "caliber": "75mm_kwk",
+  "capacity": 1,
+  "guns": [
+    "flansww2:kwk40"
+  ],
+  "internal": true
+}

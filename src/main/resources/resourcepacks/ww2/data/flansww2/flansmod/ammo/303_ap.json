@@ -1,0 +1,7 @@
+{
+  "name": ".303 British AP",
+  "caliber": "303",
+  "icon": "flansww2:303_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

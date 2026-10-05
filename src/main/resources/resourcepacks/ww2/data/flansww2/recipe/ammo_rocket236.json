@@ -1,0 +1,30 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "AD"
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:casing_rocket236"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:warhead_bazooka"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 1,
+    "components": {
+      "flansmod:ammo_type": "flansww2:rocket236",
+      "minecraft:max_stack_size": 8
+    }
+  }
+}

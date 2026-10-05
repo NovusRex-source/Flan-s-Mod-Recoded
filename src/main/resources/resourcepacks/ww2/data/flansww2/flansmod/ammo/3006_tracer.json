@@ -1,0 +1,11 @@
+{
+  "name": ".30-06 Springfield Tracer",
+  "caliber": "3006",
+  "icon": "flansww2:3006_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "flansww2:axis"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "flansww2:axis"
+      }
+    ]
+  }
+}

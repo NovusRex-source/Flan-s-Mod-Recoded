@@ -1,11 +1,23 @@
 {
   "type": "flansmod:weapon_assembly",
   "pattern": [
-    "SUC"
+    "AUD"
   ],
   "key": {
-    "C": "minecraft:copper_ingot",
-    "S": "minecraft:slime_ball",
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_9mm"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:bullet_hp"
+      }
+    },
     "U": "minecraft:gunpowder"
   },
   "result": {

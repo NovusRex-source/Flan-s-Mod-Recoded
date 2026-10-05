@@ -2,6 +2,6 @@
   "name": "M249 Box (200)",
   "caliber": "556",
   "capacity": 200,
-  "icon": "flansbasic:m249_box_200",
-  "reload_multiplier": 1.8
+  "reload_multiplier": 1.8,
+  "icon": "flansbasic:m249_box_200"
 }

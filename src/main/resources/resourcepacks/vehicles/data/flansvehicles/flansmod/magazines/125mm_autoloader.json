@@ -1,0 +1,9 @@
+{
+  "name": "Autoloader (1)",
+  "caliber": "125mm",
+  "capacity": 1,
+  "guns": [
+    "flansvehicles:2a46"
+  ],
+  "internal": true
+}

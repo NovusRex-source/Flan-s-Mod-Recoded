@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IIII",
+    "I  I",
+    "IIII"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansvehicles:m242_box_75"
+      }
+    }
+  }
+}

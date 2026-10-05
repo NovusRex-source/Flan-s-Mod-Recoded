@@ -1,6 +1,6 @@
 {
-  "name": "SPAS-12 Shell Holder (8)",
+  "name": "Tube Magazine (8)",
   "caliber": "12g",
   "capacity": 8,
-  "icon": "flansbasic:spas_8"
+  "internal": true
 }

@@ -1,0 +1,8 @@
+{
+  "name": "Stahlhelm M35",
+  "slot": "head",
+  "asset": "flansww2:axis",
+  "icon": "flansww2:stahlhelm",
+  "armor": 2.5,
+  "faction": "flansww2:axis"
+}

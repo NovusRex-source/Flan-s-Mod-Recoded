@@ -1,0 +1,43 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "SMJ",
+    " T "
+  ],
+  "key": {
+    "J": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:barrel_jacket"
+      }
+    },
+    "M": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:stamped_receiver"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:walnut_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:gun",
+    "components": {
+      "flansmod:gun": "flansww2:ppsh41"
+    }
+  }
+}

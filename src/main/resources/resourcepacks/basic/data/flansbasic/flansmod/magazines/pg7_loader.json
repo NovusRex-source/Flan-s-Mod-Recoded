@@ -1,6 +1,6 @@
 {
-  "name": "RPG-7 Rocket Loader (1)",
+  "name": "Launch Tube (1)",
   "caliber": "rpg",
   "capacity": 1,
-  "icon": "flansbasic:pg7_loader"
+  "internal": true
 }

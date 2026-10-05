@@ -1,0 +1,7 @@
+{
+  "name": "14.5\u00d7114mm AP",
+  "caliber": "145x114",
+  "icon": "flansvehicles:145x114_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

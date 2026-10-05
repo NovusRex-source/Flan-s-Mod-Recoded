@@ -1,0 +1,14 @@
+{
+  "name": "2.36in Rocket",
+  "throwable": false,
+  "contact": true,
+  "gravity": 0.006,
+  "fuse_ticks": 120,
+  "trail": true,
+  "explosion": {
+    "power": 3.0,
+    "fire": false,
+    "break_blocks": true
+  },
+  "icon": "flansww2:rocket236"
+}

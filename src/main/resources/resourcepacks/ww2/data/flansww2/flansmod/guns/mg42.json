@@ -1,0 +1,78 @@
+{
+  "name": "MG 42",
+  "model": {
+    "texture": "flansww2:textures/gun/basic.png"
+  },
+  "damage": 9,
+  "rpm": 1200,
+  "fire_mode": "auto",
+  "reload_ticks": 100,
+  "velocity": 17,
+  "spread": 4,
+  "ads_spread": 0.8,
+  "ads_zoom": 1.3,
+  "ads_move_speed": 0.45,
+  "rail_ads": 6.0,
+  "recoil": {
+    "pitch": 1.4,
+    "yaw": 1.1
+  },
+  "magazines": [
+    "flansww2:mg42_drum_50"
+  ],
+  "sounds": {
+    "shoot": "flansww2:gun.heavy.shoot",
+    "reload": "flansww2:gun.reload",
+    "empty": "flansww2:gun.empty"
+  },
+  "fire_modes": [
+    "safe",
+    "auto"
+  ],
+  "attachment_slots": [],
+  "category": "lmg",
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.27,
+        0.27,
+        0.27
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        5.4,
+        -6
+      ]
+    }
+  },
+  "faction": "flansww2:axis"
+}

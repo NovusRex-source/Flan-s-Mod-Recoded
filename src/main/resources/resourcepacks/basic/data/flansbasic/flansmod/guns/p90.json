@@ -12,7 +12,7 @@
   "ads_spread": 0.52,
   "ads_zoom": 1.35,
   "ads_move_speed": 0.6,
-  "rail_ads": 5.6,
+  "rail_ads": 5.8,
   "recoil": {
     "pitch": 0.8,
     "yaw": 0.4
@@ -34,6 +34,7 @@
     "sight",
     "muzzle"
   ],
+  "category": "smg",
   "display": {
     "gui": {
       "rotation": [
@@ -47,9 +48,9 @@
         0
       ],
       "scale": [
-        0.62,
-        0.62,
-        0.62
+        0.58,
+        0.58,
+        0.58
       ]
     },
     "fixed": {
@@ -64,15 +65,15 @@
         0
       ],
       "scale": [
-        0.62,
-        0.62,
-        0.62
+        0.58,
+        0.58,
+        0.58
       ]
     },
     "ads": {
       "translation": [
         -1.0,
-        6.0,
+        5.8,
         -6
       ]
     }

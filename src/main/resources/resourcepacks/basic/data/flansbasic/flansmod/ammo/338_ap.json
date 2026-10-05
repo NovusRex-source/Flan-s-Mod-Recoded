@@ -1,0 +1,7 @@
+{
+  "name": ".338 Lapua Magnum AP",
+  "caliber": "338",
+  "icon": "flansbasic:338_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

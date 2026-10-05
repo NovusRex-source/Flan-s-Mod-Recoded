@@ -1,0 +1,11 @@
+{
+  "name": ".303 British Tracer",
+  "caliber": "303",
+  "icon": "flansww2:303_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

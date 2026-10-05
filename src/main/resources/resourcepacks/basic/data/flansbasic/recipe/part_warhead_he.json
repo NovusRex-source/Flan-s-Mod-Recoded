@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "T",
+    "c"
+  ],
+  "key": {
+    "T": "minecraft:tnt",
+    "c": "minecraft:copper_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 4,
+    "components": {
+      "flansmod:part": "flansbasic:warhead_he"
+    }
+  }
+}

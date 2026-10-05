@@ -1,0 +1,50 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "SQAb",
+    " T  "
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:gas_system"
+      }
+    },
+    "Q": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:semi_auto_receiver"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:walnut_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    },
+    "b": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:barrel"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:gun",
+    "components": {
+      "flansmod:gun": "flansww2:m1_carbine"
+    }
+  }
+}

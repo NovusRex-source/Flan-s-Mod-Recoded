@@ -1,0 +1,8 @@
+{
+  "name": "M1941 Field Jacket",
+  "slot": "chest",
+  "asset": "flansww2:usa",
+  "icon": "flansww2:m1941_jacket",
+  "armor": 4,
+  "faction": "flansww2:usa"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "125mm APFSDS Shell",
+  "caliber": "125mm",
+  "max_stack": 8,
+  "icon": "flansvehicles:125mm_apfsds",
+  "armor_piercing": true,
+  "velocity_multiplier": 1.6,
+  "tracer": {
+    "color": "#FFFFFF",
+    "width": 0.1,
+    "length": 6
+  }
+}

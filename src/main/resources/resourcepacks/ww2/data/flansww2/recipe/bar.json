@@ -1,0 +1,50 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "SHAB",
+    " T  "
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:gas_system"
+      }
+    },
+    "B": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:long_barrel"
+      }
+    },
+    "H": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:mg_receiver"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:walnut_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:gun",
+    "components": {
+      "flansmod:gun": "flansww2:bar"
+    }
+  }
+}

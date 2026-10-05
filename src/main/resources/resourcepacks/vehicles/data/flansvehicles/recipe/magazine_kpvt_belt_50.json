@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IIII",
+    "IKKI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "K": "minecraft:black_dye"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansvehicles:kpvt_belt_50"
+      }
+    }
+  }
+}

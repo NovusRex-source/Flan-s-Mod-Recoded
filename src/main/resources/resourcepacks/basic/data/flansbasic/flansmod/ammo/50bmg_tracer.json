@@ -1,0 +1,11 @@
+{
+  "name": ".50 BMG Tracer",
+  "caliber": "50bmg",
+  "icon": "flansbasic:50bmg_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

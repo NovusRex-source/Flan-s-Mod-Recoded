@@ -1,0 +1,7 @@
+{
+  "name": ".45 ACP AP",
+  "caliber": "45acp",
+  "icon": "flansbasic:45acp_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

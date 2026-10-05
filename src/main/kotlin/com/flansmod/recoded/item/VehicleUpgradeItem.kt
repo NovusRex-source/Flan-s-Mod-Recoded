@@ -21,6 +21,7 @@ class VehicleUpgradeItem(properties: Properties) : Item(properties) {
 
     override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: TooltipDisplay, add: Consumer<Component>, flag: TooltipFlag) {
         val def = stack.vehicleUpgradeDefinition ?: return
+        Tooltips.category(add, "vehicle_upgrade")
         fun line(text: Component) = add.accept(text.copy().withStyle(ChatFormatting.GRAY))
         line(Component.translatable("item.flansmod.vehicle_upgrade.slot", Component.translatableWithFallback("vehicle_upgrade.flansmod.slot.${def.slot}", def.slot)))
         fun percent(key: String, factor: Double) {

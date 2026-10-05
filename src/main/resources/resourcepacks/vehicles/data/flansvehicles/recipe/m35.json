@@ -1,0 +1,44 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "  SSE",
+    "CCCCC",
+    "WW WW"
+  ],
+  "key": {
+    "C": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:chassis"
+      }
+    },
+    "E": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:engine"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:seat"
+      }
+    },
+    "W": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:wheel"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:vehicle",
+    "components": {
+      "flansmod:vehicle": "flansvehicles:m35"
+    }
+  }
+}

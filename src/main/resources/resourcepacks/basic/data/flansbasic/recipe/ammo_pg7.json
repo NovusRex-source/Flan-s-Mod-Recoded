@@ -1,16 +1,27 @@
 {
   "type": "flansmod:weapon_assembly",
   "pattern": [
-    "TUII"
+    "AD"
   ],
   "key": {
-    "I": "minecraft:iron_ingot",
-    "T": "minecraft:tnt",
-    "U": "minecraft:gunpowder"
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_rpg"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:warhead_pg7"
+      }
+    }
   },
   "result": {
     "id": "flansmod:ammo",
-    "count": 4,
+    "count": 1,
     "components": {
       "flansmod:ammo_type": "flansbasic:pg7",
       "minecraft:max_stack_size": 8

@@ -12,7 +12,7 @@
   "ads_spread": 0.44,
   "ads_zoom": 1.25,
   "ads_move_speed": 0.6,
-  "rail_ads": 8.0,
+  "rail_ads": 9.0,
   "recoil": {
     "pitch": 5.0,
     "yaw": 1.4
@@ -33,6 +33,7 @@
     "sight",
     "muzzle"
   ],
+  "category": "pistol",
   "display": {
     "firstperson_righthand": {
       "rotation": [
@@ -58,9 +59,9 @@
         0
       ],
       "scale": [
-        0.72,
-        0.72,
-        0.72
+        0.7,
+        0.7,
+        0.7
       ]
     },
     "fixed": {
@@ -75,15 +76,15 @@
         0
       ],
       "scale": [
-        0.72,
-        0.72,
-        0.72
+        0.7,
+        0.7,
+        0.7
       ]
     },
     "ads": {
       "translation": [
         -1.0,
-        7.8,
+        8.9,
         -9
       ]
     }

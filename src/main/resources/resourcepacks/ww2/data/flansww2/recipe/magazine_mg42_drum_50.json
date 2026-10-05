@@ -1,0 +1,34 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NINK",
+    "IFI ",
+    "NIN "
+  ],
+  "key": {
+    "F": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:spring"
+      }
+    },
+    "I": "minecraft:iron_ingot",
+    "K": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:casing_792x57"
+      }
+    },
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansww2:mg42_drum_50"
+      }
+    }
+  }
+}

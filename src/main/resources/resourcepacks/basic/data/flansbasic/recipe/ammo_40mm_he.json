@@ -1,16 +1,28 @@
 {
   "type": "flansmod:weapon_assembly",
   "pattern": [
-    "TC",
-    "CC"
+    "AUD"
   ],
   "key": {
-    "C": "minecraft:copper_ingot",
-    "T": "minecraft:tnt"
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_40mm"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:warhead_he"
+      }
+    },
+    "U": "minecraft:gunpowder"
   },
   "result": {
     "id": "flansmod:ammo",
-    "count": 4,
+    "count": 2,
     "components": {
       "flansmod:ammo_type": "flansbasic:40mm_he",
       "minecraft:max_stack_size": 16

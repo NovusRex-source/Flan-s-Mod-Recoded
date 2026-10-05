@@ -1,0 +1,33 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IK",
+    "I ",
+    "F "
+  ],
+  "key": {
+    "F": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:spring"
+      }
+    },
+    "I": "minecraft:iron_ingot",
+    "K": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:casing_30carbine"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansww2:carbine_15"
+      }
+    }
+  }
+}

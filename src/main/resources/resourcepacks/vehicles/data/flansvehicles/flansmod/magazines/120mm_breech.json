@@ -1,9 +1,9 @@
 {
-  "name": "120mm Shell Rack (1)",
+  "name": "Breech (1)",
   "caliber": "120mm",
   "capacity": 1,
   "guns": [
     "flansvehicles:m256"
   ],
-  "icon": "flansvehicles:120mm_breech"
+  "internal": true
 }

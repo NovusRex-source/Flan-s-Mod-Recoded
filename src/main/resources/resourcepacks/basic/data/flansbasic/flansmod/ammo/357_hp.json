@@ -1,0 +1,7 @@
+{
+  "name": ".357 Magnum Hollow Point",
+  "caliber": "357",
+  "icon": "flansbasic:357_hp",
+  "damage_multiplier": 1.25,
+  "spread_multiplier": 1.1
+}

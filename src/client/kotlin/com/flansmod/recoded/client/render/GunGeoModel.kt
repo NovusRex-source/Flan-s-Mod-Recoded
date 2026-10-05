@@ -150,7 +150,13 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
                 bone == FLASH_BONE -> !info.flash
                 // `magazine` shows any inserted magazine; `magazine_<id>` replaces it for that magazine type.
                 // While reloading the hand brings a magazine even if the gun had none.
-                bone == MAGAZINE_BONE -> (info.magazine == null && !info.reloading) || specificMagazine != null
+                bone == MAGAZINE_BONE -> {
+                    // `magazine_<id>` bones live inside the default magazine bone (so they move with the reload
+                    // animation): with a specific one inserted only the default's own cubes are hidden.
+                    val none = info.magazine == null && !info.reloading
+                    snapshots.ifPresent(bone) { it.skipRender(none || specificMagazine != null).skipChildrenRender(none) }
+                    continue
+                }
                 bone.startsWith("${MAGAZINE_BONE}_") -> bone != specificMagazine
                 else -> continue
             }

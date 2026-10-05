@@ -1,4 +1,5 @@
 {
   "name": "Chassis",
+  "category": "vehicle",
   "icon": "flansvehicles:chassis"
 }

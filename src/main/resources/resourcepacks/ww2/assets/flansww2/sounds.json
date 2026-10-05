@@ -1,0 +1,237 @@
+{
+  "gun.pistol.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/blast1",
+        "volume": 0.9,
+        "pitch": 1.5
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.pistol.shoot"
+  },
+  "gun.magnum.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/largeblast1",
+        "volume": 1.0,
+        "pitch": 1.6
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.magnum.shoot"
+  },
+  "gun.smg.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/blast1",
+        "volume": 0.7,
+        "pitch": 1.8
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.smg.shoot"
+  },
+  "gun.rifle.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/largeblast1",
+        "volume": 1.0,
+        "pitch": 1.4
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.rifle.shoot"
+  },
+  "gun.ak.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/largeblast1",
+        "volume": 1.0,
+        "pitch": 1.25
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.ak.shoot"
+  },
+  "gun.battle.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/largeblast1",
+        "volume": 1.2,
+        "pitch": 1.1
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.battle.shoot"
+  },
+  "gun.shotgun.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode1",
+        "volume": 0.6,
+        "pitch": 1.6
+      },
+      {
+        "name": "minecraft:random/explode2",
+        "volume": 0.6,
+        "pitch": 1.6
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.shotgun.shoot"
+  },
+  "gun.sniper.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/largeblast1",
+        "volume": 1.5,
+        "pitch": 0.8
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.sniper.shoot"
+  },
+  "gun.heavy.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode3",
+        "volume": 1.2,
+        "pitch": 1.2
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.heavy.shoot"
+  },
+  "gun.launcher.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:item/crossbow/shoot1",
+        "volume": 1.0,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.launcher.shoot"
+  },
+  "gun.rocket.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/launch1",
+        "volume": 1.5,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.rocket.shoot"
+  },
+  "gun.suppressed": {
+    "sounds": [
+      {
+        "name": "minecraft:item/crossbow/shoot1",
+        "volume": 0.6,
+        "pitch": 1.7
+      },
+      {
+        "name": "minecraft:item/crossbow/shoot2",
+        "volume": 0.6,
+        "pitch": 1.7
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.suppressed"
+  },
+  "gun.reload": {
+    "sounds": [
+      {
+        "name": "minecraft:item/crossbow/loading_middle1",
+        "volume": 0.8,
+        "pitch": 1.2
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.reload"
+  },
+  "gun.empty": {
+    "sounds": [
+      {
+        "name": "minecraft:random/click",
+        "volume": 0.6,
+        "pitch": 1.8
+      }
+    ],
+    "subtitle": "subtitles.flansww2.gun.empty"
+  },
+  "vehicle.engine": {
+    "sounds": [
+      {
+        "name": "minecraft:minecart/base",
+        "volume": 0.6,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.engine"
+  },
+  "vehicle.tank.engine": {
+    "sounds": [
+      {
+        "name": "minecraft:minecart/base",
+        "volume": 0.9,
+        "pitch": 0.35
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.tank.engine"
+  },
+  "vehicle.hmg.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode3",
+        "volume": 0.8,
+        "pitch": 1.6
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.hmg.shoot"
+  },
+  "vehicle.autocannon.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode3",
+        "volume": 1.4,
+        "pitch": 1.1
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.autocannon.shoot"
+  },
+  "vehicle.cannon.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode1",
+        "volume": 2.5,
+        "pitch": 0.5
+      },
+      {
+        "name": "minecraft:random/explode2",
+        "volume": 2.5,
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.cannon.shoot"
+  },
+  "vehicle.cannon.reload": {
+    "sounds": [
+      {
+        "name": "minecraft:block/iron_door/close1",
+        "volume": 1.0,
+        "pitch": 0.6
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.cannon.reload"
+  },
+  "vehicle.reload": {
+    "sounds": [
+      {
+        "name": "minecraft:item/crossbow/loading_middle1",
+        "volume": 0.9,
+        "pitch": 0.9
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.reload"
+  },
+  "vehicle.empty": {
+    "sounds": [
+      {
+        "name": "minecraft:random/click",
+        "volume": 0.6,
+        "pitch": 1.4
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.empty"
+  }
+}

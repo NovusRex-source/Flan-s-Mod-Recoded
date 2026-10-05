@@ -1,0 +1,14 @@
+{
+  "name": "85mm APCBC Shell",
+  "caliber": "85mm",
+  "max_stack": 8,
+  "icon": "flansww2:85mm_apcbc",
+  "armor_piercing": true,
+  "velocity_multiplier": 1.2,
+  "damage_multiplier": 1.1,
+  "tracer": {
+    "color": "#FF6030",
+    "width": 0.1,
+    "length": 5
+  }
+}

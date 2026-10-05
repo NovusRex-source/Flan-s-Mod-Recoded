@@ -1,0 +1,7 @@
+{
+  "name": "12.7\u00d7108mm AP",
+  "caliber": "127x108",
+  "icon": "flansvehicles:127x108_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

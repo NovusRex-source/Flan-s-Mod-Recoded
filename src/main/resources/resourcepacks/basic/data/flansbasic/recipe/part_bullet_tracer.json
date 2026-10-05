@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "R",
+    "N"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 16,
+    "components": {
+      "flansmod:part": "flansbasic:bullet_tracer"
+    }
+  }
+}

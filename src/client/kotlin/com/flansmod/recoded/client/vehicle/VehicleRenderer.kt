@@ -13,6 +13,8 @@ import com.geckolib.renderer.base.BoneSnapshots
 import com.geckolib.renderer.base.GeoRenderState
 import com.geckolib.renderer.base.RenderPassInfo
 import net.minecraft.client.renderer.entity.EntityRendererProvider
+import net.minecraft.client.renderer.rendertype.RenderType
+import net.minecraft.client.renderer.rendertype.RenderTypes
 import net.minecraft.client.renderer.entity.state.EntityRenderState
 import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
@@ -59,6 +61,9 @@ class VehicleRenderer(context: EntityRendererProvider.Context) : GeoEntityRender
     init {
         shadowRadius = 1.2f
     }
+
+    /** Translucent (glass texels are see-through); culled, so from inside a solid hull you see out instead of its inner faces. */
+    override fun getRenderType(renderState: EntityRenderState, texture: Identifier): RenderType = RenderTypes.entityTranslucentCull(texture)
 
     override fun addRenderData(animatable: DriveableEntity, relatedObject: Void?, renderState: EntityRenderState, partialTick: Float) {
         val yaw = HashMap<String, Float>()

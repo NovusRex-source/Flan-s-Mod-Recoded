@@ -1,0 +1,80 @@
+{
+  "name": "Gewehr 43",
+  "model": {
+    "texture": "flansww2:textures/gun/basic.png"
+  },
+  "damage": 10,
+  "rpm": 180,
+  "fire_mode": "semi",
+  "reload_ticks": 55,
+  "velocity": 18,
+  "spread": 1.9,
+  "ads_spread": 0.38,
+  "ads_zoom": 1.4,
+  "ads_move_speed": 0.6,
+  "rail_ads": 7.0,
+  "recoil": {
+    "pitch": 2.8,
+    "yaw": 0.7
+  },
+  "magazines": [
+    "flansww2:g43_10"
+  ],
+  "sounds": {
+    "shoot": "flansww2:gun.battle.shoot",
+    "reload": "flansww2:gun.reload",
+    "empty": "flansww2:gun.empty"
+  },
+  "fire_modes": [
+    "safe",
+    "semi"
+  ],
+  "attachment_slots": [],
+  "category": "dmr",
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.28,
+        0.28,
+        0.28
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.28,
+        0.28,
+        0.28
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        7.2,
+        -6
+      ]
+    }
+  },
+  "gravity": 0.01,
+  "lifetime_ticks": 60,
+  "faction": "flansww2:axis"
+}

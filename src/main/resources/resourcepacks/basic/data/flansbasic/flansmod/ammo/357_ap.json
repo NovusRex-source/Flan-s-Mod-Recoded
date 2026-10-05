@@ -1,0 +1,7 @@
+{
+  "name": ".357 Magnum AP",
+  "caliber": "357",
+  "icon": "flansbasic:357_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

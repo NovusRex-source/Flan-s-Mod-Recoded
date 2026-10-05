@@ -1,0 +1,32 @@
+{
+  "name": "M242 Bushmaster 25mm",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 18,
+  "rpm": 200,
+  "fire_mode": "auto",
+  "reload_ticks": 80,
+  "velocity": 15,
+  "spread": 0.6,
+  "ads_spread": 0.24,
+  "ads_zoom": 3.0,
+  "scope": {
+    "overlay": "flansvehicles:textures/scope/tank_modern.png",
+    "thermal": true
+  },
+  "lifetime_ticks": 60,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.autocannon.shoot",
+    "reload": "flansvehicles:vehicle.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
+  "gravity": 0.015,
+  "recoil": {
+    "pitch": 0.4,
+    "yaw": 0.3
+  },
+  "fire_modes": [
+    "semi",
+    "auto"
+  ]
+}

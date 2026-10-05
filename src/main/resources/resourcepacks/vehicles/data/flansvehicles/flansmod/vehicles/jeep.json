@@ -1,8 +1,12 @@
 {
-  "name": "Willys Jeep",
+  "name": "M151 MUTT",
   "type": "car",
-  "width": 2.0,
-  "height": 1.4,
+  "upgrade_slots": [
+    "engine",
+    "armor",
+    "tyres",
+    "tank"
+  ],
   "health": 60,
   "armor": 0.1,
   "max_speed": 0.95,
@@ -19,12 +23,6 @@
     "capacity": 24000,
     "consumption": 1
   },
-  "upgrade_slots": [
-    "engine",
-    "armor",
-    "tyres",
-    "tank"
-  ],
   "parts": {
     "hull": {
       "box": [
@@ -139,28 +137,28 @@
     {
       "position": [
         -0.4,
-        0.95,
+        0.8,
         -0.05
       ]
     },
     {
       "position": [
         0.4,
-        0.95,
+        0.8,
         -0.05
       ]
     },
     {
       "position": [
         -0.4,
-        0.95,
+        0.8,
         -1.1
       ]
     },
     {
       "position": [
         0.4,
-        0.95,
+        0.8,
         -1.1
       ]
     }

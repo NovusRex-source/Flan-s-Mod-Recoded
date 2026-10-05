@@ -65,8 +65,12 @@ data class GunDefinition(
      * Sight attachments then aim through their own optic ([AttachmentDefinition.adsHeight] above the rail).
      */
     @SerialName("rail_ads") val railAds: Float? = null,
+    /** Weapon class for sorting and tooltips: `pistol`, `smg`, `rifle`, `dmr`, `sniper`, `shotgun`, `lmg`, `launcher`, ... */
+    val category: String? = null,
     /** Vehicle weapon: only fired from a vehicle seat, never listed as an item. */
     val mounted: Boolean = false,
+    /** Side this belongs to (a [FactionDefinition] id): faction creative tab and tooltip line. */
+    @Serializable(IdentifierSerializer::class) val faction: Identifier? = null,
 ) {
     val availableModes: List<FireMode> get() = fireModes.ifEmpty { listOf(FireMode.SAFE, fireMode) }.distinct()
 

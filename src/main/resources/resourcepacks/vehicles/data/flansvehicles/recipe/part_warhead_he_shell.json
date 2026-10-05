@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "I",
+    "T",
+    "C"
+  ],
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "I": "minecraft:iron_ingot",
+    "T": "minecraft:tnt"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 2,
+    "components": {
+      "flansmod:part": "flansvehicles:warhead_he_shell"
+    }
+  }
+}

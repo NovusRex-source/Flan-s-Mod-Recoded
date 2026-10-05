@@ -1,0 +1,7 @@
+{
+  "name": "12.7\u00d7108mm API",
+  "caliber": "127x108",
+  "icon": "flansvehicles:127x108_api",
+  "armor_piercing": true,
+  "fire_seconds": 4
+}

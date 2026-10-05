@@ -1,0 +1,50 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "SHJB",
+    " T  "
+  ],
+  "key": {
+    "B": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:long_barrel"
+      }
+    },
+    "H": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:mg_receiver"
+      }
+    },
+    "J": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:barrel_jacket"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:walnut_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:gun",
+    "components": {
+      "flansmod:gun": "flansww2:dp28"
+    }
+  }
+}

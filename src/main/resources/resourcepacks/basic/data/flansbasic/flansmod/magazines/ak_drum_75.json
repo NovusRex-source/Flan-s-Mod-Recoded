@@ -2,6 +2,6 @@
   "name": "AK Drum (75)",
   "caliber": "762x39",
   "capacity": 75,
-  "icon": "flansbasic:ak_drum_75",
-  "reload_multiplier": 1.5
+  "reload_multiplier": 1.5,
+  "icon": "flansbasic:ak_drum_75"
 }

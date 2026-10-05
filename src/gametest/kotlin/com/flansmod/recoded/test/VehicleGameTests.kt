@@ -368,4 +368,21 @@ class VehicleGameTests {
             helper.succeed()
         }
     }
+
+    @GameTest
+    fun clickingNearASeatTakesItAndSwitchSeatMovesOn(helper: GameTestHelper) {
+        // yaw 0 faces +Z: vehicle right is -X, forward +Z.
+        val bus = VehicleDefinition("Bus", width = 2f, height = 1.5f, seats = listOf(
+            Seat(position = listOf(-0.5, 0.5, 0.5)), Seat(position = listOf(0.5, 0.5, 0.5)), Seat(position = listOf(0.0, 1.0, -1.0))))
+        val vehicle = helper.spawnVehicle("seat_bus", bus)
+        val player = helper.makeMockServerPlayerInLevel()
+        vehicle.interact(player, InteractionHand.MAIN_HAND, Vec3(0.0, 1.0, -0.9))
+        helper.assertTrue(vehicle.seatOf(player) == 2, "clicking the rear of the vehicle takes the rear seat, got ${vehicle.seatOf(player)}")
+        helper.assertTrue(vehicle.switchSeat(player) && vehicle.seatOf(player) == 0, "switching wraps around to the next free seat")
+        val other = helper.makeMockServerPlayerInLevel()
+        other.startRiding(vehicle, true, false)
+        helper.assertTrue(vehicle.seatOf(other) == 1, "the next player gets a free seat, got ${vehicle.seatOf(other)}")
+        helper.assertTrue(vehicle.switchSeat(player) && vehicle.seatOf(player) == 2, "switching skips taken seats")
+        helper.succeed()
+    }
 }

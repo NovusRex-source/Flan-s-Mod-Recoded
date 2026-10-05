@@ -1,0 +1,79 @@
+{
+  "name": "DP-28",
+  "model": {
+    "texture": "flansww2:textures/gun/basic.png"
+  },
+  "damage": 9.5,
+  "rpm": 550,
+  "fire_mode": "auto",
+  "reload_ticks": 80,
+  "velocity": 17,
+  "spread": 3.2,
+  "ads_spread": 0.64,
+  "ads_zoom": 1.3,
+  "ads_move_speed": 0.5,
+  "rail_ads": 6.6,
+  "recoil": {
+    "pitch": 1.6,
+    "yaw": 0.9
+  },
+  "magazines": [
+    "flansww2:dp28_pan_47"
+  ],
+  "sounds": {
+    "shoot": "flansww2:gun.battle.shoot",
+    "reload": "flansww2:gun.reload",
+    "empty": "flansww2:gun.empty"
+  },
+  "fire_modes": [
+    "safe",
+    "auto",
+    "semi"
+  ],
+  "attachment_slots": [],
+  "category": "lmg",
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.26,
+        0.26,
+        0.26
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.26,
+        0.26,
+        0.26
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        7.0,
+        -6
+      ]
+    }
+  },
+  "faction": "flansww2:ussr"
+}

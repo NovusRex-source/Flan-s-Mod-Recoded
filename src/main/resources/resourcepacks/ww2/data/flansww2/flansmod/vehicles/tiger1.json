@@ -1,0 +1,182 @@
+{
+  "name": "Tiger I",
+  "type": "tank",
+  "upgrade_slots": [
+    "engine",
+    "tank"
+  ],
+  "step_height": 1.1,
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 40
+  },
+  "health": 480,
+  "armor": 0.92,
+  "max_speed": 0.5,
+  "max_reverse_speed": 0.15,
+  "acceleration": 0.011,
+  "braking": 0.05,
+  "drag": 0.03,
+  "turn_speed": 2.0,
+  "water_speed": 0.2,
+  "collision_damage": 36,
+  "death_explosion": 5.5,
+  "camera_distance": 11,
+  "fuel": {
+    "capacity": 48000,
+    "consumption": 2
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -1.45,
+        0.5,
+        -1.6,
+        1.45,
+        1.9,
+        2.9
+      ],
+      "armor": 0.92,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -1.45,
+        0.5,
+        -3.1,
+        1.45,
+        1.9,
+        -1.6
+      ],
+      "health": 192.0,
+      "armor": 0.8280000000000001,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "track_left": {
+      "box": [
+        -2.05,
+        0,
+        -3.1,
+        -1.45,
+        0.95,
+        2.9
+      ],
+      "health": 160,
+      "armor": 0.5980000000000001,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_l"
+      ]
+    },
+    "track_right": {
+      "box": [
+        1.45,
+        0,
+        -3.1,
+        2.05,
+        0.95,
+        2.9
+      ],
+      "health": 160,
+      "armor": 0.5980000000000001,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_r"
+      ]
+    },
+    "sponson_left": {
+      "box": [
+        -2.05,
+        0.95,
+        -3.1,
+        -1.45,
+        1.9,
+        2.9
+      ],
+      "armor": 0.92,
+      "role": "hull"
+    },
+    "sponson_right": {
+      "box": [
+        1.45,
+        0.95,
+        -3.1,
+        2.05,
+        1.9,
+        2.9
+      ],
+      "armor": 0.92,
+      "role": "hull"
+    },
+    "turret": {
+      "box": [
+        -1.1,
+        1.9,
+        -1.35,
+        1.1,
+        2.75,
+        1.25
+      ],
+      "health": 288.0,
+      "armor": 0.9400000000000001,
+      "role": "weapon",
+      "seat": 0,
+      "core_damage": 0.5
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        -0.65,
+        1.05,
+        2.0
+      ],
+      "gun": "flansww2:kwk36",
+      "turret": true,
+      "pivot": [
+        0,
+        2.3,
+        -0.2
+      ],
+      "muzzle": [
+        0,
+        0,
+        5.27
+      ],
+      "sight": [
+        0.5,
+        0.45,
+        1.17
+      ],
+      "min_pitch": -8,
+      "max_pitch": 15,
+      "yaw_bone": "turret",
+      "pitch_bone": "cannon"
+    },
+    {
+      "position": [
+        0.65,
+        1.05,
+        2.0
+      ]
+    },
+    {
+      "position": [
+        -0.5,
+        1.95,
+        -0.8
+      ]
+    }
+  ],
+  "model": {
+    "texture": "flansww2:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansww2:tiger1",
+  "sounds": {
+    "engine": "flansww2:vehicle.tank.engine"
+  },
+  "faction": "flansww2:axis"
+}

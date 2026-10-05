@@ -1,0 +1,8 @@
+{
+  "name": "Service Shoes & Leggings",
+  "slot": "feet",
+  "asset": "flansww2:usa",
+  "icon": "flansww2:service_boots",
+  "armor": 1.5,
+  "faction": "flansww2:usa"
+}

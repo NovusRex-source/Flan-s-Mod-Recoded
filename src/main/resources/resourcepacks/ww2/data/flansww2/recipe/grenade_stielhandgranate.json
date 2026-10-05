@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NUN",
+    " W ",
+    " W "
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "U": "minecraft:gunpowder",
+    "W": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:grenade",
+    "count": 2,
+    "components": {
+      "flansmod:grenade": "flansww2:stielhandgranate"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": ".338 Lapua Magnum Tracer",
+  "caliber": "338",
+  "icon": "flansbasic:338_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Breech (1)",
+  "caliber": "75mm",
+  "capacity": 1,
+  "guns": [
+    "flansww2:m3_75mm",
+    "flansww2:qf75"
+  ],
+  "internal": true
+}

@@ -2,6 +2,6 @@
   "name": "PKM Box (100)",
   "caliber": "762x54",
   "capacity": 100,
-  "icon": "flansbasic:pkm_box_100",
-  "reload_multiplier": 1.8
+  "reload_multiplier": 1.8,
+  "icon": "flansbasic:pkm_box_100"
 }

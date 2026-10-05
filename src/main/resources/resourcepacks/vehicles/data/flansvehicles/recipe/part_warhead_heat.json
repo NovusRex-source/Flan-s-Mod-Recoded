@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "T",
+    "C",
+    "T"
+  ],
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "T": "minecraft:tnt"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 2,
+    "components": {
+      "flansmod:part": "flansvehicles:warhead_heat"
+    }
+  }
+}

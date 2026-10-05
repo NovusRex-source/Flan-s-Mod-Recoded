@@ -22,4 +22,6 @@ data class ClothingDefinition(
     /** Night-vision goggles: night vision while worn (applied by the server). */
     @SerialName("night_vision") val nightVision: Boolean = false,
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
+    /** Side this belongs to (a [FactionDefinition] id): faction creative tab and tooltip line. */
+    @Serializable(IdentifierSerializer::class) val faction: Identifier? = null,
 )

@@ -1,0 +1,7 @@
+{
+  "name": ".338 Lapua Magnum API",
+  "caliber": "338",
+  "icon": "flansbasic:338_api",
+  "armor_piercing": true,
+  "fire_seconds": 4
+}

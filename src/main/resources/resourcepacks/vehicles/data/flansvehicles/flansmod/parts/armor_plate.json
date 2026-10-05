@@ -1,4 +1,5 @@
 {
   "name": "Armour Plate",
+  "category": "vehicle",
   "icon": "flansvehicles:armor_plate"
 }

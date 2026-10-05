@@ -12,7 +12,7 @@
   "ads_spread": 0.2,
   "ads_zoom": 1.5,
   "ads_move_speed": 0.6,
-  "rail_ads": 5.9,
+  "rail_ads": 6.6,
   "recoil": {
     "pitch": 2.2,
     "yaw": 0.7
@@ -35,6 +35,7 @@
     "muzzle",
     "underbarrel"
   ],
+  "category": "dmr",
   "display": {
     "gui": {
       "rotation": [
@@ -48,9 +49,9 @@
         0
       ],
       "scale": [
-        0.34,
-        0.34,
-        0.34
+        0.33,
+        0.33,
+        0.33
       ]
     },
     "fixed": {
@@ -65,15 +66,15 @@
         0
       ],
       "scale": [
-        0.34,
-        0.34,
-        0.34
+        0.33,
+        0.33,
+        0.33
       ]
     },
     "ads": {
       "translation": [
         -1.0,
-        5.1,
+        6.0,
         -6
       ]
     }

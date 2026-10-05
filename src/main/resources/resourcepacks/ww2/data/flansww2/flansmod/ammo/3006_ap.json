@@ -1,0 +1,7 @@
+{
+  "name": ".30-06 Springfield AP",
+  "caliber": "3006",
+  "icon": "flansww2:3006_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

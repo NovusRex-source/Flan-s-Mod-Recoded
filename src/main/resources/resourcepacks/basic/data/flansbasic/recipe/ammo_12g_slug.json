@@ -1,11 +1,23 @@
 {
   "type": "flansmod:weapon_assembly",
   "pattern": [
-    "IUH"
+    "AUD"
   ],
   "key": {
-    "H": "minecraft:paper",
-    "I": "minecraft:iron_ingot",
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_12g"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:load_slug"
+      }
+    },
     "U": "minecraft:gunpowder"
   },
   "result": {

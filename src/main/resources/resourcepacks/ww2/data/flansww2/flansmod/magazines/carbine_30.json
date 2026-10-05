@@ -1,0 +1,7 @@
+{
+  "name": "M1 Carbine Magazine (30)",
+  "caliber": "30carbine",
+  "capacity": 30,
+  "reload_multiplier": 1.1,
+  "icon": "flansww2:carbine_30"
+}

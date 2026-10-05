@@ -32,6 +32,7 @@
   "attachment_slots": [
     "sight"
   ],
+  "category": "launcher",
   "display": {
     "gui": {
       "rotation": [

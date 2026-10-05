@@ -6,6 +6,8 @@ import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.gun.MagazineContents
 import com.flansmod.recoded.item.GrenadeItem
+import com.flansmod.recoded.item.AmmoLoading
+import com.flansmod.recoded.gun.Magazines
 import com.flansmod.recoded.item.GunItem
 import com.flansmod.recoded.item.MagazineItem
 import com.flansmod.recoded.item.definition
@@ -202,24 +204,26 @@ object GunHandler {
         if (VehicleWeapons.reload(player)) return
         val stack = player.mainHandItem
         val gun = stack.definition ?: return
+        val gunId = stack.gunId ?: return
         val state = player.gunState
         if (state.reloadDoneTick >= 0) return
 
         val current = stack.loadedMagazine
-        val candidate = bestMagazine(player, stack)
-        val creative = candidate == null && player.hasInfiniteMaterials()
-        if (candidate == null && !creative) {
-            if (current == null || current.isEmpty) {
-                player.sendOverlayMessage(Component.translatable("message.flansmod.no_magazine"))
-                playSound(player, gun.sounds.empty)
-            }
-            return
+        val internal = GunItem.internalMagazine(gunId)
+        val newMag = if (internal != null) {
+            // Built-in magazine: loose rounds go straight in.
+            val contents = current ?: MagazineContents(internal, null, 0)
+            if (contents.isFull) return
+            if (AmmoLoading.looseRounds(player, contents) == 0 && !player.hasInfiniteMaterials()) return noAmmo(player, gun, contents.isEmpty)
+            contents.definition
+        } else {
+            val candidate = bestMagazine(player, stack)
+            val creative = candidate == null && player.hasInfiniteMaterials()
+            if (candidate == null && !creative) return noAmmo(player, gun, current == null || current.isEmpty)
+            if (candidate != null && current != null && candidate.second.rounds <= current.rounds) return
+            if (creative && current?.isFull == true) return
+            candidate?.second?.definition ?: current?.definition ?: GunItem.acceptedMagazines(gunId).firstNotNullOfOrNull { Magazines[it] }
         }
-        if (candidate != null && current != null && candidate.second.rounds <= current.rounds) return
-        if (creative && current?.isFull == true) return
-
-        val newMag = candidate?.second?.definition ?: current?.definition
-            ?: GunItem.acceptedMagazines(stack.gunId!!).firstNotNullOfOrNull { com.flansmod.recoded.gun.Magazines[it] }
         stack.set(com.flansmod.recoded.registry.FlansComponents.RELOADING, true)
         state.reloadDoneTick = player.level().gameTime + (gun.reloadTicks * (newMag?.reloadMultiplier ?: 1f)).toInt().coerceAtLeast(1)
         state.reloadSlot = player.inventory.selectedSlot
@@ -228,29 +232,51 @@ object GunHandler {
         triggerAnim(player, stack, GunItem.ANIM_RELOAD)
     }
 
-    /** Swaps magazines: the new one comes out of its inventory slot, the old one (empty or not) goes back there. */
+    private fun noAmmo(player: ServerPlayer, gun: GunDefinition, empty: Boolean) {
+        if (!empty) return
+        player.sendOverlayMessage(Component.translatable("message.flansmod.no_magazine"))
+        playSound(player, gun.sounds.empty)
+    }
+
+    /**
+     * Detachable magazines: the new one comes out of its inventory stack, the old one (empty or not) goes back.
+     * Internal magazines: topped up from loose rounds.
+     */
     private fun finishReload(player: ServerPlayer, gun: ItemStack) {
+        val gunId = gun.gunId ?: return
         val old = gun.loadedMagazine
+        val internal = GunItem.internalMagazine(gunId)
+        if (internal != null) {
+            val contents = old ?: MagazineContents(internal, null, 0)
+            val filled = AmmoLoading.fill(player, contents)
+            gun.loadedMagazine = if (filled == contents && player.hasInfiniteMaterials()) MagazineContents.full(internal, contents.ammo) else filled
+            return
+        }
         val candidate = bestMagazine(player, gun)
         if (candidate != null) {
             val (slot, contents) = candidate
-            player.inventory.setItem(slot, old?.let(MagazineItem::stackFor) ?: ItemStack.EMPTY)
+            AmmoLoading.swapMagazine(player, slot, old)
             gun.loadedMagazine = contents
         } else if (player.hasInfiniteMaterials()) {
-            val type = old?.magazine ?: GunItem.acceptedMagazines(gun.gunId!!).firstOrNull() ?: return
+            val type = old?.magazine ?: GunItem.acceptedMagazines(gunId).firstOrNull() ?: return
             gun.loadedMagazine = MagazineContents.full(type, old?.ammo)
         }
     }
 
-    /** Sneak + reload: takes the magazine out of the gun. */
+    /** Sneak + reload: takes the magazine out of the gun (an internal magazine gives back its rounds instead). */
     fun unload(player: ServerPlayer) {
         val gun = player.mainHandItem
-        if (gun.definition == null) return
+        val def = gun.definition ?: return
         val magazine = gun.loadedMagazine ?: return
         player.gunState.reloadDoneTick = -1
-        gun.loadedMagazine = null
-        player.inventory.placeItemBackInInventory(MagazineItem.stackFor(magazine), Prediction.SERVER_ONLY)
-        playSound(player, gun.definition?.sounds?.reload)
+        if (magazine.definition?.internal == true) {
+            if (magazine.rounds <= 0) return
+            gun.loadedMagazine = AmmoLoading.empty(player, magazine)
+        } else {
+            gun.loadedMagazine = null
+            player.inventory.placeItemBackInInventory(MagazineItem.stackFor(magazine), Prediction.SERVER_ONLY)
+        }
+        playSound(player, def.sounds.reload)
     }
 
     /** Inventory slot and contents of the loaded magazine with the most rounds that fits [gun]. */

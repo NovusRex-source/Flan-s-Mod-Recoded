@@ -8,7 +8,7 @@ import com.flansmod.recoded.gun.MagazineContents
 import com.flansmod.recoded.gun.withAmmo
 import com.flansmod.recoded.item.GrenadeItem
 import com.flansmod.recoded.item.GunItem
-import com.flansmod.recoded.item.MagazineItem
+import com.flansmod.recoded.item.AmmoLoading
 import com.flansmod.recoded.network.ShotPayload
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup
@@ -18,8 +18,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
-import net.minecraft.util.Prediction
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 import java.util.WeakHashMap
 
@@ -34,6 +32,13 @@ object VehicleWeapons {
     private fun state(vehicle: DriveableEntity, seat: Int) = states.getOrPut(vehicle, ::HashMap).getOrPut(seat, ::SeatState)
 
     fun init() {
+        ServerPlayNetworking.registerGlobalReceiver(com.flansmod.recoded.network.SwitchSeatPayload.TYPE) { _, ctx ->
+            val player = ctx.player()
+            (player.vehicle as? DriveableEntity)?.let { vehicle ->
+                if (vehicle.switchSeat(player)) player.level().playSound(null, player.x, player.y, player.z,
+                    net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_LEATHER.value(), SoundSource.PLAYERS, 0.6f, 1.2f)
+            }
+        }
         ServerTickEvents.END_SERVER_TICK.register {
             states.toList().forEach { (vehicle, seats) -> seats.forEach { (seat, state) -> tickReload(vehicle, seat, state) } }
         }
@@ -105,18 +110,31 @@ object VehicleWeapons {
         val state = state(vehicle, seat)
         if (state.reloadDoneTick >= 0) return true
         val current = vehicle.seatMagazines[seat]
-        val candidate = GunHandler.bestMagazine(player, gunId)
-        when {
-            candidate == null && !player.hasInfiniteMaterials() -> {
-                if (current == null || current.isEmpty) player.sendOverlayMessage(Component.translatable("message.flansmod.no_magazine"))
+        val internal = GunItem.internalMagazine(gunId)
+        val multiplier = if (internal != null) {
+            // Built-in breech/feed: loose rounds (shells) go straight in.
+            val contents = current ?: MagazineContents(internal, null, 0)
+            if (contents.isFull) return true
+            if (AmmoLoading.looseRounds(player, contents) == 0 && !player.hasInfiniteMaterials()) {
+                if (contents.isEmpty) player.sendOverlayMessage(Component.translatable("message.flansmod.no_magazine"))
                 return true
             }
-            candidate != null && current != null && candidate.second.rounds <= current.rounds -> return true
-            candidate == null && current?.isFull == true -> return true
+            contents.definition?.reloadMultiplier ?: 1f
+        } else {
+            val candidate = GunHandler.bestMagazine(player, gunId)
+            when {
+                candidate == null && !player.hasInfiniteMaterials() -> {
+                    if (current == null || current.isEmpty) player.sendOverlayMessage(Component.translatable("message.flansmod.no_magazine"))
+                    return true
+                }
+                candidate != null && current != null && candidate.second.rounds <= current.rounds -> return true
+                candidate == null && current?.isFull == true -> return true
+            }
+            (candidate?.second?.definition ?: current?.definition)?.reloadMultiplier ?: 1f
         }
-        val multiplier = (candidate?.second?.definition ?: current?.definition)?.reloadMultiplier ?: 1f
         state.reloadDoneTick = player.level().gameTime + (gun.reloadTicks * multiplier).toInt().coerceAtLeast(1)
         state.reloader = player
+        vehicle.reloadEnds = vehicle.reloadEnds + (seat to state.reloadDoneTick)
         playSound(vehicle.position(), player, gun.sounds.reload)
         return true
     }
@@ -130,18 +148,26 @@ object VehicleWeapons {
         // The loader has to stay in the seat for the whole reload.
         if (player == null || player.vehicle != vehicle || vehicle.seatOf(player) != seat || vehicle.isRemoved) {
             state.reloadDoneTick = -1
+            vehicle.reloadEnds = vehicle.reloadEnds - seat
             return
         }
         if (vehicle.level().gameTime < state.reloadDoneTick) return
         state.reloadDoneTick = -1
+        vehicle.reloadEnds = vehicle.reloadEnds - seat
         val gunId = vehicle.seat(seat)?.gun ?: return
         val old = vehicle.seatMagazines[seat]
+        val internal = GunItem.internalMagazine(gunId)
+        if (internal != null) {
+            val contents = old ?: MagazineContents(internal, null, 0)
+            val filled = AmmoLoading.fill(player, contents)
+            vehicle.setMagazine(seat, if (filled == contents && player.hasInfiniteMaterials()) MagazineContents.full(internal, contents.ammo) else filled)
+            return
+        }
         val candidate = GunHandler.bestMagazine(player, gunId)
         if (candidate != null) {
             val (slot, contents) = candidate
-            player.inventory.setItem(slot, ItemStack.EMPTY)
+            AmmoLoading.swapMagazine(player, slot, old)
             vehicle.setMagazine(seat, contents)
-            old?.let { player.inventory.placeItemBackInInventory(MagazineItem.stackFor(it), Prediction.SERVER_ONLY) }
         } else if (player.hasInfiniteMaterials()) {
             val type = old?.magazine ?: GunItem.acceptedMagazines(gunId).firstOrNull() ?: return
             vehicle.setMagazine(seat, MagazineContents.full(type, old?.ammo))

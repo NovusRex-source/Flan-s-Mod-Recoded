@@ -1,4 +1,5 @@
 {
   "name": "Machine Gun Mount",
+  "category": "vehicle",
   "icon": "flansvehicles:mg_mount"
 }

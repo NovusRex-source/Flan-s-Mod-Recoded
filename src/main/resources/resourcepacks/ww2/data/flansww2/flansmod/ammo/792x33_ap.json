@@ -1,0 +1,7 @@
+{
+  "name": "7.92\u00d733mm Kurz AP",
+  "caliber": "792x33",
+  "icon": "flansww2:792x33_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

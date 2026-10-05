@@ -1,4 +1,5 @@
 {
   "name": "Petrol Engine",
+  "category": "vehicle",
   "icon": "flansvehicles:engine"
 }

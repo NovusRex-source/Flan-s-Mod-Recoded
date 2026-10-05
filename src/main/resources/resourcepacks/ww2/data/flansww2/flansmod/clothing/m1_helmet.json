@@ -1,0 +1,8 @@
+{
+  "name": "M1 Helmet",
+  "slot": "head",
+  "asset": "flansww2:usa",
+  "icon": "flansww2:m1_helmet",
+  "armor": 2.5,
+  "faction": "flansww2:usa"
+}

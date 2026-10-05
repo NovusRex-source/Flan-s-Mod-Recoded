@@ -1,0 +1,51 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "SSGE",
+    "AAAA",
+    "KKKK"
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:armor_plate"
+      }
+    },
+    "E": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:engine"
+      }
+    },
+    "G": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:mg_mount"
+      }
+    },
+    "K": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:track"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:seat"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:vehicle",
+    "components": {
+      "flansmod:vehicle": "flansww2:universal_carrier"
+    }
+  }
+}

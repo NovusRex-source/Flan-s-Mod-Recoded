@@ -7,6 +7,7 @@ import com.flansmod.recoded.gun.Guns
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements
 import net.minecraft.client.Minecraft
+import net.minecraft.world.phys.Vec3
 import net.minecraft.ChatFormatting
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance
@@ -23,6 +24,21 @@ object VehicleClient {
     fun seatGun(player: Player): GunDefinition? {
         val vehicle = player.vehicle as? DriveableEntity ?: return null
         return Guns[vehicle.seat(vehicle.seatOf(player))?.gun]
+    }
+
+    /** True while looking through the sight of the local player's vehicle gun (set by GunInput). */
+    @JvmStatic
+    var sighting = false
+
+    /** Camera position while [sighting]: the sight of the player's seat gun, following their aim. */
+    @JvmStatic
+    fun sightCamera(partialTick: Float): Vec3? {
+        if (!sighting) return null
+        val player = Minecraft.getInstance().player ?: return null
+        val vehicle = player.vehicle as? DriveableEntity ?: return null
+        val seat = vehicle.seatOf(player)
+        val (yaw, elevation) = vehicle.aim(seat, player, partialTick)
+        return vehicle.sightPosition(seat, yaw, elevation, partialTick)
     }
 
     /** Third-person camera distance: at least the vehicle's `camera_distance` while riding one. */
@@ -68,37 +84,6 @@ object VehicleClient {
             }
         }
 
-        // Health, fuel and speed for the driver; mounted-gun ammo for gunners. Fabric HUD API, no mixins.
-        HudElementRegistry.attachElementAfter(VanillaHudElements.HOTBAR, FlansMod.id("vehicle")) { graphics, _ ->
-            val mc = Minecraft.getInstance()
-            val player = mc.player ?: return@attachElementAfter
-            val vehicle = player.vehicle as? DriveableEntity ?: return@attachElementAfter
-            val def = vehicle.definition ?: return@attachElementAfter
-            val seat = vehicle.seatOf(player)
-            val lines = mutableListOf<Component>()
-            lines += Component.translatable("hud.flansmod.vehicle.health", vehicle.health.toInt().coerceAtLeast(0), def.health.toInt())
-            if (seat == 0) {
-                if (def.needsFuel) lines += Component.translatable("hud.flansmod.vehicle.fuel", vehicle.fuel * 100 / def.fuel.capacity)
-                val blocksPerTick = vehicle.position().subtract(vehicle.xo, vehicle.yo, vehicle.zo).horizontalDistance()
-                lines += Component.translatable("hud.flansmod.vehicle.speed", (blocksPerTick * 20 * 3.6).toInt())
-            }
-            // Broken parts the crew should know about.
-            if (seat == 0) {
-                if (!vehicle.engineWorks) lines += Component.translatable("hud.flansmod.vehicle.engine_broken").withStyle(ChatFormatting.RED)
-                if (vehicle.propulsion < 1f) lines += Component.translatable("hud.flansmod.vehicle.propulsion", (vehicle.propulsion * 100).toInt())
-                    .withStyle(if (vehicle.propulsion <= 0f) ChatFormatting.RED else ChatFormatting.GOLD)
-            }
-            if (vehicle.seat(seat)?.gun != null && !vehicle.weaponWorks(seat)) lines += Component.translatable("hud.flansmod.vehicle.weapon_broken").withStyle(ChatFormatting.RED)
-            vehicle.seat(seat)?.gun?.let { gunId ->
-                val mag = vehicle.seatMagazines[seat]
-                lines += if (mag == null) Component.translatable("hud.flansmod.no_magazine")
-                else Component.literal("${Guns[gunId]?.name ?: gunId}: ${mag.rounds} / ${mag.capacity}")
-            }
-            val x = graphics.guiWidth() / 2 + 100
-            lines.forEachIndexed { i, line ->
-                val color = line.style.color?.value?.let { 0xFF000000.toInt() or it } ?: -1
-                graphics.text(mc.font, line.string, x, graphics.guiHeight() - 12 - (lines.size - 1 - i) * 10, color)
-            }
-        }
+        VehicleHud.init()
     }
 }

@@ -1,0 +1,78 @@
+{
+  "name": "M1A1 Bazooka",
+  "model": {
+    "texture": "flansww2:textures/gun/basic.png"
+  },
+  "damage": 0,
+  "rpm": 20,
+  "fire_mode": "semi",
+  "reload_ticks": 80,
+  "velocity": 2.2,
+  "spread": 0.6,
+  "ads_spread": 0.12,
+  "ads_zoom": 1.6,
+  "ads_move_speed": 0.5,
+  "rail_ads": 5.4,
+  "recoil": {
+    "pitch": 3,
+    "yaw": 1
+  },
+  "magazines": [
+    "flansww2:bazooka_tube"
+  ],
+  "sounds": {
+    "shoot": "flansww2:gun.rocket.shoot",
+    "reload": "flansww2:gun.reload",
+    "empty": "flansww2:gun.empty"
+  },
+  "fire_modes": [
+    "semi"
+  ],
+  "attachment_slots": [],
+  "category": "launcher",
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.32,
+        0.32,
+        0.32
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.32,
+        0.32,
+        0.32
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        4.4,
+        -6
+      ]
+    }
+  },
+  "tracer": null,
+  "faction": "flansww2:usa"
+}

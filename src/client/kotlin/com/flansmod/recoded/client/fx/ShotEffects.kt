@@ -72,8 +72,15 @@ object ShotEffects {
         flashes += Flash(muzzle)
         level.addParticle(ParticleTypes.SMOKE, muzzle.x, muzzle.y, muzzle.z, 0.0, 0.02, 0.0)
         if (gun.tracer == null) return
+        // The server's bullet flies from the shooter's eyes; the visible one leaves the muzzle and meets that path where
+        // the bullet lands (or at the end of its range), so it never seems to come out of the camera.
         shot.directions.forEach { dir ->
-            tracers += Tracer(gun, muzzle, shot.origin, dir.normalize().scale(gun.velocity), gun.lifetimeTicks)
+            val path = dir.normalize()
+            val end = shot.origin.add(path.scale(gun.velocity * gun.lifetimeTicks))
+            val hit = level.clip(ClipContext(shot.origin, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, net.minecraft.world.phys.shapes.CollisionContext.empty()))
+            val target = if (hit.type == HitResult.Type.MISS) end else hit.location
+            val fromMuzzle = target.subtract(muzzle).normalize()
+            tracers += Tracer(gun, muzzle, muzzle, fromMuzzle.scale(gun.velocity), gun.lifetimeTicks)
         }
     }
 
@@ -88,8 +95,13 @@ object ShotEffects {
         val look = shooter?.lookAngle ?: shot.directions.first().normalize()
         val right = look.cross(Vec3(0.0, 1.0, 0.0)).normalize()
         val up = right.cross(look).normalize()
-        val hip = if (shooter == mc.player) 1f - GunInput.aimProgress else 1f
-        return shot.origin.add(look.scale(1.2)).add(right.scale(0.25 * hip)).add(up.scale(-0.2 * hip))
+        // Own shots in first person: the view-model muzzle, moving to the screen centre while aiming. Everyone else (and
+        // yourself in third person): the gun held at the right shoulder.
+        if (shooter == mc.player && mc.options.cameraType.isFirstPerson) {
+            val hip = 1f - GunInput.aimProgress
+            return shot.origin.add(look.scale(1.2)).add(right.scale(0.25 * hip)).add(up.scale(-0.2 * hip))
+        }
+        return shot.origin.add(look.scale(1.1)).add(right.scale(0.3)).add(up.scale(-0.3))
     }
 
     private fun tick(level: ClientLevel) {

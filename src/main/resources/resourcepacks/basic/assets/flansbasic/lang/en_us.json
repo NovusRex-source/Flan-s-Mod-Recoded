@@ -12,5 +12,19 @@
   "subtitles.flansbasic.gun.rocket.shoot": "Gunshot",
   "subtitles.flansbasic.gun.suppressed": "Gunshot",
   "subtitles.flansbasic.gun.reload": "Gun reloads",
-  "subtitles.flansbasic.gun.empty": "Gun clicks"
+  "subtitles.flansbasic.gun.empty": "Gun clicks",
+  "caliber.flansmod.9mm": "9\u00d719mm Parabellum",
+  "caliber.flansmod.45acp": ".45 ACP",
+  "caliber.flansmod.357": ".357 Magnum",
+  "caliber.flansmod.50ae": ".50 AE",
+  "caliber.flansmod.57": "5.7\u00d728mm",
+  "caliber.flansmod.556": "5.56\u00d745mm NATO",
+  "caliber.flansmod.762x39": "7.62\u00d739mm",
+  "caliber.flansmod.762x51": "7.62\u00d751mm NATO",
+  "caliber.flansmod.762x54": "7.62\u00d754mmR",
+  "caliber.flansmod.338": ".338 Lapua Magnum",
+  "caliber.flansmod.50bmg": ".50 BMG",
+  "caliber.flansmod.12g": "12 Gauge",
+  "caliber.flansmod.40mm": "40\u00d746mm Grenade",
+  "caliber.flansmod.rpg": "PG-7 Rocket"
 }

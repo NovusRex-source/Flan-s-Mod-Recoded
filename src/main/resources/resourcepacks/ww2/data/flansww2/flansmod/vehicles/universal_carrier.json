@@ -1,0 +1,174 @@
+{
+  "name": "Universal Carrier",
+  "type": "tank",
+  "upgrade_slots": [
+    "engine",
+    "tank"
+  ],
+  "step_height": 1.0,
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 40
+  },
+  "health": 120,
+  "armor": 0.4,
+  "max_speed": 0.75,
+  "max_reverse_speed": 0.15,
+  "acceleration": 0.011,
+  "braking": 0.05,
+  "drag": 0.03,
+  "turn_speed": 4.0,
+  "water_speed": 0.2,
+  "collision_damage": 36,
+  "death_explosion": 3.0,
+  "camera_distance": 7,
+  "fuel": {
+    "capacity": 48000,
+    "consumption": 2
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -0.97,
+        0.35,
+        -0.6,
+        0.97,
+        1.1,
+        1.55
+      ],
+      "armor": 0.4,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -0.97,
+        0.35,
+        -1.6,
+        0.97,
+        1.1,
+        -0.6
+      ],
+      "health": 48.0,
+      "armor": 0.36000000000000004,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "track_left": {
+      "box": [
+        -1.4,
+        0,
+        -1.6,
+        -0.97,
+        0.7,
+        1.55
+      ],
+      "health": 60,
+      "armor": 0.26,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_l"
+      ]
+    },
+    "track_right": {
+      "box": [
+        0.97,
+        0,
+        -1.6,
+        1.4,
+        0.7,
+        1.55
+      ],
+      "health": 60,
+      "armor": 0.26,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_r"
+      ]
+    },
+    "sponson_left": {
+      "box": [
+        -1.4,
+        0.7,
+        -1.6,
+        -0.97,
+        1.1,
+        1.55
+      ],
+      "armor": 0.4,
+      "role": "hull"
+    },
+    "sponson_right": {
+      "box": [
+        0.97,
+        0.7,
+        -1.6,
+        1.4,
+        1.1,
+        1.55
+      ],
+      "armor": 0.4,
+      "role": "hull"
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        0.45,
+        0.75,
+        0.25
+      ]
+    },
+    {
+      "position": [
+        -0.45,
+        0.75,
+        0.25
+      ],
+      "gun": "flansww2:bren_mounted",
+      "turret": true,
+      "pivot": [
+        -0.45,
+        1.47,
+        1.1
+      ],
+      "muzzle": [
+        0,
+        0,
+        0.9
+      ],
+      "sight": [
+        0,
+        0.17,
+        0.27
+      ],
+      "min_pitch": -10,
+      "max_pitch": 40,
+      "yaw_bone": "turret",
+      "pitch_bone": "mg"
+    },
+    {
+      "position": [
+        -0.6,
+        0.75,
+        -0.95
+      ]
+    },
+    {
+      "position": [
+        0.6,
+        0.75,
+        -0.95
+      ]
+    }
+  ],
+  "model": {
+    "texture": "flansww2:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansww2:universal_carrier",
+  "sounds": {
+    "engine": "flansww2:vehicle.tank.engine"
+  },
+  "faction": "flansww2:uk"
+}

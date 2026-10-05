@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "flansww2:usa"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "flansww2:usa"
+      }
+    ]
+  }
+}

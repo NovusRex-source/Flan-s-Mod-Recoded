@@ -31,6 +31,8 @@ data class GrenadeDefinition(
     @Serializable(IdentifierSerializer::class) @SerialName("detonate_sound") val detonateSound: Identifier? = null,
     /** Item model (an `assets/<ns>/items/<name>.json` id) used for the item and the thrown entity. */
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
+    /** Side this belongs to (a [FactionDefinition] id): faction creative tab and tooltip line. */
+    @Serializable(IdentifierSerializer::class) val faction: Identifier? = null,
 ) {
     @Serializable
     data class Explosion(

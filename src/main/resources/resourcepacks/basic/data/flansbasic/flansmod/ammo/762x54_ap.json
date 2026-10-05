@@ -1,0 +1,7 @@
+{
+  "name": "7.62\u00d754mmR AP",
+  "caliber": "762x54",
+  "icon": "flansbasic:762x54_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

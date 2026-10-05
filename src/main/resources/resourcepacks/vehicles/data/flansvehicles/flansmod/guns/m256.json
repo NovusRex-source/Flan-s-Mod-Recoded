@@ -1,13 +1,25 @@
 {
   "name": "M256 120mm Cannon",
   "mounted": true,
+  "category": "mounted",
   "damage": 45,
   "rpm": 8,
   "fire_mode": "semi",
   "reload_ticks": 100,
   "velocity": 6,
   "spread": 0.2,
+  "ads_spread": 0.08000000000000002,
+  "ads_zoom": 3.0,
+  "scope": {
+    "overlay": "flansvehicles:textures/scope/tank_modern.png",
+    "thermal": true
+  },
   "lifetime_ticks": 80,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.cannon.shoot",
+    "reload": "flansvehicles:vehicle.cannon.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
   "gravity": 0.01,
   "headshot_multiplier": 1.0,
   "recoil": {
@@ -18,10 +30,5 @@
     "color": "#FFE0A0",
     "width": 0.12,
     "length": 4
-  },
-  "sounds": {
-    "shoot": "flansvehicles:vehicle.cannon.shoot",
-    "reload": "flansvehicles:vehicle.cannon.reload",
-    "empty": "flansvehicles:vehicle.empty"
   }
 }

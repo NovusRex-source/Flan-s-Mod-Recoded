@@ -49,10 +49,10 @@ class BenchGameTests {
     }
 
     @GameTest(maxTicks = 5)
-    fun everyBasicGunHasABenchRecipe(helper: GameTestHelper) {
+    fun everyPackGunHasABenchRecipe(helper: GameTestHelper) {
         val craftable = helper.level.recipeAccess().recipes
             .mapNotNull { (it.value() as? WeaponAssemblyRecipe)?.result?.create()?.gunId }.toSet()
-        val missing = Guns.all.keys.filter { it.namespace == "flansbasic" } - craftable
+        val missing = Guns.all.filter { (id, g) -> id.namespace in setOf("flansbasic", "flansww2") && !g.mounted }.keys - craftable
         helper.assertTrue(missing.isEmpty(), "guns without a bench recipe: $missing")
         helper.succeed()
     }

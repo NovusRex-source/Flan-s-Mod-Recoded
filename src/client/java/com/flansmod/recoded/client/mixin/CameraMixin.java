@@ -9,6 +9,10 @@ import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Aim-down-sights zoom: divides the final FOV by the aimed gun's {@code ads_zoom} (held or vehicle seat gun),
@@ -36,5 +40,18 @@ public abstract class CameraMixin {
 	@ModifyArg(method = "alignWithEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;getMaxZoom(F)F"))
 	private float flansmod$vehicleCameraDistance(float distance) {
 		return VehicleClient.cameraDistance(distance);
+	}
+
+	@Shadow
+	protected abstract void setPosition(Vec3 position);
+
+	/**
+	 * Vehicle gunner sights: while looking through one, the camera sits at the gun's sight instead of the player's eyes
+	 * (rotation stays the player's view). Only active then, so other camera mods are unaffected the rest of the time.
+	 */
+	@Inject(method = "alignWithEntity", at = @At("TAIL"))
+	private void flansmod$vehicleSight(float partialTicks, CallbackInfo ci) {
+		Vec3 sight = VehicleClient.getSighting() ? VehicleClient.sightCamera(partialTicks) : null;
+		if (sight != null) setPosition(sight);
 	}
 }

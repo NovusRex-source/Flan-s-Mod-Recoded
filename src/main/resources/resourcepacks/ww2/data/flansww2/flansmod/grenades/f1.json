@@ -1,0 +1,12 @@
+{
+  "name": "F-1 Grenade",
+  "fuse_ticks": 80,
+  "bounciness": 0.3,
+  "explosion": {
+    "power": 2.6,
+    "fire": false,
+    "break_blocks": false
+  },
+  "faction": "flansww2:ussr",
+  "icon": "flansww2:f1"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "DT Pan Magazine (63)",
+  "caliber": "762x54",
+  "capacity": 63,
+  "guns": [
+    "flansww2:dt_mounted"
+  ],
+  "icon": "flansww2:dt_pan_63"
+}

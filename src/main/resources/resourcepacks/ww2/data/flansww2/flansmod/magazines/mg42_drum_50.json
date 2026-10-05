@@ -1,0 +1,7 @@
+{
+  "name": "MG 42 Belt Drum (50)",
+  "caliber": "792x57",
+  "capacity": 50,
+  "reload_multiplier": 1.2,
+  "icon": "flansww2:mg42_drum_50"
+}

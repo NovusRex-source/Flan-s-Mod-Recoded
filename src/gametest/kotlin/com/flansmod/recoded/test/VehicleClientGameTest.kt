@@ -70,7 +70,7 @@ class VehicleClientGameTest : FabricClientGameTest {
             context.input.pressKey { it.keyInventory }
             context.waitForScreen(CreativeModeInventoryScreen::class.java)
             context.runOnClient<RuntimeException> { mc ->
-                val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(FlansMod.id("pack/vehicles")) ?: error("no creative tab for the vehicles pack")
+                val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(com.flansmod.recoded.client.tab.TypeTabs.id("vehicles")) ?: error("no vehicles creative tab")
                 check((mc.gui.screen() as FabricCreativeModeInventoryScreen).setSelectedTab(tab)) { "could not select the vehicles tab" }
             }
             context.waitTicks(2)

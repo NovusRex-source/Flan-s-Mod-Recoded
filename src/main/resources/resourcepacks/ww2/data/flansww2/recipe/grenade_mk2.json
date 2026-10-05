@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NIN",
+    "IUI",
+    "IIN"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:grenade",
+    "count": 2,
+    "components": {
+      "flansmod:grenade": "flansww2:mk2"
+    }
+  }
+}

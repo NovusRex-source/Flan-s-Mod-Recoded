@@ -1,0 +1,11 @@
+{
+  "name": "14.5\u00d7114mm Tracer",
+  "caliber": "145x114",
+  "icon": "flansvehicles:145x114_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

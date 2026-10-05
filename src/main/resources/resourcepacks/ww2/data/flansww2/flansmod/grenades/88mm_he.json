@@ -1,0 +1,12 @@
+{
+  "name": "8.8cm KwK HE",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.01,
+  "explosion": {
+    "power": 3.2,
+    "break_blocks": true
+  },
+  "icon": "flansww2:88mm_he"
+}

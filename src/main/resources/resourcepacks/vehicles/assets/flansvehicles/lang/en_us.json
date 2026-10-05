@@ -2,6 +2,7 @@
   "subtitles.flansvehicles.vehicle.engine": "Engine runs",
   "subtitles.flansvehicles.vehicle.tank.engine": "Engine runs",
   "subtitles.flansvehicles.vehicle.hmg.shoot": "Gun fires",
+  "subtitles.flansvehicles.vehicle.autocannon.shoot": "Gun fires",
   "subtitles.flansvehicles.vehicle.cannon.shoot": "Gun fires",
   "subtitles.flansvehicles.vehicle.cannon.reload": "Gun reloads",
   "subtitles.flansvehicles.vehicle.reload": "Gun reloads",
@@ -11,5 +12,10 @@
   "vehicle_upgrade.flansvehicles.armor_kit": "Armour Kit",
   "vehicle_upgrade.flansvehicles.era_blocks": "Reactive Armour (ERA)",
   "vehicle_upgrade.flansvehicles.offroad_tyres": "Off-road Tyres",
-  "vehicle_upgrade.flansvehicles.jerry_cans": "Jerry Cans"
+  "vehicle_upgrade.flansvehicles.jerry_cans": "Jerry Cans",
+  "caliber.flansmod.127x108": "12.7\u00d7108mm",
+  "caliber.flansmod.145x114": "14.5\u00d7114mm",
+  "caliber.flansmod.25x137": "25\u00d7137mm",
+  "caliber.flansmod.120mm": "120mm Tank Shell",
+  "caliber.flansmod.125mm": "125mm Tank Shell"
 }

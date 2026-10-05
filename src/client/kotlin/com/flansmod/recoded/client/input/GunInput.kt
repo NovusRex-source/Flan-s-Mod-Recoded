@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.event.client.player.ClientPreAttackCallback
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.Minecraft
+import net.minecraft.client.CameraType
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.util.Mth
 
@@ -41,6 +42,9 @@ object GunInput {
     )
     private val WEAPON_MENU = KeyMappingHelper.registerKeyMapping(
         KeyMapping("key.flansmod.weapon_menu", InputConstants.Type.KEYBOARD, InputConstants.KEY_U, CATEGORY)
+    )
+    private val SWITCH_SEAT = KeyMappingHelper.registerKeyMapping(
+        KeyMapping("key.flansmod.switch_seat", InputConstants.Type.KEYBOARD, InputConstants.KEY_Y, CATEGORY)
     )
     private val ATTACH = KeyMappingHelper.registerKeyMapping(
         KeyMapping("key.flansmod.attach", InputConstants.Type.KEYBOARD, InputConstants.KEY_J, CATEGORY)
@@ -142,7 +146,7 @@ object GunInput {
         if (gun != null && burstLeft > 0 && cooldown <= 0 && player.mainHandItem.ammo > 0) localShot(player, gun)
         if (gun == null) burstLeft = 0
 
-        updateAim(client, gun, mounted ?: player.mainHandItem.definition?.takeIf { gun != null })
+        updateAim(client, gun, mounted ?: player.mainHandItem.definition?.takeIf { gun != null }, mounted != null)
         if (aiming && gun != null) {
             // No hand sway while aiming: the gun stays locked to the view.
             player.xBob = player.xRot; player.xBobO = player.xRot
@@ -153,6 +157,7 @@ object GunInput {
             else if (gun != null) ClientPlayNetworking.send(ReloadPayload(unload = player.isShiftKeyDown))
         }
         while (FIRE_MODE.consumeClick()) if (gun != null) ClientPlayNetworking.send(FireModePayload)
+        while (SWITCH_SEAT.consumeClick()) if (player.vehicle is com.flansmod.recoded.entity.DriveableEntity) ClientPlayNetworking.send(com.flansmod.recoded.network.SwitchSeatPayload)
         while (WEAPON_MENU.consumeClick()) {
             // Riding a vehicle: its menu (upgrades, fuel, parts) instead of the gun's.
             if (player.vehicle is com.flansmod.recoded.entity.DriveableEntity) ClientPlayNetworking.send(com.flansmod.recoded.network.OpenVehicleMenuPayload)
@@ -162,15 +167,29 @@ object GunInput {
         applyRecoil(player, gun ?: mounted)
     }
 
-    private fun updateAim(client: Minecraft, gun: GunDefinition?, aimable: GunDefinition?) {
+    /** Camera mode before looking through a vehicle sight (restored afterwards). */
+    private var cameraBeforeSight: CameraType? = null
+
+    private fun updateAim(client: Minecraft, gun: GunDefinition?, aimable: GunDefinition?, mounted: Boolean) {
         val useDown = client.options.keyUse.isDown && client.gui.screen() == null
         aimedGun = aimable
         aiming = when {
             aimable == null -> false
-            FlansConfig.get.toggleAim -> if (useDown && !useWasDown) !aiming else aiming
+            // Vehicle guns always toggle: you settle into the gunner's sight and stay there.
+            mounted || FlansConfig.get.toggleAim -> if (useDown && !useWasDown) !aiming else aiming
             else -> useDown
         }
         useWasDown = useDown
+        // A vehicle sight is a first-person view from the gun; go back to the previous camera mode afterwards.
+        val sighting = aiming && mounted
+        if (sighting && cameraBeforeSight == null) {
+            cameraBeforeSight = client.options.cameraType
+            client.options.cameraType = CameraType.FIRST_PERSON
+        } else if (!sighting && cameraBeforeSight != null) {
+            client.options.cameraType = cameraBeforeSight!!
+            cameraBeforeSight = null
+        }
+        VehicleClient.sighting = sighting
         if (aiming != wasAiming) {
             wasAiming = aiming
             // The server only cares about hand-held guns (spread, slowdown, night vision).

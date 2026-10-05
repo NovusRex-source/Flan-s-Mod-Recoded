@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "MDM",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "D": "minecraft:green_dye",
+    "M": "#minecraft:wool"
+  },
+  "result": {
+    "id": "flansmod:clothing",
+    "components": {
+      "flansmod:clothing": "flansww2:m1941_jacket"
+    }
+  }
+}

@@ -16,18 +16,15 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+import gunsmith as gs
+
 NS = "flansbasic"
 ROOT = Path(__file__).resolve().parent.parent / "src/main/resources/resourcepacks/basic"
 DATA = ROOT / "data" / NS
 ASSETS = ROOT / "assets" / NS
 
-# Gun texture: 256x192, twelve 64x64 noisy material blocks (box UV).
-MATERIALS = {"metal": (0, 0), "polymer": (64, 0), "wood": (128, 0), "red": (192, 0),
-             "olive": (0, 64), "tan": (64, 64), "steel": (128, 64), "lens": (192, 64),
-             "black": (0, 128), "brass": (64, 128), "glass": (128, 128), "flash": (192, 128)}
-COLOURS = {"metal": (58, 61, 66), "polymer": (34, 36, 40), "wood": (122, 82, 48), "red": (200, 30, 30),
-           "olive": (82, 92, 58), "tan": (176, 150, 108), "steel": (128, 132, 138), "lens": (70, 120, 140),
-           "black": (20, 21, 23), "brass": (205, 165, 60), "glass": (60, 70, 72), "flash": (255, 226, 130)}
+# Gun models, magazines and the gun texture come from gunsmith (shared with the WW2 pack generator).
+MATERIALS, COLOURS = gs.MATERIALS, gs.COLOURS
 
 
 def write(path: Path, data):
@@ -35,44 +32,103 @@ def write(path: Path, data):
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
-def cube(origin, size, mat="metal"):
-    return {"origin": [round(v, 3) for v in origin], "size": [round(v, 3) for v in size], "uv": list(MATERIALS[mat])}
+cube, bx = gs.cube, gs.bx
 
 
 def bone(name, cubes, parent="gun"):
-    b = {"name": name, "pivot": [0, 0, 0], "cubes": cubes}
+    b = {"name": name, "pivot": [0, 0, 0], "cubes": gs.strip(cubes)}
     if parent:
         b["parent"] = parent
     return b
 
 
 # ------------------------------------------------------------------------------------------- ammunition
-# id: name, caliber, icon shape, colour, effects
-AMMO = {
-    "9mm": dict(name="9mm FMJ", caliber="9mm", shape="pistol", colour=(212, 175, 55)),
-    "9mm_hp": dict(name="9mm Hollow Point", caliber="9mm", shape="pistol", colour=(190, 120, 60), damage_multiplier=1.25, spread_multiplier=1.1),
-    "45acp": dict(name=".45 ACP", caliber="45acp", shape="pistol", colour=(200, 160, 60)),
-    "50ae": dict(name=".50 AE", caliber="50ae", shape="pistol", colour=(220, 190, 80)),
-    "357": dict(name=".357 Magnum", caliber="357", shape="pistol", colour=(205, 170, 70)),
-    "57": dict(name="5.7x28mm", caliber="57", shape="rifle", colour=(190, 170, 90)),
-    "556": dict(name="5.56 NATO", caliber="556", shape="rifle", colour=(200, 160, 50)),
-    "556_ap": dict(name="5.56 NATO AP", caliber="556", shape="rifle", colour=(60, 60, 60), armor_piercing=True, damage_multiplier=0.9),
-    "556_tracer": dict(name="5.56 NATO Tracer", caliber="556", shape="rifle", colour=(200, 60, 40),
-                       tracer={"color": "#FF4020", "width": 0.06, "length": 5}),
-    "762x39": dict(name="7.62x39mm", caliber="762x39", shape="rifle", colour=(150, 120, 70)),
-    "762x39_ap": dict(name="7.62x39mm AP", caliber="762x39", shape="rifle", colour=(70, 70, 70), armor_piercing=True, damage_multiplier=0.9),
-    "762x51": dict(name="7.62 NATO", caliber="762x51", shape="rifle", colour=(190, 150, 60)),
-    "762x54": dict(name="7.62x54mmR", caliber="762x54", shape="rifle", colour=(160, 130, 70)),
-    "338": dict(name=".338 Lapua Magnum", caliber="338", shape="rifle", colour=(210, 180, 80)),
-    "50bmg": dict(name=".50 BMG", caliber="50bmg", shape="big", colour=(200, 170, 60)),
-    "50bmg_api": dict(name=".50 BMG API", caliber="50bmg", shape="big", colour=(180, 40, 40), armor_piercing=True, fire_seconds=4),
-    "12g": dict(name="12 Gauge Buckshot", caliber="12g", shape="shell", colour=(190, 40, 40), pellets=8),
-    "12g_slug": dict(name="12 Gauge Slug", caliber="12g", shape="shell", colour=(40, 90, 170), pellets=1, damage_multiplier=4.0, spread_multiplier=0.3),
-    "12g_dragon": dict(name="12 Gauge Dragon's Breath", caliber="12g", shape="shell", colour=(230, 130, 30), pellets=8,
-                       fire_seconds=5, damage_multiplier=0.6, tracer={"color": "#FF8A20", "width": 0.08, "length": 2}),
-    "40mm_he": dict(name="40mm HE Grenade", caliber="40mm", shape="40mm", colour=(90, 100, 60), projectile="40mm_he", max_stack=16),
-    "pg7": dict(name="PG-7V Rocket", caliber="rpg", shape="rocket", colour=(90, 100, 60), projectile="rocket", max_stack=8),
+# Calibers: display name, casing class (icon size, gunpowder per round, rounds per craft) and a colour for magazine bands.
+CALIBERS = {
+    "9mm": dict(name="9×19mm Parabellum", cls="pistol", band="copper"),
+    "45acp": dict(name=".45 ACP", cls="pistol", band="orange"),
+    "357": dict(name=".357 Magnum", cls="pistol", band="red"),
+    "50ae": dict(name=".50 AE", cls="pistol", band="white"),
+    "57": dict(name="5.7×28mm", cls="pistol", band="green"),
+    "556": dict(name="5.56×45mm NATO", cls="rifle", band="lens"),
+    "762x39": dict(name="7.62×39mm", cls="rifle", band="red"),
+    "762x51": dict(name="7.62×51mm NATO", cls="full", band="orange"),
+    "762x54": dict(name="7.62×54mmR", cls="full", band="green"),
+    "338": dict(name=".338 Lapua Magnum", cls="heavy", band="white"),
+    "50bmg": dict(name=".50 BMG", cls="heavy", band="brass"),
+    "12g": dict(name="12 Gauge", cls="shotgun", band="red"),
+    "40mm": dict(name="40×46mm Grenade", cls="40mm", band="olive"),
+    "rpg": dict(name="PG-7 Rocket", cls="rocket", band="olive"),
 }
+# Per casing class: gunpowder per craft, rounds per craft, stack size, and which ammo types exist.
+CASING_CLASSES = {
+    "pistol": dict(powder=1, count=16, types=["fmj", "hp", "ap"]),
+    "rifle": dict(powder=2, count=12, types=["fmj", "ap", "tracer"]),
+    "full": dict(powder=2, count=10, types=["fmj", "ap", "tracer", "incendiary"]),
+    "heavy": dict(powder=3, count=6, types=["fmj", "ap", "tracer", "api"]),
+    "shotgun": dict(powder=1, count=8, types=["buckshot", "slug", "dragon", "flechette"]),
+    "40mm": dict(powder=1, count=2, types=["he"], stack=16),
+    "rocket": dict(powder=0, count=1, types=["pg7"], stack=8),
+}
+# Ammo types: name suffix, effects, and the tip/load/warhead component they are made with (icon tip colour).
+AMMO_TYPES = {
+    "fmj": dict(suffix="FMJ", tip="bullet_fmj", colour="copper"),
+    "hp": dict(suffix="Hollow Point", tip="bullet_hp", colour="steel", damage_multiplier=1.25, spread_multiplier=1.1),
+    "ap": dict(suffix="AP", tip="bullet_ap", colour="black", armor_piercing=True, damage_multiplier=0.9),
+    "tracer": dict(suffix="Tracer", tip="bullet_tracer", colour="red", damage_multiplier=0.95, tracer={"color": "#FF4020", "width": 0.06, "length": 5}),
+    "incendiary": dict(suffix="Incendiary", tip="bullet_incendiary", colour="lens", damage_multiplier=0.9, fire_seconds=4),
+    "api": dict(suffix="API", tip="bullet_api", colour="white", armor_piercing=True, fire_seconds=4),
+    "buckshot": dict(suffix="Buckshot", tip="load_buckshot", colour="red", pellets=8),
+    "slug": dict(suffix="Slug", tip="load_slug", colour="lens", pellets=1, damage_multiplier=4.0, spread_multiplier=0.3),
+    "dragon": dict(suffix="Dragon's Breath", tip="load_dragon", colour="orange", pellets=8, fire_seconds=5, damage_multiplier=0.6,
+                   tracer={"color": "#FF8A20", "width": 0.08, "length": 2}),
+    "flechette": dict(suffix="Flechette", tip="load_flechette", colour="green", pellets=12, armor_piercing=True, damage_multiplier=0.7),
+    "he": dict(suffix="HE", tip="warhead_he", colour="olive", projectile="40mm_he"),
+    "pg7": dict(suffix="PG-7V HEAT", tip="warhead_pg7", colour="olive", projectile="rocket"),
+}
+# Ids of the plain round of each caliber (kept from earlier versions); other types are <caliber>_<type>.
+PLAIN = {"fmj", "buckshot", "he", "pg7"}
+LEGACY_IDS = {("12g", "dragon"): "12g_dragon", ("40mm", "he"): "40mm_he", ("rpg", "pg7"): "pg7"}
+
+
+def ammo_id(caliber, kind):
+    return LEGACY_IDS.get((caliber, kind)) or (caliber if kind in PLAIN else f"{caliber}_{kind}")
+
+
+def build_ammo(calibers):
+    """Every ammo type of every caliber (by its casing class); shared with the WW2 pack generator."""
+    ammo = {}
+    for cal, c in calibers.items():
+        cls = CASING_CLASSES[c["cls"]]
+        for kind in c.get("types", cls["types"]):
+            t = AMMO_TYPES[kind]
+            effects = {k: v for k, v in t.items() if k not in ("suffix", "tip", "colour")}
+            # The standard round is called just like its caliber ("5.56×45mm NATO"); special types add their name.
+            name = c["name"] if c["cls"] == "rocket" or kind == "fmj" else f"{c['name']} {t['suffix']}"
+            ammo[ammo_id(cal, kind)] = dict(name=name, caliber=cal, kind=kind, cls=c["cls"], tip=t["tip"], colour=t["colour"],
+                                            max_stack=cls.get("stack", 64), **effects)
+    return ammo
+
+
+AMMO = build_ammo(CALIBERS)
+
+# Ammunition components (parts of category "ammo"): one casing per caliber, and tips/loads/warheads by ammo type.
+# Recipes: c copper nugget, C copper ingot, N iron nugget (steel cases), H paper, I iron ingot, U gunpowder.
+CASINGS = {
+    "9mm": (["cc"], 16), "45acp": (["ccc"], 16), "357": (["c", "c"], 16), "50ae": (["c", "c", "c"], 12), "57": (["cN"], 16),
+    "556": (["C"], 12), "762x39": (["NN"], 12), "762x51": (["C", "C"], 10), "762x54": (["NNN"], 10), "338": (["CC"], 6),
+    "50bmg": (["CCC"], 4), "12g": (["H", "c"], 8), "40mm": (["C C", "CCC"], 4), "rpg": (["I", "U", "I"], 2),
+}
+CASING_NAMES = {"12g": "12 Gauge Hull", "40mm": "40mm Grenade Casing", "rpg": "Rocket Motor"}
+TIPS = {
+    "bullet_fmj": ("Bullet (FMJ)", ["N", "c"], 16), "bullet_hp": ("Bullet (Hollow Point)", ["c", "N", "c"], 16),
+    "bullet_ap": ("AP Core", ["I"], 8), "bullet_tracer": ("Tracer Bullet", ["R", "N"], 16),
+    "bullet_incendiary": ("Incendiary Bullet", ["Z", "N"], 16), "bullet_api": ("API Bullet", ["Z", "I"], 8),
+    "load_buckshot": ("Buckshot Load", ["NNN", "N N"], 8), "load_slug": ("Slug", ["I", "N"], 8),
+    "load_dragon": ("Dragon's Breath Load", ["Z", "Z", "N"], 8), "load_flechette": ("Flechette Load", ["N N", " N "], 8),
+    "warhead_he": ("40mm HE Warhead", ["T", "c"], 4), "warhead_pg7": ("PG-7V Warhead", ["T", "C"], 2),
+}
+
 
 # ------------------------------------------------------------------------------------------- magazines
 # id: name, caliber, capacity, kind (icon/model), guns, reload multiplier
@@ -99,12 +155,24 @@ MAGAZINES = {
     "m24_5": dict(name="M24 Magazine (5)", caliber="762x51", capacity=5, kind="pistol", guns=["m24"]),
     "awm_5": dict(name="AWM Magazine (5)", caliber="338", capacity=5, kind="pistol", guns=["awm"]),
     "barrett_10": dict(name="M82 Magazine (10)", caliber="50bmg", capacity=10, kind="stick", guns=["barrett"]),
-    "shell_holder_6": dict(name="Shell Holder (6)", caliber="12g", capacity=6, kind="shells", guns=["m870"]),
-    "spas_8": dict(name="SPAS-12 Shell Holder (8)", caliber="12g", capacity=8, kind="shells", guns=["spas12"]),
+    # internal: built into the gun (tube, breech); reloading loads loose rounds, there is no magazine item.
+    "shell_holder_6": dict(name="Tube Magazine (6)", caliber="12g", capacity=6, kind="shells", guns=["m870"], internal=True),
+    "spas_8": dict(name="Tube Magazine (8)", caliber="12g", capacity=8, kind="shells", guns=["spas12"], internal=True),
     "aa12_8": dict(name="AA-12 Box (8)", caliber="12g", capacity=8, kind="box", guns=["aa12"]),
     "aa12_drum_20": dict(name="AA-12 Drum (20)", caliber="12g", capacity=20, kind="drum", guns=["aa12"], reload=1.5),
-    "m79_shell": dict(name="40mm Round Holder (1)", caliber="40mm", capacity=1, kind="loader", guns=["m79"]),
-    "pg7_loader": dict(name="RPG-7 Rocket Loader (1)", caliber="rpg", capacity=1, kind="rocket", guns=["rpg7"]),
+    "m79_shell": dict(name="Breech (1)", caliber="40mm", capacity=1, kind="loader", guns=["m79"], internal=True),
+    "pg7_loader": dict(name="Launch Tube (1)", caliber="rpg", capacity=1, kind="rocket", guns=["rpg7"], internal=True),
+}
+# What each magazine looks like (gunsmith.magazine kind, rounds for its length, material), on the gun and as an item.
+MAG_SHAPES = {
+    "glock_17": ("pistol", 17, "polymer"), "glock_33": ("pistol", 33, "polymer"), "m1911": ("pistol", 7, "steel"),
+    "deagle": ("pistol", 9, "steel"), "speedloader_357": ("loader", 6, "black"), "mp5_30": ("smg_curved", 30, "steel"),
+    "uzi_32": ("stick", 32, "metal"), "p90_50": ("p90", 50, "glass"), "thompson_30": ("stick", 30, "metal"),
+    "thompson_drum_50": ("drum", 50, "metal"), "stanag_30": ("stanag", 30, "steel"), "stanag_drum_100": ("twin_drum", 100, "polymer"),
+    "m249_box_200": ("box", 200, "olive"), "ak_30": ("ak", 30, "metal"), "ak_drum_75": ("drum", 75, "metal"),
+    "scar_20": ("stick", 20, "tan"), "m14_20": ("stick", 20, "metal"), "svd_10": ("ak", 10, "metal"),
+    "pkm_box_100": ("box", 100, "olive"), "m24_5": ("rifle_box", 5, "metal"), "awm_5": ("rifle_box", 5, "metal"),
+    "barrett_10": ("rifle_box", 10, "metal"), "aa12_8": ("rifle_box", 8, "polymer"), "aa12_drum_20": ("drum", 20, "polymer"),
 }
 
 # ------------------------------------------------------------------------------------------- guns
@@ -240,10 +308,6 @@ COMMON_PARTS = dict(T="trigger_group", A="gas_system", C="bolt_carrier", F="spri
 # Magazines: body by kind (I iron, N nugget, F spring part); capacity adds iron rows.
 MAGAZINE_SHAPES = {"pistol": ["I", "F"], "stick": ["I", "I", "F"], "curved": ["I ", "IN", "F "], "drum": ["NIN", "IFI", "NIN"],
                    "box": ["III", "IFI", "III"], "loader": ["NNN", "NFN"], "shells": ["HHH", "NFN"], "rocket": ["CF"]}
-# Ammo: bullet + gunpowder + casing by shape, plus variant materials.
-AMMO_SHAPES = {"pistol": ["NUC"], "rifle": ["NUUC"], "big": ["NUUUC"], "shell": ["NUH"], "40mm": ["TC", "CC"], "rocket": ["TUII"]}
-AMMO_VARIANT = {"9mm_hp": {"N": "S"}, "556_ap": {"N": "I"}, "762x39_ap": {"N": "I"}, "556_tracer": {"extra": "R"},
-                "50bmg_api": {"N": "I", "extra": "Z"}, "12g_slug": {"N": "I"}, "12g_dragon": {"extra": "Z"}}
 ATTACHMENT_RECIPES = {
     "red_dot": ["ILI", " X "], "holographic": ["ILLI", " XX "], "acog": ["ILLI", "I  I"], "sniper_scope": ["ILLLI", "I   I"],
     "nv_scope": ["ILLI", "OXXO"], "thermal_scope": ["ILLI", "ZXXZ"], "suppressor": ["IKKKK"], "compensator": ["NIN"],
@@ -349,231 +413,32 @@ def attachment_cubes(name, geo):
     return None
 
 
-def bx(x0, y0, z0, x1, y1, z1, mat="metal"):
-    """Box from min to max corner (model pixels; barrel points to -Z, grip bottom at y=0)."""
-    return cube((x0, y0, z0), (x1 - x0, y1 - y0, z1 - z0), mat)
-
-
-def rod(z0, z1, y, r, mat="metal", x=0.0):
-    """Square rod along Z (barrels, tubes) centred on (x, y)."""
-    return bx(x - r, y - r, z0, x + r, y + r, z1, mat)
-
-
-def trigger(z=0.0, y=4.0):
-    return [bx(-0.3, y - 0.3, z - 0.2, 0.3, y, z + 2.2), bx(-0.15, y, z + 0.6, 0.15, y + 0.8, z + 0.9, "black")]
-
-
-def pistol_grip(mat="polymer", z=1.4, top=4.7):
-    return [bx(-0.8, 1.6, z, 0.8, top, z + 1.8, mat), bx(-0.8, 0.0, z + 0.6, 0.8, 1.7, z + 2.5, mat)]
-
-
-def result(parts, moving, mag, sight, muzzle, rhand, lhand, mag_at, under=None, iron=(), drum=None, round_bone=False):
-    return dict(parts=parts, moving=moving, mag=mag, drum=drum, sight=sight, muzzle=muzzle, under=under, iron=list(iron),
-                rhand=rhand, lhand=lhand, mag_at=mag_at, round=round_bone)
+# Gun models by id (the WW2 generator swaps in its own table).
+GUN_BUILDERS = gs.GUNS
 
 
 def gun_geometry(gid, g):
-    f = g["furniture"]
-    # ---------------------------------------------------------------- pistols
-    if gid in ("glock17", "m1911", "deagle"):
-        slide_mat = {"glock17": "black", "m1911": "steel", "deagle": "steel"}[gid]
-        frame_mat = {"glock17": "polymer", "m1911": "steel", "deagle": "steel"}[gid]
-        front = {"glock17": -6.0, "m1911": -6.5, "deagle": -8.0}[gid]
-        h = 2.2 if gid == "deagle" else 1.8
-        parts = [bx(-0.95, 4.6, front + 0.4, 0.95, 5.8, 2.6, frame_mat), *trigger(-2.4, 3.9),
-                 bx(-0.85, 0.6, 0.5, 0.85, 4.6, 2.7, frame_mat if gid == "glock17" else "wood"),
-                 bx(-0.9, 0.2, 0.9, 0.9, 0.6, 2.9, "black")]
-        if gid == "m1911":
-            parts.append(bx(-0.3, 7.2, 2.6, 0.3, 8.0, 3.2, "black"))  # hammer spur
-        slide = [bx(-1.0, 5.8, front, 1.0, 5.8 + h, 2.8, slide_mat), rod(front - 0.2, front, 5.8 + h / 2, 0.35, "black")]
-        slide += [bx(-1.02, 6.0 + i * 0.35, 1.2, 1.02, 6.15 + i * 0.35, 2.6, "black") for i in range(3)]  # serrations
-        mag = [bx(-0.7, -0.6, 0.7, 0.7, 4.0, 2.4, "black")]
-        top = 5.8 + h
-        return result(parts, ("slide", slide), mag, (top, 0), (5.8 + h / 2, front), rhand=(0, 2.4, 1.6), lhand=(-0.4, 1.8, 0.8),
-                      mag_at=(0, 0, 1.6), iron=[bx(-0.45, top, 2.0, 0.45, top + 0.6, 2.5, "black"), bx(-0.2, top, front + 0.6, 0.2, top + 0.5, front + 1.0, "black")])
-    if gid == "revolver":
-        parts = [rod(-9, -3.5, 7.0, 0.5, "steel"), bx(-0.3, 7.5, -9, 0.3, 7.9, -3.5, "steel"),  # barrel + rib
-                 bx(-0.4, 5.6, -9, 0.4, 6.5, -4, "steel"),  # ejector housing
-                 bx(-1.0, 5.2, -3.5, 1.0, 8.0, 1.6, "steel"), *trigger(-1.0, 4.4),
-                 bx(-0.85, 0.8, 1.0, 0.85, 5.2, 2.8, "wood"), bx(-0.85, 0.2, 1.8, 0.85, 1.0, 3.4, "wood")]
-        cylinder = [bx(-1.3, 5.4, -3.2, 1.3, 8.0, -0.2, "steel"), bx(-1.32, 6.4, -3.0, 1.32, 7.0, -0.4, "black")]
-        hammer = ("hammer", [bx(-0.3, 7.6, 1.2, 0.3, 8.6, 1.8, "steel")])
-        return result(parts, hammer, cylinder, (7.9, -1), (7.0, -9), rhand=(0, 2.6, 1.9), lhand=(-0.4, 2.0, 1.0),
-                      mag_at=(0, 6.6, -1.7), iron=[bx(-0.2, 7.9, -8.6, 0.2, 8.6, -8.1, "steel")])
-    # ---------------------------------------------------------------- SMGs
-    if gid == "mp5":
-        parts = [rod(-15, -11, 7.6, 0.4), rod(-11, 4, 7.6, 1.0, "black"), rod(-14.5, -12.5, 8.9, 0.8, "black"),  # barrel, receiver, sight hood
-                 rod(-15, -6, 8.7, 0.35, "black"), bx(-1.25, 5.6, -11, 1.25, 7.4, -4.5, "polymer"),  # cocking tube, handguard
-                 bx(-0.9, 4.6, -3, 0.9, 6.6, 3.2, "polymer"), *trigger(0, 3.9), *pistol_grip("polymer", 1.2, 4.6),
-                 rod(4, 10, 8.0, 0.25, "metal", x=0.7), rod(4, 10, 8.0, 0.25, "metal", x=-0.7), bx(-1.0, 5.4, 10, 1.0, 9.0, 10.8, "black")]
-        mag = [bx(-0.7, 2.0, -4.2, 0.7, 6.6, -2.4, "steel"), bx(-0.7, -1.5, -5.3, 0.7, 2.1, -3.4, "steel")]
-        return result(parts, ("bolt", [bx(-0.2, 8.4, -10, 0.2, 9.4, -9.4, "black")]), mag, (8.6, 1), (7.6, -15), under=(5.6, -8),
-                      rhand=(0, 2.4, 2.2), lhand=(0, 5.2, -8), mag_at=(0, 1.0, -3.8),
-                      iron=[rod(1.5, 2.5, 9.2, 0.6, "black")], drum=None)
-    if gid == "uzi":
-        parts = [rod(-12.5, -9, 7.2, 0.4), bx(-1.2, 5.6, -9, 1.2, 8.8, 4.5, "metal"), bx(-1.0, 4.4, -2, 1.0, 5.6, 2.8, "polymer"),
-                 *trigger(-1.5, 4.0), bx(-0.85, 0.4, 0.2, 0.85, 4.4, 2.6, "polymer"),
-                 rod(4.5, 10, 6.4, 0.2, "metal", x=0.8), rod(4.5, 10, 6.4, 0.2, "metal", x=-0.8), bx(-1.0, 5.6, 10, 1.0, 7.4, 10.6, "metal")]
-        mag = [bx(-0.6, -2.2, 0.6, 0.6, 3.0, 2.2, "steel")]
-        return result(parts, ("bolt", [bx(-0.3, 8.8, -4, 0.3, 9.4, -2.8, "black")]), mag, (8.8, 1), (7.2, -12.5),
-                      rhand=(0, 2.2, 1.4), lhand=(-0.3, 1.6, 1.2), mag_at=(0, -1.0, 1.4),
-                      iron=[bx(-0.4, 8.8, 3, 0.4, 9.8, 3.8, "black"), bx(-0.2, 8.8, -8.6, 0.2, 9.8, -8.2, "black")])
-    if gid == "p90":
-        parts = [bx(-1.3, 4.0, -9, 1.3, 7.8, 6, "polymer"), bx(-1.1, 1.0, 2, 1.1, 4.0, 6, "polymer"),  # body, stock below
-                 bx(-1.1, 1.0, -5, 1.1, 2.4, -3, "polymer"), bx(-1.1, 2.4, -5.4, 1.1, 4.0, -4.4, "polymer"),  # thumbhole front grip
-                 rod(-11, -9, 6.4, 0.4), bx(-0.8, 3.3, -7, 0.8, 4.0, -5.4, "polymer"), *trigger(-4.8, 3.6)]
-        mag = [bx(-0.95, 7.8, -8.6, 0.95, 8.6, 3.8, "glass"), bx(-0.8, 7.9, -8.4, 0.8, 8.3, 3.6, "brass")]
-        return result(parts, ("bolt", [bx(1.3, 6.2, -6, 1.7, 6.8, -5, "black")]), mag, (10.4, -2), (6.4, -11),
-                      rhand=(0, 1.6, -4.2), lhand=(0, 2.0, -7.6), mag_at=(0, 8.2, -2),
-                      iron=[bx(-0.6, 8.6, -3.5, 0.6, 10.4, 1, "black")])
-    if gid == "thompson":
-        parts = [rod(-17, -8, 7.4, 0.55), *[rod(-15 + i, -14.6 + i, 7.4, 0.8, "metal") for i in range(0, 6)],  # finned barrel
-                 rod(-18, -17, 7.4, 0.7, "steel"), bx(-1.1, 5.6, -8, 1.1, 8.6, 4, "steel"),
-                 bx(-0.6, 2.0, -13, 0.6, 6.8, -11.6, "wood"),  # vertical foregrip
-                 *trigger(0, 4.0), bx(-0.8, 0.6, 1.4, 0.8, 5.6, 3.0, "wood"),
-                 bx(-1.0, 5.2, 4, 1.0, 8.2, 8, "wood"), bx(-1.0, 3.6, 8, 1.0, 7.8, 13, "wood"), bx(-1.1, 3.4, 13, 1.1, 8.0, 13.4, "metal")]
-        mag = [bx(-0.7, -0.8, -3.8, 0.7, 5.6, -2.0, "steel")]
-        drum = [bx(-1.0, -3.0, -6.6, 1.0, 5.4, 0.8, "steel"), bx(-1.2, -1.8, -5.4, 1.2, 4.2, -0.4, "steel")]
-        return result(parts, ("bolt", [bx(-0.3, 8.6, -2, 0.3, 9.2, -1, "black")]), mag, (8.6, 0), (7.4, -18),
-                      rhand=(0, 2.6, 2.2), lhand=(0, 4.0, -12.3), mag_at=(0, 1.5, -2.9), drum=drum,
-                      iron=[bx(-0.4, 8.6, 2.5, 0.4, 9.6, 3.2, "steel"), bx(-0.15, 8.6, -17.6, 0.15, 9.2, -17.2, "steel")])
-    # ---------------------------------------------------------------- AR-15 family, AK, SCAR
-    if gid in ("m4a1", "m16a4", "m249"):
-        long = gid != "m4a1"
-        front = -27.0 if long else -23.0
-        parts = [rod(front + 1.5, -12, 7.5, 0.45), rod(front, front + 1.5, 7.5, 0.65, "polymer"),
-                 bx(-0.6, 7.9, -13, 0.6, 8.9, -11.8), bx(-0.9, 8.9, -13.1, 0.9, 9.4, -12.2), bx(-0.25, 9.4, -12.9, 0.25, 11.0, -12.4),
-                 bx(-1.3, 5.9, -12, 1.3, 9.0, -3.2, "polymer"), bx(-0.9, 9.0, -12, 0.9, 9.5, -3.2),
-                 bx(-1.1, 6.6, -3.2, 1.1, 9.4, 4.6, "polymer"), bx(-0.9, 9.4, -3.2, 0.9, 9.9, 4.6), bx(1.1, 7.4, -1.2, 1.18, 8.6, 1.6, "black"),
-                 bx(-1.0, 4.7, -2.6, 1.0, 6.6, 3.6, "polymer"), bx(-1.15, 3.2, -2.4, 1.15, 4.7, -0.1, "polymer"),
-                 *trigger(-0.1, 4.0), *pistol_grip("polymer", 1.4, 4.7)]
-        if gid == "m4a1":
-            parts += [rod(4.6, 10, 8.2, 0.65), bx(-1.0, 5.4, 8.5, 1.0, 9.2, 12.5, "polymer"), bx(-1.1, 5.0, 12.5, 1.1, 9.4, 13.1, "black")]
-        else:
-            parts += [bx(-1.0, 4.4, 4.6, 1.0, 9.0, 13, "polymer"), bx(-1.1, 4.0, 13, 1.1, 9.3, 13.6, "black")]
-        if gid == "m249":
-            parts += [bx(-1.5, 9.4, -3, 1.5, 10.4, 3.5), bx(-0.4, 10.4, -6, 0.4, 11.4, -5.4), bx(-0.4, 11.0, -6, 0.4, 11.4, -1),  # feed cover, carry handle
-                      bx(-1.3, 4.8, -20, -0.9, 5.3, -12), bx(0.9, 4.8, -20, 1.3, 5.3, -12)]  # folded bipod
-            mag = [bx(-3.4, 2.4, -6.5, -1.2, 6.8, -1.5, "olive"), bx(-3.5, 6.8, -6.0, -1.1, 7.2, -2.0, "olive")]
-            return result(parts, ("bolt", [bx(1.1, 7.6, -5, 1.7, 8.2, -4, "black")]), mag, (10.4, 0), (7.5, front), under=(5.9, -9),
-                          rhand=(0, 2.6, 2.6), lhand=(0, 5.6, -8.5), mag_at=(-2.3, 4.6, -4),
-                          iron=[bx(-0.6, 10.4, 2.4, 0.6, 11.4, 3.2, "black")])
-        mag = [bx(-0.8, -1.2, -2.3, 0.8, 3.3, -0.2, "steel"), bx(-0.8, -4.0, -2.8, 0.8, -1.2, -0.6, "steel"), bx(-0.85, -4.4, -2.9, 0.85, -4.0, -0.5, "black")]
-        drum = [bx(-1.6, -4.0, -5.0, 1.6, 2.5, 1.5, "steel"), bx(-0.8, 2.5, -2.3, 0.8, 3.3, -0.2, "steel")]
-        return result(parts, ("bolt", [bx(-0.4, 9.4, 4.6, 0.4, 9.9, 5.4), bx(1.1, 7.6, -1, 1.5, 8.2, 0.5, "steel")]), mag,
-                      (9.9, 0.5), (7.5, front), under=(5.9, -9), rhand=(0, 2.6, 2.6), lhand=(0, 5.6, -8.5), mag_at=(0, 0.0, -1.4),
-                      drum=drum, iron=[bx(-0.6, 9.9, 2.6, 0.6, 11.2, 3.6), bx(-0.2, 11.2, 2.9, 0.2, 11.4, 3.3, "black")])
-    if gid in ("ak47", "pkm"):
-        front = -24.0 if gid == "ak47" else -28.0
-        parts = [rod(front + 1, -11, 7.3, 0.45), rod(front, front + 1, 7.3, 0.6, "black"),
-                 bx(-0.5, 7.0, front + 2, 0.5, 8.6, front + 3), bx(-0.15, 8.6, front + 2.3, 0.15, 9.8, front + 2.7),
-                 rod(-14, -5, 8.6, 0.45), bx(-0.6, 8.2, -14.6, 0.6, 9.0, -13.8),
-                 bx(-1.2, 5.8, -11, 1.2, 7.8, -4.5, f), bx(-0.9, 8.2, -11, 0.9, 9.1, -6, f),
-                 bx(-1.1, 5.6, -4.5, 1.1, 8.6, 4.5), bx(-1.0, 8.6, -4, 1.0, 9.2, 4.3), *trigger(-0.2, 4.7),
-                 bx(-0.75, 1.8, 1.6, 0.75, 5.6, 3.2, f), bx(-0.75, 0.0, 2.3, 0.75, 1.9, 3.8, f),
-                 bx(-1.0, 5.2, 4.5, 1.0, 8.2, 8.5, f), bx(-1.0, 3.8, 8.5, 1.0, 7.6, 13, f), bx(-1.1, 3.5, 13, 1.1, 7.8, 13.5)]
-        if gid == "pkm":
-            parts = [p for p in parts if p["size"][2] < 8 or p["origin"][2] > -12] + [
-                *[rod(front + 2 + i * 1.6, front + 2.6 + i * 1.6, 7.3, 0.6) for i in range(6)],  # ribbed barrel
-                bx(-1.3, 4.8, -16, -0.9, 5.3, -6), bx(0.9, 4.8, -16, 1.3, 5.3, -6), bx(-1.3, 9.2, -4, 1.3, 9.8, 2)]
-            mag = [bx(-1.4, 0.8, -5.5, 1.4, 5.6, -0.8, "olive")]
-            return result(parts, ("bolt", [bx(1.1, 7.2, -1.5, 1.9, 7.8, -0.9)]), mag, (9.8, -1), (7.3, front),
-                          rhand=(0, 2.8, 2.6), lhand=(0, 6.0, -8), mag_at=(0, 3.0, -3), iron=[bx(-0.5, 9.8, -3.4, 0.5, 10.3, -2.4)])
-        mag = [bx(-0.8, 1.8, -3.6, 0.8, 5.6, -1.2, "steel"), bx(-0.8, -1.2, -4.6, 0.8, 1.9, -2.0, "steel"), bx(-0.8, -3.6, -5.8, 0.8, -1.1, -3.1, "steel")]
-        drum = [bx(-1.7, -3.5, -6.5, 1.7, 3.0, 0.5, "steel"), bx(-0.8, 3.0, -3.6, 0.8, 5.6, -1.2, "steel")]
-        return result(parts, ("bolt", [bx(1.1, 7.2, -1.5, 1.9, 7.8, -0.9)]), mag, (9.2, -1), (7.3, front), under=(5.8, -8.5),
-                      rhand=(0, 2.8, 2.6), lhand=(0, 5.4, -8), mag_at=(0, 1.5, -3), drum=drum,
-                      iron=[bx(-0.5, 9.2, -4.4, 0.5, 9.7, -3.4)])
-    if gid in ("scar_h", "m14"):
-        front = -24.0 if gid == "scar_h" else -28.0
-        mat = "tan" if gid == "scar_h" else "polymer"
-        parts = [rod(front + 1.5, -14, 7.6, 0.5), rod(front, front + 1.5, 7.6, 0.7, "black"),
-                 bx(-1.25, 6.2, -14, 1.25, 9.6, 2, mat), bx(-0.9, 9.6, -14, 0.9, 10.1, 4.5),
-                 bx(-1.25, 4.6, -3, 1.25, 6.2, 4, mat), bx(-1.2, 3.0, -2.6, 1.2, 4.6, -0.2, mat), *trigger(-0.1, 3.9),
-                 *pistol_grip("polymer", 1.4, 4.6), bx(-1.0, 5.4, 2, 1.0, 9.6, 5, mat),
-                 bx(-0.9, 6.6, 5, 0.9, 8.2, 10, "polymer"), bx(-1.0, 4.6, 10, 1.0, 9.2, 12.5, "polymer"), bx(-1.1, 4.2, 12.5, 1.1, 9.4, 13, "black")]
-        mag = [bx(-0.9, -2.5, -2.4, 0.9, 3.0, -0.2, mat), bx(-0.95, -2.9, -2.5, 0.95, -2.5, -0.1, "black")]
-        return result(parts, ("bolt", [bx(1.25, 8.2, -5, 1.9, 8.8, -4.2, "black")]), mag, (10.1, 0), (7.6, front), under=(6.2, -10),
-                      rhand=(0, 2.6, 2.6), lhand=(0, 5.8, -9), mag_at=(0, 0.2, -1.3),
-                      iron=[bx(-0.5, 10.1, 2.8, 0.5, 11.3, 3.6, "black"), bx(-0.3, 10.1, -13.5, 0.3, 11.2, -13, "black")])
-    if gid == "svd":
-        front = -30.0
-        parts = [rod(front + 1.5, -12, 7.4, 0.42), rod(front, front + 1.5, 7.4, 0.6, "black"),
-                 bx(-1.1, 6.0, -12, 1.1, 8.6, -4, "wood"), bx(-1.05, 5.8, -4, 1.05, 8.7, 4), bx(-0.95, 8.7, -3.6, 0.95, 9.2, 3.8), *trigger(-0.4, 4.9),
-                 bx(-0.9, 5.2, 4, 0.9, 8.4, 7, "wood"), bx(-0.9, 7.6, 7, 0.9, 8.4, 12, "wood"), bx(-0.9, 1.6, 7, 0.9, 3.2, 12, "wood"),
-                 bx(-0.9, 1.6, 3.2, 0.9, 5.4, 4.8, "wood"), bx(-1.0, 1.4, 12, 1.0, 8.6, 13, "black")]
-        mag = [bx(-0.8, 1.4, -3.4, 0.8, 5.8, -1.0, "steel")]
-        pso = [bx(-0.4, 9.2, -2, 0.4, 10, 1), rod(-5, 4, 11, 0.9, "polymer", x=-0.6), bx(-1.6, 9.9, 3.6, 0.4, 12.1, 5, "polymer")]
-        return result(parts, ("bolt", [bx(1.05, 7.4, -1, 1.7, 8.0, 0)]), mag, (9.2, -1), (7.4, front),
-                      rhand=(0, 2.8, 4.0), lhand=(0, 5.6, -8), mag_at=(0, 3.0, -2.2), iron=pso)
-    # ---------------------------------------------------------------- bolt-action / anti-materiel
-    if gid in ("m24", "awm"):
-        front = -32.0
-        mat = g["furniture"]
-        parts = [rod(front, -10, 7.4, 0.5), rod(-10, 3, 7.6, 1.0), *trigger(0.4, 4.5),
-                 bx(-1.2, 5.2, -18, 1.2, 6.8, -10, mat), bx(-1.2, 4.6, -10, 1.2, 6.8, 2.6, mat),
-                 bx(-0.9, 1.8, 2.5, 0.9, 5.2, 4.3, mat), bx(-1.1, 3.4, 4, 1.1, 7.6, 13, mat), bx(-1.2, 3.0, 13, 1.2, 8.0, 13.6, "black")]
-        if gid == "awm":
-            parts += [bx(-1.3, front - 0.4, -0.0, 1.3, 0, 0, "black")] if False else [bx(-1.2, 6.6, front - 2, 1.2, 8.2, front, "black"),
-                                                                                       bx(-0.9, 1.8, 6, 0.9, 4.0, 11, "black")]
-        mag = [bx(-0.8, 3.6, -4, 0.8, 4.8, -1, "steel")]
-        bolt = [bx(1.0, 7.4, 1.0, 2.6, 7.9, 1.6), bx(2.2, 6.6, 1.2, 2.8, 7.4, 2.0, "black")]
-        return result(parts, ("bolt", bolt), mag, (8.6, -3), (7.4, front - (2 if gid == "awm" else 0)),
-                      rhand=(0, 2.8, 3.4), lhand=(0, 5.2, -12), mag_at=(0, 4.2, -2.5), iron=[])
-    if gid == "barrett":
-        front = -36.0
-        parts = [rod(front + 3, -12, 7.6, 0.65), bx(-1.6, 6.8, front, 1.6, 8.4, front + 3, "steel"), bx(-1.62, 7.3, front + 0.6, 1.62, 7.9, front + 2.4, "black"),
-                 bx(-1.4, 5.4, -12, 1.4, 9.4, 8, "metal"), bx(-1.0, 9.4, -10, 1.0, 9.9, 6), bx(-0.4, 9.9, -6, 0.4, 11.0, -5.4),
-                 bx(-0.4, 10.6, -6, 0.4, 11.0, -2), bx(-1.3, 4.8, -24, -0.9, 5.3, -12), bx(0.9, 4.8, -24, 1.3, 5.3, -12),
-                 *trigger(0.4, 4.3), *pistol_grip("polymer", 1.8, 5.4), bx(-1.1, 4.0, 8, 1.1, 9.0, 13, "polymer"), bx(-1.2, 3.6, 13, 1.2, 9.4, 13.8, "black")]
-        mag = [bx(-1.0, 1.5, -6, 1.0, 5.4, -2.5, "steel")]
-        return result(parts, ("bolt", [bx(1.4, 7.6, -2, 2.2, 8.4, -1)]), mag, (9.9, -2), (7.6, front),
-                      rhand=(0, 3.0, 3.0), lhand=(0, 5.0, -14), mag_at=(0, 3.0, -4.2), iron=[])
-    # ---------------------------------------------------------------- shotguns
-    if gid in ("m870", "spas12"):
-        front = -26.0
-        parts = [rod(front, -2, 7.6, 0.6), rod(front + 3, -8, 6.3, 0.5), bx(-1.1, 5.4, -2, 1.1, 8.6, 5), *trigger(0.5, 4.4)]
-        if gid == "spas12":
-            parts += [bx(-0.9, 6.9, -18, 0.9, 8.6, -4, "black"), bx(-0.9, 1.6, 4.6, 0.9, 5.4, 6.4, "polymer"),
-                      bx(-0.25, 8.0, 5, 0.25, 8.6, 13), bx(-0.25, 4.0, 13, 0.25, 8.6, 13.5), bx(-0.8, 5.0, 13.4, 0.8, 7.6, 14.2, "black")]
-            pump_mat = "polymer"
-        else:
-            parts += [bx(-1, 4.4, 5, 1, 7.6, 9, "wood"), bx(-1, 2.8, 9, 1, 7.2, 14, "wood"), bx(-1.1, 2.6, 14, 1.1, 7.4, 14.6, "black"),
-                      bx(-0.8, 1.6, 4.4, 0.8, 5.0, 6.2, "wood")]
-            pump_mat = "wood"
-        pump = [bx(-1.0, 5.6, -14, 1.0, 7.0, -8, pump_mat), *[bx(-1.05, 5.8 + i * 0.4, -13.5, 1.05, 5.9 + i * 0.4, -8.5, "black") for i in range(3)]]
-        mag = [rod(front + 2.4, front + 3.2, 6.3, 0.55, "steel")]  # magazine tube cap
-        return result(parts, ("pump", pump), mag, (8.6, 2), (7.6, front),
-                      rhand=(0, 2.6, 5.0), lhand=(0, 5.2, -11), mag_at=(0, 5.0, 1.0),
-                      iron=[bx(-0.2, 8.2, front + 0.5, 0.2, 8.6, front + 1, "steel")])
-    if gid == "aa12":
-        front = -22.0
-        parts = [rod(front, -12, 7.4, 0.6), bx(-1.3, 4.6, -12, 1.3, 9.0, 6, "polymer"), bx(-1.0, 9.0, -10, 1.0, 9.5, 4), *trigger(0, 3.9),
-                 *pistol_grip("polymer", 1.2, 4.6), bx(-1.1, 4.4, 6, 1.1, 8.6, 12, "polymer"), bx(-1.2, 4.0, 12, 1.2, 9.0, 12.6, "black")]
-        mag = [bx(-1.0, 0.6, -6, 1.0, 4.6, -1.5, "steel")]
-        drum = [bx(-1.6, -3.5, -8.5, 1.6, 4.6, 0.5, "steel"), bx(-1.8, -2.3, -7.3, 1.8, 3.4, -0.7, "steel")]
-        return result(parts, ("bolt", [bx(1.3, 7.8, -6, 1.8, 8.4, -5, "black")]), mag, (9.5, 0), (7.4, front), under=(4.6, -9),
-                      rhand=(0, 2.4, 2.2), lhand=(0, 4.4, -9), mag_at=(0, 2.4, -3.8), drum=drum,
-                      iron=[bx(-0.5, 9.5, 2, 0.5, 10.6, 2.8, "black")])
-    # ---------------------------------------------------------------- launchers
-    if gid == "m79":
-        parts = [rod(-14, -0.8, 7.0, 1.4, "olive"), bx(-1.2, 5.2, -0.8, 1.2, 8.4, 2.5), *trigger(1.0, 4.4),
-                 bx(-0.8, 1.6, 2.2, 0.8, 5.2, 3.8, "wood"), bx(-1.0, 3.2, 3.8, 1.0, 7.8, 10, "wood"), bx(-1.1, 3.0, 10, 1.1, 8.0, 10.6, "black"),
-                 bx(-1.2, 5.2, -9, 1.2, 5.8, -3, "wood")]
-        shell = [rod(-0.8, 0.2, 7.0, 1.25, "brass")]
-        return result(parts, ("breech", [bx(-0.3, 8.4, 1.6, 0.3, 9.2, 2.2, "black")]), shell, (8.6, -2), (7.0, -14),
-                      rhand=(0, 2.8, 3.0), lhand=(0, 4.6, -6), mag_at=(0, 7.0, -0.3), round_bone=True,
-                      iron=[bx(-0.6, 8.4, -2, 0.6, 9.8, -1.6, "black")])
-    if gid == "rpg7":
-        parts = [rod(-13, 12, 7.0, 0.9), bx(-1.2, 5.8, -4, 1.2, 8.2, 4, "wood"), bx(-0.5, 2.0, -3, 0.5, 6.0, -1.6, "wood"),
-                 bx(-0.5, 2.0, 2, 0.5, 6.0, 3.4, "wood"), rod(12, 16, 7.0, 1.4), *trigger(-1.2, 5.0),
-                 bx(-2.4, 8.2, -2, -1.2, 9.6, 1, "black"), bx(-2.0, 7.4, -1.6, -1.2, 8.2, 0.6)]
-        warhead = [rod(-15.5, -13, 7.0, 0.5, "olive"), rod(-19, -15.5, 7.0, 1.6, "olive"), rod(-21, -19, 7.0, 1.1, "olive"),
-                   rod(-22.4, -21, 7.0, 0.5, "olive"), bx(-1.8, 6.8, -15, 1.8, 7.2, -13.6, "olive")]
-        return result(parts, ("trigger", [bx(-0.2, 4.6, -1.4, 0.2, 5.4, -1.0, "black")]), warhead, (9.6, -1), (7.0, -22.4),
-                      rhand=(0, 3.4, -2.3), lhand=(0, 3.4, 2.7), mag_at=(0, 7.0, -17), round_bone=True,
-                      iron=[bx(-0.4, 7.9, -11, 0.4, 9.0, -10.4, "black")])
-    raise ValueError(gid)
+    """The gun's model (gunsmith) with its magazines: the first fitting magazine is the default `magazine` bone, the
+    others become `magazine_<id>` bones in it (shown instead while that magazine is inserted)."""
+    geo = GUN_BUILDERS[gid](g)
+    mags = [mid for mid, m in MAGAZINES.items() if gid in m["guns"] and not m.get("internal")]
+    placed = {mid: gs.placed(magazine_cubes(mid), geo["well"], geo["rake"], geo.get("upward", False)) for mid in mags}
+    if geo["round"]:
+        geo["mag"] = geo["round_cubes"]  # launchers: the visible round
+    elif "cylinder" in geo:
+        geo["mag"] = geo["cylinder"]  # revolver: the cylinder swings out when reloading
+    else:
+        geo["mag"] = placed[mags[0]] if mags else []
+    geo["mags"] = {mid: cubes for mid, cubes in placed.items() if mags and mid != mags[0] and "cylinder" not in geo}
+    wy, wz = geo["well"]
+    geo["mag_at"] = (0, wy - 2.5, wz)
+    return geo
+
+
+def magazine_cubes(mid):
+    """A magazine in its own frame (feed lips at the origin), shared by guns and the magazine item."""
+    kind, rounds, mat = MAG_SHAPES[mid]
+    return gs.magazine(kind, rounds, mat)
 
 
 # First-person arms (shown only in first person, drawn with the player's skin by the mod's SkinArmLayer): an
@@ -613,16 +478,15 @@ def gun_model(gid, g, geo):
              anchor("right_hand", geo["rhand"]), anchor("left_hand", geo["lhand"]),
              arm_bone("arm_right", "right_hand", geo["rhand"], "right"),
              arm_bone("arm_left", "left_hand", geo["lhand"], "left")]
-    for mid, m in MAGAZINES.items():
-        if gid in m["guns"] and m["kind"] == "drum" and geo["drum"]:
-            bones.append(bone(f"magazine_{mid}", geo["drum"]))
+    for mid, cubes in geo["mags"].items():
+        bones.append(bone(f"magazine_{mid}", cubes, parent="magazine"))
     for aid, a in ATTACHMENTS.items():
         if a["slot"] in g["slots"]:
             cubes = attachment_cubes(aid, geo)
             if cubes:
                 bones.append(bone(f"attachment_{aid}", cubes))
     return {"format_version": "1.12.0", "minecraft:geometry": [{
-        "description": {"identifier": f"geometry.{gid}", "texture_width": 256, "texture_height": 192}, "bones": bones}]}
+        "description": {"identifier": f"geometry.{gid}", "texture_width": gs.TEXTURE_SIZE[0], "texture_height": gs.TEXTURE_SIZE[1]}, "bones": bones}]}
 
 
 def gun_animations(g, geo):
@@ -667,6 +531,11 @@ def gun_animations(g, geo):
     }}
 
 
+GUN_CATEGORY = {"pistol": "pistol", "revolver": "pistol", "smg": "smg", "bullpup_smg": "smg", "rifle": "rifle", "dmr": "dmr",
+                "dmr_scoped": "dmr", "sniper": "sniper", "shotgun": "shotgun", "shotgun_auto": "shotgun", "lmg": "lmg",
+                "launcher": "launcher", "rpg": "launcher"}
+
+
 def gun_definition(gid, g, geo):
     length = -geo["muzzle"][1] + 10
     gui_scale = round(min(0.8, 13 / length), 2)
@@ -688,6 +557,7 @@ def gun_definition(gid, g, geo):
         "sounds": {"shoot": f"{NS}:gun.{g['sound']}.shoot", "reload": f"{NS}:gun.reload", "empty": f"{NS}:gun.empty"},
         "fire_modes": FIRE_MODES[gid],
         "attachment_slots": g["slots"],
+        "category": GUN_CATEGORY[g["arch"]],
         "display": {
             # Pistols sit further forward and higher than long guns (two-handed pistol grip).
             **({"firstperson_righthand": {"rotation": [5, 12, 0], "translation": [5, 2.5, -12]}} if g["arch"] in ("pistol", "revolver") else {}),
@@ -715,13 +585,7 @@ def noise_block(img, ox, oy, base, rng, wood=False, w=64, h=64):
             img.putpixel((ox + x, oy + y), tuple(max(0, min(255, c + n)) for c in base) + (255,))
 
 
-def gun_texture(path: Path):
-    rng = random.Random(1)
-    img = Image.new("RGBA", (256, 192))
-    for mat, (ox, oy) in MATERIALS.items():
-        noise_block(img, ox, oy, COLOURS[mat], rng, wood=mat == "wood")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    img.save(path)
+gun_texture = gs.gun_texture
 
 
 def scope_overlay(path: Path, kind):
@@ -788,6 +652,10 @@ ATLAS_COLOURS = {"metal": (58, 61, 66), "polymer": (34, 36, 40), "wood": (122, 8
                  "gray": (120, 120, 125), "glass": (150, 200, 190), "orange": (230, 130, 30)}
 
 
+# Gun materials without an item-atlas colour of their own.
+ATLAS_ALIAS = {"flash": "orange", "walnut": "wood", "parkerized": "gray", "bakelite": "copper", "blued": "metal"}
+
+
 def material_atlas(path: Path):
     rng = random.Random(3)
     img = Image.new("RGBA", (16, 16))
@@ -800,35 +668,53 @@ def material_atlas(path: Path):
     img.save(path)
 
 
-def el(frm, to, mat="metal"):
-    return (tuple(frm), tuple(to), mat)
+def el(frm, to, mat="metal", rotation=None):
+    return (tuple(frm), tuple(to), mat, rotation)
 
 
-def model3d(name, elements):
+# Small items (rounds, casings, tips) are drawn larger in inventory slots than block-sized models.
+# Magazines are shown from the side, upright, like the guns' side view.
+MAGAZINE_DISPLAY = {"gui": {"rotation": [15, -60, 0], "scale": [0.85, 0.85, 0.85]}, "ground": {"translation": [0, 3, 0], "scale": [0.4, 0.4, 0.4]},
+                    "fixed": {"rotation": [0, 90, 0], "scale": [0.8, 0.8, 0.8]}}
+SMALL_ITEM_DISPLAY = {"gui": {"rotation": [30, 225, 0], "translation": [0, 0.5, 0], "scale": [0.95, 0.95, 0.95]},
+                      "ground": {"translation": [0, 3, 0], "scale": [0.4, 0.4, 0.4]},
+                      "fixed": {"scale": [0.8, 0.8, 0.8]}}
+
+
+def model3d(name, elements, display=None):
     """Writes items/<name>.json + models/item/<name>.json as a 3D element model (parent block/block for display)."""
     write(ASSETS / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{NS}:item/{name}"}})
     out = []
-    for frm, to, mat in elements:
-        cx, cy = ATLAS[mat]
+    for frm, to, mat, *rotation in elements:
+        cx, cy = ATLAS[ATLAS_ALIAS.get(mat, mat)]
         face = {"uv": [cx + 1, cy + 1, cx + 3, cy + 3], "texture": "#m"}
-        out.append({"from": [round(max(0, min(16, v)), 3) for v in frm], "to": [round(max(0, min(16, v)), 3) for v in to],
-                    "faces": {f: dict(face) for f in ("north", "south", "east", "west", "up", "down")}})
-    write(ASSETS / "models" / "item" / f"{name}.json", {"parent": "minecraft:block/block",
-          "textures": {"m": f"{NS}:item/materials", "particle": f"{NS}:item/materials"}, "elements": out})
+        element = {"from": [round(max(-16, min(32, v)), 3) for v in frm], "to": [round(max(-16, min(32, v)), 3) for v in to],
+                   "faces": {f: dict(face) for f in ("north", "south", "east", "west", "up", "down")}}
+        if rotation and rotation[0]:
+            element["rotation"] = rotation[0]
+        out.append(element)
+    model = {"parent": "minecraft:block/block", "textures": {"m": f"{NS}:item/materials", "particle": f"{NS}:item/materials"}, "elements": out}
+    if display:
+        model["display"] = display
+    write(ASSETS / "models" / "item" / f"{name}.json", model)
 
 
 def normalize(cubes, target=14.0):
-    """Gun-model cubes (pixels, origin at the gun) → elements centred in the 0..16 item space."""
+    """Gun-model cubes (pixels, origin at the gun) → elements centred in the 0..16 item space, keeping rotations."""
     lo = [min(c["origin"][i] for c in cubes) for i in range(3)]
     hi = [max(c["origin"][i] + c["size"][i] for c in cubes) for i in range(3)]
     scale = min(1.6, target / max(hi[i] - lo[i] for i in range(3)))
     centre = [(lo[i] + hi[i]) / 2 for i in range(3)]
-    mats = {tuple(v): k for k, v in MATERIALS.items()}
     result = []
     for c in cubes:
         frm = [8 + (c["origin"][i] - centre[i]) * scale for i in range(3)]
         to = [8 + (c["origin"][i] + c["size"][i] - centre[i]) * scale for i in range(3)]
-        result.append(el(frm, to, mats.get(tuple(c["uv"]), "metal")))
+        rotation = None
+        if "rotation" in c:
+            pivot = [8 + (c["pivot"][i] - centre[i]) * scale for i in range(3)]
+            rx, ry, rz = c["rotation"]
+            rotation = {"origin": [round(v, 3) for v in pivot], "x": -rx, "y": -ry, "z": rz}  # GeckoLib negates x and y
+        result.append(el(frm, to, c.get("mat", "metal"), rotation))
     return result
 
 
@@ -855,38 +741,72 @@ def part_model(kind):
     return m[kind]
 
 
+# Round sizes per casing class: width, casing height, bullet height (item pixels).
+ROUND_SIZE = {"pistol": (4.5, 7.0, 4.5), "rifle": (3.5, 9.0, 5.5), "full": (4.0, 9.5, 5.5), "heavy": (5.0, 9.0, 6.0)}
+# Bullet colours by ammo type: the whole bullet is coloured so types are told apart at a glance.
+BULLET = {"copper": ("copper", "copper"), "steel": ("steel", "black"), "black": ("black", "black"), "red": ("red", "red"),
+          "lens": ("lens", "lens"), "white": ("white", "red")}
+
+
+def cartridge(x, z, cls, colour):
+    """One upright round at (x, z): brass casing with rim, then the bullet (body + narrower nose) in the type colour."""
+    w, h, b = ROUND_SIZE[cls]
+    body, nose = BULLET.get(colour, (colour, colour))
+    i = w * 0.12
+    return [el((x - 0.25, 0, z - 0.25), (x + w + 0.25, 1, z + w + 0.25), "brass"), el((x, 1, z), (x + w, h, z + w), "brass"),
+            el((x + i, h, z + i), (x + w - i, h + b * 0.6, z + w - i), body),
+            el((x + i * 2.5, h + b * 0.6, z + i * 2.5), (x + w - i * 2.5, h + b, z + w - i * 2.5), nose)]
+
+
 def ammo_model(a):
-    shape = a["shape"]
-    tip = "black" if a.get("armor_piercing") else "red" if "tracer" in a else "orange" if a.get("fire_seconds") else "copper"
-    if shape == "shell":
-        body = "lens" if a.get("pellets") == 1 else "orange" if a.get("fire_seconds") else "red"
-        return [e for x in (4, 9) for e in (el((x, 2, 7), (x + 3, 10, 10), body), el((x, 2, 7), (x + 3, 4, 10), "brass"))]
-    if shape == "40mm":
-        return [el((5, 2, 5), (11, 7, 11), "brass"), el((5, 7, 5), (11, 12, 11), "olive"), el((6, 12, 6), (10, 13, 10), "olive")]
-    if shape == "rocket":
+    """Two big rounds side by side: size shows the caliber class, the bullet colour the ammo type."""
+    cls, colour = a["cls"], a["colour"]
+    if cls == "shotgun":
+        return [e for x in (2.5, 9) for e in (el((x, 1, 5.5), (x + 4.5, 15, 10), colour), el((x - 0.25, 0, 5.25), (x + 4.75, 3.5, 10.25), "brass"))]
+    if cls == "40mm":
+        return [el((3, 0, 3), (13, 6, 13), "brass"), el((3.5, 6, 3.5), (12.5, 12, 12.5), colour), el((5, 12, 5), (11, 14.5, 11), colour)]
+    if cls == "rocket":
         return [el((7, 0, 7), (9, 6, 9), "metal"), el((6, 6, 6), (10, 12, 10), "olive"), el((6.5, 12, 6.5), (9.5, 15, 9.5), "olive"),
                 el((7.25, 15, 7.25), (8.75, 16, 8.75), "olive"), el((5.5, 0, 7.75), (10.5, 2, 8.25), "metal")]
-    height = {"pistol": 6, "rifle": 9, "big": 12}[shape]
-    width = 2.5 if shape == "big" else 2
-    out = []
-    for x, z in ((4, 6), (7.5, 8), (11, 6.5)):
-        out.append(el((x, 2, z), (x + width, 2 + height, z + width), "brass"))
-        out.append(el((x + 0.3, 2 + height, z + 0.3), (x + width - 0.3, 4.5 + height * 0.25, z + width - 0.3), tip))
-    return out
+    w = ROUND_SIZE[cls][0]
+    gap = (16 - 2 * w) / 3
+    return [e for x in (gap, 2 * gap + w) for e in cartridge(x, 8 - w / 2, cls, colour)]
 
 
-def magazine_model(kind):
-    m = {"pistol": [el((6.5, 3, 7), (9.5, 12, 9), "polymer"), el((6.5, 2, 6.75), (9.5, 3, 9.25), "black"), el((7, 12, 7.25), (9, 12.5, 8.75), "brass")],
-         "stick": [el((6.5, 1, 6.5), (9.5, 14, 9.5), "steel"), el((6.25, 0, 6.25), (9.75, 1, 9.75), "black"), el((7, 14, 7), (9, 15, 9), "brass")],
-         "curved": [el((6.5, 7, 6.5), (9.5, 14, 9.5), "steel"), el((5, 1, 6.5), (8, 7.5, 9.5), "steel"), el((7, 14, 7), (9, 15, 9), "brass")],
-         "drum": [el((3, 2, 5.5), (13, 12, 10.5), "steel"), el((4, 1, 6), (12, 13, 10), "steel"), el((6.5, 12, 7), (9.5, 16, 9), "steel"),
-                  el((7, 6, 10.5), (9, 8, 11), "black")],
-         "box": [el((3, 2, 4), (13, 11, 12), "olive"), el((3, 11, 4), (13, 12, 12), "olive"), el((7, 12, 7), (9, 14, 9), "black")],
-         "loader": [el((5, 5, 5), (11, 7, 11), "black")] + [el((6 + dx * 3, 7, 6 + dz * 3), (7 + dx * 3, 10, 7 + dz * 3), "brass")
-                                                             for dx in (0, 1) for dz in (0, 1)],
-         "shells": [el((2, 4, 6), (14, 6, 10), "black")] + [el((3 + i * 3, 6, 7), (5 + i * 3, 11, 9), "red") for i in range(4)],
-         "rocket": ammo_model({"shape": "rocket"})}
-    return m[kind]
+def casing_model(cls):
+    """One empty casing / hull / rocket motor, sized like the rounds of that class."""
+    if cls == "shotgun":
+        return [el((5.5, 1, 5.5), (10.5, 13, 10.5), "red"), el((5.25, 1, 5.25), (10.75, 4, 10.75), "brass")]
+    if cls == "40mm":
+        return [el((3, 1, 3), (13, 8, 13), "brass"), el((2.5, 1, 2.5), (13.5, 2, 13.5), "brass")]
+    if cls == "rocket":
+        return [el((6, 1, 6), (10, 14, 10), "metal")] + [el(f, t, "metal") for f, t in (((3, 1, 7.5), (13, 4, 8.5)), ((7.5, 1, 3), (8.5, 4, 13)))]
+    w, h, _ = ROUND_SIZE[cls]
+    w, h = w * 1.5, h * 1.45
+    x = 8 - w / 2
+    return [el((x, 1, x), (x + w, 1 + h, x + w), "brass"), el((x - 0.3, 1, x - 0.3), (x + w + 0.3, 2.2, x + w + 0.3), "brass"),
+            el((x + w * 0.25, 1 + h, x + w * 0.25), (x + w * 0.75, 1 + h + 0.4, x + w * 0.75), "black")]
+
+
+def tip_model(pid):
+    """Bullets (three tips), shotgun loads (pellets, slug, darts) and warheads."""
+    tips = {"bullet_fmj": "copper", "bullet_hp": "steel", "bullet_ap": "black", "bullet_tracer": "red", "bullet_incendiary": "lens", "bullet_api": "white"}
+    if pid in tips:
+        c = tips[pid]
+        body = "copper" if c in ("black", "white") else c
+        return [e for x in (2, 9) for e in (el((x, 0, 5.5), (x + 5, 7, 10.5), body), el((x + 0.75, 7, 6.25), (x + 4.25, 11, 9.75), c),
+                                              el((x + 1.5, 11, 7), (x + 3.5, 13, 9), c))]
+    if pid == "load_buckshot":
+        return [el((x, 1 + y, z), (x + 2, 3 + y, z + 2), "steel") for x, y, z in ((3, 0, 4), (6, 0, 6), (9, 0, 4), (4.5, 2, 5), (7.5, 2, 5), (6, 4, 5.5), (11, 0, 8))]
+    if pid == "load_slug":
+        return [el((5, 1, 5), (11, 8, 11), "steel"), el((6, 8, 6), (10, 9.5, 10), "steel")]
+    if pid == "load_dragon":
+        return [el((x, 1 + y, z), (x + 2, 3 + y, z + 2), "orange") for x, y, z in ((3, 0, 4), (6, 0, 6), (9, 0, 4), (4.5, 2, 5), (7.5, 2, 5), (6, 4, 5.5))]
+    if pid == "load_flechette":
+        return [el((3 + i * 2.5, 1, 7.5), (3.6 + i * 2.5, 13, 8.1), "steel") for i in range(5)]
+    if pid == "warhead_he":
+        return [el((4, 1, 4), (12, 7, 12), "olive"), el((5, 7, 5), (11, 10, 11), "olive"), el((6.5, 10, 6.5), (9.5, 11, 9.5), "brass")]
+    return [el((5, 1, 5), (11, 9, 11), "olive"), el((6, 9, 6), (10, 13, 10), "olive"), el((7.25, 13, 7.25), (8.75, 15, 8.75), "brass")]
 
 
 def grenade_model(gid):
@@ -994,7 +914,7 @@ RAW = {"I": "minecraft:iron_ingot", "N": "minecraft:iron_nugget", "B": "minecraf
        "P": "minecraft:glass_pane", "G": "minecraft:gold_ingot", "C": "minecraft:copper_ingot", "U": "minecraft:gunpowder",
        "T": "minecraft:tnt", "H": "minecraft:paper", "Z": "minecraft:blaze_powder", "Y": "minecraft:glowstone_dust",
        "E": "minecraft:string", "O": "minecraft:emerald", "V": "minecraft:green_dye", "M": "#minecraft:wool",
-       "J": "minecraft:leather"}
+       "J": "minecraft:leather", "c": "minecraft:copper_nugget"}
 _signatures = {}
 
 
@@ -1089,33 +1009,51 @@ def main():
         key = {ch: part_ingredient(letters[ch]) for row in layout for ch in row if ch != " "}
         bench(gid, layout, key, {"id": "flansmod:gun", "components": {"flansmod:gun": f"{NS}:{gid}"}})
 
-    for i, (mid, m) in enumerate(MAGAZINES.items()):
-        definition = {"name": m["name"], "caliber": m["caliber"], "capacity": m["capacity"], "icon": f"{NS}:{mid}"}
+    for mid, m in MAGAZINES.items():
+        definition = {"name": m["name"], "caliber": m["caliber"], "capacity": m["capacity"]}
         if m.get("reload"):
             definition["reload_multiplier"] = m["reload"]
+        if m.get("internal"):
+            definition["internal"] = True
+            write(DATA / "flansmod" / "magazines" / f"{mid}.json", definition)
+            continue
+        definition["icon"] = f"{NS}:{mid}"
         write(DATA / "flansmod" / "magazines" / f"{mid}.json", definition)
-        model3d(mid, magazine_model(m["kind"]))
+        model3d(mid, normalize(magazine_cubes(mid)), MAGAZINE_DISPLAY)
         shape = list(MAGAZINE_SHAPES[m["kind"]])
         if m["kind"] in ("stick", "pistol") and m["capacity"] > 25:
             shape = ["I"] + shape
         bench(f"magazine_{mid}", shape, raw_key(shape, {"F": part_ingredient("spring")}), {"id": "flansmod:magazine", "components": {
             "flansmod:magazine": {"magazine": f"{NS}:{mid}"}}}, extend=True)
 
-    for i, (aid, a) in enumerate(AMMO.items()):
-        fields = {k: v for k, v in a.items() if k not in ("shape", "colour", "name", "caliber")}
+    # Ammunition components: a casing per caliber, tips/loads/warheads per ammo type.
+    for cal, (pattern, count) in CASINGS.items():
+        pid = f"casing_{cal}"
+        name = CASING_NAMES.get(cal, f"{CALIBERS[cal]['name']} Casing")
+        write(DATA / "flansmod" / "parts" / f"{pid}.json", {"name": name, "category": "ammo", "icon": f"{NS}:{pid}"})
+        model3d(pid, casing_model(CALIBERS[cal]["cls"]), SMALL_ITEM_DISPLAY)
+        bench(f"part_{pid}", pattern, raw_key(pattern), {"id": "flansmod:part", "count": count, "components": {"flansmod:part": f"{NS}:{pid}"}})
+    for pid, (name, pattern, count) in TIPS.items():
+        write(DATA / "flansmod" / "parts" / f"{pid}.json", {"name": name, "category": "ammo", "icon": f"{NS}:{pid}"})
+        model3d(pid, tip_model(pid), SMALL_ITEM_DISPLAY)
+        bench(f"part_{pid}", pattern, raw_key(pattern), {"id": "flansmod:part", "count": count, "components": {"flansmod:part": f"{NS}:{pid}"}})
+
+    # Rounds: casing + gunpowder + tip in a row at the bench.
+    for aid, a in AMMO.items():
+        fields = {k: v for k, v in a.items() if k not in ("kind", "cls", "tip", "colour", "name", "caliber")}
+        if fields.get("max_stack") == 64:
+            del fields["max_stack"]
         if "projectile" in fields:
             fields["projectile"] = f"{NS}:{fields['projectile']}"
         write(DATA / "flansmod" / "ammo" / f"{aid}.json", {"name": a["name"], "caliber": a["caliber"], "icon": f"{NS}:{aid}", **fields})
-        model3d(aid, ammo_model(a))
-        count = 4 if a["shape"] in ("40mm", "rocket") else 8 if a["shape"] in ("shell", "big") else 16
+        model3d(aid, ammo_model(a), SMALL_ITEM_DISPLAY)
+        cls = CASING_CLASSES[a["cls"]]
         components = {"flansmod:ammo_type": f"{NS}:{aid}"}
         if a.get("max_stack", 64) != 64:
             components["minecraft:max_stack_size"] = a["max_stack"]
-        variant = AMMO_VARIANT.get(aid, {})
-        shape = ["".join(variant.get(ch, ch) for ch in row) for row in AMMO_SHAPES[a["shape"]]]
-        if "extra" in variant:
-            shape = [shape[0] + variant["extra"]] + shape[1:]
-        bench(f"ammo_{aid}", shape, raw_key(shape), {"id": "flansmod:ammo", "count": count, "components": components}, extend=True)
+        pattern = ["A" + "U" * cls["powder"] + "D"]
+        key = {"A": part_ingredient(f"casing_{a['caliber']}"), "U": RAW["U"], "D": part_ingredient(a["tip"])}
+        bench(f"ammo_{aid}", pattern, key, {"id": "flansmod:ammo", "count": cls["count"], "components": components})
 
     for i, (aid, a) in enumerate(ATTACHMENTS.items()):
         write(DATA / "flansmod" / "attachments" / f"{aid}.json", {"name": a["name"], "slot": a["slot"], "icon": f"{NS}:{aid}", **a["stats"]})
@@ -1158,6 +1096,7 @@ def main():
     for event in sounds():
         lang[f"subtitles.{NS}.{event}"] = "Gunshot" if "shoot" in event or "suppressed" in event else \
             "Gun reloads" if "reload" in event else "Gun clicks"
+    lang.update({f"caliber.flansmod.{cal}": c["name"] for cal, c in CALIBERS.items()})
     write(ASSETS / "lang" / "en_us.json", lang)
     print(f"Generated {len(GUNS)} guns, {len(MAGAZINES)} magazines, {len(AMMO)} ammo types, {len(ATTACHMENTS)} attachments, "
           f"{len(GRENADES)} grenades/projectiles, {len(PARTS)} parts, {len(CLOTHING)} clothing, {len(_signatures)} bench recipes in {ROOT}")

@@ -48,6 +48,12 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
     override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: TooltipDisplay, add: Consumer<Component>, flag: TooltipFlag) {
         val def = stack.definition ?: return add.accept(Component.translatable("item.flansmod.gun.unknown").withStyle(ChatFormatting.RED))
         fun line(key: String, vararg args: Any) = add.accept(Component.translatable("item.flansmod.gun.$key", *args).withStyle(ChatFormatting.GRAY))
+        val gunId = stack.gunId!!
+        val calibers = acceptedMagazines(gunId).mapNotNull { Magazines[it]?.caliber }.distinct()
+        Tooltips.category(add, "gun", Tooltips.gunCategory(def.category),
+            calibers.map(Tooltips::caliber).reduceOrNull { a, b -> a.copy().append(" / ").append(b) } ?: Component.literal("-"))
+        Tooltips.faction(add, def.faction)
+        internalMagazine(gunId)?.let { Magazines[it] }?.let { line("internal", it.capacity) }
         val mag = stack.loadedMagazine
         if (mag == null) line("no_magazine")
         else {
@@ -58,7 +64,7 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
         line("damage", if (shot.pellets > 1) "${shot.damage}×${shot.pellets}" else shot.damage)
         line("rpm", def.rpm, Component.translatable("item.flansmod.gun.mode.${stack.fireMode.name.lowercase()}"))
         stack.attachments.values.mapNotNull { Attachments[it] }.forEach {
-            add.accept(Component.literal(" + ").append(Component.translatableWithFallback("attachment.flansmod.${'$'}{it.slot}", it.slot)).append(": ${'$'}{it.name}").withStyle(ChatFormatting.DARK_AQUA))
+            add.accept(Component.literal(" + ").append(Component.translatableWithFallback("attachment.flansmod.${it.slot}", it.slot)).append(": ${it.name}").withStyle(ChatFormatting.DARK_AQUA))
         }
     }
 
@@ -105,6 +111,9 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
         }
 
         /** Magazine ids usable in gun [id]: listed by the gun, or listing the gun themselves. */
+        /** The built-in magazine of [id], if it has one (loads loose rounds directly). */
+        fun internalMagazine(id: Identifier): Identifier? = acceptedMagazines(id).firstOrNull { Magazines[it]?.internal == true }
+
         fun acceptedMagazines(id: Identifier): List<Identifier> {
             val gun = Guns[id] ?: return emptyList()
             return (gun.magazines + Magazines.all.filter { (magId, mag) -> mag.fits(magId, id, gun) }.keys).distinct().filter { Magazines[it] != null }

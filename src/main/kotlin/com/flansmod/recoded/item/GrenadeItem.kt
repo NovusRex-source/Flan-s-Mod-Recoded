@@ -18,12 +18,27 @@ import net.minecraft.world.entity.projectile.Projectile
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.minecraft.ChatFormatting
+import net.minecraft.world.item.TooltipFlag
+import net.minecraft.world.item.component.TooltipDisplay
+import java.util.function.Consumer
 
 /** The single item behind every grenade; which one is stored in [FlansComponents.GRENADE]. Thrown with right click. */
 class GrenadeItem(properties: Properties) : Item(properties) {
     override fun getName(stack: ItemStack): Component =
         stack.grenadeDefinition?.let { Component.translatableWithFallback("grenade.${stack.grenadeId!!.toLanguageKey()}", it.name) }
             ?: super.getName(stack)
+
+    override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: TooltipDisplay, add: Consumer<Component>, flag: TooltipFlag) {
+        val def = stack.grenadeDefinition ?: return
+        Tooltips.category(add, "explosive")
+        Tooltips.faction(add, def.faction)
+        fun effect(key: String, color: ChatFormatting, vararg args: Any) = add.accept(Component.translatable("tooltip.flansmod.grenade.$key", *args).withStyle(color))
+        def.explosion?.let { effect(if (it.fire) "incendiary" else "explosion", ChatFormatting.RED, it.power) }
+        def.smoke?.let { effect("smoke", ChatFormatting.GRAY) }
+        def.flash?.let { effect("flash", ChatFormatting.YELLOW) }
+        effect(if (def.contact) "contact" else "fuse", ChatFormatting.GRAY, "%.1f".format(def.fuseTicks / 20f))
+    }
 
     override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)

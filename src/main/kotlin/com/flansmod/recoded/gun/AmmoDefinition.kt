@@ -4,6 +4,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.minecraft.resources.Identifier
 
+/** Display name of a caliber: lang key `caliber.flansmod.<caliber>` (content packs provide it), else the raw string. */
+fun caliberName(caliber: String): net.minecraft.network.chat.Component =
+    net.minecraft.network.chat.Component.translatableWithFallback("caliber.flansmod.$caliber", caliber)
+
 /**
  * A cartridge type from `data/<namespace>/flansmod/ammo/<name>.json`. It is loaded into magazines of the
  * same [caliber]; its modifiers apply to every shot fired with it.
@@ -43,6 +47,11 @@ data class MagazineDefinition(
     /** Multiplies the gun's reload time when this magazine is inserted (drums are slower). */
     @SerialName("reload_multiplier") val reloadMultiplier: Float = 1f,
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
+    /**
+     * Built into the gun (shotgun tube, launcher, tank breech): never an item. Reloading loads loose rounds straight
+     * from the inventory, unloading returns them as rounds.
+     */
+    val internal: Boolean = false,
 ) {
     fun fits(magazineId: Identifier, gunId: Identifier, gun: GunDefinition) = magazineId in gun.magazines || gunId in guns
     fun accepts(ammo: AmmoDefinition) = ammo.caliber == caliber

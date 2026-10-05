@@ -23,6 +23,9 @@ class FlansConfig : ConfigData {
     @JvmField var showAmmoHud = true
     @JvmField var hideCrosshairWhileAiming = true
 
+    /** One extra creative tab per content pack (in addition to the type tabs); applies after a restart. */
+    @JvmField var packTabs = false
+
     companion object {
         fun register() {
             AutoConfig.register(FlansConfig::class.java, ::GsonConfigSerializer)

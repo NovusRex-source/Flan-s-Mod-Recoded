@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "III",
+    "KIK"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "K": "minecraft:black_dye"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansvehicles:nsvt_box_50"
+      }
+    }
+  }
+}

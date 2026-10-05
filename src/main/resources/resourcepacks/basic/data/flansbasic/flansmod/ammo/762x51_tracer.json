@@ -1,0 +1,11 @@
+{
+  "name": "7.62\u00d751mm NATO Tracer",
+  "caliber": "762x51",
+  "icon": "flansbasic:762x51_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

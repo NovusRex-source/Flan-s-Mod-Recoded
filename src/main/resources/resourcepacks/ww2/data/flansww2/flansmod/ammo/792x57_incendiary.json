@@ -1,0 +1,7 @@
+{
+  "name": "7.92\u00d757mm Mauser Incendiary",
+  "caliber": "792x57",
+  "icon": "flansww2:792x57_incendiary",
+  "damage_multiplier": 0.9,
+  "fire_seconds": 4
+}

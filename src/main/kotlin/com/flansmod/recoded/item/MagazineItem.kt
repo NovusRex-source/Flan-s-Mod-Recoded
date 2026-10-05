@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
-import net.minecraft.util.Prediction
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
@@ -36,10 +35,11 @@ class MagazineItem(properties: Properties) : Item(properties) {
     override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: TooltipDisplay, add: Consumer<Component>, flag: TooltipFlag) {
         val contents = stack.loadedMagazine ?: return
         val def = contents.definition ?: return
+        Tooltips.category(add, "magazine", Tooltips.caliber(def.caliber))
         add.accept(Component.translatable("item.flansmod.magazine.rounds", contents.rounds, def.capacity).withStyle(ChatFormatting.GRAY))
-        add.accept(Component.translatable("item.flansmod.magazine.caliber", def.caliber).withStyle(ChatFormatting.GRAY))
         contents.ammo?.let { add.accept(Component.translatable("item.flansmod.gun.ammo_type", AmmoItem.displayName(it)).withStyle(ChatFormatting.GRAY)) }
-        add.accept(Component.translatable("item.flansmod.magazine.how").withStyle(ChatFormatting.DARK_GRAY))
+        Tooltips.fits(add, Tooltips.gunsForMagazine(contents.magazine))
+        Tooltips.hint(add, "item.flansmod.magazine.how")
     }
 
     override fun isBarVisible(stack: ItemStack) = stack.loadedMagazine?.definition != null
@@ -50,7 +50,8 @@ class MagazineItem(properties: Properties) : Item(properties) {
         val stack = player.getItemInHand(hand)
         val contents = stack.loadedMagazine ?: return InteractionResult.FAIL
         if (level.isClientSide) return InteractionResult.SUCCESS
-        val changed = if (player.isShiftKeyDown) unload(player, stack, contents) else fill(player, stack, contents)
+        // Magazines stack: work on one of them.
+        val changed = AmmoLoading.editOne(player, stack) { one -> if (player.isShiftKeyDown) unload(player, one, contents) else fill(player, one, contents) }
         if (changed) level.playSound(null, player.blockPosition(), SoundEvents.ARMOR_EQUIP_CHAIN.value(), SoundSource.PLAYERS, 0.7f, 1.4f)
         return if (changed) InteractionResult.SUCCESS else InteractionResult.FAIL
     }
@@ -65,38 +66,16 @@ class MagazineItem(properties: Properties) : Item(properties) {
 
         /** Loads rounds of the magazine's caliber from the inventory; keeps the ammo type already inside. */
         fun fill(player: Player, stack: ItemStack, contents: MagazineContents): Boolean {
-            val def = contents.definition ?: return false
-            if (contents.isFull) return false
-            val inventory = player.inventory.nonEquipmentItems
-            val type = contents.ammo?.takeIf { contents.rounds > 0 }
-                ?: inventory.firstNotNullOfOrNull { s -> s.ammoTypeId?.takeIf { AmmoTypes[it]?.let(def::accepts) == true } }
-                ?: return false
-            var missing = def.capacity - contents.rounds
-            for (s in inventory) {
-                if (missing == 0) break
-                if (s.ammoTypeId != type) continue
-                val n = minOf(missing, s.count)
-                s.shrink(n)
-                missing -= n
-            }
-            val loaded = def.capacity - missing
-            if (loaded == contents.rounds) return false
-            stack.loadedMagazine = MagazineContents(contents.magazine, type, loaded)
+            val filled = AmmoLoading.fill(player, contents)
+            if (filled == contents) return false
+            stack.loadedMagazine = filled
             return true
         }
 
         /** Returns all rounds to the inventory as ammo items. */
         fun unload(player: Player, stack: ItemStack, contents: MagazineContents): Boolean {
-            val ammo = contents.ammo ?: return false
-            if (contents.rounds <= 0) return false
-            var left = contents.rounds
-            val perStack = AmmoTypes[ammo]?.maxStack?.coerceIn(1, 99) ?: 64
-            while (left > 0) {
-                val n = minOf(left, perStack)
-                player.inventory.placeItemBackInInventory(AmmoItem.stackFor(ammo, n), Prediction.SERVER_ONLY)
-                left -= n
-            }
-            stack.loadedMagazine = contents.withRounds(0)
+            if (contents.ammo == null || contents.rounds <= 0) return false
+            stack.loadedMagazine = AmmoLoading.empty(player, contents)
             return true
         }
     }

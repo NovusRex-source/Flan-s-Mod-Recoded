@@ -1,0 +1,8 @@
+{
+  "name": "Battledress Trousers",
+  "slot": "legs",
+  "asset": "flansww2:uk",
+  "icon": "flansww2:battledress_trousers",
+  "armor": 3,
+  "faction": "flansww2:uk"
+}

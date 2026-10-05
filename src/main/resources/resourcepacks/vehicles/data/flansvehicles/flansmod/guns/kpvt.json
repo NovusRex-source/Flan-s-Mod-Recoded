@@ -1,0 +1,27 @@
+{
+  "name": "KPVT 14.5mm",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 16,
+  "rpm": 600,
+  "fire_mode": "auto",
+  "reload_ticks": 80,
+  "velocity": 17,
+  "spread": 0.9,
+  "ads_spread": 0.36000000000000004,
+  "ads_zoom": 2.5,
+  "scope": {
+    "overlay": "flansvehicles:textures/scope/tank_soviet.png"
+  },
+  "lifetime_ticks": 60,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.hmg.shoot",
+    "reload": "flansvehicles:vehicle.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
+  "gravity": 0.015,
+  "recoil": {
+    "pitch": 0.4,
+    "yaw": 0.3
+  }
+}

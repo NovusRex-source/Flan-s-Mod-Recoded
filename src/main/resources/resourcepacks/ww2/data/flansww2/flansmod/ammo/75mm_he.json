@@ -1,0 +1,7 @@
+{
+  "name": "75mm HE Shell",
+  "caliber": "75mm",
+  "max_stack": 8,
+  "icon": "flansww2:75mm_he",
+  "projectile": "flansww2:75mm_he"
+}

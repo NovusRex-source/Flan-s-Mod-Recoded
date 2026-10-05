@@ -1,0 +1,8 @@
+{
+  "name": "Kirza Boots",
+  "slot": "feet",
+  "asset": "flansww2:ussr",
+  "icon": "flansww2:kirza_boots",
+  "armor": 1.5,
+  "faction": "flansww2:ussr"
+}

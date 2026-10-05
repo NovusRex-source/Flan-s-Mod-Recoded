@@ -1,0 +1,175 @@
+{
+  "name": "Cromwell Mk IV",
+  "type": "tank",
+  "upgrade_slots": [
+    "engine",
+    "tank"
+  ],
+  "step_height": 1.1,
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 40
+  },
+  "health": 290,
+  "armor": 0.76,
+  "max_speed": 0.72,
+  "max_reverse_speed": 0.15,
+  "acceleration": 0.011,
+  "braking": 0.05,
+  "drag": 0.03,
+  "turn_speed": 2.8,
+  "water_speed": 0.2,
+  "collision_damage": 36,
+  "death_explosion": 4.5,
+  "camera_distance": 11,
+  "fuel": {
+    "capacity": 48000,
+    "consumption": 2
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -1.17,
+        0.5,
+        -1.2,
+        1.17,
+        1.55,
+        2.6
+      ],
+      "armor": 0.76,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -1.17,
+        0.5,
+        -2.7,
+        1.17,
+        1.55,
+        -1.2
+      ],
+      "health": 116.0,
+      "armor": 0.684,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "track_left": {
+      "box": [
+        -1.65,
+        0,
+        -2.7,
+        -1.17,
+        1.0,
+        2.6
+      ],
+      "health": 110,
+      "armor": 0.49400000000000005,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_l"
+      ]
+    },
+    "track_right": {
+      "box": [
+        1.17,
+        0,
+        -2.7,
+        1.65,
+        1.0,
+        2.6
+      ],
+      "health": 110,
+      "armor": 0.49400000000000005,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "track_r"
+      ]
+    },
+    "sponson_left": {
+      "box": [
+        -1.65,
+        1.0,
+        -2.7,
+        -1.17,
+        1.55,
+        2.6
+      ],
+      "armor": 0.76,
+      "role": "hull"
+    },
+    "sponson_right": {
+      "box": [
+        1.17,
+        1.0,
+        -2.7,
+        1.65,
+        1.55,
+        2.6
+      ],
+      "armor": 0.76,
+      "role": "hull"
+    },
+    "turret": {
+      "box": [
+        -0.95,
+        1.55,
+        -0.95,
+        0.95,
+        2.4,
+        1.25
+      ],
+      "health": 174.0,
+      "armor": 0.78,
+      "role": "weapon",
+      "seat": 0,
+      "core_damage": 0.5
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        -0.55,
+        0.7,
+        1.75
+      ],
+      "gun": "flansww2:qf75",
+      "turret": true,
+      "pivot": [
+        0,
+        1.95,
+        0.0
+      ],
+      "muzzle": [
+        0,
+        0,
+        3.57
+      ],
+      "sight": [
+        0.5,
+        0.375,
+        1.02
+      ],
+      "min_pitch": -12,
+      "max_pitch": 20,
+      "yaw_bone": "turret",
+      "pitch_bone": "cannon"
+    },
+    {
+      "position": [
+        0.45,
+        1.6,
+        -0.4
+      ]
+    }
+  ],
+  "model": {
+    "texture": "flansww2:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansww2:cromwell",
+  "sounds": {
+    "engine": "flansww2:vehicle.tank.engine"
+  },
+  "faction": "flansww2:uk"
+}

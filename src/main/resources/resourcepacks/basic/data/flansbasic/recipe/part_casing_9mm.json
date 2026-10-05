@@ -1,0 +1,16 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "cc"
+  ],
+  "key": {
+    "c": "minecraft:copper_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 16,
+    "components": {
+      "flansmod:part": "flansbasic:casing_9mm"
+    }
+  }
+}

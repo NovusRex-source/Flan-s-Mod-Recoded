@@ -1,0 +1,9 @@
+{
+  "name": "12.7\u00d7108mm Ammo Box (50)",
+  "caliber": "127x108",
+  "capacity": 50,
+  "guns": [
+    "flansvehicles:nsvt"
+  ],
+  "icon": "flansvehicles:nsvt_box_50"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Feldbluse M36",
+  "slot": "chest",
+  "asset": "flansww2:axis",
+  "icon": "flansww2:feldbluse",
+  "armor": 4,
+  "faction": "flansww2:axis"
+}

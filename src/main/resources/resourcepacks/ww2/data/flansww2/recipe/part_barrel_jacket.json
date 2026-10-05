@@ -1,0 +1,16 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "INININ"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "components": {
+      "flansmod:part": "flansww2:barrel_jacket"
+    }
+  }
+}

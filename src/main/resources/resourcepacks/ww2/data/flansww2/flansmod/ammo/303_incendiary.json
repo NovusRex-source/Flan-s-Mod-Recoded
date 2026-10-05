@@ -1,0 +1,7 @@
+{
+  "name": ".303 British Incendiary",
+  "caliber": "303",
+  "icon": "flansww2:303_incendiary",
+  "damage_multiplier": 0.9,
+  "fire_seconds": 4
+}

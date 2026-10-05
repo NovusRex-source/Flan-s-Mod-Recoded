@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NNN",
+    "N  "
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 4,
+    "components": {
+      "flansmod:part": "flansvehicles:casing_127x108"
+    }
+  }
+}

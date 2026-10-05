@@ -26,7 +26,7 @@ object FlansMod : ModInitializer {
     val LOGGER = LoggerFactory.getLogger(MOD_ID)
 
     /** Built-in content packs shipped in the jar under `resourcepacks/<name>`, with their display names. */
-    val BUILTIN_PACKS = mapOf("basic" to "Flan's Mod: Basic Pack", "vehicles" to "Flan's Mod: Vehicles Pack")
+    val BUILTIN_PACKS = mapOf("basic" to "Flan's Mod: Basic Pack", "vehicles" to "Flan's Mod: Vehicles Pack", "ww2" to "Flan's Mod: WW2 Pack")
 
     fun id(path: String): Identifier = Identifier.fromNamespaceAndPath(MOD_ID, path)
 

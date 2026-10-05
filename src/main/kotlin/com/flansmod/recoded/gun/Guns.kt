@@ -58,6 +58,7 @@ object Parts : DefinitionRegistry<PartDefinition>("parts", PartDefinition.serial
 object Clothing : DefinitionRegistry<ClothingDefinition>("clothing", ClothingDefinition.serializer())
 object Vehicles : DefinitionRegistry<VehicleDefinition>("vehicles", VehicleDefinition.serializer())
 object VehicleUpgrades : DefinitionRegistry<VehicleUpgradeDefinition>("vehicle_upgrades", VehicleUpgradeDefinition.serializer())
+object Factions : DefinitionRegistry<FactionDefinition>("factions", FactionDefinition.serializer())
 
 /** Loading and client sync for all content-pack definitions. */
 object Content {
@@ -70,13 +71,13 @@ object Content {
 
     fun init() {
         val loader = ResourceLoader.get(PackType.SERVER_DATA)
-        listOf(Guns, Attachments, AmmoTypes, Grenades, Magazines, Parts, Clothing, Vehicles, VehicleUpgrades).forEach { loader.registerReloadListener(FlansMod.id(it.folder), it.listener) }
+        listOf(Guns, Attachments, AmmoTypes, Grenades, Magazines, Parts, Clothing, Vehicles, VehicleUpgrades, Factions).forEach { loader.registerReloadListener(FlansMod.id(it.folder), it.listener) }
 
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ -> ServerPlayNetworking.send(handler.player, syncPayload()) }
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register { server, _, success -> if (success) resync(server) }
     }
 
-    fun syncPayload() = ContentSyncPayload(Guns.all, Attachments.all, AmmoTypes.all, Grenades.all, Magazines.all, Parts.all, Clothing.all, Vehicles.all, VehicleUpgrades.all)
+    fun syncPayload() = ContentSyncPayload(Guns.all, Attachments.all, AmmoTypes.all, Grenades.all, Magazines.all, Parts.all, Clothing.all, Vehicles.all, VehicleUpgrades.all, Factions.all)
 
     /** Called after definitions change on this side (reload or sync), e.g. to refresh creative tabs. */
     val onChanged = mutableListOf<() -> Unit>()
@@ -93,6 +94,7 @@ object Content {
         Clothing.replace(payload.clothing)
         Vehicles.replace(payload.vehicles)
         VehicleUpgrades.replace(payload.vehicleUpgrades)
+        Factions.replace(payload.factions)
         onChanged.forEach { it() }
     }
 }

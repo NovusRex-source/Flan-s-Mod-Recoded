@@ -1,0 +1,8 @@
+{
+  "name": "SSh-40 Helmet",
+  "slot": "head",
+  "asset": "flansww2:ussr",
+  "icon": "flansww2:ssh40_helmet",
+  "armor": 2.5,
+  "faction": "flansww2:ussr"
+}

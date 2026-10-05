@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "c",
+    "N",
+    "c"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "c": "minecraft:copper_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 16,
+    "components": {
+      "flansmod:part": "flansbasic:bullet_hp"
+    }
+  }
+}

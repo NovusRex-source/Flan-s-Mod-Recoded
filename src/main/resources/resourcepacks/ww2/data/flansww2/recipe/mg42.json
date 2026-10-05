@@ -1,0 +1,57 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "SHJh",
+    " GT "
+  ],
+  "key": {
+    "G": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:wood_grip"
+      }
+    },
+    "H": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:mg_receiver"
+      }
+    },
+    "J": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:barrel_jacket"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:walnut_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    },
+    "h": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:heavy_barrel"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:gun",
+    "components": {
+      "flansmod:gun": "flansww2:mg42"
+    }
+  }
+}

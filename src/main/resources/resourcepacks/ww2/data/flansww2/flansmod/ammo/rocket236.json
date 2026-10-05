@@ -1,0 +1,7 @@
+{
+  "name": "2.36in Rocket",
+  "caliber": "rocket236",
+  "icon": "flansww2:rocket236",
+  "max_stack": 8,
+  "projectile": "flansww2:bazooka_rocket"
+}

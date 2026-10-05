@@ -1,0 +1,300 @@
+{
+  "name": "BTR-80",
+  "type": "car",
+  "upgrade_slots": [
+    "engine",
+    "tyres",
+    "tank"
+  ],
+  "health": 200,
+  "armor": 0.6,
+  "max_speed": 0.75,
+  "max_reverse_speed": 0.2,
+  "acceleration": 0.016,
+  "braking": 0.05,
+  "drag": 0.02,
+  "turn_speed": 3.0,
+  "water_speed": 0.6,
+  "collision_damage": 30,
+  "death_explosion": 4.0,
+  "camera_distance": 11,
+  "fuel": {
+    "capacity": 48000,
+    "consumption": 1
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -1.45,
+        0.55,
+        -2.4,
+        1.45,
+        1.9,
+        3.5
+      ],
+      "armor": 0.6,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -1.45,
+        0.55,
+        -3.6,
+        1.45,
+        1.9,
+        -2.4
+      ],
+      "health": 66.0,
+      "armor": 0.6,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "wheel_l0": {
+      "box": [
+        -1.5,
+        0,
+        1.7499999999999998,
+        -1.1,
+        1.1,
+        2.8499999999999996
+      ],
+      "health": 45,
+      "armor": 0.18,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_l0"
+      ]
+    },
+    "wheel_l1": {
+      "box": [
+        -1.5,
+        0,
+        0.55,
+        -1.1,
+        1.1,
+        1.6500000000000001
+      ],
+      "health": 45,
+      "armor": 0.18,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_l1"
+      ]
+    },
+    "wheel_l2": {
+      "box": [
+        -1.5,
+        0,
+        -1.6500000000000001,
+        -1.1,
+        1.1,
+        -0.55
+      ],
+      "health": 45,
+      "armor": 0.18,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_l2"
+      ]
+    },
+    "wheel_l3": {
+      "box": [
+        -1.5,
+        0,
+        -2.8499999999999996,
+        -1.1,
+        1.1,
+        -1.7499999999999998
+      ],
+      "health": 45,
+      "armor": 0.18,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_l3"
+      ]
+    },
+    "wheel_r0": {
+      "box": [
+        1.1,
+        0,
+        1.7499999999999998,
+        1.5,
+        1.1,
+        2.8499999999999996
+      ],
+      "health": 45,
+      "armor": 0.18,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_r0"
+      ]
+    },
+    "wheel_r1": {
+      "box": [
+        1.1,
+        0,
+        0.55,
+        1.5,
+        1.1,
+        1.6500000000000001
+      ],
+      "health": 45,
+      "armor": 0.18,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_r1"
+      ]
+    },
+    "wheel_r2": {
+      "box": [
+        1.1,
+        0,
+        -1.6500000000000001,
+        1.5,
+        1.1,
+        -0.55
+      ],
+      "health": 45,
+      "armor": 0.18,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_r2"
+      ]
+    },
+    "wheel_r3": {
+      "box": [
+        1.1,
+        0,
+        -2.8499999999999996,
+        1.5,
+        1.1,
+        -1.7499999999999998
+      ],
+      "health": 45,
+      "armor": 0.18,
+      "role": "propulsion",
+      "core_damage": 0.1,
+      "bones": [
+        "wheel_r3"
+      ]
+    },
+    "turret": {
+      "box": [
+        -0.65,
+        1.9,
+        -0.25,
+        0.65,
+        2.5,
+        1.05
+      ],
+      "health": 80,
+      "armor": 0.6,
+      "role": "weapon",
+      "seat": 2,
+      "core_damage": 0.3,
+      "bones": [
+        "kpvt"
+      ]
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        -0.6,
+        1.15,
+        1.35
+      ]
+    },
+    {
+      "position": [
+        0.6,
+        1.15,
+        1.35
+      ]
+    },
+    {
+      "position": [
+        0.0,
+        1.55,
+        0.4
+      ],
+      "gun": "flansvehicles:kpvt",
+      "turret": true,
+      "pivot": [
+        0,
+        2.175,
+        0.4
+      ],
+      "muzzle": [
+        0,
+        0,
+        2.57
+      ],
+      "sight": [
+        0.3,
+        0.27,
+        0.42
+      ],
+      "min_pitch": -5,
+      "max_pitch": 60,
+      "yaw_bone": "turret",
+      "pitch_bone": "kpvt"
+    },
+    {
+      "position": [
+        -1.05,
+        0.62,
+        -0.6
+      ]
+    },
+    {
+      "position": [
+        1.05,
+        0.62,
+        -0.6
+      ]
+    },
+    {
+      "position": [
+        -1.05,
+        0.62,
+        -1.5
+      ]
+    },
+    {
+      "position": [
+        1.05,
+        0.62,
+        -1.5
+      ]
+    },
+    {
+      "position": [
+        -1.05,
+        0.62,
+        -2.4
+      ]
+    },
+    {
+      "position": [
+        1.05,
+        0.62,
+        -2.4
+      ]
+    }
+  ],
+  "model": {
+    "texture": "flansvehicles:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansvehicles:btr80",
+  "sounds": {
+    "engine": "flansvehicles:vehicle.engine"
+  }
+}

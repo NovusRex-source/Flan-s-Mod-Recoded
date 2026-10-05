@@ -29,6 +29,16 @@
     ],
     "subtitle": "subtitles.flansvehicles.vehicle.hmg.shoot"
   },
+  "vehicle.autocannon.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode3",
+        "volume": 1.4,
+        "pitch": 1.1
+      }
+    ],
+    "subtitle": "subtitles.flansvehicles.vehicle.autocannon.shoot"
+  },
   "vehicle.cannon.shoot": {
     "sounds": [
       {

@@ -1,0 +1,84 @@
+{
+  "name": "Karabiner 98k (ZF39)",
+  "model": {
+    "texture": "flansww2:textures/gun/basic.png"
+  },
+  "damage": 13,
+  "rpm": 40,
+  "fire_mode": "semi",
+  "reload_ticks": 70,
+  "velocity": 22,
+  "spread": 3,
+  "ads_spread": 0.04,
+  "ads_zoom": 4.0,
+  "ads_move_speed": 0.5,
+  "rail_ads": 5.0,
+  "recoil": {
+    "pitch": 3.5,
+    "yaw": 0.8
+  },
+  "magazines": [
+    "flansww2:kar98k_internal"
+  ],
+  "sounds": {
+    "shoot": "flansww2:gun.sniper.shoot",
+    "reload": "flansww2:gun.reload",
+    "empty": "flansww2:gun.empty"
+  },
+  "fire_modes": [
+    "safe",
+    "semi"
+  ],
+  "attachment_slots": [],
+  "category": "sniper",
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.29,
+        0.29,
+        0.29
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.29,
+        0.29,
+        0.29
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        4.0,
+        -6
+      ]
+    }
+  },
+  "headshot_multiplier": 2.2,
+  "scope": {
+    "overlay": "flansbasic:textures/scope/sniper.png"
+  },
+  "gravity": 0.01,
+  "lifetime_ticks": 60,
+  "faction": "flansww2:axis"
+}

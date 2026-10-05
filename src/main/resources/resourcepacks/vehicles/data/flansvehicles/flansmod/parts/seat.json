@@ -1,4 +1,5 @@
 {
   "name": "Seat",
+  "category": "vehicle",
   "icon": "flansvehicles:seat"
 }

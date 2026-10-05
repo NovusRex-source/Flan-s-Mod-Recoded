@@ -2,6 +2,6 @@
   "name": "Glock Extended Magazine (33)",
   "caliber": "9mm",
   "capacity": 33,
-  "icon": "flansbasic:glock_33",
-  "reload_multiplier": 1.1
+  "reload_multiplier": 1.1,
+  "icon": "flansbasic:glock_33"
 }

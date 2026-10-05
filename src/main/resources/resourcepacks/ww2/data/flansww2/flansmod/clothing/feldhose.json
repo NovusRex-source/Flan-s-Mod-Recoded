@@ -1,0 +1,8 @@
+{
+  "name": "Feldhose",
+  "slot": "legs",
+  "asset": "flansww2:axis",
+  "icon": "flansww2:feldhose",
+  "armor": 3,
+  "faction": "flansww2:axis"
+}

@@ -1,13 +1,24 @@
 {
   "type": "flansmod:weapon_assembly",
   "pattern": [
-    "NUHZ"
+    "AUD"
   ],
   "key": {
-    "H": "minecraft:paper",
-    "N": "minecraft:iron_nugget",
-    "U": "minecraft:gunpowder",
-    "Z": "minecraft:blaze_powder"
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_12g"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:load_dragon"
+      }
+    },
+    "U": "minecraft:gunpowder"
   },
   "result": {
     "id": "flansmod:ammo",

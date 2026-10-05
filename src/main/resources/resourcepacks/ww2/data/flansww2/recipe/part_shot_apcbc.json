@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NN",
+    "I ",
+    "I "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 2,
+    "components": {
+      "flansmod:part": "flansww2:shot_apcbc"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "cNN"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "c": "minecraft:copper_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 16,
+    "components": {
+      "flansmod:part": "flansww2:casing_762x25"
+    }
+  }
+}

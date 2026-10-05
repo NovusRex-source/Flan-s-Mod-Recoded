@@ -12,7 +12,7 @@
   "ads_spread": 0.03,
   "ads_zoom": 1.5,
   "ads_move_speed": 0.45,
-  "rail_ads": 7.4,
+  "rail_ads": 7.35,
   "recoil": {
     "pitch": 7,
     "yaw": 0.8
@@ -33,6 +33,7 @@
     "sight",
     "muzzle"
   ],
+  "category": "sniper",
   "display": {
     "gui": {
       "rotation": [
@@ -46,9 +47,9 @@
         0
       ],
       "scale": [
-        0.3,
-        0.3,
-        0.3
+        0.27,
+        0.27,
+        0.27
       ]
     },
     "fixed": {
@@ -63,15 +64,15 @@
         0
       ],
       "scale": [
-        0.3,
-        0.3,
-        0.3
+        0.27,
+        0.27,
+        0.27
       ]
     },
     "ads": {
       "translation": [
         -1.0,
-        6.4,
+        6.35,
         -6
       ]
     }

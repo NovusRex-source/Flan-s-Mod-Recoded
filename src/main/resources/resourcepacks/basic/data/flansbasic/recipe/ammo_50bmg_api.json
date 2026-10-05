@@ -1,17 +1,28 @@
 {
   "type": "flansmod:weapon_assembly",
   "pattern": [
-    "IUUUCZ"
+    "AUUUD"
   ],
   "key": {
-    "C": "minecraft:copper_ingot",
-    "I": "minecraft:iron_ingot",
-    "U": "minecraft:gunpowder",
-    "Z": "minecraft:blaze_powder"
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_50bmg"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:bullet_api"
+      }
+    },
+    "U": "minecraft:gunpowder"
   },
   "result": {
     "id": "flansmod:ammo",
-    "count": 8,
+    "count": 6,
     "components": {
       "flansmod:ammo_type": "flansbasic:50bmg_api"
     }

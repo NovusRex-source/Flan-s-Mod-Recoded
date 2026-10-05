@@ -1,0 +1,16 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "I"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 8,
+    "components": {
+      "flansmod:part": "flansbasic:bullet_ap"
+    }
+  }
+}

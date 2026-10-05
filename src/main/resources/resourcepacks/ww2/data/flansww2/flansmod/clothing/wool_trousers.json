@@ -1,0 +1,8 @@
+{
+  "name": "Wool Field Trousers",
+  "slot": "legs",
+  "asset": "flansww2:usa",
+  "icon": "flansww2:wool_trousers",
+  "armor": 3,
+  "faction": "flansww2:usa"
+}

@@ -1,7 +1,8 @@
 {
-  "name": "5.56 NATO Tracer",
+  "name": "5.56\u00d745mm NATO Tracer",
   "caliber": "556",
   "icon": "flansbasic:556_tracer",
+  "damage_multiplier": 0.95,
   "tracer": {
     "color": "#FF4020",
     "width": 0.06,

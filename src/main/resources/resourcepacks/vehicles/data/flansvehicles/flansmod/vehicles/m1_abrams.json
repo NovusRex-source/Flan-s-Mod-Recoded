@@ -1,8 +1,16 @@
 {
   "name": "M1 Abrams",
   "type": "tank",
-  "width": 3.6,
-  "height": 2.3,
+  "upgrade_slots": [
+    "engine",
+    "armor",
+    "tank"
+  ],
+  "step_height": 1.1,
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 40
+  },
   "health": 400,
   "armor": 0.9,
   "max_speed": 0.6,
@@ -12,7 +20,6 @@
   "drag": 0.03,
   "turn_speed": 2.5,
   "water_speed": 0.3,
-  "step_height": 1.1,
   "collision_damage": 40,
   "death_explosion": 5.0,
   "camera_distance": 11,
@@ -20,68 +27,44 @@
     "capacity": 60000,
     "consumption": 2
   },
-  "upgrade_slots": [
-    "engine",
-    "armor",
-    "tank"
-  ],
-  "repair": {
-    "item": "minecraft:iron_ingot",
-    "amount": 40
-  },
   "parts": {
     "hull": {
       "box": [
-        -1.25,
+        -1.27,
         0.45,
         -1.6,
-        1.25,
+        1.27,
         1.4,
-        2.75
+        2.85
       ],
       "armor": 0.9,
       "role": "hull"
     },
     "engine": {
       "box": [
-        -1.25,
+        -1.27,
         0.45,
         -2.75,
-        1.25,
+        1.27,
         1.4,
         -1.6
       ],
-      "health": 150,
-      "armor": 0.8,
+      "health": 160.0,
+      "armor": 0.81,
       "role": "engine",
       "core_damage": 0.4
-    },
-    "turret": {
-      "box": [
-        -1.05,
-        1.4,
-        -2.1,
-        1.05,
-        2.2,
-        1.45
-      ],
-      "health": 250,
-      "armor": 0.92,
-      "role": "weapon",
-      "seat": 0,
-      "core_damage": 0.5
     },
     "track_left": {
       "box": [
         -1.85,
-        0.0,
-        -2.6,
-        -1.25,
+        0,
+        -2.75,
+        -1.27,
         1.0,
-        2.6
+        2.85
       ],
       "health": 150,
-      "armor": 0.6,
+      "armor": 0.5850000000000001,
       "role": "propulsion",
       "core_damage": 0.2,
       "bones": [
@@ -90,20 +73,59 @@
     },
     "track_right": {
       "box": [
-        1.25,
-        0.0,
-        -2.6,
+        1.27,
+        0,
+        -2.75,
         1.85,
         1.0,
-        2.6
+        2.85
       ],
       "health": 150,
-      "armor": 0.6,
+      "armor": 0.5850000000000001,
       "role": "propulsion",
       "core_damage": 0.2,
       "bones": [
         "track_r"
       ]
+    },
+    "sponson_left": {
+      "box": [
+        -1.85,
+        1.0,
+        -2.75,
+        -1.27,
+        1.4,
+        2.85
+      ],
+      "armor": 0.9,
+      "role": "hull"
+    },
+    "sponson_right": {
+      "box": [
+        1.27,
+        1.0,
+        -2.75,
+        1.85,
+        1.4,
+        2.85
+      ],
+      "armor": 0.9,
+      "role": "hull"
+    },
+    "turret": {
+      "box": [
+        -1.1,
+        1.4,
+        -2.0,
+        1.1,
+        2.2,
+        1.35
+      ],
+      "health": 240.0,
+      "armor": 0.92,
+      "role": "weapon",
+      "seat": 0,
+      "core_damage": 0.5
     }
   },
   "seats": [
@@ -111,19 +133,24 @@
       "position": [
         0.0,
         0.65,
-        1.8
+        1.65
       ],
       "gun": "flansvehicles:m256",
       "turret": true,
       "pivot": [
-        0.0,
+        0,
         1.8,
-        -0.2
+        -0.3
       ],
       "muzzle": [
-        0.0,
-        0.0,
-        4.9
+        0,
+        0,
+        4.92
+      ],
+      "sight": [
+        0.78,
+        0.39,
+        1.17
       ],
       "min_pitch": -8,
       "max_pitch": 20,
@@ -132,24 +159,31 @@
     },
     {
       "position": [
-        0.5,
-        1.6,
-        -0.65
+        0,
+        1.84,
+        -0.3
       ],
       "gun": "flansvehicles:m2_mounted",
       "turret": true,
       "pivot": [
-        0.5,
-        2.7,
-        -0.65
+        0,
+        2.52,
+        -0.3
       ],
       "muzzle": [
-        0.0,
-        0.0,
-        0.8
+        0,
+        0,
+        1.43
+      ],
+      "sight": [
+        0,
+        0.17,
+        0.5
       ],
       "min_pitch": -15,
-      "max_pitch": 60
+      "max_pitch": 60,
+      "yaw_bone": "cupola",
+      "pitch_bone": "cupola_mg"
     }
   ],
   "model": {

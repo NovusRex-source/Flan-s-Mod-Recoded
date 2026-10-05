@@ -1,0 +1,7 @@
+{
+  "name": "25\u00d7137mm API",
+  "caliber": "25x137",
+  "icon": "flansvehicles:25x137_api",
+  "armor_piercing": true,
+  "fire_seconds": 4
+}

@@ -1,0 +1,7 @@
+{
+  "name": "7.92\u00d757mm Mauser AP",
+  "caliber": "792x57",
+  "icon": "flansww2:792x57_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

@@ -1,7 +1,7 @@
 {
-  "name": "40mm HE Grenade",
+  "name": "40\u00d746mm Grenade HE",
   "caliber": "40mm",
   "icon": "flansbasic:40mm_he",
-  "projectile": "flansbasic:40mm_he",
-  "max_stack": 16
+  "max_stack": 16,
+  "projectile": "flansbasic:40mm_he"
 }

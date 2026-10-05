@@ -1,4 +1,5 @@
 {
   "name": "Turret Ring",
+  "category": "vehicle",
   "icon": "flansvehicles:turret_ring"
 }

@@ -1,0 +1,11 @@
+{
+  "name": "25\u00d7137mm Tracer",
+  "caliber": "25x137",
+  "icon": "flansvehicles:25x137_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

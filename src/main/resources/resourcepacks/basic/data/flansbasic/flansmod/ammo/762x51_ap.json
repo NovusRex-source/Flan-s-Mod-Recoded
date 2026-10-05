@@ -1,0 +1,7 @@
+{
+  "name": "7.62\u00d751mm NATO AP",
+  "caliber": "762x51",
+  "icon": "flansbasic:762x51_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

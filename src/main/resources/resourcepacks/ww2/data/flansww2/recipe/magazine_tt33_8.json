@@ -1,0 +1,32 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IK",
+    "F "
+  ],
+  "key": {
+    "F": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:spring"
+      }
+    },
+    "I": "minecraft:iron_ingot",
+    "K": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansww2:casing_762x25"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansww2:tt33_8"
+      }
+    }
+  }
+}

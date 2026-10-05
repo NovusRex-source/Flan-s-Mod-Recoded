@@ -1,0 +1,7 @@
+{
+  "name": "7.5cm KwK HE Shell",
+  "caliber": "75mm_kwk",
+  "max_stack": 8,
+  "icon": "flansww2:75mm_kwk_he",
+  "projectile": "flansww2:75mm_kwk_he"
+}

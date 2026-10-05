@@ -1,0 +1,7 @@
+{
+  "name": "25\u00d7137mm AP",
+  "caliber": "25x137",
+  "icon": "flansvehicles:25x137_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

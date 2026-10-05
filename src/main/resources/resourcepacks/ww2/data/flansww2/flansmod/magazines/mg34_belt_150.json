@@ -1,0 +1,9 @@
+{
+  "name": "MG 34 Belt Box (150)",
+  "caliber": "792x57",
+  "capacity": 150,
+  "guns": [
+    "flansww2:mg34_mounted"
+  ],
+  "icon": "flansww2:mg34_belt_150"
+}

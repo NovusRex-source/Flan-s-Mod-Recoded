@@ -1,11 +1,23 @@
 {
   "type": "flansmod:weapon_assembly",
   "pattern": [
-    "NUCN"
+    "AUD"
   ],
   "key": {
-    "C": "minecraft:copper_ingot",
-    "N": "minecraft:iron_nugget",
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_45acp"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:bullet_fmj"
+      }
+    },
     "U": "minecraft:gunpowder"
   },
   "result": {

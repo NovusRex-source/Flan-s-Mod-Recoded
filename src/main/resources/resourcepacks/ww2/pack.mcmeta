@@ -1,0 +1,11 @@
+{
+  "pack": {
+    "description": "Flan's Mod: Recoded - Second World War: Axis, Allies and Soviets",
+    "min_format": 97,
+    "max_format": 121
+  },
+  "flansmod": {
+    "name": "Flan's WW2",
+    "icon": "flansww2:m1_garand"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "AUD"
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_357"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:bullet_hp"
+      }
+    },
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 16,
+    "components": {
+      "flansmod:ammo_type": "flansbasic:357_hp"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IIIIRN",
+    "IB    "
+  ],
+  "key": {
+    "B": "minecraft:iron_block",
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "components": {
+      "flansmod:part": "flansww2:mg_receiver"
+    }
+  }
+}

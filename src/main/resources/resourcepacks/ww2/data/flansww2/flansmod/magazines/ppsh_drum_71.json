@@ -1,0 +1,7 @@
+{
+  "name": "PPSh Drum (71)",
+  "caliber": "762x25",
+  "capacity": 71,
+  "reload_multiplier": 1.5,
+  "icon": "flansww2:ppsh_drum_71"
+}

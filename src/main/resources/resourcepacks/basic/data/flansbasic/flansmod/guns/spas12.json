@@ -12,7 +12,7 @@
   "ads_spread": 5.5,
   "ads_zoom": 1.15,
   "ads_move_speed": 0.6,
-  "rail_ads": 7.4,
+  "rail_ads": 7.2,
   "recoil": {
     "pitch": 4.0,
     "yaw": 1.2
@@ -32,6 +32,7 @@
   "attachment_slots": [
     "sight"
   ],
+  "category": "shotgun",
   "display": {
     "gui": {
       "rotation": [
@@ -45,9 +46,9 @@
         0
       ],
       "scale": [
-        0.36,
-        0.36,
-        0.36
+        0.33,
+        0.33,
+        0.33
       ]
     },
     "fixed": {
@@ -62,15 +63,15 @@
         0
       ],
       "scale": [
-        0.36,
-        0.36,
-        0.36
+        0.33,
+        0.33,
+        0.33
       ]
     },
     "ads": {
       "translation": [
         -1.0,
-        7.8,
+        7.7,
         -6
       ]
     }

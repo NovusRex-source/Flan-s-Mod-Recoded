@@ -185,6 +185,7 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         builder.define(VEHICLE, "")
         builder.define(DAMAGE, emptyMap())
         builder.define(UPGRADES, emptyMap())
+        builder.define(RELOADS, emptyMap())
         builder.define(FUEL, 0)
         builder.define(SEATS, emptyList())
         builder.define(MAGAZINES, emptyMap())
@@ -249,16 +250,38 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
 
     override fun canAddPassenger(passenger: Entity) = passengers.size < (definition?.seats?.size ?: 0)
 
+    /** Seat a player asked for by clicking near it (server, only during [interact]). */
+    private var requestedSeat = -1
+
     override fun addPassenger(passenger: Entity) {
         super.addPassenger(passenger)
         if (level().isClientSide()) return
         val count = definition?.seats?.size ?: return
         val current = seats.toMutableList().apply { while (size < count) add(-1) }
-        // Players take the wheel if it is free; everyone else fills the remaining seats in order.
+        // The seat clicked on; else players take the wheel if it is free; everyone else fills the remaining seats in order.
         val free = current.indices.filter { current[it] < 0 }
-        val index = free.firstOrNull { it == 0 && passenger is Player } ?: free.firstOrNull { it != 0 } ?: free.firstOrNull() ?: return
+        val index = requestedSeat.takeIf { it in free }
+            ?: free.firstOrNull { it == 0 && passenger is Player } ?: free.firstOrNull { it != 0 } ?: free.firstOrNull() ?: return
         current[index] = passenger.id
         seats = current
+    }
+
+    /** Moves [passenger] to the next free seat (wrapping around); returns false if every other seat is taken. */
+    fun switchSeat(passenger: Entity): Boolean {
+        val count = definition?.seats?.size ?: return false
+        val current = seats.toMutableList().apply { while (size < count) add(-1) }
+        val from = current.indexOf(passenger.id).takeIf { it >= 0 } ?: return false
+        val to = (1 until count).map { (from + it) % count }.firstOrNull { current[it] < 0 } ?: return false
+        current[from] = -1
+        current[to] = passenger.id
+        seats = current
+        return true
+    }
+
+    /** The free seat closest to a point in vehicle space (where the player clicked the vehicle). */
+    private fun nearestFreeSeat(local: Vec3): Int {
+        val seatList = definition?.seats ?: return -1
+        return seatList.indices.filter { (seats.getOrNull(it) ?: -1) < 0 }.minByOrNull { seatList[it].offset.distanceToSqr(local) } ?: -1
     }
 
     override fun removePassenger(passenger: Entity) {
@@ -382,7 +405,12 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
             player.isSecondaryUseActive -> return InteractionResult.PASS
         }
         if (!canAddPassenger(player)) return InteractionResult.FAIL
-        return if (level().isClientSide() || player.startRiding(this)) InteractionResult.SUCCESS else InteractionResult.PASS
+        if (level().isClientSide()) return InteractionResult.SUCCESS
+        // Get in at the seat you clicked on (e.g. the gunner's hatch rather than the driver's door).
+        requestedSeat = nearestFreeSeat(toLocal(position().add(location)))
+        val seated = player.startRiding(this)
+        requestedSeat = -1
+        return if (seated) InteractionResult.SUCCESS else InteractionResult.PASS
     }
 
     /** Installs the held upgrade (a previous one in the same slot goes back to the player). */
@@ -632,11 +660,22 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
     fun aimDirection(yaw: Float, elevation: Float): Vec3 = Vec3(0.0, 0.0, 1.0).xRot(elevation * Mth.DEG_TO_RAD).yRot(-yaw * Mth.DEG_TO_RAD)
 
     /** Muzzle of [seatIndex]'s gun in world space: the turret pivot turns with the hull, the muzzle with the aim. */
-    fun muzzlePosition(seatIndex: Int, yaw: Float, elevation: Float): Vec3 {
-        val seat = seat(seatIndex) ?: return position()
-        val m = seat.muzzle.vec()
-        return position().add(toWorld(seat.pivot.vec())).add(Vec3(-m.x, m.y, m.z).xRot(elevation * Mth.DEG_TO_RAD).yRot(-yaw * Mth.DEG_TO_RAD))
+    fun muzzlePosition(seatIndex: Int, yaw: Float, elevation: Float): Vec3 = onGun(seatIndex, yaw, elevation) { it.muzzle }
+
+    /** Where the gunner looks through the sight of [seatIndex]'s gun (camera while aiming). */
+    fun sightPosition(seatIndex: Int, yaw: Float, elevation: Float, partialTick: Float = 1f): Vec3 =
+        onGun(seatIndex, yaw, elevation, getPosition(partialTick)) { it.sight }
+
+    private fun onGun(seatIndex: Int, yaw: Float, elevation: Float, origin: Vec3 = position(), point: (Seat) -> List<Double>): Vec3 {
+        val seat = seat(seatIndex) ?: return origin
+        val m = point(seat).vec()
+        return origin.add(toWorld(seat.pivot.vec())).add(Vec3(-m.x, m.y, m.z).xRot(elevation * Mth.DEG_TO_RAD).yRot(-yaw * Mth.DEG_TO_RAD))
     }
+
+    /** Game time at which each seat's reload finishes (synced for the HUD); absent = not reloading. */
+    var reloadEnds: Map<Int, Long>
+        get() = entityData.get(RELOADS)
+        set(value) = entityData.set(RELOADS, value)
 
     fun setMagazine(seat: Int, contents: MagazineContents?) {
         seatMagazines = if (contents == null) seatMagazines - seat else seatMagazines + (seat to contents)
@@ -683,6 +722,8 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
             EntityDataSerializer.forValueType(ByteBufCodecs.map(::HashMap, ByteBufCodecs.VAR_INT, MagazineContents.STREAM_CODEC))
         private val DAMAGE_SERIALIZER: EntityDataSerializer<Map<String, Float>> =
             EntityDataSerializer.forValueType(ByteBufCodecs.map(::HashMap, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.FLOAT))
+        private val RELOADS_SERIALIZER: EntityDataSerializer<Map<Int, Long>> =
+            EntityDataSerializer.forValueType(ByteBufCodecs.map(::HashMap, ByteBufCodecs.VAR_INT, ByteBufCodecs.VAR_LONG))
         private val UPGRADES_SERIALIZER: EntityDataSerializer<Map<String, Identifier>> =
             EntityDataSerializer.forValueType(ByteBufCodecs.map(::HashMap, ByteBufCodecs.STRING_UTF8, Identifier.STREAM_CODEC))
 
@@ -692,11 +733,13 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
             FabricEntityDataRegistry.register(FlansMod.id("seat_magazines"), MAGAZINES_SERIALIZER)
             FabricEntityDataRegistry.register(FlansMod.id("vehicle_damage"), DAMAGE_SERIALIZER)
             FabricEntityDataRegistry.register(FlansMod.id("vehicle_upgrades"), UPGRADES_SERIALIZER)
+            FabricEntityDataRegistry.register(FlansMod.id("seat_reloads"), RELOADS_SERIALIZER)
         }
 
         private val VEHICLE: EntityDataAccessor<String> = SynchedEntityData.defineId(DriveableEntity::class.java, EntityDataSerializers.STRING)
         private val DAMAGE: EntityDataAccessor<Map<String, Float>> = SynchedEntityData.defineId(DriveableEntity::class.java, DAMAGE_SERIALIZER)
         private val UPGRADES: EntityDataAccessor<Map<String, Identifier>> = SynchedEntityData.defineId(DriveableEntity::class.java, UPGRADES_SERIALIZER)
+        private val RELOADS: EntityDataAccessor<Map<Int, Long>> = SynchedEntityData.defineId(DriveableEntity::class.java, RELOADS_SERIALIZER)
         private val FUEL: EntityDataAccessor<Int> = SynchedEntityData.defineId(DriveableEntity::class.java, EntityDataSerializers.INT)
         private val SEATS: EntityDataAccessor<List<Int>> = SynchedEntityData.defineId(DriveableEntity::class.java, SEATS_SERIALIZER)
         private val MAGAZINES: EntityDataAccessor<Map<Int, MagazineContents>> = SynchedEntityData.defineId(DriveableEntity::class.java, MAGAZINES_SERIALIZER)

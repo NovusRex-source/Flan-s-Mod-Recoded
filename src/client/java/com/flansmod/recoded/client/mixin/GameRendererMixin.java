@@ -21,4 +21,10 @@ public abstract class GameRendererMixin {
 	private void flansmod$steadyWhileAiming(CameraRenderState camera, PoseStack poseStack, CallbackInfo ci) {
 		if (GunInput.INSTANCE.getAiming()) ci.cancel();
 	}
+
+	/** No first-person hands while looking through a vehicle gun's sight (like the spyglass). */
+	@Inject(method = "renderItemInHand", at = @At("HEAD"), cancellable = true)
+	private void flansmod$noHandsInVehicleSight(CallbackInfo ci) {
+		if (com.flansmod.recoded.client.vehicle.VehicleClient.getSighting()) ci.cancel();
+	}
 }

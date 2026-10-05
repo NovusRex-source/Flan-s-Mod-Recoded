@@ -129,24 +129,23 @@ class GunClientGameTest : FabricClientGameTest {
             context.input.pressKey(InputConstants.KEY_ESCAPE)
             context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.FIRST_PERSON }
 
-            // The built-in pack has its own creative tab listing guns, ammo and attachments.
+            // The type tabs list every item once (the vehicles tab repeats vehicle ammunition, so it is left out).
             server.runCommand("gamemode creative @a")
             context.waitTicks(5)
             context.input.pressKey { it.keyInventory }
             context.waitForScreen(CreativeModeInventoryScreen::class.java)
             val expected = context.client {
-                listOf(Guns.all, Magazines.all, AmmoTypes.all, Attachments.all, com.flansmod.recoded.gun.Parts.all, com.flansmod.recoded.gun.Clothing.all).sumOf { m -> m.keys.count { it.namespace == "flansbasic" } } +
-                    Grenades.all.count { (id, g) -> id.namespace == "flansbasic" && g.throwable }
+                Guns.all.values.count { !it.mounted } + Magazines.all.values.count { !it.internal } + AmmoTypes.all.size + Attachments.all.size +
+                    Grenades.all.values.count { it.throwable } + com.flansmod.recoded.gun.Clothing.all.size + com.flansmod.recoded.gun.Parts.all.size + 1
             }
-            val tabItems = context.client { mc ->
-                val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(FlansMod.id("pack/basic"))
-                    ?: error("no creative tab for the built-in pack")
-                check((mc.gui.screen() as FabricCreativeModeInventoryScreen).setSelectedTab(tab)) { "could not select pack tab" }
-                tab.displayItems.size
+            val listed = context.client { mc ->
+                listOf("weapons", "ammo", "attachments", "explosives", "equipment", "crafting").sumOf { type ->
+                    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(com.flansmod.recoded.client.tab.TypeTabs.id(type)) ?: error("no $type tab")
+                    check((mc.gui.screen() as FabricCreativeModeInventoryScreen).setSelectedTab(tab)) { "could not select $type tab" }
+                    tab.displayItems.size
+                }
             }
-            check(tabItems == expected) { "basic pack tab should list all $expected pack items, has $tabItems" }
-            context.waitTicks(2)
-            context.takeScreenshot("flansmod-pack-tab")
+            check(listed == expected) { "type tabs should list all $expected items once, list $listed" }
             context.input.pressKey(InputConstants.KEY_ESCAPE)
 
             // Basic pack guns in hand: scoped sniper (aimed) and shotgun (hip).
@@ -275,18 +274,28 @@ class GunClientGameTest : FabricClientGameTest {
             context.takeScreenshot("flansmod-clothing")
             context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.FIRST_PERSON }
 
-            // Type tabs with 3D item models.
+            // Every type tab, with 3D item models.
             server.runCommand("gamemode creative @a")
             context.waitTicks(5)
-            for (type in listOf("ammo", "attachments", "parts")) {
+            for (type in listOf("weapons", "ammo", "attachments", "explosives", "vehicles", "equipment", "crafting")) {
                 context.input.pressKey { it.keyInventory }
                 context.waitForScreen(CreativeModeInventoryScreen::class.java)
                 context.runOnClient<RuntimeException> { mc ->
-                    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(FlansMod.id("type/$type"))!!
+                    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(com.flansmod.recoded.client.tab.TypeTabs.id(type))!!
                     check((mc.gui.screen() as FabricCreativeModeInventoryScreen).setSelectedTab(tab)) { "could not select $type tab" }
                 }
                 context.waitTicks(3)
                 context.takeScreenshot("flansmod-tab-$type")
+                // Tooltip of the second item (creative screen: 195x136 panel, slots from (9, 18), 18 px apart).
+                val (x, y) = context.client { mc ->
+                    val scale = mc.window.guiScale
+                    val left = (mc.window.guiScaledWidth - 195) / 2
+                    val top = (mc.window.guiScaledHeight - 136) / 2
+                    (left + 9 + 18 + 8) * scale to (top + 18 + 8) * scale
+                }
+                context.input.setCursorPos(x.toDouble(), y.toDouble())
+                context.waitTicks(3)
+                context.takeScreenshot("flansmod-tooltip-$type")
                 context.input.pressKey(InputConstants.KEY_ESCAPE)
                 context.waitTicks(2)
             }

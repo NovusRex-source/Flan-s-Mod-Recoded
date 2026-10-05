@@ -1,0 +1,7 @@
+{
+  "name": ".30-06 Springfield Incendiary",
+  "caliber": "3006",
+  "icon": "flansww2:3006_incendiary",
+  "damage_multiplier": 0.9,
+  "fire_seconds": 4
+}

@@ -30,6 +30,8 @@ class VehicleItem(properties: Properties) : Item(properties) {
     override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: TooltipDisplay, add: Consumer<Component>, flag: TooltipFlag) {
         val def = stack.vehicleDefinition ?: return
         fun line(key: String, vararg args: Any) = add.accept(Component.translatable("item.flansmod.vehicle.$key", *args).withStyle(ChatFormatting.GRAY))
+        Tooltips.category(add, "vehicle", Component.translatableWithFallback("vehicle_type.flansmod.${def.type.name.lowercase()}", def.type.name.lowercase()))
+        Tooltips.faction(add, def.faction)
         val upgrades = stack.getOrDefault(FlansComponents.VEHICLE_UPGRADES, emptyMap())
         val effective = def.withUpgrades(upgrades.values.mapNotNull { com.flansmod.recoded.gun.VehicleUpgrades[it] })
         line("seats", def.seats.size)

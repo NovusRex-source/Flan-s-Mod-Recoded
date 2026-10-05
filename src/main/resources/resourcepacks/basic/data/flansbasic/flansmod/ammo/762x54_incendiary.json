@@ -1,0 +1,7 @@
+{
+  "name": "7.62\u00d754mmR Incendiary",
+  "caliber": "762x54",
+  "icon": "flansbasic:762x54_incendiary",
+  "damage_multiplier": 0.9,
+  "fire_seconds": 4
+}

@@ -35,6 +35,11 @@ class ClothingItem(properties: Properties) : Item(properties) {
         stack.clothingDefinition?.let { Component.translatableWithFallback("clothing.${stack.clothingId!!.toLanguageKey()}", it.name) }
             ?: super.getName(stack)
 
+    override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: net.minecraft.world.item.component.TooltipDisplay,
+                                 add: java.util.function.Consumer<Component>, flag: net.minecraft.world.item.TooltipFlag) {
+        Tooltips.faction(add, stack.clothingDefinition?.faction)
+    }
+
     override fun inventoryTick(stack: ItemStack, level: ServerLevel, owner: Entity, slot: EquipmentSlot?) {
         if (!stack.has(DataComponents.EQUIPPABLE)) applyDefinition(stack)
     }

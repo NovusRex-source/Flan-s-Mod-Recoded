@@ -55,6 +55,8 @@ data class VehicleDefinition(
     val sounds: VehicleSounds = VehicleSounds(),
     /** Item model (an `assets/<ns>/items/<name>.json` id) for the vehicle item. */
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
+    /** Side this belongs to (a [FactionDefinition] id): faction creative tab and tooltip line. */
+    @Serializable(IdentifierSerializer::class) val faction: Identifier? = null,
 ) {
     fun resolvedModel(id: Identifier) = ResolvedModel(
         geo = model.geo ?: id.withPrefix("vehicle/"),
@@ -189,6 +191,8 @@ data class Seat(
     /** Turret rotation centre (vehicle space); the muzzle is relative to it and turns with the aim. */
     val pivot: List<Double> = listOf(0.0, 1.0, 0.0),
     val muzzle: List<Double> = listOf(0.0, 0.0, 2.0),
+    /** Gunner's sight (relative to [pivot], turning with the aim like [muzzle]): the camera while aiming through it. */
+    val sight: List<Double> = listOf(0.0, 0.25, -0.4),
     @SerialName("min_pitch") val minPitch: Float = -30f,
     @SerialName("max_pitch") val maxPitch: Float = 15f,
     @SerialName("yaw_bone") val yawBone: String? = null,

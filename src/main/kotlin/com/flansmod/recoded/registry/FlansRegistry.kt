@@ -177,7 +177,8 @@ object FlansItems {
 
     val MAGAZINE: MagazineItem = Registry.register(
         BuiltInRegistries.ITEM, FlansMod.id("magazine"),
-        MagazineItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("magazine"))).stacksTo(1)),
+        // Identical magazines (same type, ammo and rounds - e.g. empty or full ones) stack.
+        MagazineItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("magazine"))).stacksTo(16)),
     )
 
     val GRENADE: GrenadeItem = Registry.register(
@@ -195,31 +196,7 @@ object FlansItems {
         VehicleUpgradeItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("vehicle_upgrade"))).stacksTo(1)),
     )
 
-    init {
-        Registry.register(
-            BuiltInRegistries.CREATIVE_MODE_TAB, FlansMod.id("guns"),
-            FabricCreativeModeTab.builder()
-                .title(Component.translatable("itemGroup.flansmod.guns"))
-                .icon { ItemStack(AMMO) } // a bare gun has no model; the ammo item falls back to a vanilla one
-                .displayItems { _, output ->
-                    fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filterNot(coveredByPackTab).sorted()
-                    output.accept(WEAPONS_BENCH)
-                    ids(Parts.all).forEach { output.accept(PartItem.stackFor(it)) }
-                    ids(Guns.all).filterNot { Guns[it]!!.mounted }.forEach { output.accept(GunItem.stackFor(it)) }
-                    ids(Magazines.all).forEach { output.accept(MagazineItem.stackFor(it, full = true)) }
-                    ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
-                    ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
-                    ids(Grenades.all).filter { Grenades[it]!!.throwable }.forEach { output.accept(GrenadeItem.stackFor(it)) }
-                    ids(Clothing.all).forEach { output.accept(ClothingItem.stackFor(it)) }
-                    ids(Vehicles.all).forEach { output.accept(VehicleItem.stackFor(it)) }
-                    ids(VehicleUpgrades.all).forEach { output.accept(VehicleUpgradeItem.stackFor(it)) }
-                }
-                .build(),
-        )
-    }
-
-    /** Set on the client: ids whose content pack has its own creative tab are left out of the generic tab. */
-    var coveredByPackTab: (Identifier) -> Boolean = { false }
+    // Creative tabs are client-only (com.flansmod.recoded.client.tab.TypeTabs): their contents come from synced definitions.
 
     fun init() = Unit
 }

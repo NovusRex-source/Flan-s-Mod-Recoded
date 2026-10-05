@@ -1,0 +1,7 @@
+{
+  "name": ".30 Carbine AP",
+  "caliber": "30carbine",
+  "icon": "flansww2:30carbine_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

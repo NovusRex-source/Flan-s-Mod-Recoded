@@ -1,0 +1,8 @@
+{
+  "name": "Marschstiefel",
+  "slot": "feet",
+  "asset": "flansww2:axis",
+  "icon": "flansww2:marschstiefel",
+  "armor": 1.5,
+  "faction": "flansww2:axis"
+}

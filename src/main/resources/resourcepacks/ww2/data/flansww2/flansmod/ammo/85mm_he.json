@@ -1,0 +1,7 @@
+{
+  "name": "85mm HE Shell",
+  "caliber": "85mm",
+  "max_stack": 8,
+  "icon": "flansww2:85mm_he",
+  "projectile": "flansww2:85mm_he"
+}

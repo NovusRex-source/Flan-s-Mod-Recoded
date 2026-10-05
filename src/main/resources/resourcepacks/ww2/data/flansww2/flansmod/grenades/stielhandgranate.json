@@ -1,0 +1,13 @@
+{
+  "name": "Stielhandgranate 24",
+  "fuse_ticks": 90,
+  "bounciness": 0.25,
+  "throw_velocity": 1.5,
+  "explosion": {
+    "power": 2.6,
+    "fire": false,
+    "break_blocks": false
+  },
+  "faction": "flansww2:axis",
+  "icon": "flansww2:stielhandgranate"
+}

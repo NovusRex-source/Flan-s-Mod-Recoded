@@ -2,6 +2,6 @@
   "name": "Thompson Drum (50)",
   "caliber": "45acp",
   "capacity": 50,
-  "icon": "flansbasic:thompson_drum_50",
-  "reload_multiplier": 1.4
+  "reload_multiplier": 1.4,
+  "icon": "flansbasic:thompson_drum_50"
 }

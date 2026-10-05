@@ -1,0 +1,9 @@
+{
+  "name": "25mm Ammo Box (75)",
+  "caliber": "25x137",
+  "capacity": 75,
+  "guns": [
+    "flansvehicles:m242"
+  ],
+  "icon": "flansvehicles:m242_box_75"
+}

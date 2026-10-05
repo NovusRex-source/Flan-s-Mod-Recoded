@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IDI",
+    "I I"
+  ],
+  "key": {
+    "D": "minecraft:red_dye",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "flansmod:clothing",
+    "components": {
+      "flansmod:clothing": "flansww2:ssh40_helmet"
+    }
+  }
+}

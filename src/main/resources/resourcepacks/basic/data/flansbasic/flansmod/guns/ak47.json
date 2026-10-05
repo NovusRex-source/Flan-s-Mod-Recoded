@@ -12,7 +12,7 @@
   "ads_spread": 0.6,
   "ads_zoom": 1.35,
   "ads_move_speed": 0.6,
-  "rail_ads": 6.8,
+  "rail_ads": 6.85,
   "recoil": {
     "pitch": 1.6,
     "yaw": 0.9
@@ -36,6 +36,7 @@
     "muzzle",
     "underbarrel"
   ],
+  "category": "rifle",
   "display": {
     "gui": {
       "rotation": [
@@ -49,9 +50,9 @@
         0
       ],
       "scale": [
-        0.38,
-        0.38,
-        0.38
+        0.37,
+        0.37,
+        0.37
       ]
     },
     "fixed": {
@@ -66,15 +67,15 @@
         0
       ],
       "scale": [
-        0.38,
-        0.38,
-        0.38
+        0.37,
+        0.37,
+        0.37
       ]
     },
     "ads": {
       "translation": [
         -1.0,
-        6.7,
+        7.2,
         -6
       ]
     }

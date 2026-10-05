@@ -1,0 +1,8 @@
+{
+  "name": "Ammunition Boots & Anklets",
+  "slot": "feet",
+  "asset": "flansww2:uk",
+  "icon": "flansww2:ammunition_boots",
+  "armor": 1.5,
+  "faction": "flansww2:uk"
+}

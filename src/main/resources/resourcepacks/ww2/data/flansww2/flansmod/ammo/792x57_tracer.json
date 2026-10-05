@@ -1,0 +1,11 @@
+{
+  "name": "7.92\u00d757mm Mauser Tracer",
+  "caliber": "792x57",
+  "icon": "flansww2:792x57_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

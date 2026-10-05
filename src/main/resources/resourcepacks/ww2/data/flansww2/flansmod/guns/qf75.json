@@ -1,0 +1,33 @@
+{
+  "name": "Ordnance QF 75mm",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 38,
+  "rpm": 8,
+  "fire_mode": "semi",
+  "reload_ticks": 90,
+  "velocity": 5,
+  "spread": 0.2,
+  "ads_spread": 0.08000000000000002,
+  "ads_zoom": 2.5,
+  "scope": {
+    "overlay": "flansww2:textures/scope/telescope.png"
+  },
+  "lifetime_ticks": 80,
+  "sounds": {
+    "shoot": "flansww2:vehicle.cannon.shoot",
+    "reload": "flansww2:vehicle.cannon.reload",
+    "empty": "flansww2:vehicle.empty"
+  },
+  "gravity": 0.01,
+  "headshot_multiplier": 1.0,
+  "recoil": {
+    "pitch": 3.0,
+    "yaw": 0.5
+  },
+  "tracer": {
+    "color": "#FFE0A0",
+    "width": 0.12,
+    "length": 4
+  }
+}

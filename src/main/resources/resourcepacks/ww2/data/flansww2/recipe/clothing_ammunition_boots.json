@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "JDJ",
+    "J J"
+  ],
+  "key": {
+    "D": "minecraft:brown_dye",
+    "J": "minecraft:leather"
+  },
+  "result": {
+    "id": "flansmod:clothing",
+    "components": {
+      "flansmod:clothing": "flansww2:ammunition_boots"
+    }
+  }
+}

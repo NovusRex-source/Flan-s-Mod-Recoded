@@ -12,6 +12,7 @@ import com.flansmod.recoded.network.HitPayload
 import com.flansmod.recoded.network.ShotPayload
 import com.flansmod.recoded.client.fx.ShotEffects
 import com.flansmod.recoded.client.tab.PackTabs
+import com.flansmod.recoded.client.tab.FactionTabs
 import com.flansmod.recoded.client.tab.TypeTabs
 import net.fabricmc.api.ClientModInitializer
 import com.flansmod.recoded.client.vehicle.VehicleClient
@@ -35,8 +36,9 @@ object FlansModClient : ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(HitPayload.TYPE) { payload, _ -> GunHud.onHit(payload) }
         ClientPlayNetworking.registerGlobalReceiver(ShotPayload.TYPE) { payload, _ -> ShotEffects.onShot(payload) }
         ShotEffects.init()
-        PackTabs.init()
         TypeTabs.init()
+        PackTabs.init()
+        FactionTabs.init()
         EntityRendererRegistry.register(FlansEntities.GRENADE, ::ThrownItemRenderer)
         EntityRendererRegistry.register(FlansEntities.DRIVEABLE, ::VehicleRenderer)
         VehicleClient.init()

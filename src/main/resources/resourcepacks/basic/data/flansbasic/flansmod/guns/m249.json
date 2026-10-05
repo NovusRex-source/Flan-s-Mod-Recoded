@@ -35,6 +35,7 @@
     "muzzle",
     "underbarrel"
   ],
+  "category": "lmg",
   "display": {
     "gui": {
       "rotation": [

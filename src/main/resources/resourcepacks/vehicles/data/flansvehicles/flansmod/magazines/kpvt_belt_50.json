@@ -1,0 +1,9 @@
+{
+  "name": "14.5mm Belt Box (50)",
+  "caliber": "145x114",
+  "capacity": 50,
+  "guns": [
+    "flansvehicles:kpvt"
+  ],
+  "icon": "flansvehicles:kpvt_belt_50"
+}

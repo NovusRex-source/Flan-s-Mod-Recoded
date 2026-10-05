@@ -1,0 +1,36 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "UUU",
+    "GT "
+  ],
+  "key": {
+    "G": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:wood_grip"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    },
+    "U": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:launcher_tube"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:gun",
+    "components": {
+      "flansmod:gun": "flansww2:bazooka"
+    }
+  }
+}

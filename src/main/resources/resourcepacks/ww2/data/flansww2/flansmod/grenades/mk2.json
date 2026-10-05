@@ -1,0 +1,12 @@
+{
+  "name": "Mk 2 Grenade",
+  "fuse_ticks": 80,
+  "bounciness": 0.35,
+  "explosion": {
+    "power": 2.4,
+    "fire": false,
+    "break_blocks": false
+  },
+  "faction": "flansww2:usa",
+  "icon": "flansww2:mk2"
+}

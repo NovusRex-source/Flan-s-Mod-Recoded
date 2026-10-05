@@ -1,0 +1,8 @@
+{
+  "name": "12 Gauge Flechette",
+  "caliber": "12g",
+  "icon": "flansbasic:12g_flechette",
+  "pellets": 12,
+  "armor_piercing": true,
+  "damage_multiplier": 0.7
+}

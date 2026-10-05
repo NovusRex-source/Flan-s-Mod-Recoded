@@ -2,6 +2,6 @@
   "name": "AA-12 Drum (20)",
   "caliber": "12g",
   "capacity": 20,
-  "icon": "flansbasic:aa12_drum_20",
-  "reload_multiplier": 1.5
+  "reload_multiplier": 1.5,
+  "icon": "flansbasic:aa12_drum_20"
 }

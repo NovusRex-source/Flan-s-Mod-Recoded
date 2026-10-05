@@ -1,0 +1,7 @@
+{
+  "name": ".50 AE AP",
+  "caliber": "50ae",
+  "icon": "flansbasic:50ae_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

@@ -11,7 +11,6 @@ import com.flansmod.recoded.gun.Magazines
 import com.flansmod.recoded.gun.Parts
 import com.flansmod.recoded.item.PartItem
 import com.flansmod.recoded.item.MagazineItem
-import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.item.GrenadeItem
 import com.flansmod.recoded.gun.IdentifierSerializer
 import com.flansmod.recoded.item.AmmoItem
@@ -45,7 +44,7 @@ private data class PackTabInfo(
 )
 
 /**
- * One creative tab per content pack, like the original Flan's Mod. Packs are found at client start
+ * Optional (config `packTabs`): one creative tab per content pack, like the original Flan's Mod. Packs are found at client start
  * (built-in pack + `contentpacks/`) via vanilla pack discovery; a tab lists every gun, ammo type and
  * attachment in the pack's data namespaces. Creative tabs are client-only, so servers with other packs
  * are unaffected; items from packs without a tab show up in the generic Flan's Mod tab.
@@ -56,8 +55,8 @@ object PackTabs {
     private val tabs = mutableListOf<PackTab>()
 
     fun init() {
-        discoverPacks().forEach(::register)
-        FlansItems.coveredByPackTab = { id -> tabs.any { id.namespace in it.namespaces } }
+        // Optional (config, needs a restart): the type tabs already list everything.
+        if (com.flansmod.recoded.client.config.FlansConfig.get.packTabs) discoverPacks().forEach(::register)
         // Definitions arrive after joining and change on /reload: make creative tabs rebuild next time.
         Content.onChanged += { CreativeModeTabsAccessor.`flansmod$setCachedParameters`(null) }
     }
@@ -79,18 +78,7 @@ object PackTabs {
             FabricCreativeModeTab.builder()
                 .title(Component.translatableWithFallback("itemGroup.flansmod.pack.$key", info.name))
                 .icon { info.icon?.let(::stackFor) ?: ItemStack(FlansItems.GUN) }
-                .displayItems { _, output ->
-                    fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filter { it.namespace in tab.namespaces }.sorted()
-                    ids(com.flansmod.recoded.gun.Vehicles.all).forEach { output.accept(com.flansmod.recoded.item.VehicleItem.stackFor(it)) }
-                    ids(com.flansmod.recoded.gun.VehicleUpgrades.all).forEach { output.accept(com.flansmod.recoded.item.VehicleUpgradeItem.stackFor(it)) }
-                    ids(Guns.all).filterNot { Guns[it]!!.mounted }.forEach { output.accept(GunItem.stackFor(it)) }
-                    ids(Parts.all).forEach { output.accept(PartItem.stackFor(it)) }
-                    ids(Magazines.all).forEach { output.accept(MagazineItem.stackFor(it, full = true)) }
-                    ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
-                    ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
-                    ids(Grenades.all).filter { Grenades[it]!!.throwable }.forEach { output.accept(GrenadeItem.stackFor(it)) }
-                    ids(com.flansmod.recoded.gun.Clothing.all).forEach { output.accept(com.flansmod.recoded.item.ClothingItem.stackFor(it)) }
-                }
+                .displayItems { _, output -> CreativeContent.all { it.namespace in tab.namespaces }.forEach(output::accept) }
                 .build(),
         )
         FlansMod.LOGGER.info("Creative tab for content pack {} ({})", info.name, namespaces.joinToString())
@@ -108,7 +96,7 @@ object PackTabs {
     }
 
     /** Built-in pack from the mod jar plus everything in `contentpacks/`, opened with vanilla pack classes. */
-    private fun discoverPacks(): List<PackResources> {
+    fun discoverPacks(): List<PackResources> {
         val packs = mutableListOf<PackResources>()
         for (name in FlansMod.BUILTIN_PACKS.keys) {
             FabricLoader.getInstance().getModContainer(FlansMod.MOD_ID).flatMap { it.findPath("resourcepacks/$name") }.ifPresent { path ->

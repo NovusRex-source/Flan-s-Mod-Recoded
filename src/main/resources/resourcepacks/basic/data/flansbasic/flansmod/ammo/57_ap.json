@@ -1,0 +1,7 @@
+{
+  "name": "5.7\u00d728mm AP",
+  "caliber": "57",
+  "icon": "flansbasic:57_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

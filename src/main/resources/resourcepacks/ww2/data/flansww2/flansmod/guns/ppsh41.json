@@ -1,0 +1,79 @@
+{
+  "name": "PPSh-41",
+  "model": {
+    "texture": "flansww2:textures/gun/basic.png"
+  },
+  "damage": 4,
+  "rpm": 900,
+  "fire_mode": "auto",
+  "reload_ticks": 55,
+  "velocity": 11,
+  "spread": 3.6,
+  "ads_spread": 0.72,
+  "ads_zoom": 1.2,
+  "ads_move_speed": 0.6,
+  "rail_ads": 7.4,
+  "recoil": {
+    "pitch": 0.9,
+    "yaw": 0.7
+  },
+  "magazines": [
+    "flansww2:ppsh_drum_71",
+    "flansww2:ppsh_35"
+  ],
+  "sounds": {
+    "shoot": "flansww2:gun.smg.shoot",
+    "reload": "flansww2:gun.reload",
+    "empty": "flansww2:gun.empty"
+  },
+  "fire_modes": [
+    "safe",
+    "auto"
+  ],
+  "attachment_slots": [],
+  "category": "smg",
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.42,
+        0.42,
+        0.42
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.42,
+        0.42,
+        0.42
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        7.0,
+        -6
+      ]
+    }
+  },
+  "faction": "flansww2:ussr"
+}
