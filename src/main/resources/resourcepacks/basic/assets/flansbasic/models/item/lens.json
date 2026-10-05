@@ -1,6 +1,213 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "minecraft:block/block",
   "textures": {
-    "layer0": "flansbasic:item/part/lens"
-  }
+    "m": "flansbasic:item/materials",
+    "particle": "flansbasic:item/materials"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        4,
+        7.5
+      ],
+      "to": [
+        12,
+        12,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            5,
+            15,
+            7
+          ],
+          "texture": "#m"
+        },
+        "south": {
+          "uv": [
+            13,
+            5,
+            15,
+            7
+          ],
+          "texture": "#m"
+        },
+        "east": {
+          "uv": [
+            13,
+            5,
+            15,
+            7
+          ],
+          "texture": "#m"
+        },
+        "west": {
+          "uv": [
+            13,
+            5,
+            15,
+            7
+          ],
+          "texture": "#m"
+        },
+        "up": {
+          "uv": [
+            13,
+            5,
+            15,
+            7
+          ],
+          "texture": "#m"
+        },
+        "down": {
+          "uv": [
+            13,
+            5,
+            15,
+            7
+          ],
+          "texture": "#m"
+        }
+      }
+    },
+    {
+      "from": [
+        3.5,
+        3.5,
+        7.25
+      ],
+      "to": [
+        12.5,
+        4.5,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "south": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "east": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "west": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "up": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "down": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        }
+      }
+    },
+    {
+      "from": [
+        3.5,
+        11.5,
+        7.25
+      ],
+      "to": [
+        12.5,
+        12.5,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "south": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "east": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "west": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "up": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        },
+        "down": {
+          "uv": [
+            13,
+            9,
+            15,
+            11
+          ],
+          "texture": "#m"
+        }
+      }
+    }
+  ]
 }

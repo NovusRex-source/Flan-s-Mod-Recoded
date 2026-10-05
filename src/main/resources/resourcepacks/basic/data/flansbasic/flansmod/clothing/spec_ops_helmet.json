@@ -1,0 +1,9 @@
+{
+  "name": "Spec Ops Helmet (NVG)",
+  "slot": "head",
+  "asset": "flansbasic:spec_ops",
+  "icon": "flansbasic:spec_ops_helmet",
+  "armor": 3,
+  "toughness": 1,
+  "night_vision": true
+}

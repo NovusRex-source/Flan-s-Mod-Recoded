@@ -26,11 +26,12 @@ class WeaponMenuScreen(menu: WeaponMenu, private val inventory: Inventory, title
     override fun init() {
         super.init()
         val modes = gun.definition?.availableModes.orEmpty()
-        val width = 34
+        // Left of the panel: the right side is where recipe viewers show their item list.
+        val width = 58
         modes.forEachIndexed { i, mode ->
-            val x = leftPos + imageWidth + 4
-            val y = topPos + 16 + i * 22
-            addRenderableWidget(Button.builder(modeName(mode)) { selectMode(mode) }.bounds(x, y, width + 20, 20).build())
+            val x = leftPos - width - 4
+            val y = topPos + 4 + i * 22
+            addRenderableWidget(Button.builder(modeName(mode)) { selectMode(mode) }.bounds(x, y, width, 20).build())
         }
     }
 
@@ -67,7 +68,7 @@ class WeaponMenuScreen(menu: WeaponMenu, private val inventory: Inventory, title
         val shot = gun.shotDefinition ?: return
         val mag = gun.loadedMagazine
         val stats = "${shot.damage.format()} dmg · ${shot.rpm} rpm · ${mag?.rounds ?: 0}/${mag?.capacity ?: 0} · ${modeName(gun.fireMode).string}"
-        graphics.text(font, stats, 8, 64, 0xFF404040.toInt(), false)
+        graphics.text(font, stats, (imageWidth - font.width(stats)) / 2, 56, 0xFF404040.toInt(), false)
     }
 
     private fun Float.format() = if (this % 1f == 0f) toInt().toString() else "%.1f".format(this)

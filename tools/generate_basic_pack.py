@@ -249,6 +249,20 @@ ATTACHMENT_RECIPES = {
 GRENADE_RECIPES = {"frag": ["NIN", "IUI", "NIN"], "smoke": ["NHN", "IUI", "NIN"], "flashbang": ["NYN", "IUI", "NIN"],
                    "molotov": [" E ", " Z ", "PUP"]}
 
+# ------------------------------------------------------------------------------------------- clothing
+CLOTHING = {
+    "army_helmet": dict(name="Army Helmet", slot="head", set="army", armor=2, toughness=0.5, recipe=["IVI", "I I"]),
+    "army_jacket": dict(name="Army Jacket", slot="chest", set="army", armor=5, recipe=["MVM", "MMM", "MMM"]),
+    "army_pants": dict(name="Army Pants", slot="legs", set="army", armor=4, recipe=["MVM", "M M", "M M"]),
+    "army_boots": dict(name="Army Boots", slot="feet", set="army", armor=2, recipe=["JVJ", "J J"]),
+    "spec_ops_helmet": dict(name="Spec Ops Helmet (NVG)", slot="head", set="spec_ops", armor=3, toughness=1, night_vision=True,
+                            recipe=["IKI", "LXL"]),
+    "spec_ops_vest": dict(name="Spec Ops Plate Carrier", slot="chest", set="spec_ops", armor=7, toughness=2, speed_modifier=-0.05,
+                          recipe=["IKI", "III", "IKI"]),
+    "spec_ops_pants": dict(name="Spec Ops Pants", slot="legs", set="spec_ops", armor=5, toughness=1, recipe=["MKM", "M M", "M M"]),
+    "spec_ops_boots": dict(name="Spec Ops Boots", slot="feet", set="spec_ops", armor=2, toughness=1, recipe=["JKJ", "J J"]),
+}
+
 # Selector positions per gun (the first non-safe entry is not necessarily the default; "mode" is).
 FIRE_MODES = {
     "glock17": ["safe", "semi"], "m1911": ["safe", "semi"], "deagle": ["safe", "semi"], "revolver": ["semi"],
@@ -555,164 +569,206 @@ def rect(px, x0, y0, x1, y1, c):
             px[(x, y)] = c
 
 
-def ammo_icon(a):
-    px, col, shape = {}, a["colour"], a["shape"]
+# 3D item models: vanilla block-style element models coloured from a 16x16 material atlas (4x4 cells).
+ATLAS = {"metal": (0, 0), "polymer": (4, 0), "wood": (8, 0), "red": (12, 0), "olive": (0, 4), "tan": (4, 4), "steel": (8, 4),
+         "lens": (12, 4), "brass": (0, 8), "copper": (4, 8), "green": (8, 8), "black": (12, 8), "white": (0, 12),
+         "gray": (4, 12), "glass": (8, 12), "orange": (12, 12)}
+ATLAS_COLOURS = {"metal": (58, 61, 66), "polymer": (34, 36, 40), "wood": (122, 82, 48), "red": (190, 35, 35), "olive": (82, 92, 58),
+                 "tan": (176, 150, 108), "steel": (128, 132, 138), "lens": (70, 130, 160), "brass": (205, 165, 60),
+                 "copper": (184, 110, 70), "green": (30, 110, 50), "black": (18, 18, 20), "white": (220, 220, 220),
+                 "gray": (120, 120, 125), "glass": (150, 200, 190), "orange": (230, 130, 30)}
+
+
+def material_atlas(path: Path):
+    rng = random.Random(3)
+    img = Image.new("RGBA", (16, 16))
+    for mat, (ox, oy) in ATLAS.items():
+        for x in range(4):
+            for y in range(4):
+                n = rng.randint(-5, 5)
+                img.putpixel((ox + x, oy + y), tuple(max(0, min(255, c + n)) for c in ATLAS_COLOURS[mat]) + (255,))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path)
+
+
+def el(frm, to, mat="metal"):
+    return (tuple(frm), tuple(to), mat)
+
+
+def model3d(name, elements):
+    """Writes items/<name>.json + models/item/<name>.json as a 3D element model (parent block/block for display)."""
+    write(ASSETS / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{NS}:item/{name}"}})
+    out = []
+    for frm, to, mat in elements:
+        cx, cy = ATLAS[mat]
+        face = {"uv": [cx + 1, cy + 1, cx + 3, cy + 3], "texture": "#m"}
+        out.append({"from": [round(max(0, min(16, v)), 3) for v in frm], "to": [round(max(0, min(16, v)), 3) for v in to],
+                    "faces": {f: dict(face) for f in ("north", "south", "east", "west", "up", "down")}})
+    write(ASSETS / "models" / "item" / f"{name}.json", {"parent": "minecraft:block/block",
+          "textures": {"m": f"{NS}:item/materials", "particle": f"{NS}:item/materials"}, "elements": out})
+
+
+def normalize(cubes, target=14.0):
+    """Gun-model cubes (pixels, origin at the gun) → elements centred in the 0..16 item space."""
+    lo = [min(c["origin"][i] for c in cubes) for i in range(3)]
+    hi = [max(c["origin"][i] + c["size"][i] for c in cubes) for i in range(3)]
+    scale = min(1.6, target / max(hi[i] - lo[i] for i in range(3)))
+    centre = [(lo[i] + hi[i]) / 2 for i in range(3)]
+    mats = {tuple(v): k for k, v in MATERIALS.items()}
+    result = []
+    for c in cubes:
+        frm = [8 + (c["origin"][i] - centre[i]) * scale for i in range(3)]
+        to = [8 + (c["origin"][i] + c["size"][i] - centre[i]) * scale for i in range(3)]
+        result.append(el(frm, to, mats.get(tuple(c["uv"]), "metal")))
+    return result
+
+
+def part_model(kind):
+    m = {"barrel": [el((1, 7, 7), (15, 9, 9)), el((14, 6.75, 6.75), (15.5, 9.25, 9.25), "polymer")],
+         "long_barrel": [el((0, 7.25, 7.25), (16, 8.75, 8.75)), el((0, 7, 7), (1.5, 9, 9), "polymer")],
+         "heavy_barrel": [el((1, 6.5, 6.5), (15, 9.5, 9.5)), el((0, 6, 6), (2, 10, 10), "steel")],
+         "tube": [el((1, 5, 5), (15, 11, 11), "olive"), el((0, 4.5, 4.5), (1.5, 11.5, 11.5), "olive")],
+         "frame": [el((3, 7, 7), (13, 10, 9)), el((9, 3, 7.25), (12, 7, 8.75), "polymer"), el((6, 6, 7.5), (8, 7, 8.5), "black")],
+         "receiver": [el((2, 6, 6.5), (14, 10, 9.5)), el((6, 8.5, 9.5), (10, 9.5, 9.75), "black"), el((4, 10, 7.5), (12, 10.5, 8.5), "steel")],
+         "cylinder": [el((4, 4, 4), (12, 12, 12), "steel"), el((5, 12, 5), (11, 12.5, 11), "metal")],
+         "trigger": [el((4, 8, 6), (12, 10, 10)), el((7.5, 5, 7.5), (8.5, 8, 8.5), "black"), el((5, 4, 7.5), (11, 5, 8.5), "black")],
+         "bolt": [el((2, 7, 7), (14, 9, 9), "steel"), el((10, 9, 7.5), (11, 12, 8.5), "steel"), el((9.5, 12, 7), (11.5, 13, 9), "black")],
+         "gas": [el((1, 9, 7.5), (15, 10, 8.5), "steel"), el((4, 6.5, 6.5), (7, 10, 9.5))],
+         "spring": [el((2 + i * 1.5, 7 + (i % 2), 7), (3.5 + i * 1.5, 8 + (i % 2), 9), "steel") for i in range(8)],
+         "wood_stock": [el((1, 6, 6.5), (9, 10, 9.5), "wood"), el((9, 4, 6.5), (15, 10, 9.5), "wood"), el((14.5, 3.5, 6.25), (15.5, 10.5, 9.75), "black")],
+         "polymer_stock": [el((1, 7, 6.5), (9, 10, 9.5), "polymer"), el((9, 5, 6.5), (15, 10, 9.5), "polymer"), el((14.5, 4.5, 6.25), (15.5, 10.5, 9.75), "black")],
+         "folding_stock": [el((1, 9, 7.5), (15, 10, 8.5)), el((1, 5, 7.5), (15, 6, 8.5)), el((14, 5, 7.5), (15, 10, 8.5))],
+         "wood_grip": [el((6, 3, 6.5), (9, 10, 9.5), "wood"), el((5, 10, 6.5), (11, 12, 9.5), "metal")],
+         "polymer_grip": [el((6, 3, 6.5), (9, 10, 9.5), "polymer"), el((5, 10, 6.5), (11, 12, 9.5), "metal")],
+         "lens": [el((4, 4, 7.5), (12, 12, 8.5), "lens"), el((3.5, 3.5, 7.25), (12.5, 4.5, 8.75), "black"), el((3.5, 11.5, 7.25), (12.5, 12.5, 8.75), "black")],
+         "circuit": [el((2, 7.5, 3), (14, 8.5, 13), "green"), el((4, 8.5, 5), (7, 9.5, 8), "black"), el((9, 8.5, 9), (12, 9.5, 11), "brass")],
+         "sheet": [el((3, 7.5, 3), (13, 8.5, 13), "polymer"), el((4, 8.5, 4), (12, 8.75, 12), "black")]}
+    return m[kind]
+
+
+def ammo_model(a):
+    shape = a["shape"]
+    tip = "black" if a.get("armor_piercing") else "red" if "tracer" in a else "orange" if a.get("fire_seconds") else "copper"
+    if shape == "shell":
+        body = "lens" if a.get("pellets") == 1 else "orange" if a.get("fire_seconds") else "red"
+        return [e for x in (4, 9) for e in (el((x, 2, 7), (x + 3, 10, 10), body), el((x, 2, 7), (x + 3, 4, 10), "brass"))]
     if shape == "40mm":
-        rect(px, 4, 4, 11, 13, (190, 160, 60)); rect(px, 4, 2, 11, 6, col); rect(px, 5, 1, 10, 2, shade(col, 1.2))
-        return px
+        return [el((5, 2, 5), (11, 7, 11), "brass"), el((5, 7, 5), (11, 12, 11), "olive"), el((6, 12, 6), (10, 13, 10), "olive")]
     if shape == "rocket":
-        rect(px, 6, 1, 9, 9, col); rect(px, 7, 0, 8, 0, col); rect(px, 7, 9, 8, 13, (90, 90, 90))
-        rect(px, 5, 12, 10, 14, (70, 70, 70))
-        return px
-    rounds = [(4, 4), (8, 3), (11, 5)] if shape != "shell" else [(4, 3), (9, 4)]
-    length = {"pistol": 6, "rifle": 9, "big": 11, "shell": 8}[shape]
-    width = 3 if shape in ("shell", "big") else 2
-    for rx, ry in rounds:
-        for dy in range(length):
-            for dx in range(width):
-                if shape == "shell":
-                    c = (200, 170, 60) if dy >= length - 2 else shade(col, 1.0 if dx == 0 else 0.8)
-                else:
-                    tip = col if col[0] < 100 or col[2] > 100 or col[1] < 80 else (150, 110, 70)
-                    c = shade(tip, 1.0 if dx == 0 else 0.8) if dy < 2 else shade((200, 165, 60), 1.0 if dx == 0 else 0.8)
-                px[(rx + dx, ry + dy)] = c
-    return px
+        return [el((7, 0, 7), (9, 6, 9), "metal"), el((6, 6, 6), (10, 12, 10), "olive"), el((6.5, 12, 6.5), (9.5, 15, 9.5), "olive"),
+                el((7.25, 15, 7.25), (8.75, 16, 8.75), "olive"), el((5.5, 0, 7.75), (10.5, 2, 8.25), "metal")]
+    height = {"pistol": 6, "rifle": 9, "big": 12}[shape]
+    width = 2.5 if shape == "big" else 2
+    out = []
+    for x, z in ((4, 6), (7.5, 8), (11, 6.5)):
+        out.append(el((x, 2, z), (x + width, 2 + height, z + width), "brass"))
+        out.append(el((x + 0.3, 2 + height, z + 0.3), (x + width - 0.3, 4.5 + height * 0.25, z + width - 0.3), tip))
+    return out
 
 
-def magazine_icon(kind):
-    px, dark, mid = {}, (45, 47, 52), (85, 88, 95)
-    if kind in ("stick", "pistol"):
-        h = 13 if kind == "stick" else 9
-        rect(px, 6, 15 - h, 9, 14, dark); rect(px, 6, 15 - h, 6, 14, mid); rect(px, 7, 14 - h, 8, 14 - h, (200, 165, 60))
-    elif kind == "curved":
-        for i, y in enumerate(range(2, 15)):
-            off = i // 4
-            rect(px, 5 + off, y, 8 + off, y, dark)
-            px[(5 + off, y)] = mid
-    elif kind == "drum":
-        for x in range(16):
-            for y in range(16):
-                if (x - 7.5) ** 2 + (y - 8.5) ** 2 <= 36:
-                    px[(x, y)] = mid if (x - 7.5) ** 2 + (y - 8.5) ** 2 <= 9 else dark
-        rect(px, 6, 1, 9, 3, dark)
-    elif kind == "box":
-        rect(px, 2, 4, 13, 13, (70, 80, 55)); rect(px, 2, 4, 13, 5, (90, 100, 70)); rect(px, 6, 2, 9, 4, dark)
-    elif kind == "loader":
-        for x in range(16):
-            for y in range(16):
-                if (x - 7.5) ** 2 + (y - 7.5) ** 2 <= 30:
-                    px[(x, y)] = dark
-        for a in range(6):
-            x = int(7.5 + 3.2 * math.cos(a * math.pi / 3)); y = int(7.5 + 3.2 * math.sin(a * math.pi / 3))
-            rect(px, x, y, x + 1, y + 1, (200, 165, 60))
-    elif kind == "shells":
-        rect(px, 2, 5, 13, 11, (70, 60, 40))
-        for x in (3, 6, 9, 12):
-            rect(px, x, 6, x + 1, 10, (190, 40, 40)); px[(x, 10)] = (200, 170, 60)
-    elif kind == "rocket":
-        rect(px, 6, 1, 9, 9, (90, 100, 60)); rect(px, 7, 9, 8, 13, (90, 90, 90)); rect(px, 5, 12, 10, 14, (70, 70, 70))
-    return px
+def magazine_model(kind):
+    m = {"pistol": [el((6.5, 3, 7), (9.5, 12, 9), "polymer"), el((6.5, 2, 6.75), (9.5, 3, 9.25), "black"), el((7, 12, 7.25), (9, 12.5, 8.75), "brass")],
+         "stick": [el((6.5, 1, 6.5), (9.5, 14, 9.5), "steel"), el((6.25, 0, 6.25), (9.75, 1, 9.75), "black"), el((7, 14, 7), (9, 15, 9), "brass")],
+         "curved": [el((6.5, 7, 6.5), (9.5, 14, 9.5), "steel"), el((5, 1, 6.5), (8, 7.5, 9.5), "steel"), el((7, 14, 7), (9, 15, 9), "brass")],
+         "drum": [el((3, 2, 5.5), (13, 12, 10.5), "steel"), el((4, 1, 6), (12, 13, 10), "steel"), el((6.5, 12, 7), (9.5, 16, 9), "steel"),
+                  el((7, 6, 10.5), (9, 8, 11), "black")],
+         "box": [el((3, 2, 4), (13, 11, 12), "olive"), el((3, 11, 4), (13, 12, 12), "olive"), el((7, 12, 7), (9, 14, 9), "black")],
+         "loader": [el((5, 5, 5), (11, 7, 11), "black")] + [el((6 + dx * 3, 7, 6 + dz * 3), (7 + dx * 3, 10, 7 + dz * 3), "brass")
+                                                             for dx in (0, 1) for dz in (0, 1)],
+         "shells": [el((2, 4, 6), (14, 6, 10), "black")] + [el((3 + i * 3, 6, 7), (5 + i * 3, 11, 9), "red") for i in range(4)],
+         "rocket": ammo_model({"shape": "rocket"})}
+    return m[kind]
 
 
-def attachment_icon(aid):
+def grenade_model(gid):
+    m = {"frag": [el((5, 2, 5), (11, 10, 11), "olive"), el((6.5, 10, 6.5), (9.5, 12, 9.5), "steel"), el((9.5, 7, 7.5), (10.5, 12, 8.5), "steel"),
+                  el((5, 5, 5), (11, 6, 11), "black")],
+         "smoke": [el((5, 2, 5), (11, 12, 11), "gray"), el((5, 8, 5), (11, 9, 11), "white"), el((6.5, 12, 6.5), (9.5, 13, 9.5), "steel")],
+         "flashbang": [el((5.5, 2, 5.5), (10.5, 12, 10.5), "black"), el((5.25, 4, 5.25), (10.75, 5, 10.75), "steel"),
+                       el((5.25, 9, 5.25), (10.75, 10, 10.75), "steel"), el((7, 12, 7), (9, 14, 9), "steel")],
+         "molotov": [el((5.5, 1, 5.5), (10.5, 9, 10.5), "glass"), el((7, 9, 7), (9, 13, 9), "glass"), el((7.25, 13, 7.25), (8.75, 15, 8.75), "red")]}
+    return m[gid]
+
+
+def armor_textures(set_name, folder: Path):
+    """Vanilla humanoid armour layout (64x32): 'humanoid' (helmet, torso, arms, boots) and 'humanoid_leggings'."""
+    rng = random.Random(hash(set_name) & 0xFFFF)
+    army = set_name == "army"
+    palette = [(85, 95, 60), (55, 68, 38), (104, 84, 54), (33, 34, 28)] if army else [(32, 33, 36), (24, 25, 27), (42, 44, 48), (18, 18, 20)]
+
+    def camo(img, box):
+        x0, y0, x1, y1 = box
+        for x in range(x0, x1):
+            for y in range(y0, y1):
+                img.putpixel((x, y), palette[0] + (255,))
+        if army:
+            for _ in range((x1 - x0) * (y1 - y0) // 10):
+                cx, cy, c = rng.randrange(x0, x1), rng.randrange(y0, y1), palette[rng.randrange(1, 4)]
+                for dx in range(rng.randint(1, 3)):
+                    for dy in range(rng.randint(1, 2)):
+                        if x0 <= cx + dx < x1 and y0 <= cy + dy < y1:
+                            img.putpixel((cx + dx, cy + dy), c + (255,))
+        else:
+            for x in range(x0, x1):
+                for y in range(y0, y1):
+                    if rng.random() < 0.15:
+                        img.putpixel((x, y), palette[rng.randrange(1, 4)] + (255,))
+
+    main = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+    camo(main, (0, 0, 32, 16))                 # helmet
+    for x in range(9, 15):                     # face stays visible
+        for y in range(11 if army else 13, 16):
+            main.putpixel((x, y), (0, 0, 0, 0))
+    if not army:
+        for x in range(8, 16):                 # balaclava eye slit + NVG lenses on the hat layer
+            main.putpixel((x, 11), (0, 0, 0, 0)); main.putpixel((x, 12), (0, 0, 0, 0))
+        for x0 in (41, 45):
+            for x in range(x0, x0 + 2):
+                for y in range(10, 12):
+                    main.putpixel((x, y), (60, 200, 80, 255))
+        for x in range(40, 48):
+            main.putpixel((x, 9), (30, 30, 32, 255))
+    camo(main, (16, 16, 40, 32))               # torso
+    camo(main, (40, 16, 56, 32))               # arms
+    if not army:                               # plate carrier pouches
+        for x0 in (21, 24):
+            for x in range(x0, x0 + 2):
+                for y in range(25, 28):
+                    main.putpixel((x, y), (55, 58, 50, 255))
+    for x in range(0, 16):                     # boots: lower leg + soles
+        for y in range(16, 32):
+            if y >= 27 or (y < 20 and 8 <= x < 12):
+                main.putpixel((x, y), ((40, 30, 20) if army else (15, 15, 16)) + (255,))
+    legs = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+    camo(legs, (0, 16, 16, 32))
+    camo(legs, (16, 16, 40, 32))
+    for x in range(16, 40):                    # belt
+        for y in range(26, 28):
+            legs.putpixel((x, y), (30, 25, 20, 255))
+    (folder / "humanoid").mkdir(parents=True, exist_ok=True)
+    (folder / "humanoid_leggings").mkdir(parents=True, exist_ok=True)
+    main.save(folder / "humanoid" / f"{set_name}.png")
+    legs.save(folder / "humanoid_leggings" / f"{set_name}.png")
+
+
+def clothing_icon(c):
     px = {}
-    dark, mid, red, lens = (40, 42, 46), (70, 73, 80), (220, 40, 40), (90, 150, 170)
-    if aid == "red_dot":
-        rect(px, 3, 11, 12, 12, dark); rect(px, 5, 5, 10, 10, mid); rect(px, 6, 6, 9, 9, lens); px[(7, 7)] = red
-    elif aid == "holographic":
-        rect(px, 2, 11, 13, 12, dark); rect(px, 3, 4, 12, 10, mid); rect(px, 4, 5, 11, 9, lens); px[(7, 7)] = red; px[(8, 7)] = red
-    elif aid in ("acog", "sniper_scope", "nv_scope", "thermal_scope"):
-        body = {"acog": (176, 150, 108), "sniper_scope": dark, "nv_scope": (82, 92, 58), "thermal_scope": (34, 36, 40)}[aid]
-        x0, x1 = (1, 14) if aid == "sniper_scope" else (3, 12)
-        rect(px, x0, 6, x1, 9, body); rect(px, x0 - 1, 5, x0 + 1, 10, shade(body, 1.2)); rect(px, x1 - 1, 5, x1 + 1, 10, shade(body, 1.2))
-        rect(px, 5, 10, 6, 12, dark); rect(px, 9, 10, 10, 12, dark)
-        if aid == "nv_scope":
-            rect(px, x1, 7, x1, 8, (80, 255, 80))
-        if aid == "thermal_scope":
-            rect(px, x1, 7, x1, 8, (255, 140, 30))
-    elif aid == "suppressor":
-        rect(px, 1, 6, 14, 9, dark); rect(px, 1, 6, 14, 6, mid)
-    elif aid == "compensator":
-        rect(px, 4, 5, 11, 10, mid); rect(px, 5, 6, 6, 9, dark); rect(px, 9, 6, 10, 9, dark)
-    elif aid == "muzzle_brake":
-        rect(px, 3, 5, 12, 10, (128, 132, 138)); rect(px, 5, 4, 6, 11, dark); rect(px, 9, 4, 10, 11, dark)
-    elif aid == "vertical_grip":
-        rect(px, 3, 2, 12, 4, mid); rect(px, 6, 4, 9, 14, dark); rect(px, 6, 4, 6, 14, mid)
-    elif aid == "angled_grip":
-        rect(px, 2, 3, 13, 5, mid)
-        for i in range(8):
-            rect(px, 9 - i // 2, 5 + i, 12 - i // 2, 5 + i, dark)
-    return px
-
-
-def grenade_icon(gid):
-    px = {}
-    body = {"frag": (70, 90, 50), "smoke": (120, 120, 125), "flashbang": (60, 62, 68), "molotov": (150, 60, 30)}[gid]
-    for x in range(5, 11):
-        for y in range(5, 14):
-            if gid == "frag" and (x in (5, 10) and y in (5, 13)):
-                continue
-            px[(x, y)] = shade(body, 1.15 if x < 7 else 0.85 if x > 8 else 1.0)
-    if gid == "frag":
-        for y in (7, 9, 11):
-            rect(px, 5, y, 10, y, shade(body, 0.7))
-    if gid == "smoke":
-        rect(px, 5, 9, 10, 9, (200, 200, 200))
-    if gid in ("flashbang", "molotov"):
-        rect(px, 6, 7, 9, 7, (40, 40, 44)); rect(px, 6, 10, 9, 10, (40, 40, 44))
-    rect(px, 6, 3, 9, 4, (150, 150, 155))
-    px[(10, 3)] = (190, 170, 60)
-    px[(11, 4)] = (190, 170, 60)
-    return px
-
-
-def part_icon(kind):
-    px = {}
-    metal, dark, wood, poly, light = (95, 98, 105), (45, 47, 52), (122, 82, 48), (40, 42, 46), (150, 150, 155)
-    if kind in ("barrel", "long_barrel"):
-        rect(px, 1 if kind == "long_barrel" else 3, 7, 14 if kind == "long_barrel" else 12, 8, metal); rect(px, 1 if kind == "long_barrel" else 3, 7, 14 if kind == "long_barrel" else 12, 7, light)
-    elif kind == "heavy_barrel":
-        rect(px, 1, 6, 14, 9, metal); rect(px, 1, 6, 14, 6, light)
-    elif kind == "tube":
-        rect(px, 1, 5, 14, 10, (82, 92, 58)); rect(px, 1, 7, 1, 8, dark)
-    elif kind in ("frame", "receiver"):
-        rect(px, 2, 5, 13, 9, metal); rect(px, 2, 5, 13, 5, light); rect(px, 5, 10, 6, 12, dark)
-        if kind == "frame":
-            rect(px, 9, 10, 12, 14, dark)
-    elif kind == "cylinder":
-        rect(px, 4, 4, 11, 11, metal)
-        for x, y in ((5, 5), (9, 5), (5, 9), (9, 9), (7, 7)):
-            rect(px, x, y, x + 1, y + 1, dark)
-    elif kind == "trigger":
-        rect(px, 4, 4, 11, 6, metal); rect(px, 7, 7, 8, 10, dark); rect(px, 5, 11, 10, 11, dark)
-    elif kind == "bolt":
-        rect(px, 2, 7, 13, 9, light); rect(px, 10, 4, 11, 7, light)
-    elif kind == "gas":
-        rect(px, 1, 6, 14, 7, metal); rect(px, 4, 8, 11, 9, light)
-    elif kind == "spring":
-        for i in range(12):
-            px[(2 + i, 6 + (i % 2) * 3)] = light
-            px[(2 + i, 7 + (i % 2))] = metal
-    elif kind in ("wood_stock", "polymer_stock"):
-        c = wood if kind == "wood_stock" else poly
-        for y in range(5, 12):
-            rect(px, 2, y, 6 + (y - 5), y, c)
-    elif kind == "folding_stock":
-        rect(px, 2, 5, 13, 5, metal); rect(px, 2, 11, 13, 11, metal); rect(px, 13, 5, 13, 11, metal)
-    elif kind in ("wood_grip", "polymer_grip"):
-        c = wood if kind == "wood_grip" else poly
-        for i in range(9):
-            rect(px, 6 + i // 3, 4 + i, 9 + i // 3, 4 + i, c)
-    elif kind == "lens":
-        for x in range(16):
-            for y in range(16):
-                if (x - 7.5) ** 2 + (y - 7.5) ** 2 <= 20:
-                    px[(x, y)] = (90, 150, 180) if (x - 6) ** 2 + (y - 6) ** 2 > 2 else (220, 240, 255)
-    elif kind == "circuit":
-        rect(px, 2, 3, 13, 12, (30, 110, 50)); rect(px, 4, 5, 6, 7, (200, 170, 60)); rect(px, 9, 8, 11, 10, dark)
-        rect(px, 4, 10, 8, 10, (200, 170, 60))
-    elif kind == "sheet":
-        rect(px, 3, 3, 12, 12, poly); rect(px, 3, 3, 12, 3, (70, 72, 78))
+    col = (85, 95, 60) if c["set"] == "army" else (32, 33, 36)
+    dark = shade(col, 0.7)
+    slot = c["slot"]
+    if slot == "head":
+        rect(px, 3, 4, 12, 9, col); rect(px, 2, 9, 13, 10, dark)
+        if c.get("night_vision"):
+            rect(px, 5, 2, 10, 4, (30, 30, 32)); px[(6, 3)] = (60, 200, 80); px[(9, 3)] = (60, 200, 80)
+    elif slot == "chest":
+        rect(px, 2, 2, 13, 5, col); rect(px, 4, 5, 11, 14, col); rect(px, 1, 3, 3, 9, dark); rect(px, 12, 3, 14, 9, dark)
+        if c["set"] != "army":
+            rect(px, 5, 8, 6, 10, (55, 58, 50)); rect(px, 9, 8, 10, 10, (55, 58, 50))
+    elif slot == "legs":
+        rect(px, 3, 2, 12, 5, col); rect(px, 3, 5, 6, 14, col); rect(px, 9, 5, 12, 14, col); rect(px, 3, 2, 12, 2, (30, 25, 20))
+    else:
+        rect(px, 2, 8, 6, 13, (40, 30, 20) if c["set"] == "army" else (15, 15, 16)); rect(px, 9, 8, 13, 13, (40, 30, 20) if c["set"] == "army" else (15, 15, 16))
+        rect(px, 2, 13, 7, 14, (20, 20, 20)); rect(px, 9, 13, 14, 14, (20, 20, 20))
     return px
 
 
@@ -728,7 +784,8 @@ RAW = {"I": "minecraft:iron_ingot", "N": "minecraft:iron_nugget", "B": "minecraf
        "K": "minecraft:black_dye", "S": "minecraft:slime_ball", "R": "minecraft:redstone", "Q": "minecraft:quartz",
        "P": "minecraft:glass_pane", "G": "minecraft:gold_ingot", "C": "minecraft:copper_ingot", "U": "minecraft:gunpowder",
        "T": "minecraft:tnt", "H": "minecraft:paper", "Z": "minecraft:blaze_powder", "Y": "minecraft:glowstone_dust",
-       "E": "minecraft:string", "O": "minecraft:emerald"}
+       "E": "minecraft:string", "O": "minecraft:emerald", "V": "minecraft:green_dye", "M": "#minecraft:wool",
+       "J": "minecraft:leather"}
 _signatures = {}
 
 
@@ -801,13 +858,13 @@ def main():
         "flansmod": {"name": "Flan's Basic Weapons", "icon": f"{NS}:ak47"}})
 
     gun_texture(ASSETS / "textures" / "gun" / "basic.png")
+    material_atlas(ASSETS / "textures" / "item" / "materials.png")
     for kind in ("acog", "pso", "sniper", "night_vision", "thermal"):
         scope_overlay(ASSETS / "textures" / "scope" / f"{kind}.png", kind)
 
     for pid, part in PARTS.items():
         write(DATA / "flansmod" / "parts" / f"{pid}.json", {"name": part["name"], "icon": f"{NS}:{pid}"})
-        item_model(pid, "part")
-        icon(ASSETS / "textures" / "item" / "part" / f"{pid}.png", part_icon(part["icon"]))
+        model3d(pid, part_model(part["icon"]))
         extra = {k: part_ingredient(v) for k, v in part.get("uses", {}).items()}
         bench(f"part_{pid}", part["pattern"], raw_key(part["pattern"], extra), {"id": "flansmod:part", "count": part.get("count", 1),
               "components": {"flansmod:part": f"{NS}:{pid}"}})
@@ -828,8 +885,7 @@ def main():
         if m.get("reload"):
             definition["reload_multiplier"] = m["reload"]
         write(DATA / "flansmod" / "magazines" / f"{mid}.json", definition)
-        item_model(mid, "magazine")
-        icon(ASSETS / "textures" / "item" / "magazine" / f"{mid}.png", magazine_icon(m["kind"]))
+        model3d(mid, magazine_model(m["kind"]))
         shape = list(MAGAZINE_SHAPES[m["kind"]])
         if m["kind"] in ("stick", "pistol") and m["capacity"] > 25:
             shape = ["I"] + shape
@@ -841,8 +897,7 @@ def main():
         if "projectile" in fields:
             fields["projectile"] = f"{NS}:{fields['projectile']}"
         write(DATA / "flansmod" / "ammo" / f"{aid}.json", {"name": a["name"], "caliber": a["caliber"], "icon": f"{NS}:{aid}", **fields})
-        item_model(aid, "ammo")
-        icon(ASSETS / "textures" / "item" / "ammo" / f"{aid}.png", ammo_icon(a))
+        model3d(aid, ammo_model(a))
         count = 4 if a["shape"] in ("40mm", "rocket") else 8 if a["shape"] in ("shell", "big") else 16
         components = {"flansmod:ammo_type": f"{NS}:{aid}"}
         if a.get("max_stack", 64) != 64:
@@ -855,8 +910,8 @@ def main():
 
     for i, (aid, a) in enumerate(ATTACHMENTS.items()):
         write(DATA / "flansmod" / "attachments" / f"{aid}.json", {"name": a["name"], "slot": a["slot"], "icon": f"{NS}:{aid}", **a["stats"]})
-        item_model(aid, "attachment")
-        icon(ASSETS / "textures" / "item" / "attachment" / f"{aid}.png", attachment_icon(aid))
+        fake_gun = {"sight": (4, 0), "muzzle": (8, 6), "under": (12, -2)}
+        model3d(aid, normalize(attachment_cubes(aid, fake_gun)))
         shape = ATTACHMENT_RECIPES[aid]
         bench(f"attachment_{aid}", shape, raw_key(shape, {"L": part_ingredient("lens"), "X": part_ingredient("circuit") if "scope" in aid or aid in ("red_dot", "holographic") else part_ingredient("polymer")}), {"id": "flansmod:attachment", "components": {
             "flansmod:attachment": f"{NS}:{aid}"}})
@@ -865,8 +920,7 @@ def main():
         definition = dict(gr)
         if gr.get("throwable", True):
             definition["icon"] = f"{NS}:{gid}"
-            item_model(gid, "grenade")
-            icon(ASSETS / "textures" / "item" / "grenade" / f"{gid}.png", grenade_icon(gid))
+            model3d(gid, grenade_model(gid))
             shape = GRENADE_RECIPES[gid]
             bench(f"grenade_{gid}", shape, raw_key(shape), {"id": "flansmod:grenade", "count": 2, "components": {
                 "flansmod:grenade": f"{NS}:{gid}"}})
@@ -876,13 +930,28 @@ def main():
             definition["icon"] = f"{NS}:{ammo_id}"
         write(DATA / "flansmod" / "grenades" / f"{gid}.json", definition)
 
+    for set_name in sorted({c["set"] for c in CLOTHING.values()}):
+        armor_textures(set_name, ASSETS / "textures" / "entity" / "equipment")
+        write(ASSETS / "equipment" / f"{set_name}.json", {"layers": {
+            "humanoid": [{"texture": f"{NS}:{set_name}"}], "humanoid_leggings": [{"texture": f"{NS}:{set_name}"}]}})
+    for cid, c in CLOTHING.items():
+        definition = {"name": c["name"], "slot": c["slot"], "asset": f"{NS}:{c['set']}", "icon": f"{NS}:{cid}", "armor": c["armor"]}
+        for key in ("toughness", "night_vision", "speed_modifier"):
+            if key in c:
+                definition[key] = c[key]
+        write(DATA / "flansmod" / "clothing" / f"{cid}.json", definition)
+        item_model(cid, "clothing")
+        icon(ASSETS / "textures" / "item" / "clothing" / f"{cid}.png", clothing_icon(c))
+        bench(f"clothing_{cid}", c["recipe"], raw_key(c["recipe"], {"L": part_ingredient("lens"), "X": part_ingredient("circuit")}),
+              {"id": "flansmod:clothing", "components": {"flansmod:clothing": f"{NS}:{cid}"}}, extend=True)
+
     lang = {}
     for event in sounds():
         lang[f"subtitles.{NS}.{event}"] = "Gunshot" if "shoot" in event or "suppressed" in event else \
             "Gun reloads" if "reload" in event else "Gun clicks"
     write(ASSETS / "lang" / "en_us.json", lang)
     print(f"Generated {len(GUNS)} guns, {len(MAGAZINES)} magazines, {len(AMMO)} ammo types, {len(ATTACHMENTS)} attachments, "
-          f"{len(GRENADES)} grenades/projectiles, {len(PARTS)} parts, {len(_signatures)} bench recipes in {ROOT}")
+          f"{len(GRENADES)} grenades/projectiles, {len(PARTS)} parts, {len(CLOTHING)} clothing, {len(_signatures)} bench recipes in {ROOT}")
 
 
 if __name__ == "__main__":

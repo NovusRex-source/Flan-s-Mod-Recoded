@@ -1,6 +1,7 @@
 package com.flansmod.recoded.bench
 
 import com.flansmod.recoded.registry.FlansRecipes
+import com.flansmod.recoded.item.ClothingItem
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.codecs.RecordCodecBuilder
@@ -42,7 +43,8 @@ class WeaponAssemblyRecipe(val pattern: List<String>, val key: Map<Char, Ingredi
         return true
     }
 
-    override fun assemble(input: CraftingInput): ItemStack = result.create()
+    // Clothing only carries its id in recipe JSON; derive equippable/armour components right away.
+    override fun assemble(input: CraftingInput): ItemStack = result.create().also(ClothingItem::applyDefinition)
     override fun showNotification() = false
     override fun group() = ""
     override fun getSerializer() = FlansRecipes.WEAPON_ASSEMBLY_SERIALIZER

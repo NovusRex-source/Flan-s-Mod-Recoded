@@ -1,0 +1,8 @@
+{
+  "name": "Army Helmet",
+  "slot": "head",
+  "asset": "flansbasic:army",
+  "icon": "flansbasic:army_helmet",
+  "armor": 2,
+  "toughness": 0.5
+}

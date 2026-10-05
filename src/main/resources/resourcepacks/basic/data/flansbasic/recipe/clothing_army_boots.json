@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "JVJ",
+    "J J"
+  ],
+  "key": {
+    "J": "minecraft:leather",
+    "V": "minecraft:green_dye"
+  },
+  "result": {
+    "id": "flansmod:clothing",
+    "components": {
+      "flansmod:clothing": "flansbasic:army_boots"
+    }
+  }
+}

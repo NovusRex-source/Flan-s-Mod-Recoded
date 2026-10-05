@@ -12,6 +12,7 @@ import com.flansmod.recoded.network.HitPayload
 import com.flansmod.recoded.network.ShotPayload
 import com.flansmod.recoded.client.fx.ShotEffects
 import com.flansmod.recoded.client.tab.PackTabs
+import com.flansmod.recoded.client.tab.TypeTabs
 import net.fabricmc.api.ClientModInitializer
 import com.flansmod.recoded.client.bench.WeaponsBenchScreen
 import com.flansmod.recoded.client.bench.WeaponMenuScreen
@@ -32,6 +33,7 @@ object FlansModClient : ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(ShotPayload.TYPE) { payload, _ -> ShotEffects.onShot(payload) }
         ShotEffects.init()
         PackTabs.init()
+        TypeTabs.init()
         EntityRendererRegistry.register(FlansEntities.GRENADE, ::ThrownItemRenderer)
         MenuScreens.register(FlansMenus.WEAPONS_BENCH, ::WeaponsBenchScreen)
         MenuScreens.register(FlansMenus.WEAPON, ::WeaponMenuScreen)

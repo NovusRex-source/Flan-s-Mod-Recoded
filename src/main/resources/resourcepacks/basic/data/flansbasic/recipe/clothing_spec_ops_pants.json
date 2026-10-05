@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "MKM",
+    "M M",
+    "M M"
+  ],
+  "key": {
+    "K": "minecraft:black_dye",
+    "M": "#minecraft:wool"
+  },
+  "result": {
+    "id": "flansmod:clothing",
+    "components": {
+      "flansmod:clothing": "flansbasic:spec_ops_pants"
+    }
+  }
+}

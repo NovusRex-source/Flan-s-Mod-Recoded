@@ -6,6 +6,8 @@ import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Grenades
 import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.Parts
+import com.flansmod.recoded.gun.Clothing
+import com.flansmod.recoded.item.ClothingItem
 import com.flansmod.recoded.item.PartItem
 import com.flansmod.recoded.bench.WeaponAssemblyRecipe
 import com.flansmod.recoded.bench.WeaponsBenchBlock
@@ -73,6 +75,11 @@ object FlansComponents {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     }
 
+    /** Which [com.flansmod.recoded.gun.ClothingDefinition] a clothing stack represents. */
+    val CLOTHING: DataComponentType<Identifier> = register("clothing") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
     /** Selected fire mode of a gun stack (see GunDefinition.fire_modes). */
     val FIRE_MODE: DataComponentType<FireMode> = register("fire_mode") {
         persistent(Codec.STRING.xmap({ FireMode.valueOf(it.uppercase()) }, { it.name.lowercase() }))
@@ -116,6 +123,11 @@ object FlansItems {
         PartItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("part")))),
     )
 
+    val CLOTHING: ClothingItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("clothing"),
+        ClothingItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("clothing"))).stacksTo(1)),
+    )
+
     val WEAPONS_BENCH: BlockItem = Registry.register(
         BuiltInRegistries.ITEM, FlansMod.id("weapons_bench"),
         BlockItem(FlansBlocks.WEAPONS_BENCH, Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("weapons_bench"))).useBlockDescriptionPrefix()),
@@ -146,6 +158,7 @@ object FlansItems {
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
                     ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
                     ids(Grenades.all).filter { Grenades[it]!!.throwable }.forEach { output.accept(GrenadeItem.stackFor(it)) }
+                    ids(Clothing.all).forEach { output.accept(ClothingItem.stackFor(it)) }
                 }
                 .build(),
         )

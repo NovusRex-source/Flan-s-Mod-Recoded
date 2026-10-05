@@ -1,0 +1,31 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IKI",
+    "LXL"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "K": "minecraft:black_dye",
+    "L": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:lens"
+      }
+    },
+    "X": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:circuit"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:clothing",
+    "components": {
+      "flansmod:clothing": "flansbasic:spec_ops_helmet"
+    }
+  }
+}

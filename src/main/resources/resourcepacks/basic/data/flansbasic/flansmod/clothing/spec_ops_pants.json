@@ -1,0 +1,8 @@
+{
+  "name": "Spec Ops Pants",
+  "slot": "legs",
+  "asset": "flansbasic:spec_ops",
+  "icon": "flansbasic:spec_ops_pants",
+  "armor": 5,
+  "toughness": 1
+}

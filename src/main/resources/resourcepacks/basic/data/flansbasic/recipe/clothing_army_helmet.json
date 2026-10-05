@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IVI",
+    "I I"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "V": "minecraft:green_dye"
+  },
+  "result": {
+    "id": "flansmod:clothing",
+    "components": {
+      "flansmod:clothing": "flansbasic:army_helmet"
+    }
+  }
+}

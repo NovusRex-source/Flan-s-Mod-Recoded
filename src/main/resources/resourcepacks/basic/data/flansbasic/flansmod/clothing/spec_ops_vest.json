@@ -1,0 +1,9 @@
+{
+  "name": "Spec Ops Plate Carrier",
+  "slot": "chest",
+  "asset": "flansbasic:spec_ops",
+  "icon": "flansbasic:spec_ops_vest",
+  "armor": 7,
+  "toughness": 2,
+  "speed_modifier": -0.05
+}

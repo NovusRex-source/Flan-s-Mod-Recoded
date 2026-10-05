@@ -15,6 +15,10 @@ import com.flansmod.recoded.item.PartItem
 import com.flansmod.recoded.bench.WeaponsBenchMenu
 import com.flansmod.recoded.client.bench.WeaponsBenchScreen
 import com.flansmod.recoded.client.compat.FlansJeiPlugin
+import com.flansmod.recoded.client.bench.WeaponMenuScreen
+import com.flansmod.recoded.item.ClothingItem
+import com.flansmod.recoded.item.fireMode
+import net.minecraft.world.entity.EquipmentSlot
 import net.fabricmc.fabric.api.client.creativetab.v1.FabricCreativeModeInventoryScreen
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
 import net.minecraft.core.registries.BuiltInRegistries
@@ -131,7 +135,7 @@ class GunClientGameTest : FabricClientGameTest {
             context.input.pressKey { it.keyInventory }
             context.waitForScreen(CreativeModeInventoryScreen::class.java)
             val expected = context.client {
-                listOf(Guns.all, Magazines.all, AmmoTypes.all, Attachments.all, com.flansmod.recoded.gun.Parts.all).sumOf { m -> m.keys.count { it.namespace == "flansbasic" } } +
+                listOf(Guns.all, Magazines.all, AmmoTypes.all, Attachments.all, com.flansmod.recoded.gun.Parts.all, com.flansmod.recoded.gun.Clothing.all).sumOf { m -> m.keys.count { it.namespace == "flansbasic" } } +
                     Grenades.all.count { (id, g) -> id.namespace == "flansbasic" && g.throwable }
             }
             val tabItems = context.client { mc ->
@@ -230,6 +234,62 @@ class GunClientGameTest : FabricClientGameTest {
             context.waitTicks(5)
             context.takeScreenshot("flansmod-jei-bench")
             context.input.pressKey(InputConstants.KEY_ESCAPE)
+
+            // Fire-mode selector (K) and weapon menu (U) with an M4A1.
+            server.runCommand("item replace entity @a weapon.mainhand with flansmod:gun[flansmod:gun=\"flansbasic:m4a1\",flansmod:magazine={magazine:\"flansbasic:stanag_30\",ammo:\"flansbasic:556\",rounds:30},flansmod:attachments={sight:\"flansbasic:acog\"}]")
+            context.waitTicks(5)
+            val modeBefore = server.compute { it.playerList.players.first().mainHandItem.fireMode }
+            context.input.pressKey(InputConstants.KEY_K)
+            context.waitTicks(5)
+            val modeAfter = server.compute { it.playerList.players.first().mainHandItem.fireMode }
+            check(modeBefore != modeAfter) { "K should switch the fire mode ($modeBefore)" }
+            context.takeScreenshot("flansmod-fire-mode-hud")
+            context.input.pressKey(InputConstants.KEY_U)
+            context.waitForScreen(WeaponMenuScreen::class.java)
+            val menuSlots = context.client { (it.gui.screen() as WeaponMenuScreen).menu.slotNames }
+            check(menuSlots == listOf("sight", "muzzle", "underbarrel")) { "M4A1 weapon menu slots: $menuSlots" }
+            context.waitTicks(3)
+            context.takeScreenshot("flansmod-weapon-menu")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+
+            // Clothing: Spec Ops set on the player, army set on a husk.
+            server.runCommand("fill ~-3 ~ ~-3 ~3 ~2 ~3 minecraft:air")
+            server.runOnServer<RuntimeException> { s ->
+                val player = s.playerList.players.first()
+                fun clothing(id: String) = ClothingItem.stackFor(Identifier.fromNamespaceAndPath("flansbasic", id))
+                player.setItemSlot(EquipmentSlot.HEAD, clothing("spec_ops_helmet"))
+                player.setItemSlot(EquipmentSlot.CHEST, clothing("spec_ops_vest"))
+                player.setItemSlot(EquipmentSlot.LEGS, clothing("spec_ops_pants"))
+                player.setItemSlot(EquipmentSlot.FEET, clothing("spec_ops_boots"))
+                val husk = net.minecraft.world.entity.EntityTypes.HUSK.create(player.level(), net.minecraft.world.entity.EntitySpawnReason.COMMAND)!!
+                husk.setNoAi(true)
+                husk.snapTo(player.position().add(player.lookAngle.multiply(1.0, 0.0, 1.0).normalize().scale(3.0)).add(player.lookAngle.cross(net.minecraft.world.phys.Vec3(0.0, 1.0, 0.0)).normalize().scale(1.5)), player.yRot + 180f, 0f)
+                husk.setItemSlot(EquipmentSlot.HEAD, clothing("army_helmet"))
+                husk.setItemSlot(EquipmentSlot.CHEST, clothing("army_jacket"))
+                husk.setItemSlot(EquipmentSlot.LEGS, clothing("army_pants"))
+                husk.setItemSlot(EquipmentSlot.FEET, clothing("army_boots"))
+                player.level().addFreshEntity(husk)
+            }
+            context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.THIRD_PERSON_FRONT }
+            context.waitTicks(10)
+            context.takeScreenshot("flansmod-clothing")
+            context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.FIRST_PERSON }
+
+            // Type tabs with 3D item models.
+            server.runCommand("gamemode creative @a")
+            context.waitTicks(5)
+            for (type in listOf("ammo", "attachments", "parts")) {
+                context.input.pressKey { it.keyInventory }
+                context.waitForScreen(CreativeModeInventoryScreen::class.java)
+                context.runOnClient<RuntimeException> { mc ->
+                    val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(FlansMod.id("type/$type"))!!
+                    check((mc.gui.screen() as FabricCreativeModeInventoryScreen).setSelectedTab(tab)) { "could not select $type tab" }
+                }
+                context.waitTicks(3)
+                context.takeScreenshot("flansmod-tab-$type")
+                context.input.pressKey(InputConstants.KEY_ESCAPE)
+                context.waitTicks(2)
+            }
         }
     }
 

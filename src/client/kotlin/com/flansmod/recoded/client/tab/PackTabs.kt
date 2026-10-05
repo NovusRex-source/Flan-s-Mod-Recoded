@@ -87,6 +87,7 @@ object PackTabs {
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
                     ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
                     ids(Grenades.all).filter { Grenades[it]!!.throwable }.forEach { output.accept(GrenadeItem.stackFor(it)) }
+                    ids(com.flansmod.recoded.gun.Clothing.all).forEach { output.accept(com.flansmod.recoded.item.ClothingItem.stackFor(it)) }
                 }
                 .build(),
         )
@@ -99,6 +100,7 @@ object PackTabs {
         Grenades[id] != null -> GrenadeItem.stackFor(id)
         Magazines[id] != null -> MagazineItem.stackFor(id, full = true)
         Parts[id] != null -> PartItem.stackFor(id)
+        com.flansmod.recoded.gun.Clothing[id] != null -> com.flansmod.recoded.item.ClothingItem.stackFor(id)
         else -> GunItem.stackFor(id)
     }
 

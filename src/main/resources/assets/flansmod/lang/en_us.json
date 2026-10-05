@@ -52,5 +52,12 @@
   "message.flansmod.fire_mode": "Fire mode: %s",
   "container.flansmod.weapon": "Weapon",
   "gui.flansmod.weapon.fire_mode": "Fire mode",
-  "gui.flansmod.weapon.no_slots": "This weapon has no attachment slots"
+  "gui.flansmod.weapon.no_slots": "This weapon has no attachment slots",
+  "item.flansmod.clothing": "Clothing",
+  "itemGroup.flansmod.type.guns": "Flan's: Guns",
+  "itemGroup.flansmod.type.ammo": "Flan's: Magazines & Ammo",
+  "itemGroup.flansmod.type.attachments": "Flan's: Attachments",
+  "itemGroup.flansmod.type.parts": "Flan's: Gun Parts",
+  "itemGroup.flansmod.type.explosives": "Flan's: Explosives",
+  "itemGroup.flansmod.type.clothing": "Flan's: Clothing"
 }

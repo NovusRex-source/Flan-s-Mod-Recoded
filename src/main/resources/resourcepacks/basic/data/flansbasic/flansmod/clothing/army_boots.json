@@ -1,0 +1,7 @@
+{
+  "name": "Army Boots",
+  "slot": "feet",
+  "asset": "flansbasic:army",
+  "icon": "flansbasic:army_boots",
+  "armor": 2
+}

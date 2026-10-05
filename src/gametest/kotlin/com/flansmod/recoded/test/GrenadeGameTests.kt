@@ -28,7 +28,8 @@ class GrenadeGameTests {
         }
     }
 
-    @GameTest(maxTicks = 40)
+    // Explosions reach into neighbouring test areas; the extra padding keeps other tests' mobs out of range.
+    @GameTest(maxTicks = 40, padding = 8)
     fun fragExplodesAfterFuseWithoutBreakingBlocks(helper: GameTestHelper) {
         helper.setBlock(BlockPos(3, 1, 3), Blocks.STONE)
         val husk = helper.spawnWithNoFreeWill(EntityTypes.HUSK, BlockPos(5, 1, 3))
@@ -42,7 +43,7 @@ class GrenadeGameTests {
         }
     }
 
-    @GameTest(maxTicks = 30)
+    @GameTest(maxTicks = 30, padding = 8)
     fun contactGrenadeDetonatesOnImpact(helper: GameTestHelper) {
         val grenade = helper.throwGrenade("impact", GrenadeDefinition("Impact", fuseTicks = 1000, contact = true), Vec3(3.5, 4.0, 3.5), Vec3(0.0, -0.5, 0.0))
         helper.succeedWhen { helper.assertTrue(grenade.hasDetonated, "should detonate on hitting the floor long before the fuse") }

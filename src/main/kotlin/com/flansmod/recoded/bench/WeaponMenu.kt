@@ -111,10 +111,13 @@ class WeaponMenu(id: Int, private val inventory: Inventory, data: WeaponMenuData
     }
 
     companion object {
-        const val SLOT_Y = 40
+        const val SLOT_Y = 32
+
+        /** Horizontal distance between attachment slots: wide enough for their labels. */
+        fun slotSpacing(count: Int) = if (count <= 1) 0 else minOf(56, 150 / (count - 1).coerceAtLeast(1))
 
         /** Attachment slots are centred in a row above the inventory. */
-        fun slotX(index: Int, count: Int) = 88 - count * 11 + index * 22 + 2
+        fun slotX(index: Int, count: Int) = 88 - 8 - slotSpacing(count) * (count - 1) / 2 + index * slotSpacing(count)
 
         fun init() {
             ServerPlayNetworking.registerGlobalReceiver(OpenWeaponMenuPayload.TYPE) { _, ctx -> open(ctx.player()) }
