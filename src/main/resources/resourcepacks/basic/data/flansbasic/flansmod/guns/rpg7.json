@@ -10,7 +10,7 @@
   "velocity": 2.5,
   "spread": 0.5,
   "ads_spread": 0.1,
-  "ads_zoom": 1.5,
+  "ads_zoom": 2.7,
   "ads_move_speed": 0.5,
   "recoil": {
     "pitch": 3,
@@ -69,10 +69,13 @@
     "ads": {
       "translation": [
         -1.0,
-        7.4,
+        5.4,
         -6
       ]
     }
+  },
+  "scope": {
+    "overlay": "flansbasic:textures/scope/pso.png"
   },
   "tracer": null
 }

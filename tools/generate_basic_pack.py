@@ -166,7 +166,8 @@ GUNS = {
     "m79": dict(name="M79 Grenade Launcher", arch="launcher", L=0.9, furniture="wood", dmg=0, rpm=30, mode="semi", reload=45, vel=1.6,
                 spread=1, recoil=(4, 1), zoom=1.2, slots=[], sound="launcher"),
     "rpg7": dict(name="RPG-7", arch="rpg", L=1.0, furniture="wood", dmg=0, rpm=30, mode="semi", reload=70, vel=2.5,
-                 spread=0.5, recoil=(3, 1), zoom=1.5, slots=["sight"], sound="rocket", move=0.5),
+                 spread=0.5, recoil=(3, 1), zoom=2.7, slots=["sight"], sound="rocket", move=0.5,
+                 scope={"overlay": f"{NS}:textures/scope/pso.png"}),  # aimed through its PGO-7 optic
 }
 
 # ------------------------------------------------------------------------------------------- parts
@@ -568,24 +569,28 @@ def gun_geometry(gid, g):
     raise ValueError(gid)
 
 
-# First-person arms (shown only in first person): gloved hand on the anchor bone, sleeved forearm running back
-# towards the camera. Rotations are Bedrock cube rotations around the hand.
+# First-person arms (shown only in first person, drawn with the player's skin by the mod's SkinArmLayer): an
+# arm-shaped cube using the vanilla skin UV layout, hand end on the anchor bone. ARM_TILT turns the arm from "up"
+# to "towards the camera"; ARM_ANGLES (bone rotation) then swings it down and out to its side.
 ARM_ANGLES = {"right": [-25, -35, 0], "left": [-18, 52, 0]}
+ARM_TILT = -90
+SKIN_UV = {"right": ((40, 16), (40, 32)), "left": ((32, 48), (48, 48))}  # (arm, sleeve layer) box UV origins
 
 
-def arm_bone(name, parent, hand, angles):
+def arm_bone(name, parent, hand, side):
     hx, hy, hz = hand
     pivot = [round(v, 3) for v in hand]
+    arm_uv, sleeve_uv = SKIN_UV[side]
 
-    def rotated(c):
-        c["pivot"] = pivot
-        c["rotation"] = angles
+    def arm_cube(uv, inflate=0.0):
+        c = {"origin": [round(hx - 2, 3), round(hy - 2, 3), round(hz - 2, 3)], "size": [4, 12, 4], "uv": list(uv),
+             "pivot": pivot, "rotation": [ARM_TILT, 0, 0]}
+        if inflate:
+            c["inflate"] = inflate
         return c
 
-    cubes = [rotated(cube((hx - 1.7, hy - 1.9, hz - 1.7), (3.4, 3.6, 3.4), "black")),         # glove
-             rotated(cube((hx - 1.5, hy - 1.6, hz + 1.7), (3.0, 3.0, 4.0), "black")),         # cuff
-             rotated(cube((hx - 1.8, hy - 1.9, hz + 5.7), (3.6, 3.6, 12.0), "olive"))]        # sleeve
-    return {"name": name, "parent": parent, "pivot": pivot, "cubes": cubes}
+    return {"name": name, "parent": parent, "pivot": pivot, "rotation": ARM_ANGLES[side],
+            "cubes": [arm_cube(arm_uv), arm_cube(sleeve_uv, 0.25)]}
 
 
 def gun_model(gid, g, geo):
@@ -599,8 +604,8 @@ def gun_model(gid, g, geo):
     bones = [bone("gun", [], parent=None), bone("body", geo["parts"]), bone(geo["moving"][0], geo["moving"][1]),
              bone(mag_bone, geo["mag"]), bone("default_sight", geo["iron"]), bone("muzzle_flash", flash),
              anchor("right_hand", geo["rhand"]), anchor("left_hand", geo["lhand"]),
-             arm_bone("arm_right", "right_hand", geo["rhand"], ARM_ANGLES["right"]),
-             arm_bone("arm_left", "left_hand", geo["lhand"], ARM_ANGLES["left"])]
+             arm_bone("arm_right", "right_hand", geo["rhand"], "right"),
+             arm_bone("arm_left", "left_hand", geo["lhand"], "left")]
     for mid, m in MAGAZINES.items():
         if gid in m["guns"] and m["kind"] == "drum" and geo["drum"]:
             bones.append(bone(f"magazine_{mid}", geo["drum"]))
@@ -638,8 +643,8 @@ def gun_animations(g, geo):
     add = lambda a, b: [round(a[i] + b[i], 3) for i in range(3)]  # noqa: E731
     mag_bone = "round" if geo["round"] else "magazine"
     reload = {
-        "gun": {"rotation": {"0.0": [0, 0, 0], r(t * 0.12): [4, 0, -8], r(t * 0.85): [4, 0, -8], r(t): [0, 0, 0]},
-                "position": {"0.0": [0, 0, 0], r(t * 0.12): [-1, 1.5, -4], r(t * 0.85): [-1, 1.5, -4], r(t): [0, 0, 0]}},
+        "gun": {"rotation": {"0.0": [0, 0, 0], r(t * 0.12): [0, 0, -30], r(t * 0.85): [0, 0, -30], r(t): [0, 0, 0]},
+                "position": {"0.0": [0, 0, 0], r(t * 0.12): [-3, 3, -6], r(t * 0.85): [-3, 3, -6], r(t): [0, 0, 0]}},
         "left_hand": {"position": {"0.0": [0, 0, 0], r(t * 0.15): to_mag, r(t * 0.35): add(to_mag, out), r(t * 0.5): add(to_mag, out),
                                    r(t * 0.65): add(to_mag, below), r(t * 0.75): to_mag, r(t * 0.9): [0, 0, 0]}},
         mag_bone: {"position": {"0.0": [0, 0, 0], r(t * 0.15): [0, 0, 0], r(t * 0.35): out, r(t * 0.5): out,
@@ -675,9 +680,11 @@ def gun_definition(gid, g, geo):
         "fire_modes": FIRE_MODES[gid],
         "attachment_slots": g["slots"],
         "display": {
+            # Pistols sit further forward and higher than long guns (two-handed pistol grip).
+            **({"firstperson_righthand": {"rotation": [5, 12, 0], "translation": [5, 2.5, -12]}} if g["arch"] in ("pistol", "revolver") else {}),
             "gui": {"rotation": [0, -90, 0], "translation": [-1.5, -0.5, 0], "scale": [gui_scale] * 3},
             "fixed": {"rotation": [0, -90, 0], "translation": [-1.5, -0.5, 0], "scale": [gui_scale] * 3},
-            "ads": {"translation": [-1.0, ads_y, -6]},
+            "ads": {"translation": [-1.0, ads_y, -6 if g["arch"] not in ("pistol", "revolver") else -9]},
         },
     }
     for key, field in (("lifetime", "lifetime_ticks"), ("headshot", "headshot_multiplier"), ("scope", "scope")):

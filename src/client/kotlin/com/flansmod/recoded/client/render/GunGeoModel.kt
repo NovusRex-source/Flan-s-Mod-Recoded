@@ -14,6 +14,12 @@ import com.flansmod.recoded.client.hud.ScopeOverlay
 import com.flansmod.recoded.client.fx.ShotEffects
 import com.flansmod.recoded.item.gunId
 import com.geckolib.renderer.base.BoneSnapshots
+import com.geckolib.renderer.base.GeoRenderer
+import com.geckolib.renderer.layer.builtin.CustomBoneTextureGeoLayer
+import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.rendertype.RenderType
+import net.minecraft.client.renderer.rendertype.RenderTypes
+import net.minecraft.client.resources.DefaultPlayerSkin
 import com.geckolib.constant.DataTickets
 import com.geckolib.constant.dataticket.DataTicket
 import com.geckolib.model.GeoModel
@@ -77,6 +83,12 @@ class GunGeoModel : GeoModel<GunItem>() {
  * left hand). In first person the pose blends towards the `ads` transform while aiming.
  */
 class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
+    init {
+        // First-person arms are modelled on the gun with the vanilla skin UV layout and drawn with the player's skin.
+        withRenderLayer { SkinArmLayer(it, "arm_right") }
+        withRenderLayer { SkinArmLayer(it, "arm_left") }
+    }
+
 
     private companion object {
         const val ATTACHMENT_BONE = "attachment_"
@@ -167,3 +179,19 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
 private fun List<Float>.vec(divisor: Float = 1f) = Vector3f(getOrElse(0) { 0f } / divisor, getOrElse(1) { 0f } / divisor, getOrElse(2) { 0f } / divisor)
 
 private fun Transform.toVanilla() = ItemTransform(rotation.vec(), translation.vec(16f), scale.vec())
+
+/**
+ * Re-draws an arm bone of the gun model with the local player's skin (GeckoLib's per-bone texture layer); only in
+ * first person, the only view in which the arms exist.
+ */
+private class SkinArmLayer(renderer: GeoRenderer<GunItem, GeoItemRenderer.RenderData, GeoRenderState>, bone: String) :
+    CustomBoneTextureGeoLayer<GunItem, GeoItemRenderer.RenderData, GeoRenderState>(renderer, bone, DefaultPlayerSkin.getDefaultTexture()) {
+
+    override fun shouldRenderBone(renderState: GeoRenderState) =
+        renderState.getGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE)?.firstPerson() == true
+
+    override fun getTextureResource(renderState: GeoRenderState): Identifier =
+        Minecraft.getInstance().player?.skin?.body()?.texturePath() ?: texture
+
+    override fun getRenderType(renderState: GeoRenderState, texture: Identifier): RenderType = RenderTypes.entityTranslucent(texture)
+}

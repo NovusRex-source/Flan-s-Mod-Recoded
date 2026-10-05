@@ -53,7 +53,15 @@ class ProbeTest : FabricClientGameTest {
                     continue
                 }
                 context.waitTicks(15)
+                if (probe.view == "ads") {
+                    context.input.holdMouse(InputConstants.MOUSE_BUTTON_RIGHT)
+                    context.waitTicks(12)
+                }
                 context.takeScreenshot("probe-gun-${other.substringAfter(':')}")
+                if (probe.view == "ads") {
+                    context.input.releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT)
+                    context.waitTicks(5)
+                }
             }
             for ((name, display) in probe.variants) {
                 context.runOnClient<RuntimeException> {

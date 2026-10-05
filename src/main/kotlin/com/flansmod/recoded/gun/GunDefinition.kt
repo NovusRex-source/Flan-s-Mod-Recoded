@@ -107,7 +107,7 @@ data class Transform(
 
         /** Defaults for a gun modelled in Blockbench with the barrel pointing north (-Z). */
         val DEFAULTS = mapOf(
-            "firstperson_righthand" to Transform(translation = listOf(6f, 2f, 0f)),
+            "firstperson_righthand" to Transform(translation = listOf(6f, 2f, -3f)),
             ADS to Transform(translation = listOf(-1f, 6f, -6f)),
             "thirdperson_righthand" to Transform(scale = listOf(0.8f, 0.8f, 0.8f)),
             "gui" to Transform(rotation = listOf(0f, -90f, 0f), translation = listOf(-1.5f, -0.5f, 0f), scale = listOf(0.65f, 0.65f, 0.65f)),
