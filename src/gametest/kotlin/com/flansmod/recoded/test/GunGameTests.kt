@@ -67,7 +67,8 @@ class GunGameTests {
         // The in-level mock is always creative; infinite materials is what guns actually check.
         val player = makeMockServerPlayerInLevel()
         player.abilities.instabuild = mode == GameType.CREATIVE
-        val stack = GunItem.stackFor(gunId)
+        // Explicitly the plain round: other tests add their own ammo types, and definitions are shared by all tests.
+        val stack = GunItem.stackFor(gunId).apply { loadedMagazine = MagazineContents.full(magId, round) }
         player.setItemInHand(InteractionHand.MAIN_HAND, stack)
         return player to stack
     }
@@ -80,7 +81,8 @@ class GunGameTests {
         player.lookAt(EntityAnchorArgument.Anchor.EYES, absoluteVec(target))
     }
 
-    private val accurate = GunDefinition("Accurate", damage = 4f, spread = 0f, adsSpread = 0f, gravity = 0.0, velocity = 4.0, reloadTicks = 5)
+    // Short range (12 blocks): targets stand 5 blocks away, and stray rounds must not reach neighbouring tests.
+    private val accurate = GunDefinition("Accurate", damage = 4f, spread = 0f, adsSpread = 0f, gravity = 0.0, velocity = 4.0, lifetimeTicks = 3, reloadTicks = 5)
 
     // ---------------------------------------------------------------------------------- shooting
 
@@ -93,7 +95,8 @@ class GunGameTests {
         GunHandler.trigger(player)
         helper.assertValueEqual(stack.ammo, 4, "rounds left in the magazine")
         helper.succeedWhen {
-            helper.assertTrue(target.lastDamageSource?.`is`(FlansDamageTypes.GUN) == true, "target should be hit by a bullet")
+            helper.assertTrue(target.lastDamageSource?.`is`(FlansDamageTypes.GUN) == true,
+                "target should be hit by a bullet (last damage: ${target.lastDamageSource?.type()?.msgId()}, health ${target.health}, at ${target.position()})")
             helper.assertTrue(target.health < target.maxHealth, "target should be hurt")
         }
     }
@@ -209,7 +212,8 @@ class GunGameTests {
     fun incendiaryArmorPiercingAmmo(helper: GameTestHelper) {
         val (player, stack) = helper.withGun("special", accurate)
         val special = test("api")
-        AmmoTypes.replace(AmmoTypes.all + (special to AmmoDefinition("API", caliber = "test", armorPiercing = true, fireSeconds = 5f)))
+        // Own caliber: definitions are shared by all tests, and full magazines of caliber "test" must keep plain rounds.
+        AmmoTypes.replace(AmmoTypes.all + (special to AmmoDefinition("API", caliber = "test_api", armorPiercing = true, fireSeconds = 5f)))
         stack.loadedMagazine = stack.loadedMagazine!!.copy(ammo = special)
         val target = helper.spawnWithNoFreeWill(EntityTypes.HUSK, BlockPos(6, 1, 1))
         helper.aimAt(player, Vec3(1.5, 1.0, 1.5), Vec3(6.5, 2.0, 1.5))
