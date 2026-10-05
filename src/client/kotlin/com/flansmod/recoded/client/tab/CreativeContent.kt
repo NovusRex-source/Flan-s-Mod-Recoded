@@ -20,6 +20,9 @@ import com.flansmod.recoded.item.PartItem
 import com.flansmod.recoded.item.VehicleItem
 import com.flansmod.recoded.item.VehicleUpgradeItem
 import com.flansmod.recoded.registry.FlansItems
+import com.flansmod.recoded.fuel.FuelCanItem
+import com.flansmod.recoded.fuel.FuelStack
+import com.flansmod.recoded.gun.FuelTypes
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 
@@ -69,10 +72,18 @@ object CreativeContent {
     fun explosives(filter: (Identifier) -> Boolean = { true }): List<ItemStack> = Grenades.all.filter { (id, g) -> filter(id) && g.throwable }
         .entries.sortedBy { it.value.name }.map { GrenadeItem.stackFor(it.key) }
 
-    /** Vehicles, their upgrades, and the ammunition their mounted guns use. */
-    fun vehicles(filter: (Identifier) -> Boolean = { true }): List<ItemStack> {
+    /** Field equipment for vehicles (not from content packs): wrench, fuel cans, fuel synthesizer, petrol station. */
+    fun vehicleTools(): List<ItemStack> = listOf(
+        ItemStack(FlansItems.WRENCH), FuelCanItem.stackFor(null),
+        FuelCanItem.stackFor(FuelStack(FuelTypes.PETROL, FuelCanItem.CAPACITY)), FuelCanItem.stackFor(FuelStack(FuelTypes.DIESEL, FuelCanItem.CAPACITY)),
+        ItemStack(FlansItems.FUEL_SYNTHESIZER), ItemStack(FlansItems.PETROL_STATION),
+    )
+
+    /** Vehicles (driveable, then emplacements like mortars), their upgrades, the tools and the ammunition their guns use. */
+    fun vehicles(filter: (Identifier) -> Boolean = { true }, tools: Boolean = true): List<ItemStack> {
         val mountedCalibers = Guns.all.filterValues { it.mounted }.keys.flatMap { GunItem.acceptedMagazines(it) }.mapNotNull { Magazines[it]?.caliber }.toSet()
-        return Vehicles.all.filter { filter(it.key) }.entries.sortedBy { it.value.name }.map { VehicleItem.stackFor(it.key) } +
+        return Vehicles.all.filter { filter(it.key) }.entries.sortedWith(compareBy({ it.value.type == com.flansmod.recoded.gun.VehicleType.STATIC }, { it.value.name }))
+            .map { VehicleItem.stackFor(it.key) } + (if (tools) vehicleTools() else emptyList()) +
             VehicleUpgrades.all.filter { filter(it.key) }.entries.sortedWith(compareBy({ it.value.slot }, { it.value.name })).map { VehicleUpgradeItem.stackFor(it.key) } +
             ammunition(filter, mountedCalibers)
     }
@@ -86,6 +97,6 @@ object CreativeContent {
 
     /** Everything from one content pack, in tab order (pack tabs). */
     fun all(filter: (Identifier) -> Boolean): List<ItemStack> =
-        weapons(filter) + ammunition(filter) + attachments(filter) + explosives(filter) + vehicles(filter).filter { it.item !is AmmoItem && it.item !is MagazineItem } +
+        weapons(filter) + ammunition(filter) + attachments(filter) + explosives(filter) + vehicles(filter, tools = false).filter { it.item !is AmmoItem && it.item !is MagazineItem } +
             equipment(filter) + crafting(filter, withBench = false)
 }

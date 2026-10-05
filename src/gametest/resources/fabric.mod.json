@@ -12,7 +12,8 @@
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.ClothingGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.AmmoGameTests" },
-      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.ContentGameTests" }
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.ContentGameTests" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.UtilityGameTests" }
     ],
     "fabric-client-gametest": [
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" },

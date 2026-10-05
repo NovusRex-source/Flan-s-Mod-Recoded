@@ -1,0 +1,172 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "base": "flansmod:block/petrol_station_base",
+    "body": "flansmod:block/petrol_station_body",
+    "front": "flansmod:block/petrol_station_front",
+    "hose": "flansmod:block/petrol_station_hose",
+    "particle": "flansmod:block/petrol_station_body"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        2,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#base"
+        },
+        "south": {
+          "texture": "#base"
+        },
+        "east": {
+          "texture": "#base"
+        },
+        "west": {
+          "texture": "#base"
+        },
+        "up": {
+          "texture": "#base"
+        },
+        "down": {
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        4
+      ],
+      "to": [
+        13,
+        16,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "down": {
+          "texture": "#body"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        6,
+        6
+      ],
+      "to": [
+        15,
+        14,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#hose"
+        },
+        "south": {
+          "texture": "#hose"
+        },
+        "east": {
+          "texture": "#hose"
+        },
+        "west": {
+          "texture": "#hose"
+        },
+        "up": {
+          "texture": "#hose"
+        },
+        "down": {
+          "texture": "#hose"
+        }
+      }
+    },
+    {
+      "from": [
+        13.5,
+        2,
+        6.5
+      ],
+      "to": [
+        14.5,
+        6,
+        7.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#hose"
+        },
+        "south": {
+          "texture": "#hose"
+        },
+        "east": {
+          "texture": "#hose"
+        },
+        "west": {
+          "texture": "#hose"
+        },
+        "up": {
+          "texture": "#hose"
+        },
+        "down": {
+          "texture": "#hose"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        9,
+        6
+      ],
+      "to": [
+        3,
+        13,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#hose"
+        },
+        "south": {
+          "texture": "#hose"
+        },
+        "east": {
+          "texture": "#hose"
+        },
+        "west": {
+          "texture": "#hose"
+        },
+        "up": {
+          "texture": "#hose"
+        },
+        "down": {
+          "texture": "#hose"
+        }
+      }
+    }
+  ]
+}

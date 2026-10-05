@@ -214,6 +214,21 @@
     ],
     "subtitle": "subtitles.flansww2.vehicle.cannon.reload"
   },
+  "vehicle.mortar.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/explode4",
+        "volume": 1.2,
+        "pitch": 1.4
+      },
+      {
+        "name": "minecraft:fireworks/launch1",
+        "volume": 1.5,
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.mortar.shoot"
+  },
   "vehicle.reload": {
     "sounds": [
       {

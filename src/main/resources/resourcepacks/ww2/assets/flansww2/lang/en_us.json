@@ -19,6 +19,7 @@
   "subtitles.flansww2.vehicle.autocannon.shoot": "Gun fires",
   "subtitles.flansww2.vehicle.cannon.shoot": "Gun fires",
   "subtitles.flansww2.vehicle.cannon.reload": "Gun reloads",
+  "subtitles.flansww2.vehicle.mortar.shoot": "Gun fires",
   "subtitles.flansww2.vehicle.reload": "Gun reloads",
   "subtitles.flansww2.vehicle.empty": "Gun clicks",
   "caliber.flansmod.3006": ".30-06 Springfield",
@@ -31,5 +32,9 @@
   "caliber.flansmod.75mm": "75mm Tank Shell (US/UK)",
   "caliber.flansmod.75mm_kwk": "7.5 cm KwK 40 Shell",
   "caliber.flansmod.88mm": "8.8 cm KwK 36 Shell",
-  "caliber.flansmod.85mm": "85mm Tank Shell"
+  "caliber.flansmod.85mm": "85mm Tank Shell",
+  "caliber.flansmod.8cm_grw": "8 cm Wurfgranate",
+  "caliber.flansmod.60mm": "60mm Mortar Bomb",
+  "caliber.flansmod.3in": "3-inch Mortar Bomb",
+  "caliber.flansmod.82mm": "82mm Mortar Bomb"
 }

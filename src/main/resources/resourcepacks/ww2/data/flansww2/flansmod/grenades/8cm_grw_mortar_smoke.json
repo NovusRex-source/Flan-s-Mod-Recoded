@@ -1,0 +1,13 @@
+{
+  "name": "8cm Mortar Smoke",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.05,
+  "fuse_ticks": 600,
+  "icon": "flansww2:8cm_grw_mortar_smoke",
+  "smoke": {
+    "radius": 6.0,
+    "duration_ticks": 400
+  }
+}

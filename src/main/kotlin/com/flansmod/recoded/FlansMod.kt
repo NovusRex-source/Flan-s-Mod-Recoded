@@ -9,6 +9,7 @@ import com.flansmod.recoded.registry.FlansComponents
 import com.flansmod.recoded.registry.FlansItems
 import com.flansmod.recoded.registry.FlansEntities
 import com.flansmod.recoded.registry.FlansBlocks
+import com.flansmod.recoded.registry.FlansBlockEntities
 import com.flansmod.recoded.registry.FlansMenus
 import com.flansmod.recoded.registry.FlansRecipes
 import com.geckolib.animatable.GeoItem
@@ -33,6 +34,7 @@ object FlansMod : ModInitializer {
     override fun onInitialize() {
         FlansComponents.init()
         FlansBlocks.init()
+        FlansBlockEntities.init()
         FlansMenus.init()
         FlansRecipes.init()
         // Since 1.21.2 vanilla does not send recipes to clients; recipe viewers need bench recipes there.

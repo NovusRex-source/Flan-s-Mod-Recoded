@@ -1,0 +1,7 @@
+{
+  "name": "82mm Mortar HE Shell",
+  "caliber": "82mm",
+  "max_stack": 8,
+  "icon": "flansww2:82mm_mortar_he",
+  "projectile": "flansww2:82mm_mortar_he"
+}

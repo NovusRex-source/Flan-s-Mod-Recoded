@@ -1,0 +1,7 @@
+{
+  "name": "3in Mortar HE Shell",
+  "caliber": "3in",
+  "max_stack": 8,
+  "icon": "flansww2:3in_mortar_he",
+  "projectile": "flansww2:3in_mortar_he"
+}

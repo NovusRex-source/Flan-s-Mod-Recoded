@@ -4,9 +4,10 @@
   "throwable": false,
   "trail": true,
   "gravity": 0.01,
+  "fuse_ticks": 600,
+  "icon": "flansvehicles:125mm_heat",
   "explosion": {
     "power": 4.0,
     "break_blocks": true
-  },
-  "icon": "flansvehicles:125mm_heat"
+  }
 }

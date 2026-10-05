@@ -1,0 +1,9 @@
+{
+  "name": "Mortar Tube (1)",
+  "caliber": "3in",
+  "capacity": 1,
+  "guns": [
+    "flansww2:ml_3inch_tube"
+  ],
+  "internal": true
+}

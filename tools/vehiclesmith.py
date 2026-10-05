@@ -726,3 +726,42 @@ def t34_85(paint="soviet_green"):
     tank_turret(m, -0.1, 1.55, 2.3, 0.95, 0.8, -1.05, paint, gun_len=3.0, gun_r=0.07, mantlet=0.3,
                 open_hatches=((0.35, -0.5),), sight_side=0.45, extras=[box(-0.3, 2.3, -0.75, 0.3, 2.45, -0.25, "metal")])
     return m
+
+
+# ------------------------------------------------------------------------------------------- emplacements and mines
+def mortar(tube_len=1.2, radius=0.06, paint="olive_drab", plate="metal", plate_size=0.35, round_plate=False):
+    """Mortar: baseplate on the ground, tube pivoting at its base (yaw bone `mount`, pitch bone `tube`), bipod and sight.
+    The gunner kneels behind it (mount `main`)."""
+    m = Model()
+    base = round_turret(0, 0, 0.08, 0, plate_size, plate) if round_plate else [box(-plate_size, 0, -plate_size, plate_size, 0.08, plate_size, plate)]
+    m.bone("hull", base + [box(-0.08, 0.08, -0.08, 0.08, 0.16, 0.08, "metal")])  # socket
+    # Bipod and traversing gear stand on the ground ahead of the base and turn with the tube.
+    m.bone("mount", [box(-0.32, 0, 0.5, -0.28, 0.62, 0.54, paint, slope=12, at=(-0.3, 0, 0.52)),
+                     box(0.28, 0, 0.5, 0.32, 0.62, 0.54, paint, slope=12, at=(0.3, 0, 0.52)),
+                     box(-0.3, 0.55, 0.47, 0.3, 0.6, 0.53, "metal"), box(-0.03, 0.55, 0.47, 0.03, 0.85, 0.53, "metal")], at=(0, 0.12, 0))
+    m.bone("tube", [*barrel(0, 0.12, 0.0, tube_len, radius, paint), box(-radius * 1.4, 0.12 - radius * 1.4, -0.06, radius * 1.4, 0.12 + radius * 1.4, 0.06, "metal"),
+                    box(-radius * 1.25, 0.12 - radius * 1.25, tube_len - 0.06, radius * 1.25, 0.12 + radius * 1.25, tube_len, "metal"),
+                    box(radius, 0.12 + radius, 0.4, radius + 0.1, 0.12 + radius + 0.12, 0.5, "black")],  # sight
+           parent="mount", at=(0, 0.12, 0))
+    m.bone("muzzle_flash", [box(-radius * 2, 0.12 - radius * 2, tube_len, radius * 2, 0.12 + radius * 2, tube_len + 0.4, "flash")], parent="tube", at=(0, 0.12, 0))
+    mount(m, "main", (0, 0.12, 0), [0, 0, tube_len + 0.1], [radius + 0.05, radius + 0.25, 0.45])
+    return m
+
+
+def mine_icon(kind, paint="olive_drab"):
+    """Vehicle-space boxes for mine items (laid flat, `up` = up). kind: teller (big flat disc with a fuze), m15 (square-ish
+    AT mine), m1a1, mk5 (round AT mines), m14 (small plastic AP), s_mine (canister with prongs), pmd6 (wooden box)."""
+    if kind == "teller":
+        return round_turret(0, 0, 0.1, 0, 0.32, paint) + round_turret(0, 0.1, 0.13, 0, 0.12, "metal") + [box(-0.34, 0.03, -0.03, -0.3, 0.07, 0.03, "metal")]
+    if kind == "m15":
+        return round_turret(0, 0, 0.12, 0, 0.33, paint) + round_turret(0, 0.12, 0.15, 0, 0.1, "black") + [box(0.3, 0.05, -0.04, 0.38, 0.09, 0.04, "metal")]
+    if kind in ("m1a1", "mk5"):
+        return round_turret(0, 0, 0.11, 0, 0.22, paint) + round_turret(0, 0.11, 0.15, 0, 0.07, "bronze")
+    if kind == "m14":
+        return round_turret(0, 0, 0.05, 0, 0.05, "olive") + round_turret(0, 0.05, 0.065, 0, 0.035, "black")
+    if kind == "s_mine":
+        return round_turret(0, 0, 0.16, 0, 0.06, paint) + [box(-0.005, 0.16, -0.005, 0.005, 0.2, 0.005, "metal"),
+                                                          box(0.015, 0.16, -0.005, 0.025, 0.2, 0.005, "metal"), box(-0.025, 0.16, -0.005, -0.015, 0.2, 0.005, "metal")]
+    if kind == "pmd6":
+        return [box(-0.1, 0, -0.05, 0.1, 0.06, 0.05, "wood"), box(-0.1, 0.06, -0.05, 0.1, 0.065, 0.05, "wood"), box(0.04, 0.065, -0.01, 0.06, 0.08, 0.01, "metal")]
+    raise ValueError(kind)

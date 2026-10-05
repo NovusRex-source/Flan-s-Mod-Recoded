@@ -103,6 +103,13 @@ def car(name, **kw):
     return {"name": name, "type": "car", "upgrade_slots": ["engine", "armor", "tyres", "tank"], **kw}
 
 
+def static(name, health=60, **kw):
+    """An emplacement (mortar): never drives, needs no fuel; one hit box around it."""
+    return {"name": name, "type": "static", "health": health, "armor": 0.2, "max_speed": 0.0, "max_reverse_speed": 0.0,
+            "collision_damage": 0, "death_explosion": 1.5, "camera_distance": 4, "fuel": {"capacity": 0},
+            "parts": {"hull": {"box": [-0.5, 0, -0.5, 0.5, 0.9, 1.0], "role": "hull"}}, **kw}
+
+
 def tank(name, **kw):
     return {"name": name, "type": "tank", "upgrade_slots": ["engine", "armor", "tank"], "step_height": 1.1,
             "repair": {"item": "minecraft:iron_ingot", "amount": 40}, **kw}
@@ -125,7 +132,7 @@ VEHICLES = {
     "humvee": dict(model=vs.humvee, recipe=[" G  ", "SSSE", "AACC", "W  W"], definition=car(
         "M1114 Humvee", health=140, armor=0.5, max_speed=0.85, max_reverse_speed=0.25, acceleration=0.02, braking=0.06, drag=0.015,
         turn_speed=4.0, water_speed=0.2, collision_damage=22, death_explosion=3.0, camera_distance=8,
-        fuel={"capacity": 36000, "consumption": 1},
+        fuel={"capacity": 36000, "consumption": 1, "type": "diesel"},
         parts=wheeled_parts([-1.1, 0.5, -1.6, 1.1, 1.95, 0.6], [-1.0, 0.5, 0.6, 1.0, 1.35, 2.0], HUMVEE_WHEELS, 0.45, 0.38, 35, 0.5,
                             fuel_tank=[-1.1, 0.5, -1.9, 1.1, 1.2, -1.6],
                             extra={"mg_mount": {"box": [-0.6, 2.0, -1.0, 0.6, 2.75, 0.2], "health": 30, "armor": 0.4, "role": "weapon",
@@ -137,7 +144,7 @@ VEHICLES = {
     "m35": dict(model=vs.truck, recipe=["  SSE", "CCCCC", "WW WW"], definition=car(
         "M35 Cargo Truck", health=110, armor=0.15, max_speed=0.7, max_reverse_speed=0.2, acceleration=0.014, braking=0.05, drag=0.02,
         turn_speed=3.2, water_speed=0.15, collision_damage=26, death_explosion=3.0, camera_distance=10,
-        fuel={"capacity": 48000, "consumption": 1},
+        fuel={"capacity": 48000, "consumption": 1, "type": "diesel"},
         parts=wheeled_parts([-1.2, 0.85, -3.3, 1.2, 2.5, 1.6], [-0.75, 0.8, 1.6, 0.75, 1.75, 2.85], TRUCK_WHEELS, 0.5, 0.36, 30, 0.15,
                             fuel_tank=[-1.25, 0.35, -0.6, -1.0, 0.85, 0.3])),
         seats=lambda m: [seat(-0.45, 1.2, 0.85), seat(0.45, 1.2, 0.85)] +
@@ -145,7 +152,7 @@ VEHICLES = {
     "btr80": dict(model=vs.btr80, recipe=["  GSE", "AAAAA", "CCCCC", "WWWW "], definition=car(
         "BTR-80", health=200, armor=0.6, max_speed=0.75, max_reverse_speed=0.2, acceleration=0.016, braking=0.05, drag=0.02,
         turn_speed=3.0, water_speed=0.6, collision_damage=30, death_explosion=4.0, camera_distance=11,
-        fuel={"capacity": 48000, "consumption": 1}, upgrade_slots=["engine", "tyres", "tank"],
+        fuel={"capacity": 48000, "consumption": 1, "type": "diesel"}, upgrade_slots=["engine", "tyres", "tank"],
         parts=wheeled_parts([-1.45, 0.55, -2.4, 1.45, 1.9, 3.5], [-1.45, 0.55, -3.6, 1.45, 1.9, -2.4], BTR_WHEELS, 0.55, 0.4, 45, 0.6,
                             extra={"turret": {"box": [-0.65, 1.9, -0.25, 0.65, 2.5, 1.05], "health": 80, "armor": 0.6, "role": "weapon",
                                               "seat": 2, "core_damage": 0.3, "bones": ["kpvt"]}})),
@@ -154,22 +161,25 @@ VEHICLES = {
     "m2_bradley": dict(model=vs.bradley, recipe=[" TBSS", "AAAAE", "HHHHH", "KKKKK"], definition=tank(
         "M2 Bradley", health=260, armor=0.75, max_speed=0.7, max_reverse_speed=0.22, acceleration=0.016, braking=0.05, drag=0.03,
         turn_speed=3.0, water_speed=0.3, collision_damage=34, death_explosion=4.5, camera_distance=11,
-        fuel={"capacity": 54000, "consumption": 2},
+        fuel={"capacity": 54000, "consumption": 2, "type": "diesel"},
         parts=tracked_parts(1.0, 1.6, -3.2, 3.2, 0.5, 1.95, 0.95, -2.0, [-1.35, 1.95, -1.25, 0.95, 2.65, 1.0], 0.75, 260, 120, gunner=1)),
         seats=lambda m: [seat(-0.85, 1.2, 1.55), gun_seat(m, "main", [0.0, 1.95, -0.2], f"{V}:m242", -10, 55, "turret", "m242")] +
                         [seat(s * 1.15, 0.66, f) for f in (-1.0, -1.9, -2.8) for s in (-1, 1)]),
     "m1_abrams": dict(model=vs.abrams, recipe=["  TBBB", " AAAE ", "AHHHA ", "KKKKK "], definition=tank(
         "M1 Abrams", health=400, armor=0.9, max_speed=0.6, max_reverse_speed=0.2, acceleration=0.012, braking=0.05, drag=0.03,
         turn_speed=2.5, water_speed=0.3, collision_damage=40, death_explosion=5.0, camera_distance=11,
-        fuel={"capacity": 60000, "consumption": 2},
+        fuel={"capacity": 60000, "consumption": 2, "type": "diesel"},
         parts=tracked_parts(1.27, 1.85, -2.75, 2.85, 0.45, 1.4, 1.0, -1.6, [-1.1, 1.4, -2.0, 1.1, 2.2, 1.35], 0.9, 400, 150)),
         # The driver also commands the turret (like the original Flan's tanks); the commander mans the .50 cal cupola.
         seats=lambda m: [gun_seat(m, "main", [0.0, 0.65, 1.65], f"{V}:m256", -8, 20, "turret", "cannon"),
                          gun_seat(m, "cupola", None, f"{V}:m2_mounted", -15, 60, "cupola", "cupola_mg")]),
+    "m252": dict(model=lambda: vs.mortar(1.25, 0.065, "olive_drab", plate_size=0.4, round_plate=True), recipe=[" I ", " I ", "BNB"],
+                 definition=static("M252 81mm Mortar"),
+                 seats=lambda m: [gun_seat(m, "main", [0.0, 0.3, -1.1], f"{V}:m252_tube", 45, 85, "mount", "tube")]),
     "t72": dict(model=vs.t72, recipe=["  TBBB", "AAAAE ", "AHHHA ", "KKKKK "], definition=tank(
         "T-72B", health=380, armor=0.88, max_speed=0.62, max_reverse_speed=0.15, acceleration=0.013, braking=0.05, drag=0.03,
         turn_speed=2.6, water_speed=0.3, collision_damage=40, death_explosion=5.5, camera_distance=11,
-        fuel={"capacity": 60000, "consumption": 2},
+        fuel={"capacity": 60000, "consumption": 2, "type": "diesel"},
         parts=tracked_parts(1.25, 1.8, -3.1, 3.0, 0.45, 1.25, 0.9, -1.7, [-1.15, 1.25, -1.15, 1.15, 2.1, 1.15], 0.88, 380, 140)),
         seats=lambda m: [gun_seat(m, "main", [0.0, 0.6, 1.55], f"{V}:2a46", -6, 14, "turret", "cannon"),
                          gun_seat(m, "cupola", None, f"{V}:nsvt", -5, 70, "cupola", "cupola_mg")]),
@@ -217,7 +227,7 @@ VEHICLE_ENGINE = {"m1_abrams": "diesel_engine", "t72": "diesel_engine", "m2_brad
 RAW = {"I": "minecraft:iron_ingot", "N": "minecraft:iron_nugget", "B": "minecraft:iron_block", "K": "minecraft:black_dye",
        "P": "minecraft:piston", "R": "minecraft:redstone", "C": "minecraft:copper_ingot", "J": "minecraft:leather",
        "U": "minecraft:gunpowder", "T": "minecraft:tnt", "G": "minecraft:gold_ingot", "c": "minecraft:copper_nugget",
-       "Q": "minecraft:quartz", "L": "minecraft:glass_pane"}
+       "Q": "minecraft:quartz", "L": "minecraft:glass_pane", "H": "minecraft:paper", "S": "minecraft:smooth_stone", "W": "#minecraft:planks"}
 
 
 # ------------------------------------------------------------------------------------------- weapons and ammunition
@@ -233,9 +243,18 @@ def scope(kind, **extra):
 
 def mounted_gun(name, damage, rpm, mode, reload, velocity, spread, zoom, sight, sound, **extra):
     """A vehicle weapon: aimed through its gunner's sight ([sight] overlay) with [zoom], fired only from its seat."""
-    return {"name": name, "mounted": True, "category": "mounted", "damage": damage, "rpm": rpm, "fire_mode": mode, "reload_ticks": reload,
-            "velocity": velocity, "spread": spread, "ads_spread": spread * 0.4, "ads_zoom": zoom, "scope": sight,
-            "lifetime_ticks": 80, "sounds": sounds_for(sound), **extra}
+    gun = {"name": name, "mounted": True, "category": "mounted", "damage": damage, "rpm": rpm, "fire_mode": mode, "reload_ticks": reload,
+           "velocity": velocity, "spread": spread, "ads_spread": spread * 0.4, "ads_zoom": zoom, "scope": sight,
+           "lifetime_ticks": 80, "sounds": sounds_for(sound), **extra}
+    if sight is None:
+        del gun["scope"]
+    return gun
+
+
+def mortar_gun(name, velocity, reload=30):
+    """Muzzle-loaded mortar: lobs its bombs (projectile ammo); no optic, aim by elevation (the HUD shows the range)."""
+    return mounted_gun(name, 0, 30, "semi", reload, velocity, 1.2, 1.0, None, "mortar", gravity=0.05, lifetime_ticks=400,
+                       recoil={"pitch": 1.0, "yaw": 0.3}, tracer=None)
 
 
 def cannon(name, damage, reload, velocity, zoom, sight, recoil=3.0):
@@ -255,6 +274,7 @@ MOUNTED_GUNS = {
     "m242": {**mg("M242 Bushmaster 25mm", 18, 200, 15, spread=0.6, zoom=3.0, sight=scope("tank_modern", thermal=True), sound="autocannon"),
              "fire_modes": ["semi", "auto"], "fire_mode": "auto"},
     "m256": cannon("M256 120mm Cannon", 45, 100, 6, 3.0, scope("tank_modern", thermal=True)),
+    "m252_tube": mortar_gun("M252 81mm Mortar", 2.4),
     "2a46": cannon("2A46M 125mm Cannon", 48, 120, 6, 2.8, scope("tank_soviet")),
 }
 # Magazines; internal = the gun's breech/autoloader, loaded with loose shells from the loader's inventory.
@@ -265,6 +285,7 @@ MAGAZINES = {
     "m242_box_75": dict(name="25mm Ammo Box (75)", caliber="25x137", capacity=75, guns=["m242"], recipe=["IIII", "I  I", "IIII"]),
     "120mm_breech": dict(name="Breech (1)", caliber="120mm", capacity=1, guns=["m256"], internal=True),
     "125mm_autoloader": dict(name="Autoloader (1)", caliber="125mm", capacity=1, guns=["2a46"], internal=True),
+    "81mm_tube": dict(name="Mortar Tube (1)", caliber="81mm", capacity=1, guns=["m252_tube"], internal=True),
 }
 MAG_ICONS = {  # ammo boxes: body colour
     "m2_box_100": "olive", "nsvt_box_50": "soviet_green", "kpvt_belt_50": "soviet_green", "m242_box_75": "olive",
@@ -284,6 +305,10 @@ SHELL_TYPES = {
     "apcbc": dict(suffix="APCBC", warhead="shot_apcbc", colour="black", armor_piercing=True, velocity_multiplier=1.2, damage_multiplier=1.1,
                   tracer={"color": "#FF6030", "width": 0.1, "length": 5}),
     "he": dict(suffix="HE", warhead="warhead_he_shell", colour="olive_drab", projectile=True, explosion=3.2),
+    # Mortar bombs: high arcs (gravity of the flying bomb), HE or a smoke screen.
+    "mortar_he": dict(suffix="HE", warhead="warhead_mortar_he", colour="olive_drab", projectile=True, explosion=3.0, gravity=0.05),
+    "mortar_smoke": dict(suffix="Smoke", warhead="warhead_mortar_smoke", colour="white", projectile=True, gravity=0.05,
+                         smoke={"radius": 6.0, "duration_ticks": 400}),
 }
 WARHEADS = {
     "warhead_heat": dict(name="HEAT Warhead", pattern=["T", "C", "T"], count=2,
@@ -294,18 +319,25 @@ WARHEADS = {
                        icon=[box(-0.2, 0, -0.2, 0.2, 0.6, 0.2, "black"), box(-0.12, 0.6, -0.12, 0.12, 0.85, 0.12, "red")]),
     "warhead_he_shell": dict(name="HE Shell Body", pattern=["I", "T", "C"], count=2,
                              icon=[box(-0.2, 0, -0.2, 0.2, 0.6, 0.2, "olive_drab"), box(-0.1, 0.6, -0.1, 0.1, 0.9, 0.1, "bronze")]),
+    "warhead_mortar_he": dict(name="Mortar Bomb Body (HE)", pattern=["N", "T", "N"], count=4,
+                              icon=[box(-0.15, 0, -0.15, 0.15, 0.4, 0.15, "olive_drab"), box(-0.08, 0.4, -0.08, 0.08, 0.55, 0.08, "bronze")]),
+    "warhead_mortar_smoke": dict(name="Mortar Bomb Body (Smoke)", pattern=["N", "H", "N"], count=4,
+                                 icon=[box(-0.15, 0, -0.15, 0.15, 0.4, 0.15, "white"), box(-0.08, 0.4, -0.08, 0.08, 0.55, 0.08, "bronze")]),
 }
 # caliber: name, shell length/radius (icon), casing recipe, shell types
 SHELLS = {
     "120mm": dict(name="120mm Tank Shell", length=1.5, radius=0.24, casing=["C C", "C C", "CCC"], types=["heat", "apfsds"]),
     "125mm": dict(name="125mm Tank Shell", length=1.55, radius=0.25, casing=["C C", "CCC", "CCC"], types=["heat", "apfsds"]),
+    "81mm": dict(name="81mm Mortar Bomb", label="81mm Mortar", casing_name="81mm Mortar Tail (Fins + Charge)", length=0.55, radius=0.08,
+                 casing=["N N", " I "], types=["mortar_he", "mortar_smoke"]),
 }
 SIGHTS = ["mg_ring", "tank_modern", "tank_soviet"]
 
 
 # ------------------------------------------------------------------------------------------- item models
-def item_model(name, boxes, gui_rotation=(25, 135, 0)):
-    """3D vanilla element model built from vehicle-space boxes, scaled into the 0..16 item space."""
+def item_model(name, boxes, gui_rotation=(25, 135, 0), display=None):
+    """3D vanilla element model built from vehicle-space boxes, scaled into the 0..16 item space ([display] replaces
+    single display contexts)."""
     lo = [min(b[i] for b in boxes) for i in range(3)]
     hi = [max(b[i + 3] for b in boxes) for i in range(3)]
     scale = 15.0 / max(hi[i] - lo[i] for i in range(3))
@@ -329,7 +361,7 @@ def item_model(name, boxes, gui_rotation=(25, 135, 0)):
                     "ground": {"translation": [0, 3, 0], "scale": [0.3, 0.3, 0.3]},
                     "fixed": {"rotation": [0, 90, 0], "scale": [0.6, 0.6, 0.6]},
                     "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.35, 0.35, 0.35]},
-                    "firstperson_righthand": {"rotation": [0, 45, 0], "scale": [0.4, 0.4, 0.4]}}})
+                    "firstperson_righthand": {"rotation": [0, 45, 0], "scale": [0.4, 0.4, 0.4]}, **(display or {})}})
 
 
 def shell_icon(length, radius, colour):
@@ -370,6 +402,7 @@ def sound_events():
         "vehicle.autocannon.shoot": [s("random/explode3", 1.4, 1.1)],
         "vehicle.cannon.shoot": [s("random/explode1", 2.5, 0.5), s("random/explode2", 2.5, 0.5)],
         "vehicle.cannon.reload": [s("block/iron_door/close1", 1.0, 0.6)],
+        "vehicle.mortar.shoot": [s("random/explode4", 1.2, 1.4), s("fireworks/launch1", 1.5, 0.5)],
         "vehicle.reload": [s("item/crossbow/loading_middle1", 0.9, 0.9)],
         "vehicle.empty": [s("random/click", 0.6, 1.4)],
     }
@@ -391,13 +424,16 @@ def write_vehicles(vehicles, faction=None):
         model = v["model"]()
         write(ASSETS / "geckolib" / "models" / "vehicle" / f"{vid}.geo.json", model.geo(vid))
         definition = {**v["definition"], "seats": v["seats"](model), "model": {"texture": texture}, "icon": f"{NS}:{vid}"}
-        definition["sounds"] = {"engine": f"{NS}:vehicle.tank.engine" if definition["type"] == "tank" else f"{NS}:vehicle.engine"}
+        if definition["type"] != "static":
+            definition["sounds"] = {"engine": f"{NS}:vehicle.tank.engine" if definition["type"] == "tank" else f"{NS}:vehicle.engine"}
         if v.get("faction") or faction:
             definition["faction"] = v.get("faction") or faction
         write(DATA / "flansmod" / "vehicles" / f"{vid}.json", definition)
         item_model(vid, model.boxes())
         parts = {**RECIPE_PARTS, "E": v.get("engine") or VEHICLE_ENGINE.get(vid, "engine")}
-        key = {ch: part_ingredient(parts[ch], VEHICLE_PARTS_NS) for row in v["recipe"] for ch in row if ch != " "}
+        # Emplacements are made from raw materials, vehicles from vehicle parts.
+        key = raw_key(v["recipe"]) if definition["type"] == "static" else \
+            {ch: part_ingredient(parts[ch], VEHICLE_PARTS_NS) for row in v["recipe"] for ch in row if ch != " "}
         bench(vid, v["recipe"], key, {"id": "flansmod:vehicle", "components": {"flansmod:vehicle": f"{NS}:{vid}"}})
 
 
@@ -458,7 +494,7 @@ def write_shells(shells, warheads):
         names[cal] = s["name"]
         label = s.get("label", cal)
         casing = f"casing_{cal}"
-        write(DATA / "flansmod" / "parts" / f"{casing}.json", {"name": f"{label} Shell Casing", "category": "ammo", "icon": f"{NS}:{casing}"})
+        write(DATA / "flansmod" / "parts" / f"{casing}.json", {"name": s.get("casing_name", f"{label} Shell Casing"), "category": "ammo", "icon": f"{NS}:{casing}"})
         item_model(casing, [box(-s["radius"], 0, -s["radius"], s["radius"], s["length"] * 0.55, s["radius"], "bronze"),
                             box(-s["radius"] * 1.12, 0, -s["radius"] * 1.12, s["radius"] * 1.12, 0.06, s["radius"] * 1.12, "bronze")])
         bench(f"part_{casing}", s["casing"], raw_key(s["casing"]), {"id": "flansmod:part", "count": 2, "components": {"flansmod:part": f"{NS}:{casing}"}})
@@ -469,14 +505,47 @@ def write_shells(shells, warheads):
             definition.update({k: v for k, v in t.items() if k in ("armor_piercing", "velocity_multiplier", "damage_multiplier", "tracer")})
             if t.get("projectile"):
                 definition["projectile"] = f"{NS}:{aid}"
-                write(DATA / "flansmod" / "grenades" / f"{aid}.json", {
-                    "name": f"{label} {t['suffix']}", "contact": True, "throwable": False, "trail": True, "gravity": 0.01,
-                    "explosion": {"power": t["explosion"], "break_blocks": True}, "icon": f"{NS}:{aid}"})
+                projectile = {"name": f"{label} {t['suffix']}", "contact": True, "throwable": False, "trail": True,
+                              "gravity": t.get("gravity", 0.01), "fuse_ticks": 600, "icon": f"{NS}:{aid}"}
+                if "explosion" in t:
+                    projectile["explosion"] = {"power": t["explosion"], "break_blocks": True}
+                if "smoke" in t:
+                    projectile["smoke"] = t["smoke"]
+                write(DATA / "flansmod" / "grenades" / f"{aid}.json", projectile)
             write(DATA / "flansmod" / "ammo" / f"{aid}.json", definition)
             item_model(aid, shell_icon(s["length"], s["radius"], t["colour"]), gui_rotation=(0, 0, -45))
             bench(f"ammo_{aid}", ["AUUD"], {"A": part_ingredient(casing), "U": RAW["U"], "D": part_ingredient(t["warhead"])},
                   {"id": "flansmod:ammo", "count": 1, "components": {"flansmod:ammo_type": f"{NS}:{aid}", "minecraft:max_stack_size": 8}})
     return names
+
+
+def write_mines(mines, factions=None):
+    """Mines are grenade definitions with a `mine` section (laid instead of thrown); their item model lies flat on the
+    ground at about [size] blocks across."""
+    for mid, m in mines.items():
+        definition = {"name": m["name"], "explosion": m["explosion"], "mine": m["mine"], "max_stack": 8, "icon": f"{NS}:{mid}"}
+        if factions and mid in factions:
+            definition["faction"] = factions[mid]
+        write(DATA / "flansmod" / "grenades" / f"{mid}.json", definition)
+        boxes = vs.mine_icon(m["icon"], m.get("paint", "olive_drab"))
+        width = max(max(b[3] for b in boxes) - min(b[0] for b in boxes), max(b[5] for b in boxes) - min(b[2] for b in boxes))
+        height = max(b[4] for b in boxes) - min(b[1] for b in boxes)
+        scale = round(max(0.3, m.get("size", width * 1.4)) * 16 / 15, 3)
+        lift = round(15 * height / width * scale / 2, 3)  # model centred on the origin: lift its lower half above the ground
+        item_model(mid, boxes, gui_rotation=(30, 45, 0), display={"ground": {"translation": [0, lift, 0], "scale": [scale] * 3},
+                                                                   "gui": {"rotation": [30, 45, 0], "scale": [0.8, 0.8, 0.8]}})
+        bench(f"mine_{mid}", m["recipe"], raw_key(m["recipe"]),
+              {"id": "flansmod:grenade", "count": m.get("count", 1), "components": {"flansmod:grenade": f"{NS}:{mid}", "minecraft:max_stack_size": 8}})
+
+
+def at_mine(name, icon, paint="olive_drab", power=4.0, vehicle_damage=400, recipe=("NIN", "ITI", "NIN"), size=0.55):
+    return dict(name=name, icon=icon, paint=paint, size=size, recipe=list(recipe), explosion={"power": power, "fire": False, "break_blocks": False},
+                mine={"trigger": "vehicle", "arm_ticks": 60, "radius": 0.9, "vehicle_damage": vehicle_damage})
+
+
+def ap_mine(name, icon, paint="olive_drab", power=1.8, recipe=("NUN", " I "), size=0.3):
+    return dict(name=name, icon=icon, paint=paint, size=size, recipe=list(recipe), count=2,
+                explosion={"power": power, "fire": False, "break_blocks": False}, mine={"trigger": "personnel", "arm_ticks": 40, "radius": 0.6})
 
 
 def write_sights(kinds):
@@ -487,6 +556,12 @@ def write_sights(kinds):
 def write_sounds(events):
     write(ASSETS / "sounds.json", {k: {"sounds": v, "subtitle": f"subtitles.{NS}.{k}"} for k, v in events.items()})
     return {f"subtitles.{NS}.{e}": subtitle(e) for e in events}
+
+
+MINES = {
+    "m15_mine": at_mine("M15 Anti-Tank Mine", "m15"),
+    "m14_mine": ap_mine("M14 Anti-Personnel Mine", "m14"),
+}
 
 
 def main():
@@ -513,6 +588,7 @@ def main():
     calibers = write_cartridges(CARTRIDGES, CARTRIDGE_CASINGS)
     calibers.update(write_shells(SHELLS, WARHEADS))
     write_sights(SIGHTS)
+    write_mines(MINES)
 
     lang = write_sounds(sound_events())
     lang.update({f"vehicle_upgrade.{NS}.{uid}": u["name"] for uid, u in UPGRADES.items()})

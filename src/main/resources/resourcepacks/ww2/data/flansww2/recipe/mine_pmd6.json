@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "WUW"
+  ],
+  "key": {
+    "U": "minecraft:gunpowder",
+    "W": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:grenade",
+    "count": 2,
+    "components": {
+      "flansmod:grenade": "flansww2:pmd6",
+      "minecraft:max_stack_size": 8
+    }
+  }
+}

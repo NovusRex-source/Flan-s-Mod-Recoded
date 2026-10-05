@@ -1,0 +1,25 @@
+{
+  "name": "8 cm Granatwerfer 34",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 0,
+  "rpm": 30,
+  "fire_mode": "semi",
+  "reload_ticks": 30,
+  "velocity": 2.3,
+  "spread": 1.2,
+  "ads_spread": 0.48,
+  "ads_zoom": 1.0,
+  "lifetime_ticks": 400,
+  "sounds": {
+    "shoot": "flansww2:vehicle.mortar.shoot",
+    "reload": "flansww2:vehicle.reload",
+    "empty": "flansww2:vehicle.empty"
+  },
+  "gravity": 0.05,
+  "recoil": {
+    "pitch": 1.0,
+    "yaw": 0.3
+  },
+  "tracer": null
+}

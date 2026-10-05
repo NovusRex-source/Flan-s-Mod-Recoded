@@ -1,0 +1,13 @@
+{
+  "name": "8cm Mortar HE",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.05,
+  "fuse_ticks": 600,
+  "icon": "flansww2:8cm_grw_mortar_he",
+  "explosion": {
+    "power": 3.0,
+    "break_blocks": true
+  }
+}

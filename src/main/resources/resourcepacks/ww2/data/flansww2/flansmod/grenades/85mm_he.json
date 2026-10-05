@@ -4,9 +4,10 @@
   "throwable": false,
   "trail": true,
   "gravity": 0.01,
+  "fuse_ticks": 600,
+  "icon": "flansww2:85mm_he",
   "explosion": {
     "power": 3.2,
     "break_blocks": true
-  },
-  "icon": "flansww2:85mm_he"
+  }
 }

@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NN",
+    "H ",
+    "N "
+  ],
+  "key": {
+    "H": "minecraft:paper",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 4,
+    "components": {
+      "flansmod:part": "flansww2:warhead_mortar_smoke"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "flansmod:block/fuel_synthesizer_top",
+    "front": "flansmod:block/fuel_synthesizer_front",
+    "side": "flansmod:block/fuel_synthesizer_side"
+  }
+}

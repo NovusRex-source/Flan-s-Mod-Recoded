@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NNN",
+    "NUN",
+    " I "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:grenade",
+    "count": 2,
+    "components": {
+      "flansmod:grenade": "flansww2:s_mine",
+      "minecraft:max_stack_size": 8
+    }
+  }
+}

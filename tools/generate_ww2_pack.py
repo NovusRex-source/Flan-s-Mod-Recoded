@@ -180,10 +180,10 @@ FACTIONS = {
 }
 FACTION_ITEMS = {
     "axis": ["kar98k", "kar98k_scoped", "g43", "mp40", "stg44", "mg42", "luger_p08", "walther_p38", "stielhandgranate",
-             "kubelwagen", "panzer4", "tiger1"],
-    "usa": ["m1_garand", "m1903", "m1_carbine", "m3_grease_gun", "bar", "bazooka", "mk2", "willys", "sherman"],
-    "uk": ["lee_enfield", "sten", "bren", "mills_bomb", "universal_carrier", "cromwell"],
-    "ussr": ["mosin_nagant", "ppsh41", "dp28", "tt33", "f1", "gaz67", "t34_85"],
+             "kubelwagen", "panzer4", "tiger1", "grw34", "tellermine", "s_mine"],
+    "usa": ["m1_garand", "m1903", "m1_carbine", "m3_grease_gun", "bar", "bazooka", "mk2", "willys", "sherman", "m2_mortar", "m1a1_mine"],
+    "uk": ["lee_enfield", "sten", "bren", "mills_bomb", "universal_carrier", "cromwell", "ml_3inch", "mk5_mine"],
+    "ussr": ["mosin_nagant", "ppsh41", "dp28", "tt33", "f1", "gaz67", "t34_85", "bm37", "pmd6"],
 }
 FACTION_OF = {item: f"{NS}:{faction}" for faction, items in FACTION_ITEMS.items() for item in items}
 
@@ -364,10 +364,26 @@ VEHICLES = {
         seats=lambda m: [gun_seat(m, "main", [-0.65, 1.05, 2.0], f"{NS}:kwk36", -8, 15, "turret", "cannon"), seat(0.65, 1.05, 2.0), seat(-0.5, 1.95, -0.8)]),
     "t34_85": dict(model=vs.t34_85, recipe=["  TBBB", "AAAAAE", "AHHHA ", "KKKKK "], engine="diesel_engine", definition=ww2_tank(
         "T-34-85", 320, 0.82, 0.7, 2.8,
-        vp.tracked_parts(1.2, 1.7, -3.0, 2.7, 0.45, 1.55, 1.0, -1.5, [-0.95, 1.55, -1.15, 0.95, 2.45, 1.1], 0.82, 320, 120)),
+        vp.tracked_parts(1.2, 1.7, -3.0, 2.7, 0.45, 1.55, 1.0, -1.5, [-0.95, 1.55, -1.15, 0.95, 2.45, 1.1], 0.82, 320, 120),
+        fuel={"capacity": 48000, "consumption": 2, "type": "diesel"}),
         seats=lambda m: [gun_seat(m, "main", [-0.55, 0.75, 1.15], f"{NS}:zis_s53", -5, 25, "turret", "cannon"), seat(0.35, 1.5, -0.6)]),
 }
+def ww2_mortar(name, tube, radius, paint, gun, plate=0.35, round_plate=False, recipe=(" I ", " I ", "BNB")):
+    return dict(model=lambda: vs.mortar(tube, radius, paint, plate_size=plate, round_plate=round_plate), recipe=list(recipe), definition=vp.static(name),
+                seats=lambda m: [gun_seat(m, "main", [0.0, 0.3, -1.1], f"{NS}:{gun}", 45, 85, "mount", "tube")])
+
+
+VEHICLES.update({
+    "grw34": ww2_mortar("8 cm Granatwerfer 34", 1.15, 0.065, "panzer_grey", "grw34_tube", recipe=(" I ", "NI ", "BNB")),
+    "m2_mortar": ww2_mortar("M2 60mm Mortar", 0.75, 0.05, "olive_drab", "m2_mortar_tube", plate=0.3, round_plate=True, recipe=(" I ", "BNB")),
+    "ml_3inch": ww2_mortar("ML 3-inch Mortar", 1.2, 0.068, "khaki_green", "ml_3inch_tube", recipe=(" I ", " IN", "BNB")),
+    "bm37": ww2_mortar("82-BM-37", 1.2, 0.066, "soviet_green", "bm37_tube", plate=0.4, round_plate=True, recipe=(" I ", " I ", "BBB")),
+})
 MOUNTED_GUNS = {
+    "grw34_tube": vp.mortar_gun("8 cm Granatwerfer 34", 2.3),
+    "m2_mortar_tube": vp.mortar_gun("M2 60mm Mortar", 2.0, reload=25),
+    "ml_3inch_tube": vp.mortar_gun("ML 3-inch Mortar", 2.35),
+    "bm37_tube": vp.mortar_gun("82-BM-37", 2.4),
     "m1919_mounted": vp.mg("M1919A4 (mounted)", 9, 500, 17),
     "mg34_mounted": vp.mg("MG 34 (mounted)", 9, 900, 17),
     "dt_mounted": vp.mg("DT (mounted)", 9, 600, 17),
@@ -387,6 +403,10 @@ MOUNTED_MAGAZINES = {
     "75mm_kwk_breech": dict(name="Breech (1)", caliber="75mm_kwk", capacity=1, guns=["kwk40"], internal=True),
     "88mm_breech": dict(name="Breech (1)", caliber="88mm", capacity=1, guns=["kwk36"], internal=True),
     "85mm_breech": dict(name="Breech (1)", caliber="85mm", capacity=1, guns=["zis_s53"], internal=True),
+    "grw34_tube": dict(name="Mortar Tube (1)", caliber="8cm_grw", capacity=1, guns=["grw34_tube"], internal=True),
+    "m2_mortar_tube": dict(name="Mortar Tube (1)", caliber="60mm", capacity=1, guns=["m2_mortar_tube"], internal=True),
+    "ml_3inch_tube": dict(name="Mortar Tube (1)", caliber="3in", capacity=1, guns=["ml_3inch_tube"], internal=True),
+    "bm37_tube": dict(name="Mortar Tube (1)", caliber="82mm", capacity=1, guns=["bm37_tube"], internal=True),
 }
 MAG_ICONS = {"m1919_belt_150": "olive_drab", "mg34_belt_150": "panzer_grey", "dt_pan_63": "metal"}
 SHELLS = {
@@ -394,6 +414,21 @@ SHELLS = {
     "75mm_kwk": dict(name="7.5 cm KwK 40 Shell", label="7.5cm KwK", length=1.2, radius=0.15, casing=["C C", "C C", "CC "], types=["apcbc", "he"]),
     "88mm": dict(name="8.8 cm KwK 36 Shell", label="8.8cm KwK", length=1.35, radius=0.17, casing=["C C", "C C", " CC"], types=["apcbc", "he"]),
     "85mm": dict(name="85mm Tank Shell", label="85mm", length=1.25, radius=0.16, casing=["C C", " C ", "CCC"], types=["apcbc", "he"]),
+    "8cm_grw": dict(name="8 cm Wurfgranate", label="8cm Mortar", casing_name="8cm Mortar Tail (Fins + Charge)", length=0.5, radius=0.08,
+                    casing=["N N", "NI "], types=["mortar_he", "mortar_smoke"]),
+    "60mm": dict(name="60mm Mortar Bomb", label="60mm Mortar", casing_name="60mm Mortar Tail (Fins + Charge)", length=0.4, radius=0.06,
+                 casing=["N N", " c "], types=["mortar_he", "mortar_smoke"]),
+    "3in": dict(name="3-inch Mortar Bomb", label="3in Mortar", casing_name="3in Mortar Tail (Fins + Charge)", length=0.5, radius=0.08,
+                casing=["N N", " C "], types=["mortar_he", "mortar_smoke"]),
+    "82mm": dict(name="82mm Mortar Bomb", label="82mm Mortar", casing_name="82mm Mortar Tail (Fins + Charge)", length=0.5, radius=0.08,
+                 casing=["NNN", " I "], types=["mortar_he", "mortar_smoke"]),
+}
+MINES = {
+    "tellermine": vp.at_mine("Tellermine 35", "teller", "panzer_grey", recipe=("NIN", "ITI", "III")),
+    "s_mine": vp.ap_mine("S-Mine 35", "s_mine", "panzer_grey", power=2.4, recipe=("NNN", "NUN", " I ")),
+    "m1a1_mine": vp.at_mine("M1A1 Anti-Tank Mine", "m1a1", "olive_drab", power=3.5, vehicle_damage=320, recipe=("NIN", "ITI", "N N")),
+    "mk5_mine": vp.at_mine("Mk V Anti-Tank Mine", "mk5", "khaki_green", power=3.5, vehicle_damage=320, recipe=("NIN", "ITI", "INI")),
+    "pmd6": vp.ap_mine("PMD-6 Mine", "pmd6", recipe=("WUW",), power=1.8),
 }
 SIGHTS = ["mg_ring", "telescope", "tzf", "tank_soviet"]
 
@@ -536,8 +571,9 @@ def main():
     vp.write_textures()
     vp.write_vehicles({vid: {**v, "faction": FACTION_OF[vid]} for vid, v in VEHICLES.items()})
     vp.write_weapons(MOUNTED_GUNS, MOUNTED_MAGAZINES, MAG_ICONS)
-    shell_names = vp.write_shells(SHELLS, {k: vp.WARHEADS[k] for k in ("shot_apcbc", "warhead_he_shell")})
+    shell_names = vp.write_shells(SHELLS, {k: vp.WARHEADS[k] for k in ("shot_apcbc", "warhead_he_shell", "warhead_mortar_he", "warhead_mortar_smoke")})
     vp.write_sights(SIGHTS)
+    vp.write_mines(MINES, FACTION_OF)
 
     gun_events = base.sounds()
     lang = vp.write_sounds({**gun_events, **vp.sound_events()})

@@ -1,0 +1,16 @@
+{
+  "name": "PMD-6 Mine",
+  "explosion": {
+    "power": 1.8,
+    "fire": false,
+    "break_blocks": false
+  },
+  "mine": {
+    "trigger": "personnel",
+    "arm_ticks": 40,
+    "radius": 0.6
+  },
+  "max_stack": 8,
+  "icon": "flansww2:pmd6",
+  "faction": "flansww2:ussr"
+}

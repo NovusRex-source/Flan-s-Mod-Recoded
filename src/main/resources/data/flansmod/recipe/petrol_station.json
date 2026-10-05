@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IGI",
+    "RHR",
+    "SSS"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:glass_pane",
+    "R": "minecraft:red_dye",
+    "H": "minecraft:hopper",
+    "S": "minecraft:smooth_stone"
+  },
+  "result": {
+    "id": "flansmod:petrol_station",
+    "count": 1
+  }
+}

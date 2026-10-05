@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "N",
+    "T",
+    "N"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "T": "minecraft:tnt"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 4,
+    "components": {
+      "flansmod:part": "flansvehicles:warhead_mortar_he"
+    }
+  }
+}

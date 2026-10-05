@@ -1,5 +1,7 @@
 package com.flansmod.recoded.bench
 
+import com.flansmod.recoded.fuel.exchangeFuel
+
 import com.flansmod.recoded.entity.DriveableEntity
 import com.flansmod.recoded.item.VehicleUpgradeItem
 import com.flansmod.recoded.item.vehicleUpgradeDefinition
@@ -61,7 +63,8 @@ class VehicleMenu(id: Int, private val inventory: Inventory, data: VehicleMenuDa
     init {
         slotNames.forEachIndexed { i, name -> addSlot(UpgradeSlot(i, name, slotX(i, slotNames.size), SLOT_Y)) }
         addSlot(object : Slot(fuelSlot, 0, FUEL_X, FUEL_Y) {
-            override fun mayPlace(stack: ItemStack) = vehicle?.definition?.fuel?.items?.containsKey(BuiltInRegistries.ITEM.getKey(stack.item)) == true
+            override fun mayPlace(stack: ItemStack) = stack.item is com.flansmod.recoded.fuel.FuelCanItem ||
+                vehicle?.definition?.fuel?.items?.containsKey(BuiltInRegistries.ITEM.getKey(stack.item)) == true
         })
         for (row in 0 until 3) for (col in 0 until 9) addSlot(Slot(inventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18))
         for (col in 0 until 9) addSlot(Slot(inventory, col, 8 + col * 18, 142))
@@ -82,6 +85,12 @@ class VehicleMenu(id: Int, private val inventory: Inventory, data: VehicleMenuDa
     private fun refuel() {
         val vehicle = vehicle ?: return
         val fuel = vehicle.definition?.fuel ?: return
+        // Fuel cans of the vehicle's fuel type empty into the tank and stay in the slot.
+        fuelSlot.getItem(0).takeIf { it.item is com.flansmod.recoded.fuel.FuelCanItem }?.let { can ->
+            val tank = com.flansmod.recoded.fuel.FuelStack(fuel.type, vehicle.fuel)
+            vehicle.fuel = can.exchangeFuel(tank, fuel.capacity, intoTank = true)?.amount ?: vehicle.fuel
+            return
+        }
         while (true) {
             val stack = fuelSlot.getItem(0)
             val value = fuel.items[BuiltInRegistries.ITEM.getKey(stack.item)] ?: return

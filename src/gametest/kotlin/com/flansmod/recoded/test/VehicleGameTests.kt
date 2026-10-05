@@ -88,7 +88,8 @@ class VehicleGameTests {
 
     @GameTest(maxTicks = 40)
     fun refuelsFromCoal(helper: GameTestHelper) {
-        val vehicle = helper.spawnVehicle("refuel", car.copy(fuel = Fuel(capacity = 5000)), fuel = 0)
+        // Packs may let items fuel a vehicle directly (none do by default: fuel comes from cans and petrol stations).
+        val vehicle = helper.spawnVehicle("refuel", car.copy(fuel = Fuel(capacity = 5000, items = mapOf(Identifier.withDefaultNamespace("coal") to 1600))), fuel = 0)
         val player = helper.makeMockServerPlayerInLevel()
         player.abilities.instabuild = false
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack(Items.COAL, 2))

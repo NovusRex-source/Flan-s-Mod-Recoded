@@ -1,0 +1,17 @@
+{
+  "name": "Tellermine 35",
+  "explosion": {
+    "power": 4.0,
+    "fire": false,
+    "break_blocks": false
+  },
+  "mine": {
+    "trigger": "vehicle",
+    "arm_ticks": 60,
+    "radius": 0.9,
+    "vehicle_damage": 400
+  },
+  "max_stack": 8,
+  "icon": "flansww2:tellermine",
+  "faction": "flansww2:axis"
+}

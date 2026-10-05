@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ICI",
+    "BFB",
+    "IPI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:copper_ingot",
+    "B": "minecraft:bucket",
+    "F": "minecraft:blast_furnace",
+    "P": "minecraft:piston"
+  },
+  "result": {
+    "id": "flansmod:fuel_synthesizer",
+    "count": 1
+  }
+}

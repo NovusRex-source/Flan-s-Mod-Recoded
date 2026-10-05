@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    " I ",
+    " I ",
+    "BBB"
+  ],
+  "key": {
+    "B": "minecraft:iron_block",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "flansmod:vehicle",
+    "components": {
+      "flansmod:vehicle": "flansww2:bm37"
+    }
+  }
+}

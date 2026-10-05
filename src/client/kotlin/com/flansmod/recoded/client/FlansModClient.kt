@@ -20,6 +20,9 @@ import com.flansmod.recoded.client.vehicle.VehicleRenderer
 import com.flansmod.recoded.client.vehicle.VehicleMenuScreen
 import com.flansmod.recoded.client.bench.WeaponsBenchScreen
 import com.flansmod.recoded.client.bench.WeaponMenuScreen
+import com.flansmod.recoded.client.fuel.FuelSynthesizerScreen
+import com.flansmod.recoded.client.fuel.MineRenderer
+import com.flansmod.recoded.client.fuel.PetrolStationScreen
 import com.flansmod.recoded.registry.FlansMenus
 import net.minecraft.client.gui.screens.MenuScreens
 import com.flansmod.recoded.registry.FlansEntities
@@ -41,10 +44,13 @@ object FlansModClient : ClientModInitializer {
         FactionTabs.init()
         EntityRendererRegistry.register(FlansEntities.GRENADE, ::ThrownItemRenderer)
         EntityRendererRegistry.register(FlansEntities.DRIVEABLE, ::VehicleRenderer)
+        EntityRendererRegistry.register(FlansEntities.MINE, ::MineRenderer)
         VehicleClient.init()
         MenuScreens.register(FlansMenus.WEAPONS_BENCH, ::WeaponsBenchScreen)
         MenuScreens.register(FlansMenus.WEAPON, ::WeaponMenuScreen)
         MenuScreens.register(FlansMenus.VEHICLE, ::VehicleMenuScreen)
+        MenuScreens.register(FlansMenus.FUEL_SYNTHESIZER, ::FuelSynthesizerScreen)
+        MenuScreens.register(FlansMenus.PETROL_STATION, ::PetrolStationScreen)
         GunInput.init()
         GunHud.init()
     }

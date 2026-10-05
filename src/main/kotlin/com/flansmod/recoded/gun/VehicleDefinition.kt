@@ -156,26 +156,31 @@ enum class VehicleType {
     @SerialName("car") CAR,
     /** Tracked: turns on the spot. */
     @SerialName("tank") TANK,
+    /** Emplacement (mortar, field gun): never drives; seat 0 is a gunner, not a driver. */
+    @SerialName("static") STATIC,
 }
 
 /**
- * Fuel in ticks of engine time; [items] maps item ids to the fuel they add (right click the vehicle with them).
- * A capacity of 0 means the vehicle needs no fuel.
+ * Fuel in ticks of engine time ([FuelTypes.UNITS_PER_LITRE] per litre) of one [type] (`petrol`, `diesel`, or any
+ * name a pack uses; display name from the lang key `fuel.flansmod.<type>`). Vehicles are filled from fuel cans and
+ * petrol stations of that type; [items] optionally maps item ids to fuel they add directly. A capacity of 0 means the
+ * vehicle needs no fuel.
  */
 @Serializable
 data class Fuel(
     val capacity: Int = 24000,
     /** Fuel used per tick while the throttle is held. */
     val consumption: Int = 1,
-    val items: Map<@Serializable(IdentifierSerializer::class) Identifier, Int> = DEFAULT_ITEMS,
-) {
-    companion object {
-        val DEFAULT_ITEMS = mapOf(
-            Identifier.withDefaultNamespace("coal") to 1600, Identifier.withDefaultNamespace("charcoal") to 1600,
-            Identifier.withDefaultNamespace("coal_block") to 16000, Identifier.withDefaultNamespace("blaze_rod") to 2400,
-            Identifier.withDefaultNamespace("lava_bucket") to 20000,
-        )
-    }
+    val type: String = FuelTypes.PETROL,
+    val items: Map<@Serializable(IdentifierSerializer::class) Identifier, Int> = emptyMap(),
+)
+
+object FuelTypes {
+    const val PETROL = "petrol"
+    const val DIESEL = "diesel"
+    const val UNITS_PER_LITRE = 200
+
+    fun litres(units: Int) = units / UNITS_PER_LITRE
 }
 
 /**

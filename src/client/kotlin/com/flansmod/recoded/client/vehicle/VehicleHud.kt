@@ -3,6 +3,7 @@ package com.flansmod.recoded.client.vehicle
 import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.entity.DriveableEntity
 import com.flansmod.recoded.gun.Guns
+import com.flansmod.recoded.gun.withAmmo
 import com.flansmod.recoded.gun.VehicleType
 import com.flansmod.recoded.item.AmmoItem
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
@@ -38,15 +39,17 @@ object VehicleHud {
         val def = vehicle.definition ?: return
         val gunId = vehicle.seat(seat)?.gun
         val gun = Guns[gunId]
-        val driver = seat == 0
+        val static = def.type == VehicleType.STATIC
+        val driver = seat == 0 && !static
         val turret = vehicle.seat(seat)?.turret == true
-        val showIndicator = def.type == VehicleType.TANK || turret
+        val showIndicator = (def.type == VehicleType.TANK || turret) && !static
         val sighting = VehicleClient.sighting
 
         // Rows: header, hull, [speed, fuel], [gun, ammo, reload], hints.
         var rows = 2
         if (driver && !sighting) rows += if (def.needsFuel) 2 else 1
         if (gun != null) rows += 2
+        if (static && gun != null) rows += 1
         rows += 1
         val height = rows * 11 + 6
         val x = g.guiWidth() - WIDTH - 6
@@ -57,6 +60,7 @@ object VehicleHud {
         fun row() = line.also { line += 11 }
 
         val role = when {
+            static && gun != null -> "gunner"
             driver -> "driver"
             gun != null -> "gunner"
             else -> "passenger"
@@ -71,7 +75,7 @@ object VehicleHud {
         if (driver && !sighting) {
             val speed = vehicle.position().subtract(vehicle.xo, vehicle.yo, vehicle.zo).horizontalDistance()
             bar(g, font, x, row(), "${(speed * 72).toInt()} km/h", (speed / def.maxSpeed).toFloat(), 0xFF6FB0E0.toInt())
-            if (def.needsFuel) bar(g, font, x, row(), Component.translatable("hud.flansmod.vehicle.fuel_label").string,
+            if (def.needsFuel) bar(g, font, x, row(), com.flansmod.recoded.fuel.FuelStack.name(def.fuel.type).string,
                 vehicle.fuel.toFloat() / def.fuel.capacity, if (vehicle.fuel < def.fuel.capacity / 10) 0xFFE05030.toInt() else 0xFFE0B040.toInt())
         }
         if (gun != null && gunId != null) {
@@ -90,11 +94,39 @@ object VehicleHud {
                 g.text(font, font.plainSubstrByWidth(ammo, WIDTH - 12 - font.width(count)), x + 8 + font.width(count), ammoLine, DIM)
             }
         }
+        if (static && gun != null) {
+            // Emplacements (mortars): elevation and where the shell comes down on level ground.
+            val occupant = vehicle.occupant(seat)
+            val elevation = occupant?.let { vehicle.aim(seat, it, partial).second } ?: 0f
+            val range = estimateRange(vehicle, seat, gun, elevation)
+            g.text(font, Component.translatable("hud.flansmod.vehicle.elevation", "%.0f".format(elevation), range).string, x + 4, row(), TEXT)
+        }
         val hint = Component.translatable(if (gun != null) "hud.flansmod.vehicle.hint_gun" else "hud.flansmod.vehicle.hint").string
         g.text(font, font.plainSubstrByWidth(hint, WIDTH - 8), x + 4, row(), DIM)
 
         if (showIndicator) indicator(g, vehicle, seat, x - 36, y + height - 34, partial)
         warnings(g, font, vehicle, seat, x, y)
+    }
+
+    /**
+     * Flight of the loaded round (projectile gravity, vanilla throwable drag 0.99 per tick) from the muzzle until it is
+     * back at the vehicle's ground level: the range in blocks, or "?" without ammo.
+     */
+    private fun estimateRange(vehicle: DriveableEntity, seat: Int, gun: com.flansmod.recoded.gun.GunDefinition, elevation: Float): String {
+        val ammo = vehicle.seatMagazines[seat]?.ammoDefinition ?: return "?"
+        val gravity = ammo.projectile?.let { com.flansmod.recoded.gun.Grenades[it]?.gravity } ?: gun.gravity
+        val speed = gun.withAmmo(ammo).velocity
+        var vx = speed * kotlin.math.cos(Math.toRadians(elevation.toDouble()))
+        var vy = speed * kotlin.math.sin(Math.toRadians(elevation.toDouble()))
+        val muzzle = vehicle.seat(seat)?.let { it.pivot.getOrElse(1) { 1.0 } } ?: 1.0
+        var x = 0.0
+        var y = muzzle
+        repeat(1200) {
+            x += vx; y += vy
+            vx *= 0.99; vy = vy * 0.99 - gravity
+            if (y <= 0 && vy < 0) return "%.0f".format(x)
+        }
+        return "?"
     }
 
     /** Label left, bar right; [fraction] 0..1. */

@@ -31,6 +31,8 @@ data class GrenadeDefinition(
     @Serializable(IdentifierSerializer::class) @SerialName("detonate_sound") val detonateSound: Identifier? = null,
     /** Item model (an `assets/<ns>/items/<name>.json` id) used for the item and the thrown entity. */
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
+    /** A mine: placed on the ground with right click instead of thrown, goes off when its [Mine.trigger] passes over it. */
+    val mine: Mine? = null,
     /** Side this belongs to (a [FactionDefinition] id): faction creative tab and tooltip line. */
     @Serializable(IdentifierSerializer::class) val faction: Identifier? = null,
 ) {
@@ -43,6 +45,21 @@ data class GrenadeDefinition(
 
     @Serializable
     data class Smoke(val radius: Double = 4.0, @SerialName("duration_ticks") val durationTicks: Int = 300)
+
+    /**
+     * [trigger] `personnel`: any living entity or vehicle steps on it; `vehicle`: only vehicles (anti-tank mines).
+     * [vehicleDamage] goes straight into the vehicle part above the mine (tracks, wheels) on top of the explosion.
+     */
+    @Serializable
+    data class Mine(
+        val trigger: Trigger = Trigger.PERSONNEL,
+        @SerialName("arm_ticks") val armTicks: Int = 40,
+        val radius: Double = 0.7,
+        @SerialName("vehicle_damage") val vehicleDamage: Float = 0f,
+    ) {
+        @Serializable
+        enum class Trigger { @SerialName("personnel") PERSONNEL, @SerialName("vehicle") VEHICLE }
+    }
 
     /** Blinds living entities within [radius] that have line of sight to the grenade. */
     @Serializable

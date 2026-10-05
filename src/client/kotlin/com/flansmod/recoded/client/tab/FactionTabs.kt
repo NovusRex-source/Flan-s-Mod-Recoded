@@ -67,7 +67,7 @@ object FactionTabs {
         val calibers = magazines.mapNotNull { Magazines[it]?.caliber }.toSet()
         val ammo = CreativeContent.ammunition(calibers = calibers).filter { it.item !is MagazineItem || it.magazineId() in magazines }
         return CreativeContent.weapons(mine) + ammo.filter { it.item is AmmoItem || it.item is MagazineItem } + CreativeContent.explosives(mine) +
-            CreativeContent.vehicles(mine).filter { it.item !is AmmoItem && it.item !is MagazineItem && it.vehicleUpgrade() == null } +
+            CreativeContent.vehicles(mine, tools = false).filter { it.item !is AmmoItem && it.item !is MagazineItem && it.vehicleUpgrade() == null } +
             CreativeContent.equipment(mine)
     }
 

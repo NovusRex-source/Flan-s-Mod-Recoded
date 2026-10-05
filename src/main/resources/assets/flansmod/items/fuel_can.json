@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "cases": [
+      {
+        "when": "petrol",
+        "model": {
+          "type": "minecraft:model",
+          "model": "flansmod:item/fuel_can_petrol"
+        }
+      },
+      {
+        "when": "diesel",
+        "model": {
+          "type": "minecraft:model",
+          "model": "flansmod:item/fuel_can_diesel"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "flansmod:item/fuel_can_empty"
+    }
+  }
+}

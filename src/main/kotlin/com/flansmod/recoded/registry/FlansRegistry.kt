@@ -17,6 +17,7 @@ import com.flansmod.recoded.bench.WeaponMenuData
 import com.flansmod.recoded.bench.VehicleMenu
 import com.flansmod.recoded.bench.VehicleMenuData
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType
+import net.fabricmc.fabric.api.`object`.builder.v1.block.entity.FabricBlockEntityTypeBuilder
 import net.minecraft.world.flag.FeatureFlags
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.BlockItem
@@ -30,6 +31,11 @@ import com.flansmod.recoded.gun.Magazines
 import com.flansmod.recoded.item.MagazineItem
 import com.flansmod.recoded.item.GrenadeItem
 import com.flansmod.recoded.entity.GrenadeEntity
+import com.flansmod.recoded.entity.MineEntity
+import com.flansmod.recoded.fuel.FuelSynthesizerBlock
+import com.flansmod.recoded.fuel.FuelSynthesizerBlockEntity
+import com.flansmod.recoded.fuel.PetrolStationBlock
+import com.flansmod.recoded.fuel.PetrolStationBlockEntity
 import com.flansmod.recoded.entity.DriveableEntity
 import com.flansmod.recoded.gun.Vehicles
 import com.flansmod.recoded.item.VehicleItem
@@ -108,6 +114,11 @@ object FlansComponents {
     val VEHICLE_DAMAGE: DataComponentType<Map<String, Float>> = register("vehicle_damage") {
         persistent(Codec.unboundedMap(Codec.STRING, Codec.FLOAT))
             .networkSynchronized(ByteBufCodecs.map(::HashMap, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.FLOAT))
+    }
+
+    /** Contents of a fuel can. */
+    val FUEL_CAN: DataComponentType<com.flansmod.recoded.fuel.FuelStack> = register("fuel_can") {
+        persistent(com.flansmod.recoded.fuel.FuelStack.CODEC).networkSynchronized(com.flansmod.recoded.fuel.FuelStack.STREAM_CODEC.cast())
     }
 
     /** Fuel left in a picked-up vehicle. */
@@ -196,6 +207,24 @@ object FlansItems {
         VehicleUpgradeItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("vehicle_upgrade"))).stacksTo(1)),
     )
 
+    val WRENCH: com.flansmod.recoded.item.WrenchItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("wrench"),
+        com.flansmod.recoded.item.WrenchItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("wrench"))).durability(250)),
+    )
+
+    val FUEL_CAN: com.flansmod.recoded.fuel.FuelCanItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("fuel_can"),
+        com.flansmod.recoded.fuel.FuelCanItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("fuel_can"))).stacksTo(1)),
+    )
+
+    val FUEL_SYNTHESIZER: BlockItem = blockItem("fuel_synthesizer", FlansBlocks.FUEL_SYNTHESIZER)
+    val PETROL_STATION: BlockItem = blockItem("petrol_station", FlansBlocks.PETROL_STATION)
+
+    private fun blockItem(name: String, block: net.minecraft.world.level.block.Block): BlockItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id(name),
+        BlockItem(block, Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id(name))).useBlockDescriptionPrefix()),
+    )
+
     // Creative tabs are client-only (com.flansmod.recoded.client.tab.TypeTabs): their contents come from synced definitions.
 
     fun init() = Unit
@@ -209,7 +238,33 @@ object FlansBlocks {
         WeaponsBenchBlock(BlockBehaviour.Properties.of().setId(BENCH_KEY).mapColor(MapColor.METAL).strength(2.5f).sound(SoundType.METAL)),
     )
 
+    val FUEL_SYNTHESIZER: com.flansmod.recoded.fuel.FuelSynthesizerBlock = register("fuel_synthesizer", ::FuelSynthesizerBlock)
+    val PETROL_STATION: com.flansmod.recoded.fuel.PetrolStationBlock = register("petrol_station", ::PetrolStationBlock)
+
+    private fun <B : net.minecraft.world.level.block.Block> register(name: String, create: (BlockBehaviour.Properties) -> B): B {
+        val key = ResourceKey.create(Registries.BLOCK, FlansMod.id(name))
+        return Registry.register(BuiltInRegistries.BLOCK, key,
+            create(BlockBehaviour.Properties.of().setId(key).mapColor(MapColor.METAL).strength(3f).sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()))
+    }
+
     fun init() = Unit
+}
+
+object FlansBlockEntities {
+    val FUEL_SYNTHESIZER: net.minecraft.world.level.block.entity.BlockEntityType<com.flansmod.recoded.fuel.FuelSynthesizerBlockEntity> =
+        register("fuel_synthesizer", ::FuelSynthesizerBlockEntity, FlansBlocks.FUEL_SYNTHESIZER)
+    val PETROL_STATION: net.minecraft.world.level.block.entity.BlockEntityType<com.flansmod.recoded.fuel.PetrolStationBlockEntity> =
+        register("petrol_station", ::PetrolStationBlockEntity, FlansBlocks.PETROL_STATION)
+
+    private fun <T : net.minecraft.world.level.block.entity.BlockEntity> register(
+        name: String, create: (net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState) -> T, block: net.minecraft.world.level.block.Block,
+    ) = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, FlansMod.id(name),
+        FabricBlockEntityTypeBuilder.create(create, block).build())
+
+    fun init() {
+        // Water from pipes/tanks of other mods (Fabric Transfer API).
+        net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage.SIDED.registerForBlockEntity({ be, _ -> be.water }, FUEL_SYNTHESIZER)
+    }
 }
 
 object FlansMenus {
@@ -223,6 +278,14 @@ object FlansMenus {
 
     val VEHICLE: ExtendedMenuType<VehicleMenu, VehicleMenuData> = Registry.register(
         BuiltInRegistries.MENU, FlansMod.id("vehicle"), ExtendedMenuType(::VehicleMenu, VehicleMenuData.STREAM_CODEC),
+    )
+
+    val FUEL_SYNTHESIZER: MenuType<com.flansmod.recoded.fuel.FuelSynthesizerMenu> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("fuel_synthesizer"), MenuType({ id, inventory -> com.flansmod.recoded.fuel.FuelSynthesizerMenu(id, inventory) }, FeatureFlags.VANILLA_SET),
+    )
+
+    val PETROL_STATION: MenuType<com.flansmod.recoded.fuel.PetrolStationMenu> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("petrol_station"), MenuType({ id, inventory -> com.flansmod.recoded.fuel.PetrolStationMenu(id, inventory) }, FeatureFlags.VANILLA_SET),
     )
 
     fun init() = Unit
@@ -256,6 +319,13 @@ object FlansEntities {
     val DRIVEABLE: EntityType<DriveableEntity> = Registry.register(
         BuiltInRegistries.ENTITY_TYPE, DRIVEABLE_KEY,
         EntityType.Builder.of(::DriveableEntity, MobCategory.MISC).sized(2f, 1.5f).clientTrackingRange(10).build(DRIVEABLE_KEY),
+    )
+
+    private val MINE_KEY = ResourceKey.create(Registries.ENTITY_TYPE, FlansMod.id("mine"))
+
+    val MINE: EntityType<com.flansmod.recoded.entity.MineEntity> = Registry.register(
+        BuiltInRegistries.ENTITY_TYPE, MINE_KEY,
+        EntityType.Builder.of(::MineEntity, MobCategory.MISC).sized(0.5f, 0.2f).clientTrackingRange(6).updateInterval(20).build(MINE_KEY),
     )
 
     fun init() = DriveableEntity.registerDataSerializers()

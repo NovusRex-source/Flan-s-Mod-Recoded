@@ -1,1 +1,8 @@
-{ "replace": false, "values": ["flansmod:weapons_bench"] }
+{
+  "replace": false,
+  "values": [
+    "flansmod:weapons_bench",
+    "flansmod:fuel_synthesizer",
+    "flansmod:petrol_station"
+  ]
+}

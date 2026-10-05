@@ -1,0 +1,7 @@
+{
+  "name": "81mm Mortar HE Shell",
+  "caliber": "81mm",
+  "max_stack": 8,
+  "icon": "flansvehicles:81mm_mortar_he",
+  "projectile": "flansvehicles:81mm_mortar_he"
+}

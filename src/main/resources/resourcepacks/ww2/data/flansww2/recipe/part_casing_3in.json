@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "N N",
+    " C "
+  ],
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 2,
+    "components": {
+      "flansmod:part": "flansww2:casing_3in"
+    }
+  }
+}

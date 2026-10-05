@@ -5,6 +5,7 @@
   "subtitles.flansvehicles.vehicle.autocannon.shoot": "Gun fires",
   "subtitles.flansvehicles.vehicle.cannon.shoot": "Gun fires",
   "subtitles.flansvehicles.vehicle.cannon.reload": "Gun reloads",
+  "subtitles.flansvehicles.vehicle.mortar.shoot": "Gun fires",
   "subtitles.flansvehicles.vehicle.reload": "Gun reloads",
   "subtitles.flansvehicles.vehicle.empty": "Gun clicks",
   "vehicle_upgrade.flansvehicles.engine_tuning": "Engine Tuning Kit",
@@ -17,5 +18,6 @@
   "caliber.flansmod.145x114": "14.5\u00d7114mm",
   "caliber.flansmod.25x137": "25\u00d7137mm",
   "caliber.flansmod.120mm": "120mm Tank Shell",
-  "caliber.flansmod.125mm": "125mm Tank Shell"
+  "caliber.flansmod.125mm": "125mm Tank Shell",
+  "caliber.flansmod.81mm": "81mm Mortar Bomb"
 }

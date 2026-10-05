@@ -21,7 +21,8 @@
   "camera_distance": 10,
   "fuel": {
     "capacity": 48000,
-    "consumption": 1
+    "consumption": 1,
+    "type": "diesel"
   },
   "parts": {
     "hull": {

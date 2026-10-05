@@ -1,0 +1,7 @@
+{
+  "name": "8cm Mortar Smoke Shell",
+  "caliber": "8cm_grw",
+  "max_stack": 8,
+  "icon": "flansww2:8cm_grw_mortar_smoke",
+  "projectile": "flansww2:8cm_grw_mortar_smoke"
+}

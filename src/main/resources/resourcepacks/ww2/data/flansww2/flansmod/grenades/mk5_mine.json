@@ -1,0 +1,17 @@
+{
+  "name": "Mk V Anti-Tank Mine",
+  "explosion": {
+    "power": 3.5,
+    "fire": false,
+    "break_blocks": false
+  },
+  "mine": {
+    "trigger": "vehicle",
+    "arm_ticks": 60,
+    "radius": 0.9,
+    "vehicle_damage": 320
+  },
+  "max_stack": 8,
+  "icon": "flansww2:mk5_mine",
+  "faction": "flansww2:uk"
+}

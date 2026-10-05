@@ -1,0 +1,15 @@
+{
+  "name": "M14 Anti-Personnel Mine",
+  "explosion": {
+    "power": 1.8,
+    "fire": false,
+    "break_blocks": false
+  },
+  "mine": {
+    "trigger": "personnel",
+    "arm_ticks": 40,
+    "radius": 0.6
+  },
+  "max_stack": 8,
+  "icon": "flansvehicles:m14_mine"
+}

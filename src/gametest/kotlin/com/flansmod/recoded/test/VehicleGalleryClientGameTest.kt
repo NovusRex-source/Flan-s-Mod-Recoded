@@ -11,6 +11,21 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext
 import com.mojang.blaze3d.platform.InputConstants
 import net.fabricmc.fabric.api.client.creativetab.v1.FabricCreativeModeInventoryScreen
 import net.minecraft.client.CameraType
+import com.flansmod.recoded.entity.MineEntity
+import com.flansmod.recoded.fuel.FuelMachineBlock
+import com.flansmod.recoded.fuel.FuelMachineBlockEntity
+import com.flansmod.recoded.fuel.FuelStack
+import com.flansmod.recoded.fuel.FuelSynthesizerBlockEntity
+import com.flansmod.recoded.fuel.PetrolStationBlockEntity
+import com.flansmod.recoded.gun.FuelTypes
+import com.flansmod.recoded.gun.Grenades
+import com.flansmod.recoded.gun.MagazineContents
+import com.flansmod.recoded.item.GrenadeItem
+import com.flansmod.recoded.registry.FlansBlocks
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.client.Minecraft
@@ -98,6 +113,8 @@ class VehicleGalleryClientGameTest : FabricClientGameTest {
             }
             context.runOnClient<RuntimeException> { mc -> mc.options.cameraType = CameraType.FIRST_PERSON }
 
+            utilities(context, server, base)
+
             // Faction creative tabs (WW2): each lists its side's guns, ammunition, grenades, vehicles and uniforms.
             server.runCommand("gamemode creative @a")
             context.waitTicks(5)
@@ -115,6 +132,54 @@ class VehicleGalleryClientGameTest : FabricClientGameTest {
             }
             context.input.pressKey(InputConstants.KEY_ESCAPE)
         }
+    }
+
+    /**
+     * Field equipment: petrol station with a synthesizer next to it, a diesel truck being filled, mines of every pack
+     * laid in a row, both machine screens, and a loaded mortar's HUD (elevation and range).
+     */
+    private fun utilities(context: ClientGameTestContext, server: TestServerContext, base: Vec3) {
+        server.runCommand("gamemode creative @a")
+        val at = BlockPos.containing(base.add(0.0, 0.0, 10.0))
+        server.compute { s ->
+            val level = s.overworld()
+            level.setBlockAndUpdate(at, FlansBlocks.PETROL_STATION.defaultBlockState().setValue(FuelMachineBlock.FACING, Direction.SOUTH))
+            level.setBlockAndUpdate(at.west(), FlansBlocks.FUEL_SYNTHESIZER.defaultBlockState().setValue(FuelMachineBlock.FACING, Direction.SOUTH))
+            (level.getBlockEntity(at) as PetrolStationBlockEntity).tank = FuelStack(FuelTypes.DIESEL, 40000)
+            (level.getBlockEntity(at.west()) as FuelSynthesizerBlockEntity).apply {
+                setItem(FuelSynthesizerBlockEntity.COAL, ItemStack(Items.COAL, 12))
+                setItem(FuelSynthesizerBlockEntity.WATER, ItemStack(Items.WATER_BUCKET))
+            }
+            DriveableEntity(level, Identifier.fromNamespaceAndPath("flansvehicles", "m35"), Vec3.atBottomCenterOf(at).add(3.5, 0.0, 1.0), 0f).also { level.addFreshEntity(it) }
+            val mines = Grenades.all.filter { it.value.mine != null }.keys.sortedBy { it.toString() }
+            mines.forEachIndexed { i, id ->
+                level.addFreshEntity(MineEntity(level, GrenadeItem.stackFor(id), Vec3.atBottomCenterOf(at).add(-4.0 + i * 0.9, 0.0, 4.0), 0f, null))
+            }
+        }
+        server.runCommand("tp @a ${at.x + 0.5} ${at.y + 1.2} ${at.z + 7.5} 180 25")
+        context.waitTicks(30)
+        context.takeScreenshot("flansmod-utilities-scene")
+        for ((name, pos) in listOf("petrol_station" to at, "fuel_synthesizer" to at.west())) {
+            server.compute { s -> s.playerList.players.first().openMenu(s.overworld().getBlockEntity(pos) as FuelMachineBlockEntity) }
+            context.waitTicks(10)
+            context.takeScreenshot("flansmod-utilities-$name-menu")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+            context.waitTicks(2)
+        }
+        // A mortar with a bomb in the tube: the HUD shows elevation and range.
+        val mortar = server.compute { s ->
+            DriveableEntity(s.overworld(), Identifier.fromNamespaceAndPath("flansvehicles", "m252"), Vec3.atBottomCenterOf(at).add(0.0, 0.0, -4.0), 180f).also {
+                s.overworld().addFreshEntity(it)
+                it.setMagazine(0, MagazineContents.full(Identifier.fromNamespaceAndPath("flansvehicles", "81mm_tube"), Identifier.fromNamespaceAndPath("flansvehicles", "81mm_mortar_he")))
+                s.playerList.players.first().startRiding(it, true, true)
+            }.id
+        }
+        context.waitTicks(10)
+        context.runOnClient<RuntimeException> { mc -> mc.options.cameraType = CameraType.THIRD_PERSON_BACK; mc.player!!.yRot = 180f; mc.player!!.xRot = -30f }
+        context.waitTicks(10)
+        context.takeScreenshot("flansmod-utilities-mortar-hud")
+        context.runOnClient<RuntimeException> { mc -> mc.options.cameraType = CameraType.FIRST_PERSON }
+        server.compute { s -> s.playerList.players.first().stopRiding(); s.overworld().getEntity(mortar)?.discard() }
     }
 
     /** One client-only dummy per seat, looking 20° to the vehicle's left. */

@@ -383,6 +383,8 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         val fuelValue = def.fuel.items[BuiltInRegistries.ITEM.getKey(stack.item)]
         when {
             stack.item is VehicleUpgradeItem -> return if (installUpgrade(player, hand)) InteractionResult.SUCCESS else InteractionResult.FAIL
+            stack.item is com.flansmod.recoded.item.WrenchItem -> return if (com.flansmod.recoded.item.WrenchItem.repair(player, hand, this)) InteractionResult.SUCCESS else InteractionResult.FAIL
+            stack.item is com.flansmod.recoded.fuel.FuelCanItem -> return if (com.flansmod.recoded.fuel.FuelCanItem.fillVehicle(player, stack, this)) InteractionResult.SUCCESS else InteractionResult.FAIL
             BuiltInRegistries.ITEM.getKey(stack.item) == def.repair.item -> return if (repair(player, hand)) InteractionResult.SUCCESS else InteractionResult.FAIL
             fuelValue != null && def.needsFuel -> {
                 if (fuel + fuelValue > def.fuel.capacity) return InteractionResult.FAIL
@@ -504,6 +506,7 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
             // Wheels need rolling to steer; full lock is reached at a third of top speed. Reversing flips it.
             VehicleType.CAR -> c.steer * def.turnSpeed * (abs(speed) / (def.maxSpeed / 3)).coerceAtMost(1.0).toFloat() * sign(speed).toFloat()
             VehicleType.TANK -> if (hasFuel && engineWorks) c.steer * def.turnSpeed * drive else 0f
+            VehicleType.STATIC -> 0f
         }
         yRot -= turn
 
