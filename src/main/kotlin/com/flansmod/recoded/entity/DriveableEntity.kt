@@ -487,8 +487,32 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
     val hasFuel: Boolean
         get() = definition?.needsFuel != true || fuel > 0 || (controllingPassenger as? Player)?.hasInfiniteMaterials() == true
 
+    /**
+     * Emplacements (mortars) are laid with the movement keys instead of the view: W/S elevation, A/D traverse (the
+     * whole emplacement turns), jump held = fine adjustment. Elevation lives in [getXRot], so vanilla's vehicle move
+     * packet carries it to the server like the yaw.
+     */
+    private fun lay(def: VehicleDefinition, c: Controls) {
+        val seat = def.seats.firstOrNull() ?: return
+        val fine = c.brake
+        yRot -= c.steer * if (fine) FINE_TRAVERSE else TRAVERSE
+        xRot = (xRot + c.throttle * if (fine) FINE_ELEVATION else ELEVATION).coerceIn(seat.minPitch, seat.maxPitch)
+    }
+
+    /** Current elevation of an emplacement's gun (degrees up), interpolated. */
+    fun layElevation(partialTick: Float = 1f): Float {
+        val seat = seat(0) ?: return 0f
+        return Mth.lerp(partialTick, xRotO, xRot).coerceIn(seat.minPitch, seat.maxPitch)
+    }
+
     /** One tick of driving physics; runs on whichever side owns the movement. */
     private fun simulate(def: VehicleDefinition, c: Controls) {
+        if (def.type == VehicleType.STATIC) {
+            lay(def, c)
+            speed = 0.0
+            deltaMovement = Vec3(0.0, if (onGround()) -gravity else (deltaMovement.y - gravity) * 0.98, 0.0)
+            return
+        }
         val drive = propulsion
         val engine = c.throttle != 0f && hasFuel && engineWorks && drive > 0f
         speed = when {
@@ -656,6 +680,8 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
     /** World yaw and elevation (degrees, up positive) the gun of [seatIndex] points at: turrets follow [shooter]'s view. */
     fun aim(seatIndex: Int, shooter: Entity, partialTick: Float = 1f): Pair<Float, Float> {
         val seat = seat(seatIndex) ?: return yRot to 0f
+        // Emplacements point where they were laid, not where the gunner looks.
+        if (definition?.type == VehicleType.STATIC) return getViewYRot(partialTick) to layElevation(partialTick)
         val yaw = if (seat.turret) shooter.getViewYRot(partialTick) else getViewYRot(partialTick)
         return yaw to (-shooter.getViewXRot(partialTick)).coerceIn(seat.minPitch, seat.maxPitch)
     }
@@ -711,6 +737,11 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
     override fun getAnimatableInstanceCache(): AnimatableInstanceCache = cache
 
     companion object {
+        /** Laying an emplacement, degrees per tick (normal / fine with jump held). */
+        const val TRAVERSE = 0.8f
+        const val FINE_TRAVERSE = 0.1f
+        const val ELEVATION = 0.4f
+        const val FINE_ELEVATION = 0.05f
         const val WHEEL_RADIUS = 0.4
         /** Damage key of the hull. */
         const val HULL = "hull"

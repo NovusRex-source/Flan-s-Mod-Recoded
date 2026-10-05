@@ -3,6 +3,14 @@
   "values": [
     "flansmod:weapons_bench",
     "flansmod:fuel_synthesizer",
-    "flansmod:petrol_station"
+    "flansmod:petrol_station",
+    "flansmod:reinforced_concrete",
+    "flansmod:reinforced_concrete_slab",
+    "flansmod:reinforced_concrete_stairs",
+    "flansmod:bunker_embrasure",
+    "flansmod:bunker_door",
+    "flansmod:bunker_hatch",
+    "flansmod:czech_hedgehog",
+    "flansmod:battle_master"
   ]
 }

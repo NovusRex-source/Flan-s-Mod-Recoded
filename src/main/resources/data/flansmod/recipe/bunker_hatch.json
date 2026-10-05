@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "IBI",
+    "IBI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "B": "minecraft:iron_block"
+  },
+  "result": {
+    "id": "flansmod:bunker_hatch",
+    "count": 2
+  }
+}

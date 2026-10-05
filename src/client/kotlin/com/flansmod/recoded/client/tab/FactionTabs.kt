@@ -49,7 +49,7 @@ object FactionTabs {
     private fun register(index: Int, id: Identifier, faction: FactionDefinition) {
         Registry.register(
             // Fabric orders modded tabs by id: after the type tabs, in the factions' order.
-            BuiltInRegistries.CREATIVE_MODE_TAB, FlansMod.id("type/8_faction_${index}_${id.namespace}_${id.path}"),
+            BuiltInRegistries.CREATIVE_MODE_TAB, FlansMod.id("type/9_faction_${index}_${id.namespace}_${id.path}"),
             FabricCreativeModeTab.builder()
                 .title(Component.translatableWithFallback("faction.${id.toLanguageKey()}", faction.name))
                 .icon { items(id).firstOrNull { faction.icon != null && it.definitionId() == faction.icon } ?: items(id).firstOrNull() ?: ItemStack(FlansItems.GUN) }

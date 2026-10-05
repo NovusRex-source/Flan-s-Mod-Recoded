@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC",
+    "   ",
+    "CCC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete"
+  },
+  "result": {
+    "id": "flansmod:bunker_embrasure",
+    "count": 3
+  }
+}

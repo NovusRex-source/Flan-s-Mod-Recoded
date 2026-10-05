@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "N N",
+    " I ",
+    "N N"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "flansmod:barbed_wire",
+    "count": 4
+  }
+}

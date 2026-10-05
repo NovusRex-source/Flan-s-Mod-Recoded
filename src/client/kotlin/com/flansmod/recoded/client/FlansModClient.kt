@@ -23,6 +23,9 @@ import com.flansmod.recoded.client.bench.WeaponMenuScreen
 import com.flansmod.recoded.client.fuel.FuelSynthesizerScreen
 import com.flansmod.recoded.client.fuel.MineRenderer
 import com.flansmod.recoded.client.fuel.PetrolStationScreen
+import com.flansmod.recoded.client.gamemode.BattleHud
+import com.flansmod.recoded.client.gamemode.BattleMasterScreen
+import com.flansmod.recoded.client.gamemode.TeamFlagScreen
 import com.flansmod.recoded.registry.FlansMenus
 import net.minecraft.client.gui.screens.MenuScreens
 import com.flansmod.recoded.registry.FlansEntities
@@ -46,11 +49,15 @@ object FlansModClient : ClientModInitializer {
         EntityRendererRegistry.register(FlansEntities.DRIVEABLE, ::VehicleRenderer)
         EntityRendererRegistry.register(FlansEntities.MINE, ::MineRenderer)
         VehicleClient.init()
+        com.flansmod.recoded.client.vehicle.ArtilleryClient.init()
         MenuScreens.register(FlansMenus.WEAPONS_BENCH, ::WeaponsBenchScreen)
         MenuScreens.register(FlansMenus.WEAPON, ::WeaponMenuScreen)
         MenuScreens.register(FlansMenus.VEHICLE, ::VehicleMenuScreen)
         MenuScreens.register(FlansMenus.FUEL_SYNTHESIZER, ::FuelSynthesizerScreen)
         MenuScreens.register(FlansMenus.PETROL_STATION, ::PetrolStationScreen)
+        MenuScreens.register(FlansMenus.BATTLE_MASTER, ::BattleMasterScreen)
+        MenuScreens.register(FlansMenus.TEAM_FLAG, ::TeamFlagScreen)
+        BattleHud.init()
         GunInput.init()
         GunHud.init()
     }

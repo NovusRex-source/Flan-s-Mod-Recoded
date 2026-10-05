@@ -35,6 +35,8 @@ object FlansMod : ModInitializer {
         FlansComponents.init()
         FlansBlocks.init()
         FlansBlockEntities.init()
+        com.flansmod.recoded.fortification.Fortifications.init()
+        com.flansmod.recoded.gamemode.Battles.init()
         FlansMenus.init()
         FlansRecipes.init()
         // Since 1.21.2 vanilla does not send recipes to clients; recipe viewers need bench recipes there.

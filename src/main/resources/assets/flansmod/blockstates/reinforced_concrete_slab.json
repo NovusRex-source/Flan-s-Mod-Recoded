@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "flansmod:block/reinforced_concrete_slab"
+    },
+    "type=double": {
+      "model": "flansmod:block/reinforced_concrete"
+    },
+    "type=top": {
+      "model": "flansmod:block/reinforced_concrete_slab_top"
+    }
+  }
+}

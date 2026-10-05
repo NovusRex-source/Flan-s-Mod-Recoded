@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "WSW",
+    "SWS",
+    "WSW"
+  ],
+  "key": {
+    "W": "#minecraft:wool",
+    "S": "#minecraft:sand"
+  },
+  "result": {
+    "id": "flansmod:sandbags",
+    "count": 6
+  }
+}

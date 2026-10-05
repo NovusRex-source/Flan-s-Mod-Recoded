@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "flansmod:sandbags",
+    "flansmod:sandbag_slab",
+    "flansmod:sandbag_stairs"
+  ]
+}

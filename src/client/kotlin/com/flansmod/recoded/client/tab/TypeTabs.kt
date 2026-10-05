@@ -30,6 +30,10 @@ object TypeTabs {
         TypeTab("explosives", "flansbasic:frag") { CreativeContent.explosives() },
         TypeTab("vehicles", "flansvehicles:m1_abrams") { CreativeContent.vehicles() },
         TypeTab("equipment", "flansbasic:army_helmet") { CreativeContent.equipment() },
+        TypeTab("fortifications", null) {
+            com.flansmod.recoded.fortification.Fortifications.ALL.map { ItemStack(it) } +
+                listOf(ItemStack(com.flansmod.recoded.registry.FlansItems.BATTLE_MASTER), ItemStack(com.flansmod.recoded.registry.FlansItems.TEAM_FLAG))
+        },
         TypeTab("crafting", null) { CreativeContent.crafting() },
     )
 

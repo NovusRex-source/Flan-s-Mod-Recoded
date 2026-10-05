@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "C  ",
+    "CC ",
+    "CCC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete"
+  },
+  "result": {
+    "id": "flansmod:reinforced_concrete_stairs",
+    "count": 4
+  }
+}

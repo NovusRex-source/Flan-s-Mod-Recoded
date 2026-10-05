@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GBG",
+    "IRI",
+    "PPP"
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "B": "minecraft:bell",
+    "I": "minecraft:iron_ingot",
+    "R": "minecraft:redstone_block",
+    "P": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:battle_master"
+  }
+}

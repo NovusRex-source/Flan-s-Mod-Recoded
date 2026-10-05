@@ -210,8 +210,6 @@ def machine_blocks():
         write(DATA / f"loot_table/blocks/{name}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "entries": [
             {"type": "minecraft:item", "name": f"flansmod:{name}", "functions": [{"function": "minecraft:copy_components", "source": "block_entity"}]}],
             "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
-    write(Path(__file__).resolve().parent.parent / "src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json",
-          {"replace": False, "values": ["flansmod:weapons_bench", "flansmod:fuel_synthesizer", "flansmod:petrol_station"]})
 
 
 def machine_guis():
@@ -255,7 +253,253 @@ def recipes():
                                                      "H": "minecraft:hopper", "S": "minecraft:smooth_stone"}, "petrol_station")
 
 
+# ------------------------------------------------------------------------------------------- fortifications
+VANILLA_JAR = Path.home() / ".gradle/caches/fabric-loom/26.3/minecraft-client.jar"
+
+
+def vanilla(path):
+    """A vanilla asset JSON from the Minecraft jar Loom downloaded (door/trapdoor/stairs/slab block states are long
+    and identical apart from names, so they are copied and renamed). Build the project once before running this."""
+    import zipfile
+    with zipfile.ZipFile(VANILLA_JAR) as jar:
+        return json.loads(jar.read(f"assets/minecraft/{path}"))
+
+
+def renamed(data, old, new):
+    return json.loads(json.dumps(data).replace(f"minecraft:block/{old}", f"flansmod:block/{new}"))
+
+
+def fortification_textures():
+    folder = ASSETS / "textures/block"
+    rng = random.Random(31)
+    # Sandbags: stacked burlap bags in a running bond, stitched seams.
+    img = Image.new("RGBA", (16, 16))
+    for y in range(16):
+        row = y // 4
+        for x in range(16):
+            bx = (x + (4 if row % 2 else 0)) % 8
+            edge = y % 4 == 3 or bx == 7
+            base = (172, 150, 104) if not edge else (120, 100, 66)
+            n = rng.randint(-8, 8) + (-10 if y % 4 == 0 else 0)
+            img.putpixel((x, y), tuple(max(0, min(255, c + n)) for c in base) + (255,))
+    img.save(folder / "sandbags.png")
+    # Reinforced concrete: grey, form-board lines, a few rebar stains.
+    img = noisy((134, 136, 134), seed=32, var=7)
+    d = ImageDraw.Draw(img)
+    for y in (5, 11):
+        d.line((0, y, 15, y), fill=(118, 120, 118))
+    for x, y in ((3, 2), (12, 8), (7, 13)):
+        d.point((x, y), fill=(120, 80, 50))
+    img.save(folder / "reinforced_concrete.png")
+    # Embrasure front: concrete with the dark slit (the model leaves the slit open).
+    img.save(folder / "bunker_embrasure.png")
+    # Steel door halves and hatch: plates, rivets, a handle and a vision slot.
+    for name, slot in (("bunker_door_top", True), ("bunker_door_bottom", False), ("bunker_hatch", False)):
+        img = noisy((88, 94, 88), seed=hash(name) & 0xFF, var=5)
+        d = ImageDraw.Draw(img)
+        d.rectangle((0, 0, 15, 15), outline=(54, 58, 54))
+        d.rectangle((2, 2, 13, 13), outline=(70, 74, 70))
+        for x, y in ((1, 1), (14, 1), (1, 14), (14, 14)):
+            d.point((x, y), fill=(150, 154, 150))
+        if slot:
+            d.rectangle((4, 6, 11, 7), fill=(20, 20, 20))
+        elif name == "bunker_door_bottom":
+            d.rectangle((11, 2, 12, 5), fill=(40, 40, 40))
+        else:
+            d.rectangle((6, 7, 9, 8), fill=(40, 40, 40))
+        img.save(folder / f"{name}.png")
+    # Barbed wire: transparent background (cutout), loops of dark wire with barbs.
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for cx, cy in ((4, 4), (11, 5), (6, 11), (12, 12)):
+        d.ellipse((cx - 3, cy - 3, cx + 3, cy + 3), outline=(92, 92, 96, 255))
+    for x, y in ((1, 4), (7, 4), (8, 5), (14, 5), (3, 11), (9, 11), (12, 9), (12, 15)):
+        d.point((x, y), fill=(170, 170, 176, 255))
+    img.save(folder / "barbed_wire.png")
+    noisy((70, 72, 74), seed=33, var=5).save(folder / "czech_hedgehog.png")
+
+
+def fortification_models():
+    m = ASSETS / "models/block"
+    b = ASSETS / "blockstates"
+    i = ASSETS / "items"
+
+    def simple(name, model=None):
+        write(b / f"{name}.json", {"variants": {"": {"model": f"flansmod:block/{model or name}"}}})
+        write(i / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"flansmod:block/{model or name}"}})
+
+    for full in ("sandbags", "reinforced_concrete"):
+        write(m / f"{full}.json", {"parent": "minecraft:block/cube_all", "textures": {"all": f"flansmod:block/{full}"}})
+        simple(full)
+        tex = {"bottom": f"flansmod:block/{full}", "side": f"flansmod:block/{full}", "top": f"flansmod:block/{full}"}
+        slab, stairs = full.replace("sandbags", "sandbag") + "_slab", full.replace("sandbags", "sandbag") + "_stairs"
+        write(m / f"{slab}.json", {"parent": "minecraft:block/slab", "textures": tex})
+        write(m / f"{slab}_top.json", {"parent": "minecraft:block/slab_top", "textures": tex})
+        state = renamed(vanilla("blockstates/stone_slab.json"), "stone_slab", slab)
+        state["variants"]["type=double"]["model"] = f"flansmod:block/{full}"
+        write(b / f"{slab}.json", state)
+        write(i / f"{slab}.json", {"model": {"type": "minecraft:model", "model": f"flansmod:block/{slab}"}})
+        for suffix in ("", "_inner", "_outer"):
+            write(m / f"{stairs}{suffix}.json", {"parent": f"minecraft:block/{'stairs' if not suffix else ('inner_stairs' if suffix == '_inner' else 'outer_stairs')}", "textures": tex})
+        write(b / f"{stairs}.json", renamed(vanilla("blockstates/stone_stairs.json"), "stone_stairs", stairs))
+        write(i / f"{stairs}.json", {"model": {"type": "minecraft:model", "model": f"flansmod:block/{stairs}"}})
+
+    # Embrasure: concrete below 10 px and above 13 px, the slit open (faces towards the slit drawn dark).
+    t = {"c": "flansmod:block/reinforced_concrete", "particle": "flansmod:block/reinforced_concrete"}
+    faces = {f: {"texture": "#c"} for f in ("north", "south", "east", "west", "up", "down")}
+    write(m / "bunker_embrasure.json", {"parent": "minecraft:block/block", "textures": t, "elements": [
+        {"from": [0, 0, 0], "to": [16, 10, 16], "faces": faces}, {"from": [0, 13, 0], "to": [16, 16, 16], "faces": faces},
+        {"from": [0, 10, 0], "to": [3, 13, 16], "faces": faces}, {"from": [13, 10, 0], "to": [16, 13, 16], "faces": faces}]})
+    write(b / "bunker_embrasure.json", {"variants": {f"facing={f}": dict({"model": "flansmod:block/bunker_embrasure"}, **({"y": y} if y else {}))
+                                                     for f, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))}})
+    write(i / "bunker_embrasure.json", {"model": {"type": "minecraft:model", "model": "flansmod:block/bunker_embrasure"}})
+
+    # Steel door and hatch: vanilla iron door/trapdoor states and templates with our textures.
+    for part in ("bottom_left", "bottom_left_open", "bottom_right", "bottom_right_open", "top_left", "top_left_open", "top_right", "top_right_open"):
+        write(m / f"bunker_door_{part}.json", {"parent": f"minecraft:block/door_{part}",
+                                               "textures": {"bottom": "flansmod:block/bunker_door_bottom", "top": "flansmod:block/bunker_door_top"}})
+    write(b / "bunker_door.json", renamed(vanilla("blockstates/iron_door.json"), "iron_door", "bunker_door"))
+    write(ASSETS / "models/item/bunker_door.json", {"parent": "minecraft:item/generated", "textures": {"layer0": "flansmod:block/bunker_door_top"}})
+    write(i / "bunker_door.json", {"model": {"type": "minecraft:model", "model": "flansmod:item/bunker_door"}})
+    for part in ("bottom", "top", "open"):
+        write(m / f"bunker_hatch_{part}.json", {"parent": f"minecraft:block/template_trapdoor_{part}", "textures": {"texture": "flansmod:block/bunker_hatch"}})
+    write(b / "bunker_hatch.json", renamed(vanilla("blockstates/iron_trapdoor.json"), "iron_trapdoor", "bunker_hatch"))
+    write(i / "bunker_hatch.json", {"model": {"type": "minecraft:model", "model": "flansmod:block/bunker_hatch_bottom"}})
+
+    write(m / "barbed_wire.json", {"parent": "minecraft:block/cross", "textures": {"cross": "flansmod:block/barbed_wire"}})
+    write(b / "barbed_wire.json", {"variants": {"": {"model": "flansmod:block/barbed_wire"}}})
+    write(ASSETS / "models/item/barbed_wire.json", {"parent": "minecraft:item/generated", "textures": {"layer0": "flansmod:block/barbed_wire"}})
+    write(i / "barbed_wire.json", {"model": {"type": "minecraft:model", "model": "flansmod:item/barbed_wire"}})
+
+    # Czech hedgehog: three steel beams crossing in the middle (rotated elements).
+    t = {"s": "flansmod:block/czech_hedgehog", "particle": "flansmod:block/czech_hedgehog"}
+    beam = {f: {"texture": "#s"} for f in ("north", "south", "east", "west", "up", "down")}
+    write(m / "czech_hedgehog.json", {"parent": "minecraft:block/block", "textures": t, "elements": [
+        {"from": [6.5, -2, 6.5], "to": [9.5, 18, 9.5], "rotation": {"origin": [8, 8, 8], "axis": "x", "angle": 45}, "faces": beam},
+        {"from": [6.5, -2, 6.5], "to": [9.5, 18, 9.5], "rotation": {"origin": [8, 8, 8], "axis": "z", "angle": 45}, "faces": beam},
+        {"from": [-2, 6.5, 6.5], "to": [18, 9.5, 9.5], "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45}, "faces": beam}]})
+    simple("czech_hedgehog")
+
+    for name in ("sandbags", "sandbag_slab", "sandbag_stairs", "reinforced_concrete", "reinforced_concrete_slab", "reinforced_concrete_stairs",
+                 "bunker_embrasure", "bunker_hatch", "barbed_wire", "czech_hedgehog"):
+        entry = {"type": "minecraft:item", "name": f"flansmod:{name}"}
+        if name.endswith("_slab"):
+            entry["functions"] = [{"function": "minecraft:set_count", "count": 2, "add": False,
+                                   "conditions": [{"condition": "minecraft:block_state_property", "block": f"flansmod:{name}", "properties": {"type": "double"}}]}]
+        write(DATA / f"loot_table/blocks/{name}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "entries": [entry],
+                                                                                              "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
+    write(DATA / "loot_table/blocks/bunker_door.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": "flansmod:bunker_door"}],
+        "conditions": [{"condition": "minecraft:block_state_property", "block": "flansmod:bunker_door", "properties": {"half": "lower"}}, {"condition": "minecraft:survives_explosion"}]}]})
+    root = Path(__file__).resolve().parent.parent / "src/main/resources/data/minecraft/tags/block"
+    write(root / "mineable/pickaxe.json", {"replace": False, "values": ["flansmod:weapons_bench", "flansmod:fuel_synthesizer", "flansmod:petrol_station",
+        "flansmod:reinforced_concrete", "flansmod:reinforced_concrete_slab", "flansmod:reinforced_concrete_stairs", "flansmod:bunker_embrasure",
+        "flansmod:bunker_door", "flansmod:bunker_hatch", "flansmod:czech_hedgehog", "flansmod:battle_master"]})
+    write(root / "mineable/shovel.json", {"replace": False, "values": ["flansmod:sandbags", "flansmod:sandbag_slab", "flansmod:sandbag_stairs"]})
+    write(root / "doors.json", {"replace": False, "values": ["flansmod:bunker_door"]})
+    write(root / "trapdoors.json", {"replace": False, "values": ["flansmod:bunker_hatch"]})
+
+
+def fortification_recipes():
+    def shaped(name, pattern, key, count=1, result=None):
+        write(DATA / f"recipe/{name}.json", {"type": "minecraft:crafting_shaped", "category": "building", "pattern": pattern, "key": key,
+                                            "result": {"id": f"flansmod:{result or name}", "count": count}})
+    shaped("sandbags", ["WSW", "SWS", "WSW"], {"W": "#minecraft:wool", "S": "#minecraft:sand"}, 6)
+    shaped("sandbag_slab", ["SSS"], {"S": "flansmod:sandbags"}, 6)
+    shaped("sandbag_stairs", ["S  ", "SS ", "SSS"], {"S": "flansmod:sandbags"}, 4)
+    shaped("reinforced_concrete", ["CCC", "CIC", "CCC"], {"C": "minecraft:gray_concrete", "I": "minecraft:iron_ingot"}, 8)
+    shaped("reinforced_concrete_slab", ["CCC"], {"C": "flansmod:reinforced_concrete"}, 6)
+    shaped("reinforced_concrete_stairs", ["C  ", "CC ", "CCC"], {"C": "flansmod:reinforced_concrete"}, 4)
+    shaped("bunker_embrasure", ["CCC", "   ", "CCC"], {"C": "flansmod:reinforced_concrete"}, 3)
+    shaped("bunker_door", ["IB", "IB", "IB"], {"I": "minecraft:iron_ingot", "B": "minecraft:iron_block"}, 2)
+    shaped("bunker_hatch", ["IBI", "IBI"], {"I": "minecraft:iron_ingot", "B": "minecraft:iron_block"}, 2)
+    shaped("barbed_wire", ["N N", " I ", "N N"], {"N": "minecraft:iron_nugget", "I": "minecraft:iron_ingot"}, 4)
+    shaped("czech_hedgehog", ["I I", " B ", "I I"], {"I": "minecraft:iron_ingot", "B": "minecraft:iron_block"}, 2)
+
+
+# ------------------------------------------------------------------------------------------- battles (gamemode)
+TEAM_COLORS = {"black": (30, 30, 30), "dark_blue": (0, 0, 170), "dark_green": (0, 140, 0), "dark_aqua": (0, 150, 150), "dark_red": (170, 0, 0),
+               "dark_purple": (150, 0, 150), "gold": (255, 170, 0), "gray": (170, 170, 170), "dark_gray": (85, 85, 85), "blue": (85, 85, 255),
+               "green": (85, 230, 85), "aqua": (85, 230, 230), "red": (230, 70, 70), "light_purple": (240, 85, 240), "yellow": (240, 240, 85),
+               "white": (235, 235, 235)}
+
+
+def battle_assets():
+    folder = ASSETS / "textures/block"
+    # Battle Master: field desk with a map on top, radio panel sides.
+    top = noisy((122, 96, 62), seed=41)
+    d = ImageDraw.Draw(top)
+    d.rectangle((2, 2, 13, 13), fill=(214, 200, 160)); d.line((2, 7, 13, 7), fill=(120, 150, 200)); d.line((5, 2, 9, 13), fill=(120, 110, 90))
+    d.point((4, 4), fill=(200, 40, 40)); d.point((11, 10), fill=(40, 60, 200)); d.point((10, 4), fill=(200, 40, 40))
+    top.save(folder / "battle_master_top.png")
+    side = noisy((78, 86, 66), seed=42)
+    d = ImageDraw.Draw(side)
+    d.rectangle((2, 3, 13, 12), fill=(52, 56, 48)); d.rectangle((3, 4, 8, 7), fill=(30, 40, 30)); d.line((4, 6, 7, 5), fill=(120, 230, 120))
+    for x in (10, 12):
+        d.ellipse((x - 1, 9, x + 1, 11), fill=(150, 150, 150))
+    d.rectangle((0, 0, 15, 1), fill=(122, 96, 62))
+    side.save(folder / "battle_master_side.png")
+    noisy((110, 86, 56), seed=43).save(folder / "battle_master_bottom.png")
+    write(ASSETS / "models/block/battle_master.json", {"parent": "minecraft:block/cube_bottom_top", "textures": {
+        "top": "flansmod:block/battle_master_top", "side": "flansmod:block/battle_master_side", "bottom": "flansmod:block/battle_master_bottom"}})
+    write(ASSETS / "blockstates/battle_master.json", {"variants": {"": {"model": "flansmod:block/battle_master"}}})
+    write(ASSETS / "items/battle_master.json", {"model": {"type": "minecraft:model", "model": "flansmod:block/battle_master"}})
+
+    # Team flag: a 2-block pole with a cloth in the team colour (one texture + model per vanilla team colour).
+    noisy((96, 72, 44), seed=44, var=5).save(folder / "team_flag_pole.png")
+    for name, rgb in TEAM_COLORS.items():
+        img = noisy(rgb, seed=45, var=6)
+        d = ImageDraw.Draw(img)
+        dark = tuple(int(c * 0.75) for c in rgb)
+        d.rectangle((0, 0, 15, 15), outline=dark)
+        d.rectangle((6, 4, 9, 11), fill=tuple(min(255, int(c * 1.2) + 20) for c in rgb))  # emblem
+        img.save(folder / f"team_flag_{name}.png")
+        pole = {f: {"texture": "#pole"} for f in ("north", "south", "east", "west", "up", "down")}
+        cloth = {f: {"texture": "#cloth", "uv": [0, 0, 16, 16]} for f in ("north", "south")}
+        cloth.update({f: {"texture": "#cloth", "uv": [0, 0, 1, 16]} for f in ("east", "west", "up", "down")})
+        write(ASSETS / f"models/block/team_flag_{name}.json", {"parent": "minecraft:block/block", "textures": {
+            "pole": "flansmod:block/team_flag_pole", "cloth": f"flansmod:block/team_flag_{name}", "particle": f"flansmod:block/team_flag_{name}"},
+            "elements": [{"from": [7, 0, 7], "to": [9, 32, 9], "faces": pole}, {"from": [6, 0, 6], "to": [10, 2, 10], "faces": pole},
+                         {"from": [9, 19, 7.75], "to": [25, 31, 8.25], "faces": cloth}],
+            "display": {"gui": {"rotation": [30, 225, 0], "translation": [0, -3, 0], "scale": [0.45, 0.45, 0.45]}}})
+    write(ASSETS / "blockstates/team_flag.json", {"variants": {f"color={n}": {"model": f"flansmod:block/team_flag_{n}"} for n in TEAM_COLORS}})
+    write(ASSETS / "items/team_flag.json", {"model": {"type": "minecraft:model", "model": "flansmod:block/team_flag_white"}})
+
+    for name in ("battle_master", "team_flag"):
+        write(DATA / f"loot_table/blocks/{name}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "entries": [
+            {"type": "minecraft:item", "name": f"flansmod:{name}"}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
+    write(DATA / "recipe/battle_master.json", {"type": "minecraft:crafting_shaped", "category": "misc", "pattern": ["GBG", "IRI", "PPP"],
+        "key": {"G": "minecraft:gold_ingot", "B": "minecraft:bell", "I": "minecraft:iron_ingot", "R": "minecraft:redstone_block", "P": "#minecraft:planks"},
+        "result": {"id": "flansmod:battle_master"}})
+    write(DATA / "recipe/team_flag.json", {"type": "minecraft:crafting_shaped", "category": "misc", "pattern": ["SWW", "SWW", "S  "],
+        "key": {"S": "minecraft:stick", "W": "#minecraft:wool"}, "result": {"id": "flansmod:team_flag"}})
+    root = Path(__file__).resolve().parent.parent / "src/main/resources/data/minecraft/tags/block"
+    write(root / "mineable/axe.json", {"replace": False, "values": ["flansmod:team_flag"]})
+
+    # GUIs: Battle Master panel; flag post with a 3x9 shop grid above the inventory.
+    img = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    panel(d, 0, 0, 200, 186)
+    d.line((8, 27, 191, 27), fill=SLOT)
+    img.save(ASSETS / "textures/gui/battle_master.png")
+    img = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    panel(d, 0, 0, 176, 186)
+    for row in range(3):
+        for col in range(9):
+            slot(d, 7 + col * 18, 29 + row * 18)
+    for row in range(3):
+        for col in range(9):
+            slot(d, 7 + col * 18, 103 + row * 18)
+    for col in range(9):
+        slot(d, 7 + col * 18, 161)
+    img.save(ASSETS / "textures/gui/team_flag.png")
+
+
 if __name__ == "__main__":
+    battle_assets()
+    fortification_textures()
+    fortification_models()
+    fortification_recipes()
     gui()
     weapon_menu()
     block_textures()

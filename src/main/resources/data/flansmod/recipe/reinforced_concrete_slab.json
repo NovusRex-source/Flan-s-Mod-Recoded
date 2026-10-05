@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "CCC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete"
+  },
+  "result": {
+    "id": "flansmod:reinforced_concrete_slab",
+    "count": 6
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_top_right",
+  "textures": {
+    "bottom": "flansmod:block/bunker_door_bottom",
+    "top": "flansmod:block/bunker_door_top"
+  }
+}

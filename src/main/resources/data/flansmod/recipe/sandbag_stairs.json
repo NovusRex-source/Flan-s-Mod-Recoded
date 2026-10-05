@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "S  ",
+    "SS ",
+    "SSS"
+  ],
+  "key": {
+    "S": "flansmod:sandbags"
+  },
+  "result": {
+    "id": "flansmod:sandbag_stairs",
+    "count": 4
+  }
+}

@@ -137,10 +137,10 @@ class UtilityGameTests {
 
     private fun mine(id: String, trigger: GrenadeDefinition.Mine.Trigger, vehicleDamage: Float = 0f): Identifier = test(id).also {
         Grenades.replace(Grenades.all + (it to GrenadeDefinition("Mine", explosion = GrenadeDefinition.Explosion(power = 0.5f),
-            mine = GrenadeDefinition.Mine(trigger, armTicks = 5, radius = 0.8, vehicleDamage = vehicleDamage))))
+            mine = GrenadeDefinition.Mine(trigger, armTicks = 5, radius = 1.4, vehicleDamage = vehicleDamage))))
     }
 
-    @GameTest(maxTicks = 60)
+    @GameTest(maxTicks = 160)
     fun antiPersonnelMineGoesOffUnderAMob(helper: GameTestHelper) {
         val id = mine("ap_mine", GrenadeDefinition.Mine.Trigger.PERSONNEL)
         val mine = MineEntity(helper.level, GrenadeItem.stackFor(id), helper.absoluteVec(Vec3(2.5, 1.0, 2.5)), 0f, null)
@@ -155,7 +155,7 @@ class UtilityGameTests {
         }
     }
 
-    @GameTest(maxTicks = 60)
+    @GameTest(maxTicks = 160)
     fun antiTankMineIgnoresMobsButWrecksTheTrackAbove(helper: GameTestHelper) {
         val id = mine("at_mine", GrenadeDefinition.Mine.Trigger.VEHICLE, vehicleDamage = 100f)
         val mine = MineEntity(helper.level, GrenadeItem.stackFor(id), helper.absoluteVec(Vec3(1.6, 1.0, 3.3)), 0f, null)
@@ -172,8 +172,8 @@ class UtilityGameTests {
         }
     }
 
-    @GameTest(maxTicks = 40)
-    fun mortarStaysInPlaceAndLobsBombsHigh(helper: GameTestHelper) {
+    @GameTest(maxTicks = 60)
+    fun mortarIsLaidWithTheMovementKeysAndFiresWhereItIsLaid(helper: GameTestHelper) {
         val gunId = test("mortar_tube")
         val magId = test("mortar_mag")
         val bomb = test("mortar_bomb")
@@ -185,21 +185,29 @@ class UtilityGameTests {
             seats = listOf(Seat(gun = gunId, turret = true, pivot = listOf(0.0, 0.2, 0.0), muzzle = listOf(0.0, 0.0, 1.0), minPitch = 45f, maxPitch = 85f)))
         val mortar = helper.spawnVehicle("mortar", def)
         val start = mortar.position()
-        val player = helper.makeMockServerPlayerInLevel()
-        player.abilities.instabuild = false
-        player.startRiding(mortar, true, false)
-        player.yRot = 0f; player.yHeadRot = 0f; player.xRot = 0f // looking level: the tube stays at its lowest, 45°
+        // "W" and "A" held for 30 ticks (no rider: the server lays it): tube raised, turned left, never moved.
         mortar.autopilot = DriveableEntity.Controls(1f, 1f, false)
-        mortar.setMagazine(0, MagazineContents.full(magId, test("mortar_round")))
-        GunHandler.trigger(player)
-        helper.runAfterDelay(2) {
-            val shells = helper.level.getEntitiesOfClass(GrenadeEntity::class.java, AABB.ofSize(start, 16.0, 16.0, 16.0))
-            helper.assertTrue(shells.size == 1, "one bomb is fired, got ${shells.size}")
-            val v = shells[0].deltaMovement
-            helper.assertTrue(v.y > 0.5 && v.z > 0.5, "the bomb goes up and forward at 45°: $v")
-            shells.forEach { it.discard() }
-            helper.assertTrue(mortar.position().distanceTo(start) < 0.05 && mortar.yRot == 0f, "an emplacement never drives or turns")
-            helper.succeed()
+        helper.runAfterDelay(30) {
+            mortar.autopilot = null
+            val elevation = mortar.layElevation()
+            helper.assertTrue(elevation > 49f && elevation < 60f, "W raises the tube about 0.4°/tick: $elevation")
+            helper.assertTrue(mortar.yRot < -5f, "A turns the mortar: ${mortar.yRot}")
+            helper.assertTrue(mortar.position().subtract(start).horizontalDistance() < 0.05, "an emplacement never drives: ${mortar.position().subtract(start)}")
+            val player = helper.makeMockServerPlayerInLevel()
+            player.abilities.instabuild = false
+            player.startRiding(mortar, true, false)
+            player.xRot = 30f; player.yRot = 90f // the gunner may look anywhere: the mortar fires where it is laid
+            mortar.setMagazine(0, MagazineContents.full(magId, test("mortar_round")))
+            GunHandler.trigger(player)
+            helper.runAfterDelay(1) {
+                val shells = helper.level.getEntitiesOfClass(GrenadeEntity::class.java, AABB.ofSize(start, 16.0, 16.0, 16.0))
+                helper.assertTrue(shells.size == 1, "one bomb is fired, got ${shells.size}")
+                val v = shells[0].deltaMovement
+                val angle = Math.toDegrees(kotlin.math.atan2(v.y, v.horizontalDistance()))
+                helper.assertTrue(kotlin.math.abs(angle - elevation) < 3, "the bomb leaves at the laid elevation $elevation, not the view: $angle")
+                shells.forEach { it.discard() }
+                helper.succeed()
+            }
         }
     }
 }

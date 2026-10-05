@@ -36,6 +36,10 @@ import com.flansmod.recoded.fuel.FuelSynthesizerBlock
 import com.flansmod.recoded.fuel.FuelSynthesizerBlockEntity
 import com.flansmod.recoded.fuel.PetrolStationBlock
 import com.flansmod.recoded.fuel.PetrolStationBlockEntity
+import com.flansmod.recoded.gamemode.BattleMasterBlock
+import com.flansmod.recoded.gamemode.BattleMasterBlockEntity
+import com.flansmod.recoded.gamemode.TeamFlagBlock
+import com.flansmod.recoded.gamemode.TeamFlagBlockEntity
 import com.flansmod.recoded.entity.DriveableEntity
 import com.flansmod.recoded.gun.Vehicles
 import com.flansmod.recoded.item.VehicleItem
@@ -219,6 +223,8 @@ object FlansItems {
 
     val FUEL_SYNTHESIZER: BlockItem = blockItem("fuel_synthesizer", FlansBlocks.FUEL_SYNTHESIZER)
     val PETROL_STATION: BlockItem = blockItem("petrol_station", FlansBlocks.PETROL_STATION)
+    val BATTLE_MASTER: BlockItem = blockItem("battle_master", FlansBlocks.BATTLE_MASTER)
+    val TEAM_FLAG: BlockItem = blockItem("team_flag", FlansBlocks.TEAM_FLAG)
 
     private fun blockItem(name: String, block: net.minecraft.world.level.block.Block): BlockItem = Registry.register(
         BuiltInRegistries.ITEM, FlansMod.id(name),
@@ -240,6 +246,8 @@ object FlansBlocks {
 
     val FUEL_SYNTHESIZER: com.flansmod.recoded.fuel.FuelSynthesizerBlock = register("fuel_synthesizer", ::FuelSynthesizerBlock)
     val PETROL_STATION: com.flansmod.recoded.fuel.PetrolStationBlock = register("petrol_station", ::PetrolStationBlock)
+    val BATTLE_MASTER: com.flansmod.recoded.gamemode.BattleMasterBlock = register("battle_master", ::BattleMasterBlock)
+    val TEAM_FLAG: com.flansmod.recoded.gamemode.TeamFlagBlock = register("team_flag") { TeamFlagBlock(it.strength(2f)) }
 
     private fun <B : net.minecraft.world.level.block.Block> register(name: String, create: (BlockBehaviour.Properties) -> B): B {
         val key = ResourceKey.create(Registries.BLOCK, FlansMod.id(name))
@@ -260,6 +268,11 @@ object FlansBlockEntities {
         name: String, create: (net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState) -> T, block: net.minecraft.world.level.block.Block,
     ) = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, FlansMod.id(name),
         FabricBlockEntityTypeBuilder.create(create, block).build())
+
+    val BATTLE_MASTER: net.minecraft.world.level.block.entity.BlockEntityType<com.flansmod.recoded.gamemode.BattleMasterBlockEntity> =
+        register("battle_master", ::BattleMasterBlockEntity, FlansBlocks.BATTLE_MASTER)
+    val TEAM_FLAG: net.minecraft.world.level.block.entity.BlockEntityType<com.flansmod.recoded.gamemode.TeamFlagBlockEntity> =
+        register("team_flag", ::TeamFlagBlockEntity, FlansBlocks.TEAM_FLAG)
 
     fun init() {
         // Water from pipes/tanks of other mods (Fabric Transfer API).
@@ -282,6 +295,16 @@ object FlansMenus {
 
     val FUEL_SYNTHESIZER: MenuType<com.flansmod.recoded.fuel.FuelSynthesizerMenu> = Registry.register(
         BuiltInRegistries.MENU, FlansMod.id("fuel_synthesizer"), MenuType({ id, inventory -> com.flansmod.recoded.fuel.FuelSynthesizerMenu(id, inventory) }, FeatureFlags.VANILLA_SET),
+    )
+
+    val BATTLE_MASTER: ExtendedMenuType<com.flansmod.recoded.gamemode.BattleMasterMenu, com.flansmod.recoded.gamemode.BattleMasterView> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("battle_master"),
+        ExtendedMenuType({ id, inventory, view -> com.flansmod.recoded.gamemode.BattleMasterMenu(id, inventory, view) }, com.flansmod.recoded.gamemode.BattleMasterView.STREAM_CODEC),
+    )
+
+    val TEAM_FLAG: ExtendedMenuType<com.flansmod.recoded.gamemode.TeamFlagMenu, com.flansmod.recoded.gamemode.TeamFlagView> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("team_flag"),
+        ExtendedMenuType({ id, inventory, view -> com.flansmod.recoded.gamemode.TeamFlagMenu(id, inventory, view) }, com.flansmod.recoded.gamemode.TeamFlagView.STREAM_CODEC),
     )
 
     val PETROL_STATION: MenuType<com.flansmod.recoded.fuel.PetrolStationMenu> = Registry.register(

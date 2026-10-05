@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "color=black": {
+      "model": "flansmod:block/team_flag_black"
+    },
+    "color=dark_blue": {
+      "model": "flansmod:block/team_flag_dark_blue"
+    },
+    "color=dark_green": {
+      "model": "flansmod:block/team_flag_dark_green"
+    },
+    "color=dark_aqua": {
+      "model": "flansmod:block/team_flag_dark_aqua"
+    },
+    "color=dark_red": {
+      "model": "flansmod:block/team_flag_dark_red"
+    },
+    "color=dark_purple": {
+      "model": "flansmod:block/team_flag_dark_purple"
+    },
+    "color=gold": {
+      "model": "flansmod:block/team_flag_gold"
+    },
+    "color=gray": {
+      "model": "flansmod:block/team_flag_gray"
+    },
+    "color=dark_gray": {
+      "model": "flansmod:block/team_flag_dark_gray"
+    },
+    "color=blue": {
+      "model": "flansmod:block/team_flag_blue"
+    },
+    "color=green": {
+      "model": "flansmod:block/team_flag_green"
+    },
+    "color=aqua": {
+      "model": "flansmod:block/team_flag_aqua"
+    },
+    "color=red": {
+      "model": "flansmod:block/team_flag_red"
+    },
+    "color=light_purple": {
+      "model": "flansmod:block/team_flag_light_purple"
+    },
+    "color=yellow": {
+      "model": "flansmod:block/team_flag_yellow"
+    },
+    "color=white": {
+      "model": "flansmod:block/team_flag_white"
+    }
+  }
+}
