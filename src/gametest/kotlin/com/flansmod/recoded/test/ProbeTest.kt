@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext
 import net.minecraft.client.CameraType
 import net.minecraft.resources.Identifier
 import java.io.File
+import com.flansmod.recoded.item.GunItem
+import com.flansmod.recoded.gun.MagazineContents
 
 /**
  * Dev-only visual probe (not part of the normal test run): renders display-transform variants and/or several guns
@@ -31,6 +33,25 @@ class ProbeTest : FabricClientGameTest {
             // Optional: one screenshot per gun (each gun's own model), e.g. to compare generated variants.
             for (other in probe.guns) {
                 world.server.runCommand("item replace entity @a weapon.mainhand with flansmod:gun[flansmod:gun=\"$other\"]")
+                if (probe.view == "reload") {
+                    // A full spare magazine in the inventory, then R; screenshots at 20/42/62% of the animation.
+                    val (full, ticks) = context.computeOnClient<Pair<MagazineContents, Int>, RuntimeException> {
+                        val id = Identifier.parse(other)
+                        MagazineContents.full(GunItem.acceptedMagazines(id).first())!! to Guns[id]!!.reloadTicks
+                    }
+                    world.server.runCommand("give @a flansmod:magazine[flansmod:magazine={magazine:\"${full.magazine}\",ammo:\"${full.ammo}\",rounds:${full.rounds}}]")
+                    context.waitTicks(15)
+                    context.input.pressKey(InputConstants.KEY_R)
+                    var waited = 0
+                    for (percent in listOf(20, 42, 62)) {
+                        val target = ticks * percent / 100
+                        context.waitTicks((target - waited).coerceAtLeast(1))
+                        waited = target
+                        context.takeScreenshot("probe-reload-${other.substringAfter(':')}-$percent")
+                    }
+                    context.waitTicks(ticks)
+                    continue
+                }
                 context.waitTicks(15)
                 context.takeScreenshot("probe-gun-${other.substringAfter(':')}")
             }

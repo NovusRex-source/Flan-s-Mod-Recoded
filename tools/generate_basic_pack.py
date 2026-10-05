@@ -632,12 +632,14 @@ def gun_animations(g, geo):
     lx, ly, lz = geo["lhand"]
     mx, my, mz = geo["mag_at"]
     to_mag = [mx - lx, my - ly, mz - lz]
-    out = [-3.0, -11.0, 2.0] if not geo["round"] else [0.0, -4.0, -8.0]
-    below = [0.0, -4.0, 0.0] if not geo["round"] else [0.0, 0.0, -5.0]
+    # Kept short so the whole motion stays on screen (the gun is also raised towards the centre).
+    out = [-4.0, -6.0, 3.0] if not geo["round"] else [0.0, -3.0, -7.0]
+    below = [0.0, -2.5, 0.0] if not geo["round"] else [0.0, 0.0, -4.0]
     add = lambda a, b: [round(a[i] + b[i], 3) for i in range(3)]  # noqa: E731
     mag_bone = "round" if geo["round"] else "magazine"
     reload = {
-        "gun": {"rotation": {"0.0": [0, 0, 0], r(t * 0.12): [8, 0, -14], r(t * 0.85): [8, 0, -14], r(t): [0, 0, 0]}},
+        "gun": {"rotation": {"0.0": [0, 0, 0], r(t * 0.12): [4, 0, -8], r(t * 0.85): [4, 0, -8], r(t): [0, 0, 0]},
+                "position": {"0.0": [0, 0, 0], r(t * 0.12): [-1, 1.5, -4], r(t * 0.85): [-1, 1.5, -4], r(t): [0, 0, 0]}},
         "left_hand": {"position": {"0.0": [0, 0, 0], r(t * 0.15): to_mag, r(t * 0.35): add(to_mag, out), r(t * 0.5): add(to_mag, out),
                                    r(t * 0.65): add(to_mag, below), r(t * 0.75): to_mag, r(t * 0.9): [0, 0, 0]}},
         mag_bone: {"position": {"0.0": [0, 0, 0], r(t * 0.15): [0, 0, 0], r(t * 0.35): out, r(t * 0.5): out,

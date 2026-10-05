@@ -33,7 +33,7 @@ private val AIM: DataTicket<Float> = DataTicket.create("flansmod_aim", Float::cl
 /** Per-stack bone visibility inputs: attachments by slot, inserted magazine, scope, loaded round, muzzle flash. */
 private class InstalledAttachments(
     val bySlot: Map<String, Identifier>, val magazine: Identifier?, val scoped: Boolean,
-    val loaded: Boolean = false, val flash: Boolean = false,
+    val loaded: Boolean = false, val flash: Boolean = false, val reloading: Boolean = false,
 )
 private val ATTACHMENTS: DataTicket<InstalledAttachments> = DataTicket.create("flansmod_attachments", InstalledAttachments::class.java)
 private val MISSING = GunDefinition("missing").resolvedModel(FlansMod.id("missing"))
@@ -60,6 +60,7 @@ class GunGeoModel : GeoModel<GunItem>() {
         renderState.addGeckolibData(ATTACHMENTS, InstalledAttachments(
             stack?.attachments ?: emptyMap(), stack?.loadedMagazine?.magazine, stack?.definition?.scope?.overlay != null,
             loaded = stack?.loadedMagazine?.isEmpty == false || stack?.has(com.flansmod.recoded.registry.FlansComponents.RELOADING) == true,
+            reloading = stack?.has(com.flansmod.recoded.registry.FlansComponents.RELOADING) == true,
             flash = owner != null && ShotEffects.recentlyFired(owner.id),
         ))
         currentAnimations = model.animations
@@ -135,7 +136,8 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
                 bone == ROUND_BONE -> !info.loaded
                 bone == FLASH_BONE -> !info.flash
                 // `magazine` shows any inserted magazine; `magazine_<id>` replaces it for that magazine type.
-                bone == MAGAZINE_BONE -> info.magazine == null || specificMagazine != null
+                // While reloading the hand brings a magazine even if the gun had none.
+                bone == MAGAZINE_BONE -> (info.magazine == null && !info.reloading) || specificMagazine != null
                 bone.startsWith("${MAGAZINE_BONE}_") -> bone != specificMagazine
                 else -> continue
             }
