@@ -51,6 +51,20 @@ def gui():
     img.save(out)
 
 
+def weapon_menu():
+    """Panel + player inventory; attachment slots are drawn by the screen because their number varies."""
+    img = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    panel(d, 0, 0, 176, 166)
+    for row in range(3):
+        for col in range(9):
+            slot(d, 7 + col * 18, 83 + row * 18)
+    for col in range(9):
+        slot(d, 7 + col * 18, 141)
+    out = ASSETS / "textures/gui/weapon_menu.png"
+    img.save(out)
+
+
 def block_textures():
     rng = random.Random(7)
 
@@ -88,5 +102,6 @@ def block_textures():
 
 if __name__ == "__main__":
     gui()
+    weapon_menu()
     block_textures()
     print("Generated Weapons Bench GUI and block textures")

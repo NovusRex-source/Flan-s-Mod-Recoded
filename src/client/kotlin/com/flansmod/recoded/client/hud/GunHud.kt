@@ -5,6 +5,8 @@ import com.flansmod.recoded.client.config.FlansConfig
 import com.flansmod.recoded.client.input.GunInput
 import com.flansmod.recoded.item.AmmoItem
 import com.flansmod.recoded.item.loadedMagazine
+import com.flansmod.recoded.item.fireMode
+import com.flansmod.recoded.gun.FireMode
 import net.minecraft.network.chat.Component
 import com.flansmod.recoded.item.definition
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement
@@ -67,6 +69,9 @@ object GunHud {
             }
             val color = if (mag.isEmpty) 0xFFFF5555.toInt() else 0xFFFFFFFF.toInt()
             graphics.text(mc.font, "${mag.rounds} / ${mag.capacity}", x, y, color)
+            val mode = stack.fireMode
+            val modeText = Component.translatable("item.flansmod.gun.mode.${mode.name.lowercase()}").string.uppercase()
+            graphics.text(mc.font, "[$modeText]", x + mc.font.width("${mag.rounds} / ${mag.capacity} "), y, if (mode == FireMode.SAFE) 0xFF55FF55.toInt() else 0xFFFFCC55.toInt())
             mag.ammo?.let { graphics.text(mc.font, AmmoItem.displayName(it).string, x, y - 10, 0xFFAAAAAA.toInt()) }
         }
 

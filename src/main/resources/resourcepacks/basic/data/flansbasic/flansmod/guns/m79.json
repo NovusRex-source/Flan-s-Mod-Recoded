@@ -24,6 +24,9 @@
     "reload": "flansbasic:gun.reload",
     "empty": "flansbasic:gun.empty"
   },
+  "fire_modes": [
+    "semi"
+  ],
   "attachment_slots": [],
   "display": {
     "gui": {

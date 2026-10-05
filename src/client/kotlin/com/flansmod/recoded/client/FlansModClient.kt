@@ -14,6 +14,7 @@ import com.flansmod.recoded.client.fx.ShotEffects
 import com.flansmod.recoded.client.tab.PackTabs
 import net.fabricmc.api.ClientModInitializer
 import com.flansmod.recoded.client.bench.WeaponsBenchScreen
+import com.flansmod.recoded.client.bench.WeaponMenuScreen
 import com.flansmod.recoded.registry.FlansMenus
 import net.minecraft.client.gui.screens.MenuScreens
 import com.flansmod.recoded.registry.FlansEntities
@@ -33,6 +34,7 @@ object FlansModClient : ClientModInitializer {
         PackTabs.init()
         EntityRendererRegistry.register(FlansEntities.GRENADE, ::ThrownItemRenderer)
         MenuScreens.register(FlansMenus.WEAPONS_BENCH, ::WeaponsBenchScreen)
+        MenuScreens.register(FlansMenus.WEAPON, ::WeaponMenuScreen)
         GunInput.init()
         GunHud.init()
     }

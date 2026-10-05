@@ -82,6 +82,20 @@ data class ContentSyncPayload(
     }
 }
 
+/** Client → server: switch to the next fire mode of the held gun. */
+object FireModePayload : CustomPacketPayload {
+    val TYPE = type<FireModePayload>("fire_mode")
+    val CODEC: StreamCodec<FriendlyByteBuf, FireModePayload> = StreamCodec.unit(this)
+    override fun type() = TYPE
+}
+
+/** Client → server: open the weapon menu for the held gun. */
+object OpenWeaponMenuPayload : CustomPacketPayload {
+    val TYPE = type<OpenWeaponMenuPayload>("open_weapon_menu")
+    val CODEC: StreamCodec<FriendlyByteBuf, OpenWeaponMenuPayload> = StreamCodec.unit(this)
+    override fun type() = TYPE
+}
+
 /** Client → server: install the offhand attachment, or ([remove]) take all attachments off. */
 data class AttachPayload(val remove: Boolean) : CustomPacketPayload {
     override fun type() = TYPE
@@ -116,6 +130,8 @@ object FlansNetworking {
         PayloadTypeRegistry.clientboundPlay().register(HitPayload.TYPE, HitPayload.CODEC)
         PayloadTypeRegistry.clientboundPlay().register(ShotPayload.TYPE, ShotPayload.CODEC)
         PayloadTypeRegistry.serverboundPlay().register(AttachPayload.TYPE, AttachPayload.CODEC)
+        PayloadTypeRegistry.serverboundPlay().register(FireModePayload.TYPE, FireModePayload.CODEC)
+        PayloadTypeRegistry.serverboundPlay().register(OpenWeaponMenuPayload.TYPE, OpenWeaponMenuPayload.CODEC)
         PayloadTypeRegistry.clientboundPlay().registerLarge(ContentSyncPayload.TYPE, ContentSyncPayload.CODEC, 8 * 1024 * 1024)
     }
 }

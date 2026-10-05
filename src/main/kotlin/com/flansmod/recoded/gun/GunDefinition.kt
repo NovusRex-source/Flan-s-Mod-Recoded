@@ -22,7 +22,10 @@ data class GunDefinition(
     @SerialName("headshot_multiplier") val headshotMultiplier: Float = 1.5f,
     /** Rounds per minute. Capped at 1200 (one shot per tick). */
     val rpm: Int = 300,
+    /** Default fire mode of a new gun. */
     @SerialName("fire_mode") val fireMode: FireMode = FireMode.SEMI,
+    /** Modes the selector cycles through; defaults to safe + [fireMode]. */
+    @SerialName("fire_modes") val fireModes: List<FireMode> = emptyList(),
     @SerialName("burst_count") val burstCount: Int = 3,
     /** Magazine ids this gun accepts (magazines may also list guns themselves). */
     val magazines: List<@Serializable(IdentifierSerializer::class) Identifier> = emptyList(),
@@ -58,6 +61,8 @@ data class GunDefinition(
     /** Attachment slots this gun offers, e.g. `["sight", "barrel"]`. */
     @SerialName("attachment_slots") val attachmentSlots: List<String> = emptyList(),
 ) {
+    val availableModes: List<FireMode> get() = fireModes.ifEmpty { listOf(FireMode.SAFE, fireMode) }.distinct()
+
     val ticksBetweenShots: Int get() = (1200 / rpm.coerceIn(1, 1200)).coerceAtLeast(1)
 
     /** Fills in default asset locations derived from the gun id, e.g. `pack:ak47` → `pack:gun/ak47`. */
@@ -71,6 +76,7 @@ data class GunDefinition(
 
 @Serializable
 enum class FireMode {
+    @SerialName("safe") SAFE,
     @SerialName("semi") SEMI,
     @SerialName("auto") AUTO,
     @SerialName("burst") BURST,

@@ -48,5 +48,6 @@ object FlansMod : ModInitializer {
         Ballistics.init()
         GunHandler.init()
         AttachmentHandler.init()
+        com.flansmod.recoded.bench.WeaponMenu.init()
     }
 }

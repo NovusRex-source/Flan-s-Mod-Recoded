@@ -8,6 +8,9 @@ import com.flansmod.recoded.item.ammo
 import com.flansmod.recoded.item.shotDefinition
 import com.flansmod.recoded.network.AimPayload
 import com.flansmod.recoded.network.AttachPayload
+import com.flansmod.recoded.network.FireModePayload
+import com.flansmod.recoded.network.OpenWeaponMenuPayload
+import com.flansmod.recoded.item.fireMode
 import com.flansmod.recoded.network.ReloadPayload
 import com.flansmod.recoded.network.ShootPayload
 import com.mojang.blaze3d.platform.InputConstants
@@ -31,6 +34,12 @@ object GunInput {
         KeyMapping("key.flansmod.reload", InputConstants.Type.KEYBOARD, InputConstants.KEY_R, CATEGORY)
     )
 
+    private val FIRE_MODE = KeyMappingHelper.registerKeyMapping(
+        KeyMapping("key.flansmod.fire_mode", InputConstants.Type.KEYBOARD, InputConstants.KEY_K, CATEGORY)
+    )
+    private val WEAPON_MENU = KeyMappingHelper.registerKeyMapping(
+        KeyMapping("key.flansmod.weapon_menu", InputConstants.Type.KEYBOARD, InputConstants.KEY_U, CATEGORY)
+    )
     private val ATTACH = KeyMappingHelper.registerKeyMapping(
         KeyMapping("key.flansmod.attach", InputConstants.Type.KEYBOARD, InputConstants.KEY_J, CATEGORY)
     )
@@ -65,9 +74,10 @@ object GunInput {
     private fun onAttack(client: Minecraft, player: LocalPlayer, clicks: Int): Boolean {
         val gun = player.mainHandItem.shotDefinition ?: return false
         if (client.gui.screen() != null || player.isSpectator) return true
-        val wantsShot = when (gun.fireMode) {
+        val mode = player.mainHandItem.fireMode
+        val wantsShot = when (mode) {
             FireMode.AUTO -> true
-            FireMode.SEMI, FireMode.BURST -> clicks > 0
+            FireMode.SEMI, FireMode.BURST, FireMode.SAFE -> clicks > 0
         }
         if (wantsShot && cooldown <= 0 && burstLeft <= 0) trigger(player, gun)
         return true
@@ -75,11 +85,11 @@ object GunInput {
 
     private fun trigger(player: LocalPlayer, gun: GunDefinition) {
         ClientPlayNetworking.send(ShootPayload)
-        if (player.mainHandItem.ammo <= 0) {
+        if (player.mainHandItem.ammo <= 0 || player.mainHandItem.fireMode == FireMode.SAFE) {
             cooldown = 10
             return
         }
-        burstLeft = if (gun.fireMode == FireMode.BURST) gun.burstCount else 1
+        burstLeft = if (player.mainHandItem.fireMode == FireMode.BURST) gun.burstCount else 1
         localShot(player, gun)
     }
 
@@ -105,6 +115,8 @@ object GunInput {
 
         updateAim(client, gun)
         while (RELOAD.consumeClick()) if (gun != null) ClientPlayNetworking.send(ReloadPayload(unload = player.isShiftKeyDown))
+        while (FIRE_MODE.consumeClick()) if (gun != null) ClientPlayNetworking.send(FireModePayload)
+        while (WEAPON_MENU.consumeClick()) if (gun != null) ClientPlayNetworking.send(OpenWeaponMenuPayload)
         while (ATTACH.consumeClick()) if (gun != null) ClientPlayNetworking.send(AttachPayload(remove = player.isShiftKeyDown))
         applyRecoil(player, gun)
     }

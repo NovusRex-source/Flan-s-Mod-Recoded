@@ -45,5 +45,12 @@
   "attachment.flansmod.underbarrel": "Underbarrel",
   "block.flansmod.weapons_bench": "Weapons Bench",
   "container.flansmod.weapons_bench": "Weapons Bench",
-  "item.flansmod.part": "Gun Part"
+  "item.flansmod.part": "Gun Part",
+  "item.flansmod.gun.mode.safe": "safe",
+  "key.flansmod.fire_mode": "Switch fire mode",
+  "key.flansmod.weapon_menu": "Weapon menu",
+  "message.flansmod.fire_mode": "Fire mode: %s",
+  "container.flansmod.weapon": "Weapon",
+  "gui.flansmod.weapon.fire_mode": "Fire mode",
+  "gui.flansmod.weapon.no_slots": "This weapon has no attachment slots"
 }

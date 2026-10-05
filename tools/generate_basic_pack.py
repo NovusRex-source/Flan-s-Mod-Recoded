@@ -249,6 +249,17 @@ ATTACHMENT_RECIPES = {
 GRENADE_RECIPES = {"frag": ["NIN", "IUI", "NIN"], "smoke": ["NHN", "IUI", "NIN"], "flashbang": ["NYN", "IUI", "NIN"],
                    "molotov": [" E ", " Z ", "PUP"]}
 
+# Selector positions per gun (the first non-safe entry is not necessarily the default; "mode" is).
+FIRE_MODES = {
+    "glock17": ["safe", "semi"], "m1911": ["safe", "semi"], "deagle": ["safe", "semi"], "revolver": ["semi"],
+    "mp5": ["safe", "semi", "burst", "auto"], "uzi": ["safe", "semi", "auto"], "p90": ["safe", "semi", "auto"],
+    "thompson": ["safe", "semi", "auto"], "m4a1": ["safe", "semi", "auto"], "ak47": ["safe", "auto", "semi"],
+    "m16a4": ["safe", "semi", "burst"], "scar_h": ["safe", "semi", "auto"], "svd": ["safe", "semi"],
+    "m14": ["safe", "semi", "auto"], "m24": ["safe", "semi"], "awm": ["safe", "semi"], "barrett": ["safe", "semi"],
+    "m870": ["safe", "semi"], "spas12": ["safe", "semi"], "aa12": ["safe", "semi", "auto"], "m249": ["safe", "auto"],
+    "pkm": ["safe", "auto"], "m79": ["semi"], "rpg7": ["safe", "semi"],
+}
+
 # ------------------------------------------------------------------------------------------- attachments
 ATTACHMENTS = {
     "red_dot": dict(name="Red Dot Sight", slot="sight", stats={"ads_zoom": 1.5, "spread_multiplier": 0.9, "ads_height": 1.2}),
@@ -454,6 +465,7 @@ def gun_definition(gid, g, geo):
         "recoil": {"pitch": g["recoil"][0], "yaw": g["recoil"][1]},
         "magazines": [f"{NS}:{m}" for m, mag in MAGAZINES.items() if gid in mag["guns"]],
         "sounds": {"shoot": f"{NS}:gun.{g['sound']}.shoot", "reload": f"{NS}:gun.reload", "empty": f"{NS}:gun.empty"},
+        "fire_modes": FIRE_MODES[gid],
         "attachment_slots": g["slots"],
         "display": {
             "gui": {"rotation": [0, -90, 0], "translation": [-1.5, -0.5, 0], "scale": [gui_scale] * 3},

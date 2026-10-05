@@ -12,6 +12,8 @@ import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.item.gunId
 import com.flansmod.recoded.item.loadedMagazine
 import com.flansmod.recoded.item.shotDefinition
+import com.flansmod.recoded.item.fireMode
+import com.flansmod.recoded.network.FireModePayload
 import com.flansmod.recoded.network.AimPayload
 import com.flansmod.recoded.network.ReloadPayload
 import com.flansmod.recoded.network.ShootPayload
@@ -61,6 +63,7 @@ object GunHandler {
 
     fun init() {
         ServerPlayNetworking.registerGlobalReceiver(ShootPayload.TYPE) { _, ctx -> trigger(ctx.player()) }
+        ServerPlayNetworking.registerGlobalReceiver(FireModePayload.TYPE) { _, ctx -> cycleFireMode(ctx.player()) }
         ServerPlayNetworking.registerGlobalReceiver(AimPayload.TYPE) { payload, ctx -> setAiming(ctx.player(), payload.aiming) }
         ServerPlayNetworking.registerGlobalReceiver(ReloadPayload.TYPE) { payload, ctx ->
             if (payload.unload) unload(ctx.player()) else reload(ctx.player())
@@ -77,6 +80,12 @@ object GunHandler {
         if (state.reloadDoneTick >= 0 || state.burstLeft > 0) return
         if (player.level().gameTime < state.nextShotTick) return
 
+        val mode = stack.fireMode
+        if (mode == FireMode.SAFE) {
+            state.nextShotTick = player.level().gameTime + 10
+            playSound(player, gun.sounds.empty)
+            return
+        }
         val magazine = stack.loadedMagazine
         if (magazine == null || magazine.isEmpty) {
             state.nextShotTick = player.level().gameTime + 10
@@ -84,7 +93,7 @@ object GunHandler {
             reload(player)
             return
         }
-        if (gun.fireMode == FireMode.BURST) state.burstLeft = gun.burstCount
+        if (mode == FireMode.BURST) state.burstLeft = gun.burstCount
         shoot(player, stack, gun, state)
     }
 
@@ -112,6 +121,21 @@ object GunHandler {
         }
         playSound(player, gun.sounds.shoot)
         triggerAnim(player, stack, GunItem.ANIM_SHOOT)
+    }
+
+    /** Selector switch: next mode in the gun's list (safe → semi → auto ...). */
+    fun cycleFireMode(player: ServerPlayer) {
+        val stack = player.mainHandItem
+        val modes = stack.definition?.availableModes ?: return
+        setFireMode(player, modes[(modes.indexOf(stack.fireMode) + 1) % modes.size])
+    }
+
+    fun setFireMode(player: ServerPlayer, mode: FireMode) {
+        val stack = player.mainHandItem
+        if (stack.definition?.availableModes?.contains(mode) != true) return
+        stack.fireMode = mode
+        player.sendOverlayMessage(Component.translatable("message.flansmod.fire_mode", Component.translatable("item.flansmod.gun.mode.${mode.name.lowercase()}")))
+        player.level().playSound(null, player.x, player.y, player.z, net.minecraft.sounds.SoundEvents.LEVER_CLICK, SoundSource.PLAYERS, 0.4f, 1.8f)
     }
 
     /** Aim-down-sights state: affects spread, movement and scope effects. */

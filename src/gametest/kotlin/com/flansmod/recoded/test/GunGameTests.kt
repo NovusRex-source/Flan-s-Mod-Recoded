@@ -26,6 +26,10 @@ import com.flansmod.recoded.item.attachments
 import com.flansmod.recoded.item.definition
 import com.flansmod.recoded.item.gunId
 import com.flansmod.recoded.item.loadedMagazine
+import com.flansmod.recoded.item.fireMode
+import com.flansmod.recoded.gun.FireMode
+import com.flansmod.recoded.bench.WeaponMenu
+import com.flansmod.recoded.bench.WeaponMenuData
 import com.flansmod.recoded.registry.FlansDamageTypes
 import net.fabricmc.fabric.api.gametest.v1.GameTest
 import net.minecraft.commands.arguments.EntityAnchorArgument
@@ -316,6 +320,59 @@ class GunGameTests {
         AttachmentHandler.install(player)
         val after = stack.definition!!.resolvedModel(stack.gunId!!).display.getValue(Transform.ADS).translation[1]
         helper.assertTrue(kotlin.math.abs((before - after) - 2f) < 1e-4, "aim pose should drop by 2px, was $before -> $after")
+        helper.succeed()
+    }
+
+    // ---------------------------------------------------------------------------------- fire modes and weapon menu
+
+    @GameTest(maxTicks = 40)
+    fun safetyBlocksFiringUntilSwitchedOff(helper: GameTestHelper) {
+        val (player, stack) = helper.withGun("safety", accurate.copy(fireModes = listOf(FireMode.SAFE, FireMode.SEMI)))
+        GunHandler.setFireMode(player, FireMode.SAFE)
+        GunHandler.trigger(player)
+        helper.assertValueEqual(stack.ammo, 5, "no shot while on safe")
+        GunHandler.cycleFireMode(player)
+        helper.assertValueEqual(stack.fireMode, FireMode.SEMI, "selector moves to semi")
+        helper.runAfterDelay(15) {
+            GunHandler.trigger(player)
+            helper.assertValueEqual(stack.ammo, 4, "fires once off safe")
+            helper.succeed()
+        }
+    }
+
+    @GameTest(maxTicks = 5)
+    fun selectorOnlyOffersTheGunsModes(helper: GameTestHelper) {
+        val (player, stack) = helper.withGun("lmg", accurate.copy(fireMode = FireMode.AUTO, fireModes = listOf(FireMode.SAFE, FireMode.AUTO)))
+        helper.assertValueEqual(stack.fireMode, FireMode.AUTO, "default mode")
+        GunHandler.cycleFireMode(player)
+        helper.assertValueEqual(stack.fireMode, FireMode.SAFE, "auto → safe")
+        GunHandler.cycleFireMode(player)
+        helper.assertValueEqual(stack.fireMode, FireMode.AUTO, "safe → auto, never semi/burst")
+        GunHandler.setFireMode(player, FireMode.BURST)
+        helper.assertValueEqual(stack.fireMode, FireMode.AUTO, "burst is not available on this gun")
+        helper.succeed()
+    }
+
+    @GameTest(maxTicks = 5)
+    fun weaponMenuInstallsAndRemovesAttachments(helper: GameTestHelper) {
+        val (player, stack) = helper.withGun("menu", accurate.copy(spread = 2f, attachmentSlots = listOf("sight", "muzzle")))
+        val scopeId = test("menu_scope")
+        Attachments.replace(Attachments.all + (scopeId to scope))
+        val menu = WeaponMenu(1, player.inventory, WeaponMenuData(listOf("sight", "muzzle")))
+
+        helper.assertFalse(menu.slots[1].mayPlace(AttachmentItem.stackFor(scopeId)), "a sight does not fit the muzzle slot")
+        menu.slots[0].setByPlayer(AttachmentItem.stackFor(scopeId))
+        helper.assertTrue(stack.attachments["sight"] == scopeId, "placing the scope installs it on the gun")
+        helper.assertValueEqual(stack.definition!!.spread, 1f, "scope stats apply")
+
+        menu.quickMoveStack(player, 0)
+        helper.assertTrue(stack.attachments.isEmpty(), "taking it out removes it from the gun")
+        helper.assertTrue(player.inventory.nonEquipmentItems.any { it.attachmentId == scopeId }, "scope is back in the inventory")
+
+        val gunSlot = menu.slots.first { it.container == player.inventory && it.containerSlot == player.inventory.selectedSlot }
+        helper.assertFalse(gunSlot.mayPickup(player), "the held gun cannot be moved while its menu is open")
+        menu.clickMenuButton(player, FireMode.SAFE.ordinal)
+        helper.assertValueEqual(stack.fireMode, FireMode.SAFE, "fire mode button")
         helper.succeed()
     }
 

@@ -4,11 +4,15 @@ import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.gun.AmmoTypes
 import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Grenades
+import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.Parts
 import com.flansmod.recoded.item.PartItem
 import com.flansmod.recoded.bench.WeaponAssemblyRecipe
 import com.flansmod.recoded.bench.WeaponsBenchBlock
 import com.flansmod.recoded.bench.WeaponsBenchMenu
+import com.flansmod.recoded.bench.WeaponMenu
+import com.flansmod.recoded.bench.WeaponMenuData
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType
 import net.minecraft.world.flag.FeatureFlags
 import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.BlockItem
@@ -67,6 +71,12 @@ object FlansComponents {
     /** Which [com.flansmod.recoded.gun.GrenadeDefinition] a grenade stack represents. */
     val GRENADE: DataComponentType<Identifier> = register("grenade") {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
+    /** Selected fire mode of a gun stack (see GunDefinition.fire_modes). */
+    val FIRE_MODE: DataComponentType<FireMode> = register("fire_mode") {
+        persistent(Codec.STRING.xmap({ FireMode.valueOf(it.uppercase()) }, { it.name.lowercase() }))
+            .networkSynchronized(ByteBufCodecs.VAR_INT.map({ FireMode.entries[it] }, FireMode::ordinal))
     }
 
     /** Which [com.flansmod.recoded.gun.PartDefinition] a part stack represents. */
@@ -161,6 +171,10 @@ object FlansBlocks {
 object FlansMenus {
     val WEAPONS_BENCH: MenuType<WeaponsBenchMenu> = Registry.register(
         BuiltInRegistries.MENU, FlansMod.id("weapons_bench"), MenuType({ id, inventory -> WeaponsBenchMenu(id, inventory) }, FeatureFlags.VANILLA_SET),
+    )
+
+    val WEAPON: ExtendedMenuType<WeaponMenu, WeaponMenuData> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("weapon"), ExtendedMenuType(::WeaponMenu, WeaponMenuData.STREAM_CODEC),
     )
 
     fun init() = Unit

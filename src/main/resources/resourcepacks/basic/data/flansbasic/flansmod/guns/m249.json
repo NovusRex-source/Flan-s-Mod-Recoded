@@ -25,6 +25,10 @@
     "reload": "flansbasic:gun.reload",
     "empty": "flansbasic:gun.empty"
   },
+  "fire_modes": [
+    "safe",
+    "auto"
+  ],
   "attachment_slots": [
     "sight",
     "muzzle",

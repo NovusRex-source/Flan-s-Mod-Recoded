@@ -5,6 +5,7 @@ import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.gun.withAttachments
 import com.flansmod.recoded.gun.withAmmo
+import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.MagazineContents
 import com.flansmod.recoded.gun.Magazines
 import com.flansmod.recoded.registry.FlansComponents
@@ -55,7 +56,7 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
         }
         val shot = def.withAmmo(mag?.ammoDefinition)
         line("damage", if (shot.pellets > 1) "${shot.damage}×${shot.pellets}" else shot.damage)
-        line("rpm", def.rpm, Component.translatable("item.flansmod.gun.mode.${def.fireMode.name.lowercase()}"))
+        line("rpm", def.rpm, Component.translatable("item.flansmod.gun.mode.${stack.fireMode.name.lowercase()}"))
         stack.attachments.values.mapNotNull { Attachments[it] }.forEach {
             add.accept(Component.literal(" + ").append(Component.translatableWithFallback("attachment.flansmod.${'$'}{it.slot}", it.slot)).append(": ${'$'}{it.name}").withStyle(ChatFormatting.DARK_AQUA))
         }
@@ -137,6 +138,14 @@ var ItemStack.loadedMagazine: MagazineContents?
 var ItemStack.ammo: Int
     get() = loadedMagazine?.rounds ?: 0
     set(value) { loadedMagazine = loadedMagazine?.withRounds(value) }
+
+/** Selected fire mode, falling back to the gun's default if the stored one is not available. */
+var ItemStack.fireMode: FireMode
+    get() {
+        val gun = definition ?: return FireMode.SAFE
+        return get(FlansComponents.FIRE_MODE)?.takeIf { it in gun.availableModes } ?: gun.fireMode
+    }
+    set(value) { set(FlansComponents.FIRE_MODE, value) }
 
 /** Effective stats for the next shot: attachments plus the loaded ammo type. */
 val ItemStack.shotDefinition: GunDefinition? get() = definition?.withAmmo(loadedMagazine?.ammoDefinition)
