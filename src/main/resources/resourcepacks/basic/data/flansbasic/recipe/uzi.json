@@ -1,15 +1,45 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "III",
-    "XGI",
-    " I "
+    "SRB",
+    " GT"
   ],
   "key": {
-    "G": "minecraft:gunpowder",
-    "I": "minecraft:iron_ingot",
-    "X": "minecraft:amethyst_shard"
+    "B": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:short_barrel"
+      }
+    },
+    "G": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:polymer_grip"
+      }
+    },
+    "R": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:smg_receiver"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:folding_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    }
   },
   "result": {
     "id": "flansmod:gun",

@@ -1,16 +1,59 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "III",
-    "IGI",
-    "XBI"
+    "SRAB",
+    "FGT "
   ],
   "key": {
-    "B": "minecraft:iron_block",
-    "G": "minecraft:gunpowder",
-    "I": "minecraft:iron_ingot",
-    "X": "minecraft:prismarine_shard"
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:gas_system"
+      }
+    },
+    "B": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:heavy_barrel"
+      }
+    },
+    "F": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:spring"
+      }
+    },
+    "G": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:wood_grip"
+      }
+    },
+    "R": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:battle_receiver"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:wood_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    }
   },
   "result": {
     "id": "flansmod:gun",

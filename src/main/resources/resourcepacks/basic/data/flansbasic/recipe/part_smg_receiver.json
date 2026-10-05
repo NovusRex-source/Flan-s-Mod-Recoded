@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IIIR",
+    "I   "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansbasic:smg_receiver",
+      "minecraft:item_model": "flansbasic:smg_receiver"
+    }
+  }
+}

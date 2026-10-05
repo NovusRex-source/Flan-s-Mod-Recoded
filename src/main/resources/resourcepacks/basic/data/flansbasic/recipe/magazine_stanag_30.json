@@ -1,14 +1,21 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "NXN",
-    "N N",
-    "NNN"
+    "INNNN",
+    "I    ",
+    "I    ",
+    "F    "
   ],
   "key": {
-    "N": "minecraft:iron_nugget",
-    "X": "minecraft:leather"
+    "F": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:spring"
+      }
+    },
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
   },
   "result": {
     "id": "flansmod:magazine",

@@ -1,16 +1,60 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "XII",
-    "IGW",
-    "W  "
+    " L  ",
+    "SRAB",
+    " GT "
   ],
   "key": {
-    "G": "minecraft:gunpowder",
-    "I": "minecraft:iron_ingot",
-    "W": "#minecraft:planks",
-    "X": "minecraft:bone"
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:gas_system"
+      }
+    },
+    "B": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:long_barrel"
+      }
+    },
+    "G": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:wood_grip"
+      }
+    },
+    "L": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:lens"
+      }
+    },
+    "R": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:battle_receiver"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:wood_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    }
   },
   "result": {
     "id": "flansmod:gun",

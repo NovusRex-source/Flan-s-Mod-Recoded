@@ -54,6 +54,7 @@ object Attachments : DefinitionRegistry<AttachmentDefinition>("attachments", Att
 object AmmoTypes : DefinitionRegistry<AmmoDefinition>("ammo", AmmoDefinition.serializer())
 object Grenades : DefinitionRegistry<GrenadeDefinition>("grenades", GrenadeDefinition.serializer())
 object Magazines : DefinitionRegistry<MagazineDefinition>("magazines", MagazineDefinition.serializer())
+object Parts : DefinitionRegistry<PartDefinition>("parts", PartDefinition.serializer())
 
 /** Loading and client sync for all content-pack definitions. */
 object Content {
@@ -66,13 +67,13 @@ object Content {
 
     fun init() {
         val loader = ResourceLoader.get(PackType.SERVER_DATA)
-        listOf(Guns, Attachments, AmmoTypes, Grenades, Magazines).forEach { loader.registerReloadListener(FlansMod.id(it.folder), it.listener) }
+        listOf(Guns, Attachments, AmmoTypes, Grenades, Magazines, Parts).forEach { loader.registerReloadListener(FlansMod.id(it.folder), it.listener) }
 
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ -> ServerPlayNetworking.send(handler.player, syncPayload()) }
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register { server, _, success -> if (success) resync(server) }
     }
 
-    fun syncPayload() = ContentSyncPayload(Guns.all, Attachments.all, AmmoTypes.all, Grenades.all, Magazines.all)
+    fun syncPayload() = ContentSyncPayload(Guns.all, Attachments.all, AmmoTypes.all, Grenades.all, Magazines.all, Parts.all)
 
     /** Called after definitions change on this side (reload or sync), e.g. to refresh creative tabs. */
     val onChanged = mutableListOf<() -> Unit>()
@@ -85,6 +86,7 @@ object Content {
         AmmoTypes.replace(payload.ammo)
         Grenades.replace(payload.grenades)
         Magazines.replace(payload.magazines)
+        Parts.replace(payload.parts)
         onChanged.forEach { it() }
     }
 }

@@ -1,14 +1,17 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "NXN",
-    "N N",
-    "NNN"
+    "CF"
   ],
   "key": {
-    "N": "minecraft:iron_nugget",
-    "X": "minecraft:honeycomb"
+    "C": "minecraft:copper_ingot",
+    "F": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:spring"
+      }
+    }
   },
   "result": {
     "id": "flansmod:magazine",

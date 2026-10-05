@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IIII"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansbasic:barrel",
+      "minecraft:item_model": "flansbasic:barrel"
+    }
+  }
+}

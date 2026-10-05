@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "WW",
+    " W"
+  ],
+  "key": {
+    "W": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansbasic:wood_grip",
+      "minecraft:item_model": "flansbasic:wood_grip"
+    }
+  }
+}

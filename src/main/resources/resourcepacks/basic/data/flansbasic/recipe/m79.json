@@ -1,15 +1,38 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "III",
-    "XGT"
+    "SB",
+    "GT"
   ],
   "key": {
-    "G": "minecraft:gunpowder",
-    "I": "minecraft:iron_ingot",
-    "T": "minecraft:tnt",
-    "X": "minecraft:clay_ball"
+    "B": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:launcher_tube"
+      }
+    },
+    "G": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:wood_grip"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:wood_stock"
+      }
+    },
+    "T": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:trigger_group"
+      }
+    }
   },
   "result": {
     "id": "flansmod:gun",

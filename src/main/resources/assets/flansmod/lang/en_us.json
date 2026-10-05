@@ -42,5 +42,8 @@
   "death.attack.flansmod.gun_ap": "%1$s was shot",
   "death.attack.flansmod.gun_ap.player": "%1$s was shot by %2$s",
   "attachment.flansmod.muzzle": "Muzzle",
-  "attachment.flansmod.underbarrel": "Underbarrel"
+  "attachment.flansmod.underbarrel": "Underbarrel",
+  "block.flansmod.weapons_bench": "Weapons Bench",
+  "container.flansmod.weapons_bench": "Weapons Bench",
+  "item.flansmod.part": "Gun Part"
 }

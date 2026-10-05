@@ -167,6 +167,88 @@ GUNS = {
                  spread=0.5, recoil=(3, 1), zoom=1.5, slots=["sight"], sound="rocket", move=0.5),
 }
 
+# ------------------------------------------------------------------------------------------- parts
+# id: name, icon kind, bench recipe (pattern over raw materials), result count
+PARTS = {
+    "polymer": dict(name="Polymer Sheet", icon="sheet", pattern=["KSK", "KSK"], count=4),
+    "short_barrel": dict(name="Short Barrel", icon="barrel", pattern=["III"]),
+    "barrel": dict(name="Barrel", icon="barrel", pattern=["IIII"]),
+    "long_barrel": dict(name="Long Barrel", icon="long_barrel", pattern=["IIIII"]),
+    "heavy_barrel": dict(name="Heavy Barrel", icon="heavy_barrel", pattern=["BIII"]),
+    "shotgun_barrel": dict(name="Shotgun Barrel", icon="heavy_barrel", pattern=["IIII", "IIII"]),
+    "launcher_tube": dict(name="Launcher Tube", icon="tube", pattern=["IIIII", "     ", "IIIII"]),
+    "pistol_frame": dict(name="Pistol Frame", icon="frame", pattern=["IIR", "I  "]),
+    "revolver_frame": dict(name="Revolver Frame", icon="cylinder", pattern=["NNN", "IIR", "I  "]),
+    "smg_receiver": dict(name="SMG Receiver", icon="receiver", pattern=["IIIR", "I   "]),
+    "rifle_receiver": dict(name="Rifle Receiver", icon="receiver", pattern=["IIIIR", "II   "]),
+    "battle_receiver": dict(name="Battle Rifle Receiver", icon="receiver", pattern=["IIIIR", "IB   "]),
+    "sniper_receiver": dict(name="Bolt-Action Receiver", icon="receiver", pattern=["IIIIR", "I  N "]),
+    "heavy_receiver": dict(name="Heavy Receiver", icon="receiver", pattern=["BBIR"]),
+    "shotgun_receiver": dict(name="Shotgun Receiver", icon="receiver", pattern=["IIIR", "W   "]),
+    "trigger_group": dict(name="Trigger Group", icon="trigger", pattern=["NR", "N "]),
+    "bolt_carrier": dict(name="Bolt Carrier", icon="bolt", pattern=["INN"]),
+    "gas_system": dict(name="Gas System", icon="gas", pattern=["NIN", "N N"]),
+    "spring": dict(name="Spring", icon="spring", pattern=["N  ", " N ", "  N"], count=2),
+    "wood_stock": dict(name="Wooden Stock", icon="wood_stock", pattern=["WWWW", " WWW"]),
+    "polymer_stock": dict(name="Polymer Stock", icon="polymer_stock", pattern=["XXXX", " XXX"], uses={"X": "polymer"}),
+    "folding_stock": dict(name="Folding Stock", icon="folding_stock", pattern=["NNNN", "N  N"]),
+    "wood_grip": dict(name="Wooden Grip", icon="wood_grip", pattern=["WW", " W"]),
+    "polymer_grip": dict(name="Polymer Grip", icon="polymer_grip", pattern=["XX", " X"], uses={"X": "polymer"}),
+    "lens": dict(name="Lens", icon="lens", pattern=["PQ"]),
+    "circuit": dict(name="Circuit Board", icon="circuit", pattern=["RGR", "QCQ"]),
+}
+
+# Assembly layout per archetype; letters are filled from each gun's "parts" (S stock, R receiver, A gas system,
+# B barrel, C bolt carrier, G grip, T trigger group, F spring, L lens).
+ASSEMBLY = {
+    "pistol": ["RB", "GT"], "revolver": ["RB", "GT"], "smg": ["SRB", " GT"], "bullpup_smg": ["RRB", "GT "],
+    "rifle": ["SRAB", " GT "], "dmr": ["SRAB", " GT "], "dmr_scoped": [" L  ", "SRAB", " GT "],
+    "sniper": ["SRCB", " GT "], "shotgun": ["SRB", " GT"], "shotgun_auto": ["SRAB", " GT "],
+    "lmg": ["SRAB", "FGT "], "launcher": ["SB", "GT"], "rpg": ["BB", "GT"],
+}
+GUN_PARTS = {
+    "glock17": ("pistol", dict(R="pistol_frame", B="short_barrel", G="polymer_grip")),
+    "m1911": ("pistol", dict(R="pistol_frame", B="short_barrel", G="wood_grip")),
+    "deagle": ("pistol", dict(R="pistol_frame", B="barrel", G="polymer_grip")),
+    "revolver": ("revolver", dict(R="revolver_frame", B="barrel", G="wood_grip")),
+    "mp5": ("smg", dict(S="polymer_stock", R="smg_receiver", B="short_barrel", G="polymer_grip")),
+    "uzi": ("smg", dict(S="folding_stock", R="smg_receiver", B="short_barrel", G="polymer_grip")),
+    "p90": ("bullpup_smg", dict(R="smg_receiver", B="short_barrel", G="polymer_grip")),
+    "thompson": ("smg", dict(S="wood_stock", R="smg_receiver", B="barrel", G="wood_grip")),
+    "m4a1": ("rifle", dict(S="polymer_stock", R="rifle_receiver", B="barrel", G="polymer_grip")),
+    "ak47": ("rifle", dict(S="wood_stock", R="rifle_receiver", B="barrel", G="wood_grip")),
+    "m16a4": ("rifle", dict(S="polymer_stock", R="rifle_receiver", B="long_barrel", G="polymer_grip")),
+    "scar_h": ("rifle", dict(S="polymer_stock", R="battle_receiver", B="barrel", G="polymer_grip")),
+    "svd": ("dmr_scoped", dict(S="wood_stock", R="battle_receiver", B="long_barrel", G="wood_grip")),
+    "m14": ("dmr", dict(S="polymer_stock", R="battle_receiver", B="long_barrel", G="polymer_grip")),
+    "m24": ("sniper", dict(S="wood_stock", R="sniper_receiver", B="long_barrel", G="wood_grip")),
+    "awm": ("sniper", dict(S="polymer_stock", R="sniper_receiver", B="heavy_barrel", G="polymer_grip")),
+    "barrett": ("sniper", dict(S="polymer_stock", R="heavy_receiver", B="heavy_barrel", G="polymer_grip")),
+    "m870": ("shotgun", dict(S="wood_stock", R="shotgun_receiver", B="shotgun_barrel", G="wood_grip")),
+    "spas12": ("shotgun", dict(S="polymer_stock", R="shotgun_receiver", B="shotgun_barrel", G="polymer_grip")),
+    "aa12": ("shotgun_auto", dict(S="polymer_stock", R="shotgun_receiver", B="shotgun_barrel", G="polymer_grip")),
+    "m249": ("lmg", dict(S="polymer_stock", R="rifle_receiver", B="heavy_barrel", G="polymer_grip")),
+    "pkm": ("lmg", dict(S="wood_stock", R="battle_receiver", B="heavy_barrel", G="wood_grip")),
+    "m79": ("launcher", dict(S="wood_stock", B="launcher_tube", G="wood_grip")),
+    "rpg7": ("rpg", dict(B="launcher_tube", G="wood_grip")),
+}
+COMMON_PARTS = dict(T="trigger_group", A="gas_system", C="bolt_carrier", F="spring", L="lens")
+
+# Magazines: body by kind (I iron, N nugget, F spring part); capacity adds iron rows.
+MAGAZINE_SHAPES = {"pistol": ["I", "F"], "stick": ["I", "I", "F"], "curved": ["I ", "IN", "F "], "drum": ["NIN", "IFI", "NIN"],
+                   "box": ["III", "IFI", "III"], "loader": ["NNN", "NFN"], "shells": ["HHH", "NFN"], "rocket": ["CF"]}
+# Ammo: bullet + gunpowder + casing by shape, plus variant materials.
+AMMO_SHAPES = {"pistol": ["NUC"], "rifle": ["NUUC"], "big": ["NUUUC"], "shell": ["NUH"], "40mm": ["TC", "CC"], "rocket": ["TUII"]}
+AMMO_VARIANT = {"9mm_hp": {"N": "S"}, "556_ap": {"N": "I"}, "762x39_ap": {"N": "I"}, "556_tracer": {"extra": "R"},
+                "50bmg_api": {"N": "I", "extra": "Z"}, "12g_slug": {"N": "I"}, "12g_dragon": {"extra": "Z"}}
+ATTACHMENT_RECIPES = {
+    "red_dot": ["ILI", " X "], "holographic": ["ILLI", " XX "], "acog": ["ILLI", "I  I"], "sniper_scope": ["ILLLI", "I   I"],
+    "nv_scope": ["ILLI", "OXXO"], "thermal_scope": ["ILLI", "ZXXZ"], "suppressor": ["IKKKK"], "compensator": ["NIN"],
+    "muzzle_brake": ["INI", "N N"], "vertical_grip": ["XX", " X", " X"], "angled_grip": ["XXX", "  X"],
+}
+GRENADE_RECIPES = {"frag": ["NIN", "IUI", "NIN"], "smoke": ["NHN", "IUI", "NIN"], "flashbang": ["NYN", "IUI", "NIN"],
+                   "molotov": [" E ", " Z ", "PUP"]}
+
 # ------------------------------------------------------------------------------------------- attachments
 ATTACHMENTS = {
     "red_dot": dict(name="Red Dot Sight", slot="sight", stats={"ads_zoom": 1.5, "spread_multiplier": 0.9, "ads_height": 1.2}),
@@ -572,6 +654,56 @@ def grenade_icon(gid):
     return px
 
 
+def part_icon(kind):
+    px = {}
+    metal, dark, wood, poly, light = (95, 98, 105), (45, 47, 52), (122, 82, 48), (40, 42, 46), (150, 150, 155)
+    if kind in ("barrel", "long_barrel"):
+        rect(px, 1 if kind == "long_barrel" else 3, 7, 14 if kind == "long_barrel" else 12, 8, metal); rect(px, 1 if kind == "long_barrel" else 3, 7, 14 if kind == "long_barrel" else 12, 7, light)
+    elif kind == "heavy_barrel":
+        rect(px, 1, 6, 14, 9, metal); rect(px, 1, 6, 14, 6, light)
+    elif kind == "tube":
+        rect(px, 1, 5, 14, 10, (82, 92, 58)); rect(px, 1, 7, 1, 8, dark)
+    elif kind in ("frame", "receiver"):
+        rect(px, 2, 5, 13, 9, metal); rect(px, 2, 5, 13, 5, light); rect(px, 5, 10, 6, 12, dark)
+        if kind == "frame":
+            rect(px, 9, 10, 12, 14, dark)
+    elif kind == "cylinder":
+        rect(px, 4, 4, 11, 11, metal)
+        for x, y in ((5, 5), (9, 5), (5, 9), (9, 9), (7, 7)):
+            rect(px, x, y, x + 1, y + 1, dark)
+    elif kind == "trigger":
+        rect(px, 4, 4, 11, 6, metal); rect(px, 7, 7, 8, 10, dark); rect(px, 5, 11, 10, 11, dark)
+    elif kind == "bolt":
+        rect(px, 2, 7, 13, 9, light); rect(px, 10, 4, 11, 7, light)
+    elif kind == "gas":
+        rect(px, 1, 6, 14, 7, metal); rect(px, 4, 8, 11, 9, light)
+    elif kind == "spring":
+        for i in range(12):
+            px[(2 + i, 6 + (i % 2) * 3)] = light
+            px[(2 + i, 7 + (i % 2))] = metal
+    elif kind in ("wood_stock", "polymer_stock"):
+        c = wood if kind == "wood_stock" else poly
+        for y in range(5, 12):
+            rect(px, 2, y, 6 + (y - 5), y, c)
+    elif kind == "folding_stock":
+        rect(px, 2, 5, 13, 5, metal); rect(px, 2, 11, 13, 11, metal); rect(px, 13, 5, 13, 11, metal)
+    elif kind in ("wood_grip", "polymer_grip"):
+        c = wood if kind == "wood_grip" else poly
+        for i in range(9):
+            rect(px, 6 + i // 3, 4 + i, 9 + i // 3, 4 + i, c)
+    elif kind == "lens":
+        for x in range(16):
+            for y in range(16):
+                if (x - 7.5) ** 2 + (y - 7.5) ** 2 <= 20:
+                    px[(x, y)] = (90, 150, 180) if (x - 6) ** 2 + (y - 6) ** 2 > 2 else (220, 240, 255)
+    elif kind == "circuit":
+        rect(px, 2, 3, 13, 12, (30, 110, 50)); rect(px, 4, 5, 6, 7, (200, 170, 60)); rect(px, 9, 8, 11, 10, dark)
+        rect(px, 4, 10, 8, 10, (200, 170, 60))
+    elif kind == "sheet":
+        rect(px, 3, 3, 12, 12, poly); rect(px, 3, 3, 12, 3, (70, 72, 78))
+    return px
+
+
 def item_model(name, kind):
     write(ASSETS / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{NS}:item/{name}"}})
     write(ASSETS / "models" / "item" / f"{name}.json",
@@ -579,39 +711,50 @@ def item_model(name, kind):
 
 
 # ------------------------------------------------------------------------------------------- recipes
-KEYS = {"I": "minecraft:iron_ingot", "G": "minecraft:gunpowder", "W": "#minecraft:planks", "N": "minecraft:iron_nugget",
-        "D": "minecraft:diamond", "R": "minecraft:redstone", "P": "minecraft:paper", "L": "minecraft:glowstone_dust",
-        "B": "minecraft:iron_block", "T": "minecraft:tnt", "S": "minecraft:glass_pane", "C": "minecraft:copper_ingot"}
-# Unique "marker" ingredients make every recipe distinct while sharing per-category patterns.
-MARKERS = ["minecraft:copper_ingot", "minecraft:gold_ingot", "minecraft:redstone", "minecraft:lapis_lazuli", "minecraft:quartz",
-           "minecraft:amethyst_shard", "minecraft:emerald", "minecraft:coal", "minecraft:gold_nugget", "minecraft:string",
-           "minecraft:leather", "minecraft:flint", "minecraft:bone", "minecraft:slime_ball", "minecraft:blaze_rod",
-           "minecraft:ender_pearl", "minecraft:obsidian", "minecraft:black_dye", "minecraft:green_dye", "minecraft:brown_dye",
-           "minecraft:red_dye", "minecraft:prismarine_shard", "minecraft:clay_ball", "minecraft:feather", "minecraft:spider_eye",
-           "minecraft:glowstone_dust", "minecraft:paper", "minecraft:honeycomb", "minecraft:rabbit_hide", "minecraft:sugar"]
-
-PATTERNS = {
-    "pistol": ["IIM", " IG"], "revolver": ["IIM", "BIG"], "smg": ["III", "MGI", " I "], "bullpup_smg": ["III", "MGI", "I  "],
-    "rifle": ["III", "MGW", " I "], "dmr": ["MII", "IGW", "W  "], "sniper": ["  M", "IID", "WG "],
-    "shotgun": ["III", "WGM", "W  "], "lmg": ["III", "IGI", "MBI"], "launcher": ["III", "MGT"], "rpg": ["III", "MGT", "I I"],
-    "magazine": ["NMN", "N N", "NNN"], "ammo": ["NMN", " G "], "attachment": ["IMI", " S "], "grenade": ["NMN", "IGI", "NIN"],
-}
+# Everything gun-related is made at the Weapons Bench (recipe type flansmod:weapon_assembly, up to 6x4).
+RAW = {"I": "minecraft:iron_ingot", "N": "minecraft:iron_nugget", "B": "minecraft:iron_block", "W": "#minecraft:planks",
+       "K": "minecraft:black_dye", "S": "minecraft:slime_ball", "R": "minecraft:redstone", "Q": "minecraft:quartz",
+       "P": "minecraft:glass_pane", "G": "minecraft:gold_ingot", "C": "minecraft:copper_ingot", "U": "minecraft:gunpowder",
+       "T": "minecraft:tnt", "H": "minecraft:paper", "Z": "minecraft:blaze_powder", "Y": "minecraft:glowstone_dust",
+       "E": "minecraft:string", "O": "minecraft:emerald"}
 _signatures = {}
 
 
-def shaped(name, template, marker, result):
-    pattern = [row.replace("M", "X") for row in PATTERNS[template]]
-    width = max(len(r) for r in pattern)
-    pattern = [r.ljust(width) for r in pattern]
-    used = {ch for row in pattern for ch in row if ch != " "}
-    key = {k: KEYS[k] for k in used if k != "X"}
-    key["X"] = marker
-    signature = (tuple(pattern), tuple(sorted(key.items())))
-    if signature in _signatures:
-        raise SystemExit(f"Recipe {name} duplicates {_signatures[signature]}")
+def part_ingredient(part_id):
+    return {"fabric:type": "fabric:components", "base": "flansmod:part", "components": {"flansmod:part": f"{NS}:{part_id}"}}
+
+
+def bench(name, pattern, key, result, extend=False):
+    """Writes a Weapons Bench recipe; with [extend], adds nuggets until the pattern is unique among all bench recipes."""
+    pattern = [r for r in pattern]
+    key = dict(key)
+    while True:
+        width = max(len(r) for r in pattern)
+        rows = [r.ljust(width) for r in pattern]
+        used = sorted({ch for row in rows for ch in row if ch != " "})
+        signature = (tuple(rows), tuple((k, json.dumps(key[k], sort_keys=True)) for k in used))
+        if signature not in _signatures:
+            break
+        if not extend:
+            raise SystemExit(f"Bench recipe {name} duplicates {_signatures[signature]}")
+        # Distinguish by an extra nugget in the first free cell to the right, then a new row.
+        key.setdefault("N", RAW["N"])
+        if width < 6:
+            pattern = [r.ljust(width) + ("N" if i == 0 else " ") for i, r in enumerate(rows)]
+        elif len(rows) < 4:
+            pattern = rows + ["N".ljust(width)]
+        else:
+            raise SystemExit(f"Cannot make bench recipe {name} unique")
+    assert len(rows) <= 4 and width <= 6, name
     _signatures[signature] = name
-    write(DATA / "recipe" / f"{name}.json", {"type": "minecraft:crafting_shaped", "category": "equipment",
-                                              "pattern": pattern, "key": dict(sorted(key.items())), "result": result})
+    write(DATA / "recipe" / f"{name}.json", {"type": "flansmod:weapon_assembly", "pattern": rows,
+                                              "key": {k: key[k] for k in used}, "result": result})
+
+
+def raw_key(pattern, extra=None):
+    key = {ch: RAW[ch] for row in pattern for ch in row if ch != " " and ch in RAW}
+    key.update(extra or {})
+    return key
 
 
 # ------------------------------------------------------------------------------------------- sounds
@@ -648,14 +791,25 @@ def main():
     gun_texture(ASSETS / "textures" / "gun" / "basic.png")
     for kind in ("acog", "pso", "sniper", "night_vision", "thermal"):
         scope_overlay(ASSETS / "textures" / "scope" / f"{kind}.png", kind)
-    markers = iter(MARKERS * 4)
+
+    for pid, part in PARTS.items():
+        write(DATA / "flansmod" / "parts" / f"{pid}.json", {"name": part["name"], "icon": f"{NS}:{pid}"})
+        item_model(pid, "part")
+        icon(ASSETS / "textures" / "item" / "part" / f"{pid}.png", part_icon(part["icon"]))
+        extra = {k: part_ingredient(v) for k, v in part.get("uses", {}).items()}
+        bench(f"part_{pid}", part["pattern"], raw_key(part["pattern"], extra), {"id": "flansmod:part", "count": part.get("count", 1),
+              "components": {"flansmod:part": f"{NS}:{pid}", "minecraft:item_model": f"{NS}:{pid}"}})
 
     for gid, g in GUNS.items():
         geo = gun_geometry(gid, g)
         write(DATA / "flansmod" / "guns" / f"{gid}.json", gun_definition(gid, g, geo))
         write(ASSETS / "geckolib" / "models" / "gun" / f"{gid}.geo.json", gun_model(gid, g, geo))
         write(ASSETS / "geckolib" / "animations" / "gun" / f"{gid}.animation.json", gun_animations(g, geo))
-        shaped(gid, g["arch"], MARKERS[list(GUNS).index(gid) % len(MARKERS)], {"id": "flansmod:gun", "components": {"flansmod:gun": f"{NS}:{gid}"}})
+        template, parts = GUN_PARTS[gid]
+        layout = ASSEMBLY[template]
+        letters = {**COMMON_PARTS, **parts}
+        key = {ch: part_ingredient(letters[ch]) for row in layout for ch in row if ch != " "}
+        bench(gid, layout, key, {"id": "flansmod:gun", "components": {"flansmod:gun": f"{NS}:{gid}"}})
 
     for i, (mid, m) in enumerate(MAGAZINES.items()):
         definition = {"name": m["name"], "caliber": m["caliber"], "capacity": m["capacity"], "icon": f"{NS}:{mid}"}
@@ -664,8 +818,11 @@ def main():
         write(DATA / "flansmod" / "magazines" / f"{mid}.json", definition)
         item_model(mid, "magazine")
         icon(ASSETS / "textures" / "item" / "magazine" / f"{mid}.png", magazine_icon(m["kind"]))
-        shaped(f"magazine_{mid}", "magazine", MARKERS[i % len(MARKERS)], {"id": "flansmod:magazine", "components": {
-            "flansmod:magazine": {"magazine": f"{NS}:{mid}"}, "minecraft:item_model": f"{NS}:{mid}"}})
+        shape = list(MAGAZINE_SHAPES[m["kind"]])
+        if m["kind"] in ("stick", "pistol") and m["capacity"] > 25:
+            shape = ["I"] + shape
+        bench(f"magazine_{mid}", shape, raw_key(shape, {"F": part_ingredient("spring")}), {"id": "flansmod:magazine", "components": {
+            "flansmod:magazine": {"magazine": f"{NS}:{mid}"}, "minecraft:item_model": f"{NS}:{mid}"}}, extend=True)
 
     for i, (aid, a) in enumerate(AMMO.items()):
         fields = {k: v for k, v in a.items() if k not in ("shape", "colour", "name", "caliber")}
@@ -678,13 +835,18 @@ def main():
         components = {"flansmod:ammo_type": f"{NS}:{aid}", "minecraft:item_model": f"{NS}:{aid}"}
         if a.get("max_stack", 64) != 64:
             components["minecraft:max_stack_size"] = a["max_stack"]
-        shaped(f"ammo_{aid}", "ammo", MARKERS[i % len(MARKERS)], {"id": "flansmod:ammo", "count": count, "components": components})
+        variant = AMMO_VARIANT.get(aid, {})
+        shape = ["".join(variant.get(ch, ch) for ch in row) for row in AMMO_SHAPES[a["shape"]]]
+        if "extra" in variant:
+            shape = [shape[0] + variant["extra"]] + shape[1:]
+        bench(f"ammo_{aid}", shape, raw_key(shape), {"id": "flansmod:ammo", "count": count, "components": components}, extend=True)
 
     for i, (aid, a) in enumerate(ATTACHMENTS.items()):
         write(DATA / "flansmod" / "attachments" / f"{aid}.json", {"name": a["name"], "slot": a["slot"], "icon": f"{NS}:{aid}", **a["stats"]})
         item_model(aid, "attachment")
         icon(ASSETS / "textures" / "item" / "attachment" / f"{aid}.png", attachment_icon(aid))
-        shaped(f"attachment_{aid}", "attachment", MARKERS[i % len(MARKERS)], {"id": "flansmod:attachment", "components": {
+        shape = ATTACHMENT_RECIPES[aid]
+        bench(f"attachment_{aid}", shape, raw_key(shape, {"L": part_ingredient("lens"), "X": part_ingredient("circuit") if "scope" in aid or aid in ("red_dot", "holographic") else part_ingredient("polymer")}), {"id": "flansmod:attachment", "components": {
             "flansmod:attachment": f"{NS}:{aid}", "minecraft:item_model": f"{NS}:{aid}"}})
 
     for i, (gid, gr) in enumerate(GRENADES.items()):
@@ -693,7 +855,8 @@ def main():
             definition["icon"] = f"{NS}:{gid}"
             item_model(gid, "grenade")
             icon(ASSETS / "textures" / "item" / "grenade" / f"{gid}.png", grenade_icon(gid))
-            shaped(f"grenade_{gid}", "grenade", MARKERS[i % len(MARKERS)], {"id": "flansmod:grenade", "count": 2, "components": {
+            shape = GRENADE_RECIPES[gid]
+            bench(f"grenade_{gid}", shape, raw_key(shape), {"id": "flansmod:grenade", "count": 2, "components": {
                 "flansmod:grenade": f"{NS}:{gid}", "minecraft:item_model": f"{NS}:{gid}"}})
         else:
             # Flying launcher projectiles render with their ammo item's look.
@@ -707,7 +870,7 @@ def main():
             "Gun reloads" if "reload" in event else "Gun clicks"
     write(ASSETS / "lang" / "en_us.json", lang)
     print(f"Generated {len(GUNS)} guns, {len(MAGAZINES)} magazines, {len(AMMO)} ammo types, {len(ATTACHMENTS)} attachments, "
-          f"{len(GRENADES)} grenades/projectiles, {len(_signatures)} recipes in {ROOT}")
+          f"{len(GRENADES)} grenades/projectiles, {len(PARTS)} parts, {len(_signatures)} bench recipes in {ROOT}")
 
 
 if __name__ == "__main__":

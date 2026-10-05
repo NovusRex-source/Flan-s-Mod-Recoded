@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "flansmod:block/weapons_bench_top",
+    "side": "flansmod:block/weapons_bench_side",
+    "bottom": "flansmod:block/weapons_bench_bottom"
+  }
+}

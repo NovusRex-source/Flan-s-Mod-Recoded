@@ -1,14 +1,25 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "IXI",
-    " S "
+    "ILI",
+    " X "
   ],
   "key": {
     "I": "minecraft:iron_ingot",
-    "S": "minecraft:glass_pane",
-    "X": "minecraft:copper_ingot"
+    "L": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:lens"
+      }
+    },
+    "X": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:circuit"
+      }
+    }
   },
   "result": {
     "id": "flansmod:attachment",

@@ -1,0 +1,24 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "XXXX",
+    " XXX"
+  ],
+  "key": {
+    "X": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:polymer"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansbasic:polymer_stock",
+      "minecraft:item_model": "flansbasic:polymer_stock"
+    }
+  }
+}

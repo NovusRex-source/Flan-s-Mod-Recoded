@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NNN",
+    "IIR",
+    "I  "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansbasic:revolver_frame",
+      "minecraft:item_model": "flansbasic:revolver_frame"
+    }
+  }
+}

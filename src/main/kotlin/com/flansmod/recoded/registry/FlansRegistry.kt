@@ -4,6 +4,19 @@ import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.gun.AmmoTypes
 import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Grenades
+import com.flansmod.recoded.gun.Parts
+import com.flansmod.recoded.item.PartItem
+import com.flansmod.recoded.bench.WeaponAssemblyRecipe
+import com.flansmod.recoded.bench.WeaponsBenchBlock
+import com.flansmod.recoded.bench.WeaponsBenchMenu
+import net.minecraft.world.flag.FeatureFlags
+import net.minecraft.world.inventory.MenuType
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.crafting.RecipeSerializer
+import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.level.block.SoundType
+import net.minecraft.world.level.block.state.BlockBehaviour
+import net.minecraft.world.level.material.MapColor
 import com.flansmod.recoded.gun.MagazineContents
 import com.flansmod.recoded.gun.Magazines
 import com.flansmod.recoded.item.MagazineItem
@@ -56,6 +69,11 @@ object FlansComponents {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     }
 
+    /** Which [com.flansmod.recoded.gun.PartDefinition] a part stack represents. */
+    val PART: DataComponentType<Identifier> = register("part") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
     /** Magazine contents: on a magazine item, or the magazine inserted in a gun. */
     val MAGAZINE: DataComponentType<MagazineContents> = register("magazine") {
         persistent(MagazineContents.CODEC).networkSynchronized(MagazineContents.STREAM_CODEC)
@@ -83,6 +101,16 @@ object FlansItems {
         AmmoItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("ammo")))),
     )
 
+    val PART: PartItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("part"),
+        PartItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("part")))),
+    )
+
+    val WEAPONS_BENCH: BlockItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("weapons_bench"),
+        BlockItem(FlansBlocks.WEAPONS_BENCH, Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("weapons_bench"))).useBlockDescriptionPrefix()),
+    )
+
     val MAGAZINE: MagazineItem = Registry.register(
         BuiltInRegistries.ITEM, FlansMod.id("magazine"),
         MagazineItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("magazine"))).stacksTo(1)),
@@ -101,6 +129,8 @@ object FlansItems {
                 .icon { ItemStack(AMMO) } // a bare gun has no model; the ammo item falls back to a vanilla one
                 .displayItems { _, output ->
                     fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filterNot(coveredByPackTab).sorted()
+                    output.accept(WEAPONS_BENCH)
+                    ids(Parts.all).forEach { output.accept(PartItem.stackFor(it)) }
                     ids(Guns.all).forEach { output.accept(GunItem.stackFor(it)) }
                     ids(Magazines.all).forEach { output.accept(MagazineItem.stackFor(it, full = true)) }
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
@@ -113,6 +143,39 @@ object FlansItems {
 
     /** Set on the client: ids whose content pack has its own creative tab are left out of the generic tab. */
     var coveredByPackTab: (Identifier) -> Boolean = { false }
+
+    fun init() = Unit
+}
+
+object FlansBlocks {
+    private val BENCH_KEY = ResourceKey.create(Registries.BLOCK, FlansMod.id("weapons_bench"))
+
+    val WEAPONS_BENCH: WeaponsBenchBlock = Registry.register(
+        BuiltInRegistries.BLOCK, BENCH_KEY,
+        WeaponsBenchBlock(BlockBehaviour.Properties.of().setId(BENCH_KEY).mapColor(MapColor.METAL).strength(2.5f).sound(SoundType.METAL)),
+    )
+
+    fun init() = Unit
+}
+
+object FlansMenus {
+    val WEAPONS_BENCH: MenuType<WeaponsBenchMenu> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("weapons_bench"), MenuType({ id, inventory -> WeaponsBenchMenu(id, inventory) }, FeatureFlags.VANILLA_SET),
+    )
+
+    fun init() = Unit
+}
+
+object FlansRecipes {
+    val WEAPON_ASSEMBLY: RecipeType<WeaponAssemblyRecipe> = Registry.register(
+        BuiltInRegistries.RECIPE_TYPE, FlansMod.id("weapon_assembly"),
+        object : RecipeType<WeaponAssemblyRecipe> { override fun toString() = "flansmod:weapon_assembly" },
+    )
+
+    val WEAPON_ASSEMBLY_SERIALIZER: RecipeSerializer<WeaponAssemblyRecipe> = Registry.register(
+        BuiltInRegistries.RECIPE_SERIALIZER, FlansMod.id("weapon_assembly"),
+        RecipeSerializer(WeaponAssemblyRecipe.MAP_CODEC, WeaponAssemblyRecipe.STREAM_CODEC),
+    )
 
     fun init() = Unit
 }

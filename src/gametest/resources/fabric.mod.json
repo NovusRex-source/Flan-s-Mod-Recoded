@@ -7,7 +7,8 @@
   "entrypoints": {
     "fabric-gametest": [
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunGameTests" },
-      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GrenadeGameTests" }
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GrenadeGameTests" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BenchGameTests" }
     ],
     "fabric-client-gametest": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" }]
   },

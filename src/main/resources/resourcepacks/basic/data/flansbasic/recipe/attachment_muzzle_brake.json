@@ -1,14 +1,12 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "IXI",
-    " S "
+    "INI",
+    "N N"
   ],
   "key": {
     "I": "minecraft:iron_ingot",
-    "S": "minecraft:glass_pane",
-    "X": "minecraft:gold_nugget"
+    "N": "minecraft:iron_nugget"
   },
   "result": {
     "id": "flansmod:attachment",

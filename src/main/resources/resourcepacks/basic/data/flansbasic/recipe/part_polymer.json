@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "KSK",
+    "KSK"
+  ],
+  "key": {
+    "K": "minecraft:black_dye",
+    "S": "minecraft:slime_ball"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 4,
+    "components": {
+      "flansmod:part": "flansbasic:polymer",
+      "minecraft:item_model": "flansbasic:polymer"
+    }
+  }
+}

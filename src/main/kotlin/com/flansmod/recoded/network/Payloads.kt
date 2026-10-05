@@ -7,6 +7,7 @@ import com.flansmod.recoded.gun.Content
 import com.flansmod.recoded.gun.GrenadeDefinition
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.gun.MagazineDefinition
+import com.flansmod.recoded.gun.PartDefinition
 import com.flansmod.recoded.gun.IdentifierSerializer
 import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
@@ -68,6 +69,7 @@ data class ContentSyncPayload(
     val ammo: Map<@Serializable(IdentifierSerializer::class) Identifier, AmmoDefinition>,
     val grenades: Map<@Serializable(IdentifierSerializer::class) Identifier, GrenadeDefinition>,
     val magazines: Map<@Serializable(IdentifierSerializer::class) Identifier, MagazineDefinition>,
+    val parts: Map<@Serializable(IdentifierSerializer::class) Identifier, PartDefinition>,
 ) : CustomPacketPayload {
     override fun type() = TYPE
 

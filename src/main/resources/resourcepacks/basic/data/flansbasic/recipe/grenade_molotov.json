@@ -1,16 +1,15 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "NXN",
-    "IGI",
-    "NIN"
+    " E ",
+    " Z ",
+    "PUP"
   ],
   "key": {
-    "G": "minecraft:gunpowder",
-    "I": "minecraft:iron_ingot",
-    "N": "minecraft:iron_nugget",
-    "X": "minecraft:lapis_lazuli"
+    "E": "minecraft:string",
+    "P": "minecraft:glass_pane",
+    "U": "minecraft:gunpowder",
+    "Z": "minecraft:blaze_powder"
   },
   "result": {
     "id": "flansmod:grenade",

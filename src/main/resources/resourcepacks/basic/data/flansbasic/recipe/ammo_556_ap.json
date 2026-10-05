@@ -1,14 +1,12 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "type": "flansmod:weapon_assembly",
   "pattern": [
-    "NXN",
-    " G "
+    "IUUC"
   ],
   "key": {
-    "G": "minecraft:gunpowder",
-    "N": "minecraft:iron_nugget",
-    "X": "minecraft:coal"
+    "C": "minecraft:copper_ingot",
+    "I": "minecraft:iron_ingot",
+    "U": "minecraft:gunpowder"
   },
   "result": {
     "id": "flansmod:ammo",

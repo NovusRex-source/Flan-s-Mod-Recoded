@@ -11,6 +11,9 @@ import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Grenades
 import com.flansmod.recoded.gun.Magazines
 import com.flansmod.recoded.item.loadedMagazine
+import com.flansmod.recoded.item.PartItem
+import com.flansmod.recoded.bench.WeaponsBenchMenu
+import com.flansmod.recoded.client.bench.WeaponsBenchScreen
 import net.fabricmc.fabric.api.client.creativetab.v1.FabricCreativeModeInventoryScreen
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
 import net.minecraft.core.registries.BuiltInRegistries
@@ -127,7 +130,7 @@ class GunClientGameTest : FabricClientGameTest {
             context.input.pressKey { it.keyInventory }
             context.waitForScreen(CreativeModeInventoryScreen::class.java)
             val expected = context.client {
-                listOf(Guns.all, Magazines.all, AmmoTypes.all, Attachments.all).sumOf { m -> m.keys.count { it.namespace == "flansbasic" } } +
+                listOf(Guns.all, Magazines.all, AmmoTypes.all, Attachments.all, com.flansmod.recoded.gun.Parts.all).sumOf { m -> m.keys.count { it.namespace == "flansbasic" } } +
                     Grenades.all.count { (id, g) -> id.namespace == "flansbasic" && g.throwable }
             }
             val tabItems = context.client { mc ->
@@ -193,6 +196,29 @@ class GunClientGameTest : FabricClientGameTest {
             check(glowing > 0) { "thermal scope should outline mobs" }
             context.takeScreenshot("flansmod-scope-thermal")
             context.input.releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT)
+
+            // Weapons Bench: right click opens the 6x4 grid; AK-47 parts show the AK-47 as result.
+            server.runCommand("time set noon")
+            server.runCommand("item replace entity @a weapon.mainhand with minecraft:air")
+            server.runCommand("execute at @a run setblock ^ ^ ^2 flansmod:weapons_bench")
+            context.waitTicks(5)
+            val benchPos = server.compute { s -> s.playerList.players.first().let { p -> net.minecraft.core.BlockPos.containing(p.position().add(p.lookAngle.multiply(1.0, 0.0, 1.0).normalize().scale(2.0))) } }
+            context.input.lookAt(benchPos)
+            context.waitTicks(2)
+            context.input.pressMouse(InputConstants.MOUSE_BUTTON_RIGHT)
+            context.waitForScreen(WeaponsBenchScreen::class.java)
+            server.runOnServer<RuntimeException> { s ->
+                val menu = s.playerList.players.first().containerMenu as WeaponsBenchMenu
+                // Grid index = column + row * 6: stock, receiver, gas system, barrel in row 0; grip, trigger below.
+                val layout = mapOf(0 to "wood_stock", 1 to "rifle_receiver", 2 to "gas_system", 3 to "barrel", 7 to "wood_grip", 8 to "trigger_group")
+                layout.forEach { (slot, part) -> menu.grid.setItem(slot, PartItem.stackFor(Identifier.fromNamespaceAndPath("flansbasic", part))) }
+                menu.slotsChanged(menu.grid)
+            }
+            context.waitTicks(5)
+            val shown = context.client { (it.gui.screen() as WeaponsBenchScreen).menu.slots[0].item.gunId }
+            check(shown == Identifier.fromNamespaceAndPath("flansbasic", "ak47")) { "bench should offer the AK-47, shows $shown" }
+            context.takeScreenshot("flansmod-weapons-bench")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
         }
     }
 
