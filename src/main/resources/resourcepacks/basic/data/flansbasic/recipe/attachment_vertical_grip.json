@@ -17,8 +17,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:vertical_grip",
-      "minecraft:item_model": "flansbasic:vertical_grip"
+      "flansmod:attachment": "flansbasic:vertical_grip"
     }
   }
 }

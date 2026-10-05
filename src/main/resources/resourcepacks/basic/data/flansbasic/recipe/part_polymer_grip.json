@@ -17,8 +17,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:polymer_grip",
-      "minecraft:item_model": "flansbasic:polymer_grip"
+      "flansmod:part": "flansbasic:polymer_grip"
     }
   }
 }

@@ -11,8 +11,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:shotgun_barrel",
-      "minecraft:item_model": "flansbasic:shotgun_barrel"
+      "flansmod:part": "flansbasic:shotgun_barrel"
     }
   }
 }

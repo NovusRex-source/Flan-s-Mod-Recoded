@@ -13,8 +13,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:sniper_receiver",
-      "minecraft:item_model": "flansbasic:sniper_receiver"
+      "flansmod:part": "flansbasic:sniper_receiver"
     }
   }
 }

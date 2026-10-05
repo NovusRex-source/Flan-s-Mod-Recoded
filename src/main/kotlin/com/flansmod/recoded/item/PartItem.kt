@@ -19,7 +19,6 @@ class PartItem(properties: Properties) : Item(properties) {
     companion object {
         fun stackFor(id: Identifier, count: Int = 1): ItemStack = ItemStack(FlansItems.PART, count).apply {
             set(FlansComponents.PART, id)
-            Parts[id]?.icon?.let { set(DataComponents.ITEM_MODEL, it) }
         }
     }
 }

@@ -21,8 +21,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:glock_33"
-      },
-      "minecraft:item_model": "flansbasic:glock_33"
+      }
     }
   }
 }

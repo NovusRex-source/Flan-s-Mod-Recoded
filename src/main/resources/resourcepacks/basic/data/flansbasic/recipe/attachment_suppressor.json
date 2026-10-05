@@ -10,8 +10,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:suppressor",
-      "minecraft:item_model": "flansbasic:suppressor"
+      "flansmod:attachment": "flansbasic:suppressor"
     }
   }
 }

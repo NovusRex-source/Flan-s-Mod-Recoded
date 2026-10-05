@@ -16,8 +16,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:angled_grip",
-      "minecraft:item_model": "flansbasic:angled_grip"
+      "flansmod:attachment": "flansbasic:angled_grip"
     }
   }
 }

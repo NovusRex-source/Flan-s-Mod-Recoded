@@ -13,7 +13,6 @@
     "count": 4,
     "components": {
       "flansmod:ammo_type": "flansbasic:40mm_he",
-      "minecraft:item_model": "flansbasic:40mm_he",
       "minecraft:max_stack_size": 16
     }
   }

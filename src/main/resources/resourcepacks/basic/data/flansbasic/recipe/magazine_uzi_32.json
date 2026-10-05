@@ -22,8 +22,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:uzi_32"
-      },
-      "minecraft:item_model": "flansbasic:uzi_32"
+      }
     }
   }
 }

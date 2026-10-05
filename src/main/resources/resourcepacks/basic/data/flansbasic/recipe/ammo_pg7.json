@@ -13,7 +13,6 @@
     "count": 4,
     "components": {
       "flansmod:ammo_type": "flansbasic:pg7",
-      "minecraft:item_model": "flansbasic:pg7",
       "minecraft:max_stack_size": 8
     }
   }

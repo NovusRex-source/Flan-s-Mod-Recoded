@@ -798,7 +798,7 @@ def main():
         icon(ASSETS / "textures" / "item" / "part" / f"{pid}.png", part_icon(part["icon"]))
         extra = {k: part_ingredient(v) for k, v in part.get("uses", {}).items()}
         bench(f"part_{pid}", part["pattern"], raw_key(part["pattern"], extra), {"id": "flansmod:part", "count": part.get("count", 1),
-              "components": {"flansmod:part": f"{NS}:{pid}", "minecraft:item_model": f"{NS}:{pid}"}})
+              "components": {"flansmod:part": f"{NS}:{pid}"}})
 
     for gid, g in GUNS.items():
         geo = gun_geometry(gid, g)
@@ -822,7 +822,7 @@ def main():
         if m["kind"] in ("stick", "pistol") and m["capacity"] > 25:
             shape = ["I"] + shape
         bench(f"magazine_{mid}", shape, raw_key(shape, {"F": part_ingredient("spring")}), {"id": "flansmod:magazine", "components": {
-            "flansmod:magazine": {"magazine": f"{NS}:{mid}"}, "minecraft:item_model": f"{NS}:{mid}"}}, extend=True)
+            "flansmod:magazine": {"magazine": f"{NS}:{mid}"}}}, extend=True)
 
     for i, (aid, a) in enumerate(AMMO.items()):
         fields = {k: v for k, v in a.items() if k not in ("shape", "colour", "name", "caliber")}
@@ -832,7 +832,7 @@ def main():
         item_model(aid, "ammo")
         icon(ASSETS / "textures" / "item" / "ammo" / f"{aid}.png", ammo_icon(a))
         count = 4 if a["shape"] in ("40mm", "rocket") else 8 if a["shape"] in ("shell", "big") else 16
-        components = {"flansmod:ammo_type": f"{NS}:{aid}", "minecraft:item_model": f"{NS}:{aid}"}
+        components = {"flansmod:ammo_type": f"{NS}:{aid}"}
         if a.get("max_stack", 64) != 64:
             components["minecraft:max_stack_size"] = a["max_stack"]
         variant = AMMO_VARIANT.get(aid, {})
@@ -847,7 +847,7 @@ def main():
         icon(ASSETS / "textures" / "item" / "attachment" / f"{aid}.png", attachment_icon(aid))
         shape = ATTACHMENT_RECIPES[aid]
         bench(f"attachment_{aid}", shape, raw_key(shape, {"L": part_ingredient("lens"), "X": part_ingredient("circuit") if "scope" in aid or aid in ("red_dot", "holographic") else part_ingredient("polymer")}), {"id": "flansmod:attachment", "components": {
-            "flansmod:attachment": f"{NS}:{aid}", "minecraft:item_model": f"{NS}:{aid}"}})
+            "flansmod:attachment": f"{NS}:{aid}"}})
 
     for i, (gid, gr) in enumerate(GRENADES.items()):
         definition = dict(gr)
@@ -857,7 +857,7 @@ def main():
             icon(ASSETS / "textures" / "item" / "grenade" / f"{gid}.png", grenade_icon(gid))
             shape = GRENADE_RECIPES[gid]
             bench(f"grenade_{gid}", shape, raw_key(shape), {"id": "flansmod:grenade", "count": 2, "components": {
-                "flansmod:grenade": f"{NS}:{gid}", "minecraft:item_model": f"{NS}:{gid}"}})
+                "flansmod:grenade": f"{NS}:{gid}"}})
         else:
             # Flying launcher projectiles render with their ammo item's look.
             ammo_id = next(a for a, ad in AMMO.items() if ad.get("projectile") == gid)

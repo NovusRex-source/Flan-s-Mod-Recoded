@@ -16,6 +16,7 @@ repositories {
     }
     maven("https://maven.shedaniel.me/") { name = "Shedaniel" }       // Cloth Config
     maven("https://maven.terraformersmc.com/releases/") { name = "Terraformers" } // Mod Menu
+    maven("https://maven.blamejared.com/") { name = "BlameJared" } // JEI
 }
 
 loom {
@@ -51,6 +52,12 @@ dependencies {
         exclude(group = "net.fabricmc.fabric-api")
     }
     implementation("com.terraformersmc:modmenu:${prop("modmenu_version")}")
+
+    // JEI is optional: compiled against its API, present at runtime only in dev.
+    val jei = prop("jei_version")
+    compileOnly("mezz.jei:jei-26.3-common-api:$jei")
+    compileOnly("mezz.jei:jei-26.3-fabric-api:$jei")
+    localRuntime("mezz.jei:jei-26.3-fabric:$jei")
 }
 
 tasks.processResources {

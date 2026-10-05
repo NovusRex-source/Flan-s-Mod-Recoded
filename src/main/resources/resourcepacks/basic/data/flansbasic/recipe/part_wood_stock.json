@@ -11,8 +11,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:wood_stock",
-      "minecraft:item_model": "flansbasic:wood_stock"
+      "flansmod:part": "flansbasic:wood_stock"
     }
   }
 }

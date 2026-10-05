@@ -13,6 +13,7 @@ import com.flansmod.recoded.registry.FlansMenus
 import com.flansmod.recoded.registry.FlansRecipes
 import com.geckolib.animatable.GeoItem
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType
 import net.fabricmc.loader.api.FabricLoader
@@ -34,6 +35,8 @@ object FlansMod : ModInitializer {
         FlansBlocks.init()
         FlansMenus.init()
         FlansRecipes.init()
+        // Since 1.21.2 vanilla does not send recipes to clients; recipe viewers need bench recipes there.
+        RecipeSynchronization.synchronizeRecipeSerializer(FlansRecipes.WEAPON_ASSEMBLY_SERIALIZER)
         FlansItems.init()
         FlansEntities.init()
         GeoItem.registerSyncedAnimatable(FlansItems.GUN)

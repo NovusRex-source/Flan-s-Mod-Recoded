@@ -24,8 +24,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:holographic",
-      "minecraft:item_model": "flansbasic:holographic"
+      "flansmod:attachment": "flansbasic:holographic"
     }
   }
 }

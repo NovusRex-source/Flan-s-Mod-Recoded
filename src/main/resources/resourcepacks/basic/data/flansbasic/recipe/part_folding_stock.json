@@ -11,8 +11,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:folding_stock",
-      "minecraft:item_model": "flansbasic:folding_stock"
+      "flansmod:part": "flansbasic:folding_stock"
     }
   }
 }

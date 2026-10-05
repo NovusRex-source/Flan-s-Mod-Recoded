@@ -19,8 +19,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:m79_shell"
-      },
-      "minecraft:item_model": "flansbasic:m79_shell"
+      }
     }
   }
 }

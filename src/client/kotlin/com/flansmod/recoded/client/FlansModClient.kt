@@ -4,6 +4,7 @@ import com.flansmod.recoded.client.config.FlansConfig
 import com.flansmod.recoded.client.hud.GunHud
 import com.flansmod.recoded.client.input.GunInput
 import com.flansmod.recoded.client.render.GunRenderer
+import com.flansmod.recoded.client.render.DefinitionIconModel
 import com.flansmod.recoded.gun.Content
 import com.flansmod.recoded.item.GunItem
 import com.flansmod.recoded.network.ContentSyncPayload
@@ -23,6 +24,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 object FlansModClient : ClientModInitializer {
     override fun onInitializeClient() {
         FlansConfig.register()
+        DefinitionIconModel.register()
         GunItem.rendererFactory = ::GunRenderer
         ClientPlayNetworking.registerGlobalReceiver(ContentSyncPayload.TYPE) { payload, _ -> Content.apply(payload) }
         ClientPlayNetworking.registerGlobalReceiver(HitPayload.TYPE) { payload, _ -> GunHud.onHit(payload) }

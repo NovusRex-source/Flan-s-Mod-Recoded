@@ -13,8 +13,7 @@
     "id": "flansmod:ammo",
     "count": 8,
     "components": {
-      "flansmod:ammo_type": "flansbasic:12g_dragon",
-      "minecraft:item_model": "flansbasic:12g_dragon"
+      "flansmod:ammo_type": "flansbasic:12g_dragon"
     }
   }
 }

@@ -21,8 +21,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:aa12_8"
-      },
-      "minecraft:item_model": "flansbasic:aa12_8"
+      }
     }
   }
 }

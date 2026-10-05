@@ -21,8 +21,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:thompson_drum_50"
-      },
-      "minecraft:item_model": "flansbasic:thompson_drum_50"
+      }
     }
   }
 }

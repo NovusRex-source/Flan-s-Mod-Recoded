@@ -14,6 +14,7 @@ import com.flansmod.recoded.item.loadedMagazine
 import com.flansmod.recoded.item.PartItem
 import com.flansmod.recoded.bench.WeaponsBenchMenu
 import com.flansmod.recoded.client.bench.WeaponsBenchScreen
+import com.flansmod.recoded.client.compat.FlansJeiPlugin
 import net.fabricmc.fabric.api.client.creativetab.v1.FabricCreativeModeInventoryScreen
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
 import net.minecraft.core.registries.BuiltInRegistries
@@ -162,7 +163,7 @@ class GunClientGameTest : FabricClientGameTest {
             context.takeScreenshot("flansmod-basic-shotgun")
 
             // Throw a smoke grenade with right click.
-            server.runCommand("item replace entity @a weapon.mainhand with flansmod:grenade[flansmod:grenade=\"flansbasic:smoke\",minecraft:item_model=\"flansbasic:smoke\"] 2")
+            server.runCommand("item replace entity @a weapon.mainhand with flansmod:grenade[flansmod:grenade=\"flansbasic:smoke\"] 2")
             context.waitTicks(5)
             context.input.pressMouse(InputConstants.MOUSE_BUTTON_RIGHT)
             context.waitTicks(10)
@@ -218,6 +219,16 @@ class GunClientGameTest : FabricClientGameTest {
             val shown = context.client { (it.gui.screen() as WeaponsBenchScreen).menu.slots[0].item.gunId }
             check(shown == Identifier.fromNamespaceAndPath("flansbasic", "ak47")) { "bench should offer the AK-47, shows $shown" }
             context.takeScreenshot("flansmod-weapons-bench")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+
+            // JEI (dev runtime): bench recipes arrive through Fabric's recipe sync and show on a 6x4 grid.
+            context.waitTicks(5)
+            val jeiRecipes = context.client { FlansJeiPlugin.runtime?.recipeManager?.createRecipeLookup(FlansJeiPlugin.TYPE)?.get()?.count() ?: -1 }
+            val serverRecipes = server.compute { s -> s.recipeManager.recipes.count { it.value() is com.flansmod.recoded.bench.WeaponAssemblyRecipe } }
+            check(jeiRecipes.toInt() == serverRecipes) { "JEI should know all $serverRecipes bench recipes, knows $jeiRecipes" }
+            context.runOnClient<RuntimeException> { FlansJeiPlugin.runtime!!.recipesGui.showTypes(listOf(FlansJeiPlugin.TYPE)) }
+            context.waitTicks(5)
+            context.takeScreenshot("flansmod-jei-bench")
             context.input.pressKey(InputConstants.KEY_ESCAPE)
         }
     }

@@ -15,8 +15,7 @@
     "id": "flansmod:grenade",
     "count": 2,
     "components": {
-      "flansmod:grenade": "flansbasic:molotov",
-      "minecraft:item_model": "flansbasic:molotov"
+      "flansmod:grenade": "flansbasic:molotov"
     }
   }
 }

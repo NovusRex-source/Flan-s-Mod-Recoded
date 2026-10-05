@@ -18,8 +18,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:pg7_loader"
-      },
-      "minecraft:item_model": "flansbasic:pg7_loader"
+      }
     }
   }
 }

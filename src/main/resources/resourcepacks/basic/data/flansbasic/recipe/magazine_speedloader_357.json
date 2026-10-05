@@ -19,8 +19,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:speedloader_357"
-      },
-      "minecraft:item_model": "flansbasic:speedloader_357"
+      }
     }
   }
 }

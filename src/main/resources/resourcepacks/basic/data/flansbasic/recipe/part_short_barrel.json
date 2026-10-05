@@ -10,8 +10,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:short_barrel",
-      "minecraft:item_model": "flansbasic:short_barrel"
+      "flansmod:part": "flansbasic:short_barrel"
     }
   }
 }

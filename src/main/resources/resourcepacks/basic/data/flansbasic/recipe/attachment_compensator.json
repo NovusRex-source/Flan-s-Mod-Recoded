@@ -10,8 +10,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:compensator",
-      "minecraft:item_model": "flansbasic:compensator"
+      "flansmod:attachment": "flansbasic:compensator"
     }
   }
 }

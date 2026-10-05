@@ -12,8 +12,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:smg_receiver",
-      "minecraft:item_model": "flansbasic:smg_receiver"
+      "flansmod:part": "flansbasic:smg_receiver"
     }
   }
 }

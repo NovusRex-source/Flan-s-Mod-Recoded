@@ -14,8 +14,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:revolver_frame",
-      "minecraft:item_model": "flansbasic:revolver_frame"
+      "flansmod:part": "flansbasic:revolver_frame"
     }
   }
 }

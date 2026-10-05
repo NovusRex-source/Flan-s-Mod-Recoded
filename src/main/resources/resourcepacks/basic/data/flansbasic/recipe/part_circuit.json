@@ -14,8 +14,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:circuit",
-      "minecraft:item_model": "flansbasic:circuit"
+      "flansmod:part": "flansbasic:circuit"
     }
   }
 }

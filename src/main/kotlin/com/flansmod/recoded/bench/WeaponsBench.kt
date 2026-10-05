@@ -106,10 +106,12 @@ class WeaponsBenchMenu(id: Int, inventory: Inventory, private val access: Contai
 
     override fun stillValid(player: Player) = stillValid(access, player, FlansBlocks.WEAPONS_BENCH)
 
-    private companion object {
+    companion object {
         const val RESULT = 0
-        val GRID = 1..24
+        const val GRID_START = 1
+        val GRID = GRID_START..24
         const val INVENTORY_START = 25
-        const val INVENTORY_END = 61
+        const val INVENTORY_SIZE = 36
+        const val INVENTORY_END = INVENTORY_START + INVENTORY_SIZE
     }
 }

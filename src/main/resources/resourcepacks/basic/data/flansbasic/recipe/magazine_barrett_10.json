@@ -21,8 +21,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:barrett_10"
-      },
-      "minecraft:item_model": "flansbasic:barrett_10"
+      }
     }
   }
 }

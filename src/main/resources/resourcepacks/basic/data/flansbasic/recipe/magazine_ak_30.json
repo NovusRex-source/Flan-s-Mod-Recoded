@@ -21,8 +21,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:ak_30"
-      },
-      "minecraft:item_model": "flansbasic:ak_30"
+      }
     }
   }
 }

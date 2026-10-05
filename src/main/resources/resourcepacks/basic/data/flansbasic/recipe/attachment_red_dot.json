@@ -24,8 +24,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:red_dot",
-      "minecraft:item_model": "flansbasic:red_dot"
+      "flansmod:attachment": "flansbasic:red_dot"
     }
   }
 }

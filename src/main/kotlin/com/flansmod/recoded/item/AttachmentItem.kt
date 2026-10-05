@@ -29,7 +29,6 @@ class AttachmentItem(properties: Properties) : Item(properties) {
     companion object {
         fun stackFor(id: Identifier): ItemStack = ItemStack(FlansItems.ATTACHMENT).apply {
             set(FlansComponents.ATTACHMENT, id)
-            Attachments[id]?.icon?.let { set(DataComponents.ITEM_MODEL, it) }
         }
     }
 }

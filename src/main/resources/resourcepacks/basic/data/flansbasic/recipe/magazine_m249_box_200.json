@@ -21,8 +21,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:m249_box_200"
-      },
-      "minecraft:item_model": "flansbasic:m249_box_200"
+      }
     }
   }
 }

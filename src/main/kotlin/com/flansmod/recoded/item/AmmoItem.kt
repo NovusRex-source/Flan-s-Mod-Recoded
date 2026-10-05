@@ -23,7 +23,6 @@ class AmmoItem(properties: Properties) : Item(properties) {
             AmmoTypes[id]?.let { def ->
                 // Only non-default values, so crafted stacks (recipes set the same components) stack with these.
                 if (def.maxStack != 64) set(DataComponents.MAX_STACK_SIZE, def.maxStack.coerceIn(1, 99))
-                def.icon?.let { set(DataComponents.ITEM_MODEL, it) }
             }
         }
 

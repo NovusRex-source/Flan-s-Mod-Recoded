@@ -13,8 +13,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:shotgun_receiver",
-      "minecraft:item_model": "flansbasic:shotgun_receiver"
+      "flansmod:part": "flansbasic:shotgun_receiver"
     }
   }
 }

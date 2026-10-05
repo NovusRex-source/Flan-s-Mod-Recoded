@@ -11,8 +11,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:bolt_carrier",
-      "minecraft:item_model": "flansbasic:bolt_carrier"
+      "flansmod:part": "flansbasic:bolt_carrier"
     }
   }
 }

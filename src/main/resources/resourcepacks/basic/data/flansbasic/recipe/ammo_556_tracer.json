@@ -13,8 +13,7 @@
     "id": "flansmod:ammo",
     "count": 16,
     "components": {
-      "flansmod:ammo_type": "flansbasic:556_tracer",
-      "minecraft:item_model": "flansbasic:556_tracer"
+      "flansmod:ammo_type": "flansbasic:556_tracer"
     }
   }
 }

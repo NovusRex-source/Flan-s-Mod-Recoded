@@ -12,8 +12,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:gas_system",
-      "minecraft:item_model": "flansbasic:gas_system"
+      "flansmod:part": "flansbasic:gas_system"
     }
   }
 }

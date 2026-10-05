@@ -17,8 +17,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:acog",
-      "minecraft:item_model": "flansbasic:acog"
+      "flansmod:attachment": "flansbasic:acog"
     }
   }
 }

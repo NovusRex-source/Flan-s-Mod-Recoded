@@ -20,8 +20,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:m24_5"
-      },
-      "minecraft:item_model": "flansbasic:m24_5"
+      }
     }
   }
 }

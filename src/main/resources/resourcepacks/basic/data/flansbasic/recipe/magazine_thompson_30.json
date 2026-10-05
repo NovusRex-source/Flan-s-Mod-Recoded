@@ -22,8 +22,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:thompson_30"
-      },
-      "minecraft:item_model": "flansbasic:thompson_30"
+      }
     }
   }
 }

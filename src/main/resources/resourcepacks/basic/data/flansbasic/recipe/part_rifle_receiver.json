@@ -12,8 +12,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:rifle_receiver",
-      "minecraft:item_model": "flansbasic:rifle_receiver"
+      "flansmod:part": "flansbasic:rifle_receiver"
     }
   }
 }

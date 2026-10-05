@@ -13,8 +13,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:battle_receiver",
-      "minecraft:item_model": "flansbasic:battle_receiver"
+      "flansmod:part": "flansbasic:battle_receiver"
     }
   }
 }

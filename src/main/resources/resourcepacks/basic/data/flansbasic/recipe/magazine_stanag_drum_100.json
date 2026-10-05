@@ -21,8 +21,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:stanag_drum_100"
-      },
-      "minecraft:item_model": "flansbasic:stanag_drum_100"
+      }
     }
   }
 }

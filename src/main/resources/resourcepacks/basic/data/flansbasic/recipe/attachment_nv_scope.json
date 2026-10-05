@@ -25,8 +25,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:nv_scope",
-      "minecraft:item_model": "flansbasic:nv_scope"
+      "flansmod:attachment": "flansbasic:nv_scope"
     }
   }
 }

@@ -11,8 +11,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:muzzle_brake",
-      "minecraft:item_model": "flansbasic:muzzle_brake"
+      "flansmod:attachment": "flansbasic:muzzle_brake"
     }
   }
 }

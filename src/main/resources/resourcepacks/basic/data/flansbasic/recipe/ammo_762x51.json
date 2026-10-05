@@ -13,8 +13,7 @@
     "id": "flansmod:ammo",
     "count": 16,
     "components": {
-      "flansmod:ammo_type": "flansbasic:762x51",
-      "minecraft:item_model": "flansbasic:762x51"
+      "flansmod:ammo_type": "flansbasic:762x51"
     }
   }
 }

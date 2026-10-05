@@ -25,8 +25,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:thermal_scope",
-      "minecraft:item_model": "flansbasic:thermal_scope"
+      "flansmod:attachment": "flansbasic:thermal_scope"
     }
   }
 }

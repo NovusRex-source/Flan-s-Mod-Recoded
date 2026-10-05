@@ -14,8 +14,7 @@
     "id": "flansmod:grenade",
     "count": 2,
     "components": {
-      "flansmod:grenade": "flansbasic:frag",
-      "minecraft:item_model": "flansbasic:frag"
+      "flansmod:grenade": "flansbasic:frag"
     }
   }
 }

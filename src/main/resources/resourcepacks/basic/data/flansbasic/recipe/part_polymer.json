@@ -12,8 +12,7 @@
     "id": "flansmod:part",
     "count": 4,
     "components": {
-      "flansmod:part": "flansbasic:polymer",
-      "minecraft:item_model": "flansbasic:polymer"
+      "flansmod:part": "flansbasic:polymer"
     }
   }
 }

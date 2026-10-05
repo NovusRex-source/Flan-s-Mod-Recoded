@@ -17,8 +17,7 @@
   "result": {
     "id": "flansmod:attachment",
     "components": {
-      "flansmod:attachment": "flansbasic:sniper_scope",
-      "minecraft:item_model": "flansbasic:sniper_scope"
+      "flansmod:attachment": "flansbasic:sniper_scope"
     }
   }
 }

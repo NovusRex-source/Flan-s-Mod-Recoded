@@ -15,8 +15,7 @@
     "id": "flansmod:grenade",
     "count": 2,
     "components": {
-      "flansmod:grenade": "flansbasic:smoke",
-      "minecraft:item_model": "flansbasic:smoke"
+      "flansmod:grenade": "flansbasic:smoke"
     }
   }
 }

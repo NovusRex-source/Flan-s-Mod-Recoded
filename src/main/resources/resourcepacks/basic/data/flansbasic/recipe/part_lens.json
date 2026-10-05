@@ -11,8 +11,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:lens",
-      "minecraft:item_model": "flansbasic:lens"
+      "flansmod:part": "flansbasic:lens"
     }
   }
 }

@@ -20,8 +20,7 @@
     "components": {
       "flansmod:magazine": {
         "magazine": "flansbasic:shell_holder_6"
-      },
-      "minecraft:item_model": "flansbasic:shell_holder_6"
+      }
     }
   }
 }

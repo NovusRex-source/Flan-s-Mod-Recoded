@@ -12,8 +12,7 @@
     "id": "flansmod:part",
     "count": 1,
     "components": {
-      "flansmod:part": "flansbasic:pistol_frame",
-      "minecraft:item_model": "flansbasic:pistol_frame"
+      "flansmod:part": "flansbasic:pistol_frame"
     }
   }
 }

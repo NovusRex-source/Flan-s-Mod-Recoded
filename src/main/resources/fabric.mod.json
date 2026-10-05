@@ -11,7 +11,8 @@
   "entrypoints": {
     "main": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.FlansMod" }],
     "client": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.client.FlansModClient" }],
-    "modmenu": ["com.flansmod.recoded.client.config.ModMenuIntegration"]
+    "modmenu": ["com.flansmod.recoded.client.config.ModMenuIntegration"],
+    "jei_mod_plugin": ["com.flansmod.recoded.client.compat.FlansJeiPlugin"]
   },
   "mixins": [
     "flansmod.mixins.json",
@@ -27,6 +28,7 @@
     "cloth-config": "*"
   },
   "suggests": {
-    "modmenu": "*"
+    "modmenu": "*",
+    "jei": "*"
   }
 }

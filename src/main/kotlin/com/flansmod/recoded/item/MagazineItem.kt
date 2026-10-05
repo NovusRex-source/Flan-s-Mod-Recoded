@@ -59,7 +59,6 @@ class MagazineItem(properties: Properties) : Item(properties) {
         fun stackFor(id: Identifier, full: Boolean = false, ammo: Identifier? = null): ItemStack = ItemStack(FlansItems.MAGAZINE).apply {
             val contents = if (full) MagazineContents.full(id, ammo) else MagazineContents(id, null, 0)
             set(FlansComponents.MAGAZINE, contents ?: MagazineContents(id, null, 0))
-            Magazines[id]?.icon?.let { set(DataComponents.ITEM_MODEL, it) }
         }
 
         fun stackFor(contents: MagazineContents): ItemStack = stackFor(contents.magazine).apply { set(FlansComponents.MAGAZINE, contents) }
