@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NXN",
+    "N N",
+    "NNN"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:flint"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansbasic:stanag_drum_100"
+      },
+      "minecraft:item_model": "flansbasic:stanag_drum_100"
+    }
+  }
+}

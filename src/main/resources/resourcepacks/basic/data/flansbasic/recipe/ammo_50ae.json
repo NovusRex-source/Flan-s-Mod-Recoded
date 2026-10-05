@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NXN",
+    " G "
+  ],
+  "key": {
+    "G": "minecraft:gunpowder",
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:lapis_lazuli"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 16,
+    "components": {
+      "flansmod:ammo_type": "flansbasic:50ae",
+      "minecraft:item_model": "flansbasic:50ae"
+    }
+  }
+}

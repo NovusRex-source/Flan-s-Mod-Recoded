@@ -21,6 +21,10 @@ data class GrenadeDefinition(
     val bounciness: Double = 0.4,
     @SerialName("cooldown_ticks") val cooldownTicks: Int = 20,
     @SerialName("max_stack") val maxStack: Int = 16,
+    /** False for launcher projectiles (rockets, 40mm): no hand throwing, not listed as an item. */
+    val throwable: Boolean = true,
+    /** Smoke trail while flying (rockets). */
+    val trail: Boolean = false,
     val explosion: Explosion? = null,
     val smoke: Smoke? = null,
     val flash: Flash? = null,

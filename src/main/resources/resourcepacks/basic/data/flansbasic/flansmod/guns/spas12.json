@@ -1,0 +1,74 @@
+{
+  "name": "SPAS-12",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 3,
+  "rpm": 140,
+  "fire_mode": "semi",
+  "reload_ticks": 60,
+  "velocity": 9,
+  "spread": 7.5,
+  "ads_spread": 5.5,
+  "ads_zoom": 1.15,
+  "ads_move_speed": 0.6,
+  "recoil": {
+    "pitch": 4.0,
+    "yaw": 1.2
+  },
+  "magazines": [
+    "flansbasic:spas_8"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.shotgun.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "sight"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.49,
+        0.49,
+        0.49
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.49,
+        0.49,
+        0.49
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        7.7,
+        -6
+      ]
+    }
+  },
+  "lifetime_ticks": 15
+}

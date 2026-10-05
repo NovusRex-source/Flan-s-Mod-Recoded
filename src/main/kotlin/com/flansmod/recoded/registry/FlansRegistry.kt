@@ -4,6 +4,9 @@ import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.gun.AmmoTypes
 import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Grenades
+import com.flansmod.recoded.gun.MagazineContents
+import com.flansmod.recoded.gun.Magazines
+import com.flansmod.recoded.item.MagazineItem
 import com.flansmod.recoded.item.GrenadeItem
 import com.flansmod.recoded.entity.GrenadeEntity
 import net.minecraft.world.entity.EntityType
@@ -53,9 +56,9 @@ object FlansComponents {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     }
 
-    /** Rounds currently loaded. */
-    val AMMO: DataComponentType<Int> = register("ammo") {
-        persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT)
+    /** Magazine contents: on a magazine item, or the magazine inserted in a gun. */
+    val MAGAZINE: DataComponentType<MagazineContents> = register("magazine") {
+        persistent(MagazineContents.CODEC).networkSynchronized(MagazineContents.STREAM_CODEC)
     }
 
     private fun <T : Any> register(name: String, build: DataComponentType.Builder<T>.() -> Unit): DataComponentType<T> =
@@ -80,6 +83,11 @@ object FlansItems {
         AmmoItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("ammo")))),
     )
 
+    val MAGAZINE: MagazineItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("magazine"),
+        MagazineItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("magazine"))).stacksTo(1)),
+    )
+
     val GRENADE: GrenadeItem = Registry.register(
         BuiltInRegistries.ITEM, FlansMod.id("grenade"),
         GrenadeItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("grenade"))).stacksTo(16)),
@@ -94,9 +102,10 @@ object FlansItems {
                 .displayItems { _, output ->
                     fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filterNot(coveredByPackTab).sorted()
                     ids(Guns.all).forEach { output.accept(GunItem.stackFor(it)) }
+                    ids(Magazines.all).forEach { output.accept(MagazineItem.stackFor(it, full = true)) }
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
                     ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
-                    ids(Grenades.all).forEach { output.accept(GrenadeItem.stackFor(it)) }
+                    ids(Grenades.all).filter { Grenades[it]!!.throwable }.forEach { output.accept(GrenadeItem.stackFor(it)) }
                 }
                 .build(),
         )
@@ -121,4 +130,6 @@ object FlansEntities {
 
 object FlansDamageTypes {
     val GUN: ResourceKey<DamageType> = ResourceKey.create(Registries.DAMAGE_TYPE, FlansMod.id("gun"))
+    /** Armour-piercing rounds; tagged `minecraft:bypasses_armor`. */
+    val GUN_AP: ResourceKey<DamageType> = ResourceKey.create(Registries.DAMAGE_TYPE, FlansMod.id("gun_ap"))
 }

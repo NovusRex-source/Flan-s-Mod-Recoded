@@ -1,0 +1,12 @@
+{
+  "name": "Night Vision Scope",
+  "slot": "sight",
+  "icon": "flansbasic:nv_scope",
+  "ads_zoom": 4.0,
+  "ads_move_speed_multiplier": 0.85,
+  "ads_height": 1.8,
+  "scope": {
+    "overlay": "flansbasic:textures/scope/night_vision.png",
+    "night_vision": true
+  }
+}

@@ -2,13 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "IGI",
-    " R "
+    "IXI",
+    " S "
   ],
   "key": {
-    "G": "minecraft:gunpowder",
     "I": "minecraft:iron_ingot",
-    "R": "minecraft:redstone"
+    "S": "minecraft:glass_pane",
+    "X": "minecraft:copper_ingot"
   },
   "result": {
     "id": "flansmod:attachment",

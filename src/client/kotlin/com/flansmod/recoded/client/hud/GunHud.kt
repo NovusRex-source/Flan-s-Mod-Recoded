@@ -3,7 +3,9 @@ package com.flansmod.recoded.client.hud
 import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.client.config.FlansConfig
 import com.flansmod.recoded.client.input.GunInput
-import com.flansmod.recoded.item.ammo
+import com.flansmod.recoded.item.AmmoItem
+import com.flansmod.recoded.item.loadedMagazine
+import net.minecraft.network.chat.Component
 import com.flansmod.recoded.item.definition
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
@@ -53,15 +55,22 @@ object GunHud {
         HudElementRegistry.attachElementAfter(VanillaHudElements.HOTBAR, FlansMod.id("ammo")) { graphics, _ ->
             val mc = Minecraft.getInstance()
             val stack = mc.player?.mainHandItem ?: return@attachElementAfter
-            val gun = stack.definition ?: return@attachElementAfter
+            stack.definition ?: return@attachElementAfter
             if (!FlansConfig.get.showAmmoHud || mc.gui.hud.isHidden) return@attachElementAfter
 
-            val text = "${stack.ammo} / ${gun.magazine}"
-            val color = if (stack.ammo == 0) 0xFFFF5555.toInt() else 0xFFFFFFFF.toInt()
             val x = graphics.guiWidth() / 2 + 91 + 8
             val y = graphics.guiHeight() - 15
-            graphics.text(mc.font, text, x, y, color)
+            val mag = stack.loadedMagazine
+            if (mag == null) {
+                graphics.text(mc.font, Component.translatable("hud.flansmod.no_magazine").string, x, y, 0xFFFF5555.toInt())
+                return@attachElementAfter
+            }
+            val color = if (mag.isEmpty) 0xFFFF5555.toInt() else 0xFFFFFFFF.toInt()
+            graphics.text(mc.font, "${mag.rounds} / ${mag.capacity}", x, y, color)
+            mag.ammo?.let { graphics.text(mc.font, AmmoItem.displayName(it).string, x, y - 10, 0xFFAAAAAA.toInt()) }
         }
+
+        ScopeOverlay.init()
 
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR) { vanilla ->
             HudElement { graphics, delta ->

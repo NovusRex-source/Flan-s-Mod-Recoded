@@ -1,0 +1,10 @@
+{
+  "name": "5.56 NATO Tracer",
+  "caliber": "556",
+  "icon": "flansbasic:556_tracer",
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

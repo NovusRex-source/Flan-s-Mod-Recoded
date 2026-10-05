@@ -5,7 +5,7 @@ import com.flansmod.recoded.client.config.FlansConfig
 import com.flansmod.recoded.gun.FireMode
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.item.ammo
-import com.flansmod.recoded.item.definition
+import com.flansmod.recoded.item.shotDefinition
 import com.flansmod.recoded.network.AimPayload
 import com.flansmod.recoded.network.AttachPayload
 import com.flansmod.recoded.network.ReloadPayload
@@ -63,7 +63,7 @@ object GunInput {
 
     /** Fires every tick while the attack key is held; returning true cancels mining/attacking. */
     private fun onAttack(client: Minecraft, player: LocalPlayer, clicks: Int): Boolean {
-        val gun = player.mainHandItem.definition ?: return false
+        val gun = player.mainHandItem.shotDefinition ?: return false
         if (client.gui.screen() != null || player.isSpectator) return true
         val wantsShot = when (gun.fireMode) {
             FireMode.AUTO -> true
@@ -95,7 +95,7 @@ object GunInput {
 
     private fun tick(client: Minecraft) {
         val player = client.player ?: return
-        val gun = player.mainHandItem.definition
+        val gun = player.mainHandItem.shotDefinition
         if (cooldown > 0) cooldown--
         ticksSinceShot++
 
@@ -104,7 +104,7 @@ object GunInput {
         if (gun == null) burstLeft = 0
 
         updateAim(client, gun)
-        while (RELOAD.consumeClick()) if (gun != null) ClientPlayNetworking.send(ReloadPayload)
+        while (RELOAD.consumeClick()) if (gun != null) ClientPlayNetworking.send(ReloadPayload(unload = player.isShiftKeyDown))
         while (ATTACH.consumeClick()) if (gun != null) ClientPlayNetworking.send(AttachPayload(remove = player.isShiftKeyDown))
         applyRecoil(player, gun)
     }

@@ -27,6 +27,8 @@ data class AttachmentDefinition(
     /** Replaces the gun's shoot sound (suppressors). */
     @Serializable(IdentifierSerializer::class) @SerialName("shoot_sound") val shootSound: Identifier? = null,
     @SerialName("hide_tracer") val hideTracer: Boolean = false,
+    /** Optic effects while aiming through this sight (overlay, night vision, thermal). */
+    val scope: Scope? = null,
     /** How much higher (in model pixels) this sight's line of sight is; the aiming pose is lowered by it. */
     @SerialName("ads_height") val adsHeight: Float = 0f,
     /** Item model (an `assets/<ns>/items/<name>.json` id) used for the attachment item. */
@@ -55,6 +57,7 @@ fun GunDefinition.withAttachments(attachments: Collection<AttachmentDefinition>)
             adsZoom = a.adsZoom ?: gun.adsZoom,
             sounds = a.shootSound?.let { gun.sounds.copy(shoot = it) } ?: gun.sounds,
             tracer = if (a.hideTracer) null else gun.tracer,
+            scope = a.scope ?: if (a.slot == "sight") null else gun.scope,
             display = if (a.adsHeight == 0f) gun.display else gun.lowerAds(a.adsHeight),
         )
     }

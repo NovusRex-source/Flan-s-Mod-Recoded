@@ -1,0 +1,79 @@
+{
+  "name": "SVD Dragunov",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 13,
+  "rpm": 120,
+  "fire_mode": "semi",
+  "reload_ticks": 60,
+  "velocity": 20,
+  "spread": 3,
+  "ads_spread": 0.1,
+  "ads_zoom": 4.0,
+  "ads_move_speed": 0.6,
+  "recoil": {
+    "pitch": 3.2,
+    "yaw": 0.8
+  },
+  "magazines": [
+    "flansbasic:svd_10"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.battle.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "sight",
+    "muzzle"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.37,
+        0.37,
+        0.37
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        4.6,
+        -6
+      ]
+    }
+  },
+  "scope": {
+    "overlay": "flansbasic:textures/scope/pso.png"
+  },
+  "gravity": 0.01,
+  "lifetime_ticks": 60
+}

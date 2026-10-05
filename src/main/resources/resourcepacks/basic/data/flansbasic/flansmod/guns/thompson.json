@@ -1,0 +1,74 @@
+{
+  "name": "Thompson M1928",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 5,
+  "rpm": 700,
+  "fire_mode": "auto",
+  "reload_ticks": 55,
+  "velocity": 10,
+  "spread": 3.2,
+  "ads_spread": 0.64,
+  "ads_zoom": 1.25,
+  "ads_move_speed": 0.6,
+  "recoil": {
+    "pitch": 1.2,
+    "yaw": 0.7
+  },
+  "magazines": [
+    "flansbasic:thompson_30",
+    "flansbasic:thompson_drum_50"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.smg.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "muzzle"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.53,
+        0.53,
+        0.53
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.53,
+        0.53,
+        0.53
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        8.2,
+        -6
+      ]
+    }
+  }
+}

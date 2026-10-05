@@ -1,5 +1,6 @@
 package com.flansmod.recoded.combat
 
+import com.flansmod.recoded.gun.AmmoDefinition
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.registry.FlansDamageTypes
 import com.flansmod.recoded.network.HitPayload
@@ -26,7 +27,7 @@ import java.util.WeakHashMap
  * against blocks and entities along every tick's segment. Clients draw tracers from [com.flansmod.recoded.network.ShotPayload].
  */
 object Ballistics {
-    private class Bullet(var pos: Vec3, var velocity: Vec3, val shooter: ServerPlayer, val gun: GunDefinition, var ticksLeft: Int)
+    private class Bullet(var pos: Vec3, var velocity: Vec3, val shooter: ServerPlayer, val gun: GunDefinition, val ammo: AmmoDefinition?, var ticksLeft: Int)
 
     private val bullets = WeakHashMap<ServerLevel, MutableList<Bullet>>()
 
@@ -34,9 +35,10 @@ object Ballistics {
         ServerTickEvents.END_LEVEL_TICK.register { level -> bullets[level]?.removeIf { !step(level, it) } }
     }
 
-    fun fire(shooter: ServerPlayer, gun: GunDefinition, direction: Vec3) {
+    /** [gun] must already include ammo modifiers ([com.flansmod.recoded.gun.withAmmo]); [ammo] adds its on-hit effects. */
+    fun fire(shooter: ServerPlayer, gun: GunDefinition, ammo: AmmoDefinition?, direction: Vec3) {
         bullets.getOrPut(shooter.level()) { mutableListOf() } +=
-            Bullet(shooter.eyePosition, direction.normalize().scale(gun.velocity), shooter, gun, gun.lifetimeTicks)
+            Bullet(shooter.eyePosition, direction.normalize().scale(gun.velocity), shooter, gun, ammo, gun.lifetimeTicks)
     }
 
     /** Advances one bullet by one tick. Returns false when the bullet is gone. */
@@ -73,7 +75,9 @@ object Ballistics {
     private fun hit(level: ServerLevel, bullet: Bullet, target: Entity, at: Vec3) {
         val headshot = target is LivingEntity && at.y >= target.eyeY - 0.25
         val damage = bullet.gun.damage * if (headshot) bullet.gun.headshotMultiplier else 1f
-        val type = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(FlansDamageTypes.GUN)
+        val typeKey = if (bullet.ammo?.armorPiercing == true) FlansDamageTypes.GUN_AP else FlansDamageTypes.GUN
+        val type = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(typeKey)
+        bullet.ammo?.fireSeconds?.takeIf { it > 0f }?.let(target::igniteForSeconds)
 
         // Automatic weapons would otherwise be throttled by the 10 tick hurt cooldown.
         target.invulnerableTime = 0

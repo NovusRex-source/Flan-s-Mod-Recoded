@@ -1,0 +1,74 @@
+{
+  "name": "PKM",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 8,
+  "rpm": 650,
+  "fire_mode": "auto",
+  "reload_ticks": 95,
+  "velocity": 16,
+  "spread": 3.5,
+  "ads_spread": 0.7,
+  "ads_zoom": 1.35,
+  "ads_move_speed": 0.5,
+  "recoil": {
+    "pitch": 1.4,
+    "yaw": 1.0
+  },
+  "magazines": [
+    "flansbasic:pkm_box_100"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.battle.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "sight",
+    "muzzle"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.38,
+        0.38,
+        0.38
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.38,
+        0.38,
+        0.38
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        6.2,
+        -6
+      ]
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Angled Grip",
+  "slot": "underbarrel",
+  "icon": "flansbasic:angled_grip",
+  "recoil_multiplier": 0.85,
+  "ads_move_speed_multiplier": 1.15
+}

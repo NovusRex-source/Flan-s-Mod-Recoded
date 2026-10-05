@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NXN",
+    "N N",
+    "NNN"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:brown_dye"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansbasic:m24_5"
+      },
+      "minecraft:item_model": "flansbasic:m24_5"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "M4A1",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 6,
+  "rpm": 800,
+  "fire_mode": "auto",
+  "reload_ticks": 50,
+  "velocity": 14,
+  "spread": 2.4,
+  "ads_spread": 0.48,
+  "ads_zoom": 1.4,
+  "ads_move_speed": 0.6,
+  "recoil": {
+    "pitch": 1.1,
+    "yaw": 0.6
+  },
+  "magazines": [
+    "flansbasic:stanag_30",
+    "flansbasic:stanag_drum_100"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.rifle.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "sight",
+    "muzzle",
+    "underbarrel"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        6.2,
+        -6
+      ]
+    }
+  }
+}

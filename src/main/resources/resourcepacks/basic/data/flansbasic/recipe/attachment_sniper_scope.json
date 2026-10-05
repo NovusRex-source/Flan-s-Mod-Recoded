@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "IXI",
+    " S "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "S": "minecraft:glass_pane",
+    "X": "minecraft:lapis_lazuli"
+  },
+  "result": {
+    "id": "flansmod:attachment",
+    "components": {
+      "flansmod:attachment": "flansbasic:sniper_scope",
+      "minecraft:item_model": "flansbasic:sniper_scope"
+    }
+  }
+}

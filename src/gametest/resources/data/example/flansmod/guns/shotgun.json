@@ -1,1 +1,11 @@
-{ "name": "Test Shotgun", "damage": 3, "pellets": 8, "spread": 8, "rpm": 60, "magazine": 6, "fire_mode": "semi" }
+{
+  "name": "Test Shotgun",
+  "damage": 3,
+  "pellets": 8,
+  "spread": 8,
+  "rpm": 60,
+  "fire_mode": "semi",
+  "magazines": [
+    "example:shotgun_mag"
+  ]
+}

@@ -2,13 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "NIN",
+    "NXN",
     " G "
   ],
   "key": {
     "G": "minecraft:gunpowder",
-    "I": "minecraft:iron_ingot",
-    "N": "minecraft:iron_nugget"
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:emerald"
   },
   "result": {
     "id": "flansmod:ammo",

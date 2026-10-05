@@ -5,6 +5,7 @@
   "client": [
     "CameraMixin",
     "CreativeModeTabsAccessor",
+    "MinecraftGlowMixin",
     "MouseHandlerMixin"
   ],
   "injectors": { "defaultRequire": 1 }

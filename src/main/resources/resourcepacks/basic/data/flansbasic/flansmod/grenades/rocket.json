@@ -1,0 +1,14 @@
+{
+  "name": "Rocket",
+  "throwable": false,
+  "contact": true,
+  "gravity": 0.004,
+  "fuse_ticks": 120,
+  "trail": true,
+  "explosion": {
+    "power": 3.5,
+    "fire": false,
+    "break_blocks": false
+  },
+  "icon": "flansbasic:pg7"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "8x Sniper Scope",
+  "slot": "sight",
+  "icon": "flansbasic:sniper_scope",
+  "ads_zoom": 8.0,
+  "spread_multiplier": 0.7,
+  "ads_move_speed_multiplier": 0.7,
+  "ads_height": 2.0,
+  "scope": {
+    "overlay": "flansbasic:textures/scope/sniper.png"
+  }
+}

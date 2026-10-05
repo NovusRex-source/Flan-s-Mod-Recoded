@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NXN",
+    " G "
+  ],
+  "key": {
+    "G": "minecraft:gunpowder",
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:brown_dye"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 4,
+    "components": {
+      "flansmod:ammo_type": "flansbasic:40mm_he",
+      "minecraft:item_model": "flansbasic:40mm_he",
+      "minecraft:max_stack_size": 16
+    }
+  }
+}

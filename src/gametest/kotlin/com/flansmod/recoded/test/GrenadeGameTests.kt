@@ -73,7 +73,10 @@ class GrenadeGameTests {
 
     @GameTest(maxTicks = 5)
     fun basicPackHasGrenades(helper: GameTestHelper) {
-        for (name in listOf("frag", "smoke", "flashbang")) {
+        for (name in listOf("rocket", "40mm_he")) {
+            helper.assertFalse(Grenades[Identifier.fromNamespaceAndPath("flansbasic", name)]!!.throwable, "$name is a launcher projectile")
+        }
+        for (name in listOf("frag", "smoke", "flashbang", "molotov")) {
             val id = Identifier.fromNamespaceAndPath("flansbasic", name)
             helper.assertTrue(Grenades[id] != null, "missing grenade $name")
             helper.assertTrue(helper.level.server.recipeManager.byKey(ResourceKey.create(Registries.RECIPE, id.withPrefix("grenade_"))).isPresent, "$name has no recipe")

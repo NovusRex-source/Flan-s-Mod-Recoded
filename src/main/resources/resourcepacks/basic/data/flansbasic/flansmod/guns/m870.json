@@ -1,0 +1,74 @@
+{
+  "name": "Remington 870",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 3,
+  "rpm": 70,
+  "fire_mode": "semi",
+  "reload_ticks": 60,
+  "velocity": 9,
+  "spread": 7,
+  "ads_spread": 5,
+  "ads_zoom": 1.15,
+  "ads_move_speed": 0.6,
+  "recoil": {
+    "pitch": 4.5,
+    "yaw": 1.2
+  },
+  "magazines": [
+    "flansbasic:shell_holder_6"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.shotgun.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "sight"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        7.7,
+        -6
+      ]
+    }
+  },
+  "lifetime_ticks": 15
+}

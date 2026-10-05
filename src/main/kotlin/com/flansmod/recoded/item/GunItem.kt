@@ -4,6 +4,9 @@ import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.gun.withAttachments
+import com.flansmod.recoded.gun.withAmmo
+import com.flansmod.recoded.gun.MagazineContents
+import com.flansmod.recoded.gun.Magazines
 import com.flansmod.recoded.registry.FlansComponents
 import com.flansmod.recoded.registry.FlansItems
 import com.geckolib.animatable.GeoItem
@@ -44,13 +47,18 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
     override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: TooltipDisplay, add: Consumer<Component>, flag: TooltipFlag) {
         val def = stack.definition ?: return add.accept(Component.translatable("item.flansmod.gun.unknown").withStyle(ChatFormatting.RED))
         fun line(key: String, vararg args: Any) = add.accept(Component.translatable("item.flansmod.gun.$key", *args).withStyle(ChatFormatting.GRAY))
-        line("ammo", stack.ammo, def.magazine)
-        line("damage", if (def.pellets > 1) "${def.damage}×${def.pellets}" else def.damage)
+        val mag = stack.loadedMagazine
+        if (mag == null) line("no_magazine")
+        else {
+            line("magazine", mag.definition?.name ?: mag.magazine.toString(), mag.rounds, mag.capacity)
+            mag.ammo?.let { line("ammo_type", AmmoItem.displayName(it)) }
+        }
+        val shot = def.withAmmo(mag?.ammoDefinition)
+        line("damage", if (shot.pellets > 1) "${shot.damage}×${shot.pellets}" else shot.damage)
         line("rpm", def.rpm, Component.translatable("item.flansmod.gun.mode.${def.fireMode.name.lowercase()}"))
         stack.attachments.values.mapNotNull { Attachments[it] }.forEach {
             add.accept(Component.literal(" + ").append(Component.translatableWithFallback("attachment.flansmod.${'$'}{it.slot}", it.slot)).append(": ${'$'}{it.name}").withStyle(ChatFormatting.DARK_AQUA))
         }
-        def.ammo?.let { line("ammo_item", AmmoItem.displayName(it.item)) }
     }
 
     // Right click is aiming (handled client side), so the vanilla use action does nothing.
@@ -59,8 +67,8 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
     // Left click fires instead of mining.
     override fun canDestroyBlock(stack: ItemStack, state: BlockState, level: Level, pos: BlockPos, user: LivingEntity) = false
 
-    override fun isBarVisible(stack: ItemStack) = stack.definition != null
-    override fun getBarWidth(stack: ItemStack) = stack.definition?.let { 13 * stack.ammo / it.magazine.coerceAtLeast(1) } ?: 0
+    override fun isBarVisible(stack: ItemStack) = stack.loadedMagazine != null
+    override fun getBarWidth(stack: ItemStack) = stack.loadedMagazine?.let { 13 * it.rounds / it.capacity.coerceAtLeast(1) } ?: 0
     override fun getBarColor(stack: ItemStack) = 0xE0B040
 
     override fun registerControllers(controllers: AnimatableManager.ControllerRegistrar) {
@@ -88,10 +96,17 @@ class GunItem(properties: Properties) : Item(properties), GeoItem {
         /** Set by the client entrypoint; the renderer classes live in the client source set. */
         var rendererFactory: (() -> GeoItemRenderer<*>)? = null
 
-        fun stackFor(id: Identifier?): ItemStack = ItemStack(FlansItems.GUN).apply {
+        /** A gun stack; [loaded] inserts a full magazine of the first accepted type (creative tab, commands). */
+        fun stackFor(id: Identifier?, loaded: Boolean = true): ItemStack = ItemStack(FlansItems.GUN).apply {
             if (id == null) return@apply
             set(FlansComponents.GUN, id)
-            set(FlansComponents.AMMO, Guns[id]?.magazine ?: 0)
+            if (loaded) acceptedMagazines(id).firstOrNull()?.let { MagazineContents.full(it) }?.let { set(FlansComponents.MAGAZINE, it) }
+        }
+
+        /** Magazine ids usable in gun [id]: listed by the gun, or listing the gun themselves. */
+        fun acceptedMagazines(id: Identifier): List<Identifier> {
+            val gun = Guns[id] ?: return emptyList()
+            return (gun.magazines + Magazines.all.filter { (magId, mag) -> mag.fits(magId, id, gun) }.keys).distinct().filter { Magazines[it] != null }
         }
     }
 }
@@ -113,6 +128,15 @@ val ItemStack.definition: GunDefinition?
         val installed = attachments.values.mapNotNull { Attachments[it] }
         return if (installed.isEmpty()) base else base.withAttachments(installed)
     }
+/** The magazine inserted in this gun (also used for magazine items' own contents). */
+var ItemStack.loadedMagazine: MagazineContents?
+    get() = get(FlansComponents.MAGAZINE)
+    set(value) { if (value == null) remove(FlansComponents.MAGAZINE) else set(FlansComponents.MAGAZINE, value) }
+
+/** Rounds in the inserted magazine. Setting it requires a magazine to be inserted. */
 var ItemStack.ammo: Int
-    get() = getOrDefault(FlansComponents.AMMO, 0)
-    set(value) { set(FlansComponents.AMMO, value) }
+    get() = loadedMagazine?.rounds ?: 0
+    set(value) { loadedMagazine = loadedMagazine?.withRounds(value) }
+
+/** Effective stats for the next shot: attachments plus the loaded ammo type. */
+val ItemStack.shotDefinition: GunDefinition? get() = definition?.withAmmo(loadedMagazine?.ammoDefinition)

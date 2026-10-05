@@ -6,6 +6,7 @@ import com.flansmod.recoded.gun.AttachmentDefinition
 import com.flansmod.recoded.gun.Content
 import com.flansmod.recoded.gun.GrenadeDefinition
 import com.flansmod.recoded.gun.GunDefinition
+import com.flansmod.recoded.gun.MagazineDefinition
 import com.flansmod.recoded.gun.IdentifierSerializer
 import kotlinx.serialization.Serializable
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
@@ -49,11 +50,14 @@ data class HitPayload(val headshot: Boolean, val kill: Boolean) : CustomPacketPa
     }
 }
 
-/** Client → server: reload key pressed. */
-object ReloadPayload : CustomPacketPayload {
-    val TYPE = type<ReloadPayload>("reload")
-    val CODEC: StreamCodec<FriendlyByteBuf, ReloadPayload> = StreamCodec.unit(this)
+/** Client → server: reload key pressed; [unload] (sneaking) takes the magazine out instead. */
+data class ReloadPayload(val unload: Boolean) : CustomPacketPayload {
     override fun type() = TYPE
+
+    companion object {
+        val TYPE = type<ReloadPayload>("reload")
+        val CODEC: StreamCodec<FriendlyByteBuf, ReloadPayload> = ByteBufCodecs.BOOL.map(::ReloadPayload, ReloadPayload::unload).cast()
+    }
 }
 
 /** Server → client: all content-pack definitions, serialized with kotlinx.serialization. */
@@ -63,6 +67,7 @@ data class ContentSyncPayload(
     val attachments: Map<@Serializable(IdentifierSerializer::class) Identifier, AttachmentDefinition>,
     val ammo: Map<@Serializable(IdentifierSerializer::class) Identifier, AmmoDefinition>,
     val grenades: Map<@Serializable(IdentifierSerializer::class) Identifier, GrenadeDefinition>,
+    val magazines: Map<@Serializable(IdentifierSerializer::class) Identifier, MagazineDefinition>,
 ) : CustomPacketPayload {
     override fun type() = TYPE
 

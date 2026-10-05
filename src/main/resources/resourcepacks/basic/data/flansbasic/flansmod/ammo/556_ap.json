@@ -1,0 +1,7 @@
+{
+  "name": "5.56 NATO AP",
+  "caliber": "556",
+  "icon": "flansbasic:556_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

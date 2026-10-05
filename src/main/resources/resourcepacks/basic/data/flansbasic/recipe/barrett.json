@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  X",
+    "IID",
+    "WG "
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "G": "minecraft:gunpowder",
+    "I": "minecraft:iron_ingot",
+    "W": "#minecraft:planks",
+    "X": "minecraft:obsidian"
+  },
+  "result": {
+    "id": "flansmod:gun",
+    "components": {
+      "flansmod:gun": "flansbasic:barrett"
+    }
+  }
+}

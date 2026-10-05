@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NXN",
+    " G "
+  ],
+  "key": {
+    "G": "minecraft:gunpowder",
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:green_dye"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 8,
+    "components": {
+      "flansmod:ammo_type": "flansbasic:12g_dragon",
+      "minecraft:item_model": "flansbasic:12g_dragon"
+    }
+  }
+}

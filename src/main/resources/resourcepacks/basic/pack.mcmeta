@@ -1,11 +1,11 @@
 {
   "pack": {
-    "description": "Flan's Mod: Recoded - standard guns, ammo and attachments",
+    "description": "Flan's Mod: Recoded - famous guns, magazines, ammo and attachments",
     "min_format": 97,
     "max_format": 121
   },
   "flansmod": {
     "name": "Flan's Basic Weapons",
-    "icon": "flansbasic:rifle"
+    "icon": "flansbasic:ak47"
   }
 }

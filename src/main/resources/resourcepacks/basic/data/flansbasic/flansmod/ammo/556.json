@@ -1,4 +1,5 @@
 {
-  "name": "5.56mm Rounds",
+  "name": "5.56 NATO",
+  "caliber": "556",
   "icon": "flansbasic:556"
 }

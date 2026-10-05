@@ -54,6 +54,7 @@ class GrenadeEntity : ThrowableItemProjectile {
             emitSmoke(level, def)
             return
         }
+        if (def.trail) level.sendParticles(ParticleTypes.SMOKE, xo, yo, zo, 2, 0.05, 0.05, 0.05, 0.0)
         if (fuse < 0) fuse = def.fuseTicks
         if (--fuse <= 0) detonate(level, def)
     }

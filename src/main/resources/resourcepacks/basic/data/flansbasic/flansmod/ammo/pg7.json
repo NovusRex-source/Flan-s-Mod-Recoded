@@ -1,0 +1,7 @@
+{
+  "name": "PG-7V Rocket",
+  "caliber": "rpg",
+  "icon": "flansbasic:pg7",
+  "projectile": "flansbasic:rocket",
+  "max_stack": 8
+}

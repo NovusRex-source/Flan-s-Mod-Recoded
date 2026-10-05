@@ -1,0 +1,12 @@
+{
+  "name": "Incendiary Grenade",
+  "fuse_ticks": 40,
+  "bounciness": 0.2,
+  "contact": true,
+  "explosion": {
+    "power": 1.2,
+    "fire": true,
+    "break_blocks": false
+  },
+  "icon": "flansbasic:molotov"
+}

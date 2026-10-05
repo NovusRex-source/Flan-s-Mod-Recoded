@@ -1,0 +1,7 @@
+{
+  "name": "Muzzle Brake",
+  "slot": "muzzle",
+  "icon": "flansbasic:muzzle_brake",
+  "recoil_multiplier": 0.6,
+  "spread_multiplier": 1.1
+}

@@ -1,4 +1,5 @@
 {
-  "name": "9mm Rounds",
+  "name": "9mm FMJ",
+  "caliber": "9mm",
   "icon": "flansbasic:9mm"
 }

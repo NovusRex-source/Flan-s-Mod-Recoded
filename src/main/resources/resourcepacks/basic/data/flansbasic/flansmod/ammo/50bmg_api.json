@@ -1,0 +1,7 @@
+{
+  "name": ".50 BMG API",
+  "caliber": "50bmg",
+  "icon": "flansbasic:50bmg_api",
+  "armor_piercing": true,
+  "fire_seconds": 4
+}

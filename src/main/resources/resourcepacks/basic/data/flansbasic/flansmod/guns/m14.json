@@ -1,0 +1,77 @@
+{
+  "name": "M14 EBR",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 9,
+  "rpm": 300,
+  "fire_mode": "semi",
+  "reload_ticks": 55,
+  "velocity": 18,
+  "spread": 2.5,
+  "ads_spread": 0.2,
+  "ads_zoom": 1.5,
+  "ads_move_speed": 0.6,
+  "recoil": {
+    "pitch": 2.2,
+    "yaw": 0.7
+  },
+  "magazines": [
+    "flansbasic:m14_20"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.battle.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "sight",
+    "muzzle",
+    "underbarrel"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.39,
+        0.39,
+        0.39
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.39,
+        0.39,
+        0.39
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        6.2,
+        -6
+      ]
+    }
+  },
+  "gravity": 0.01,
+  "lifetime_ticks": 60
+}

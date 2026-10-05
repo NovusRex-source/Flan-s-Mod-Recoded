@@ -1,0 +1,13 @@
+{
+  "name": "40mm HE",
+  "throwable": false,
+  "contact": true,
+  "gravity": 0.03,
+  "fuse_ticks": 200,
+  "explosion": {
+    "power": 2.2,
+    "fire": false,
+    "break_blocks": false
+  },
+  "icon": "flansbasic:40mm_he"
+}

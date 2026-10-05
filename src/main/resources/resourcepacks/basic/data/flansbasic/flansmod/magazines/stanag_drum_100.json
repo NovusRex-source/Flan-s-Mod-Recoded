@@ -1,0 +1,7 @@
+{
+  "name": "5.56 Drum (100)",
+  "caliber": "556",
+  "capacity": 100,
+  "icon": "flansbasic:stanag_drum_100",
+  "reload_multiplier": 1.6
+}

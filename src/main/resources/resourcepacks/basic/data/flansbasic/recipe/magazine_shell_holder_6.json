@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NXN",
+    "N N",
+    "NNN"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:clay_ball"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansbasic:shell_holder_6"
+      },
+      "minecraft:item_model": "flansbasic:shell_holder_6"
+    }
+  }
+}

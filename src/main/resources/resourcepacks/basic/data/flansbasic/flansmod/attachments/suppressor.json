@@ -1,6 +1,6 @@
 {
   "name": "Suppressor",
-  "slot": "barrel",
+  "slot": "muzzle",
   "icon": "flansbasic:suppressor",
   "damage_multiplier": 0.9,
   "hide_tracer": true,

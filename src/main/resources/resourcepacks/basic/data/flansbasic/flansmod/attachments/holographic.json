@@ -1,0 +1,8 @@
+{
+  "name": "Holographic Sight",
+  "slot": "sight",
+  "icon": "flansbasic:holographic",
+  "ads_zoom": 1.4,
+  "spread_multiplier": 0.85,
+  "ads_height": 1.4
+}

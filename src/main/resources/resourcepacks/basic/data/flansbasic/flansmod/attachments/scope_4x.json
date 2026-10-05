@@ -1,9 +1,0 @@
-{
-  "name": "4x Scope",
-  "slot": "sight",
-  "icon": "flansbasic:scope_4x",
-  "ads_zoom": 4.0,
-  "spread_multiplier": 0.9,
-  "ads_move_speed_multiplier": 0.8,
-  "ads_height": 1.8
-}

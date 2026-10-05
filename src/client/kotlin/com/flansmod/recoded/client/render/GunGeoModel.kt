@@ -8,6 +8,9 @@ import com.flansmod.recoded.gun.ResolvedModel
 import com.flansmod.recoded.gun.Transform
 import com.flansmod.recoded.item.GunItem
 import com.flansmod.recoded.item.attachments
+import com.flansmod.recoded.item.definition
+import com.flansmod.recoded.item.loadedMagazine
+import com.flansmod.recoded.client.hud.ScopeOverlay
 import com.flansmod.recoded.item.gunId
 import com.geckolib.renderer.base.BoneSnapshots
 import com.geckolib.constant.DataTickets
@@ -26,8 +29,8 @@ import org.joml.Vector3f
 private val MODEL: DataTicket<ResolvedModel> = DataTicket.create("flansmod_gun_model", ResolvedModel::class.java)
 private val AIM: DataTicket<Float> = DataTicket.create("flansmod_aim", Float::class.javaObjectType)
 
-/** Installed attachments by slot, for bone visibility. */
-private class InstalledAttachments(val bySlot: Map<String, Identifier>)
+/** Installed attachments by slot and the inserted magazine type, for bone visibility. */
+private class InstalledAttachments(val bySlot: Map<String, Identifier>, val magazine: Identifier?, val scoped: Boolean)
 private val ATTACHMENTS: DataTicket<InstalledAttachments> = DataTicket.create("flansmod_attachments", InstalledAttachments::class.java)
 private val MISSING = GunDefinition("missing").resolvedModel(FlansMod.id("missing"))
 
@@ -49,7 +52,9 @@ class GunGeoModel : GeoModel<GunItem>() {
         }
         val model = stack?.gunId?.let { id -> Guns[id]?.resolvedModel(id) } ?: MISSING
         renderState.addGeckolibData(MODEL, model)
-        renderState.addGeckolibData(ATTACHMENTS, InstalledAttachments(stack?.attachments ?: emptyMap()))
+        renderState.addGeckolibData(ATTACHMENTS, InstalledAttachments(
+            stack?.attachments ?: emptyMap(), stack?.loadedMagazine?.magazine, stack?.definition?.scope?.overlay != null,
+        ))
         currentAnimations = model.animations
     }
 
@@ -67,6 +72,7 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
     private companion object {
         const val ATTACHMENT_BONE = "attachment_"
         const val DEFAULT_BONE = "default_"
+        const val MAGAZINE_BONE = "magazine"
     }
 
     override fun addRenderData(animatable: GunItem, relatedObject: RenderData?, renderState: GeoRenderState, partialTick: Float) {
@@ -96,12 +102,24 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
      * `default_<slot>` (e.g. iron sights) only while the slot is empty.
      */
     override fun adjustModelBonesForRender(renderPassInfo: RenderPassInfo<GeoRenderState>, snapshots: BoneSnapshots) {
-        val installed = renderPassInfo.renderState().getGeckolibData(ATTACHMENTS)?.bySlot ?: emptyMap()
-        val names = installed.values.mapTo(HashSet()) { it.path }
-        for (bone in renderPassInfo.model().boneLookup().get().keys) {
+        val state = renderPassInfo.renderState()
+        val info = state.getGeckolibData(ATTACHMENTS) ?: InstalledAttachments(emptyMap(), null, false)
+        val bones = renderPassInfo.model().boneLookup().get().keys
+        // Looking through a scope overlay: the gun is not drawn in first person (like the spyglass).
+        val context = state.getGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE)
+        if (info.scoped && context?.firstPerson() == true && (state.getGeckolibData(AIM) ?: 0f) > ScopeOverlay.THRESHOLD) {
+            bones.forEach { b -> snapshots.ifPresent(b) { it.skipRender(true).skipChildrenRender(true) } }
+            return
+        }
+        val names = info.bySlot.values.mapTo(HashSet()) { it.path }
+        val specificMagazine = info.magazine?.let { "${MAGAZINE_BONE}_${it.path}" }?.takeIf { it in bones }
+        for (bone in bones) {
             val hidden = when {
                 bone.startsWith(ATTACHMENT_BONE) -> bone.removePrefix(ATTACHMENT_BONE) !in names
-                bone.startsWith(DEFAULT_BONE) -> bone.removePrefix(DEFAULT_BONE) in installed
+                bone.startsWith(DEFAULT_BONE) -> bone.removePrefix(DEFAULT_BONE) in info.bySlot
+                // `magazine` shows any inserted magazine; `magazine_<id>` replaces it for that magazine type.
+                bone == MAGAZINE_BONE -> info.magazine == null || specificMagazine != null
+                bone.startsWith("${MAGAZINE_BONE}_") -> bone != specificMagazine
                 else -> continue
             }
             snapshots.ifPresent(bone) { it.skipRender(hidden).skipChildrenRender(hidden) }

@@ -27,7 +27,7 @@ class GrenadeItem(properties: Properties) : Item(properties) {
 
     override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
-        val def = stack.grenadeDefinition ?: return InteractionResult.FAIL
+        val def = stack.grenadeDefinition?.takeIf { it.throwable } ?: return InteractionResult.FAIL
         level.playSound(null, player.x, player.y, player.z, SoundEvents.SNOWBALL_THROW, SoundSource.PLAYERS, 0.6f, 0.6f)
         if (level is ServerLevel) {
             Projectile.spawnProjectileFromRotation(::GrenadeEntity, level, stack, player, 0f, def.throwVelocity, 1f)

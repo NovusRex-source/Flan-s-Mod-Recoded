@@ -1,0 +1,72 @@
+{
+  "name": "M79 Grenade Launcher",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 0,
+  "rpm": 30,
+  "fire_mode": "semi",
+  "reload_ticks": 45,
+  "velocity": 1.6,
+  "spread": 1,
+  "ads_spread": 0.2,
+  "ads_zoom": 1.2,
+  "ads_move_speed": 0.6,
+  "recoil": {
+    "pitch": 4,
+    "yaw": 1
+  },
+  "magazines": [
+    "flansbasic:m79_shell"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.launcher.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.62,
+        0.62,
+        0.62
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.62,
+        0.62,
+        0.62
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        7.9,
+        -6
+      ]
+    }
+  },
+  "tracer": null
+}

@@ -24,9 +24,10 @@ data class GunDefinition(
     val rpm: Int = 300,
     @SerialName("fire_mode") val fireMode: FireMode = FireMode.SEMI,
     @SerialName("burst_count") val burstCount: Int = 3,
-    val magazine: Int = 12,
+    /** Magazine ids this gun accepts (magazines may also list guns themselves). */
+    val magazines: List<@Serializable(IdentifierSerializer::class) Identifier> = emptyList(),
     @SerialName("reload_ticks") val reloadTicks: Int = 40,
-    /** Bullets per shot (shotguns). Each pellet deals [damage]. */
+    /** Bullets per shot (shotguns); ammo may override it. Each pellet deals [damage]. */
     val pellets: Int = 1,
     /** Muzzle velocity in blocks per tick. */
     val velocity: Double = 15.0,
@@ -43,7 +44,8 @@ data class GunDefinition(
     /** Movement speed multiplier while aiming down sights. */
     @SerialName("ads_move_speed") val adsMoveSpeed: Float = 0.6f,
     val recoil: Recoil = Recoil(),
-    val ammo: Ammo? = null,
+    /** Built-in optic (e.g. a fixed sniper scope). A sight attachment replaces it. */
+    val scope: Scope? = null,
     val sounds: Sounds = Sounds(),
     /**
      * Item display transforms in Blockbench/vanilla format, keyed by display context
@@ -127,13 +129,17 @@ data class Recoil(
 )
 
 /**
- * If set, reloading consumes [item]: either an ammo definition id (`data/<ns>/flansmod/ammo/`) or any
- * item id. Each item refills [roundsPerItem] rounds. Without it, reloading is free.
+ * What you see while fully aimed through an optic. [overlay] is a full-screen texture (like the spyglass)
+ * that also hides the gun model; without it you look along the gun's own sights.
  */
 @Serializable
-data class Ammo(
-    @Serializable(IdentifierSerializer::class) val item: Identifier,
-    @SerialName("rounds_per_item") val roundsPerItem: Int = 1,
+data class Scope(
+    @Serializable(IdentifierSerializer::class) val overlay: Identifier? = null,
+    /** Grants night vision while aiming (applied by the server). */
+    @SerialName("night_vision") val nightVision: Boolean = false,
+    /** Living entities within [thermalRange] get the glowing outline while aiming (client only). */
+    val thermal: Boolean = false,
+    @SerialName("thermal_range") val thermalRange: Double = 64.0,
 )
 
 @Serializable

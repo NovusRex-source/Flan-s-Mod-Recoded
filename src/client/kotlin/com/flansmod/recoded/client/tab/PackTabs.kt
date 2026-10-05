@@ -7,6 +7,8 @@ import com.flansmod.recoded.gun.AmmoTypes
 import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Content
 import com.flansmod.recoded.gun.Grenades
+import com.flansmod.recoded.gun.Magazines
+import com.flansmod.recoded.item.MagazineItem
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.item.GrenadeItem
 import com.flansmod.recoded.gun.IdentifierSerializer
@@ -78,9 +80,10 @@ object PackTabs {
                 .displayItems { _, output ->
                     fun <T : Any> ids(all: Map<Identifier, T>) = all.keys.filter { it.namespace in tab.namespaces }.sorted()
                     ids(Guns.all).forEach { output.accept(GunItem.stackFor(it)) }
+                    ids(Magazines.all).forEach { output.accept(MagazineItem.stackFor(it, full = true)) }
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
                     ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
-                    ids(Grenades.all).forEach { output.accept(GrenadeItem.stackFor(it)) }
+                    ids(Grenades.all).filter { Grenades[it]!!.throwable }.forEach { output.accept(GrenadeItem.stackFor(it)) }
                 }
                 .build(),
         )
@@ -91,6 +94,7 @@ object PackTabs {
         AmmoTypes[id] != null -> AmmoItem.stackFor(id)
         Attachments[id] != null -> AttachmentItem.stackFor(id)
         Grenades[id] != null -> GrenadeItem.stackFor(id)
+        Magazines[id] != null -> MagazineItem.stackFor(id, full = true)
         else -> GunItem.stackFor(id)
     }
 

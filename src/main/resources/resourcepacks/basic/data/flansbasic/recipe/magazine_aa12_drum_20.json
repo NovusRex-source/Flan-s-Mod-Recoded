@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NXN",
+    "N N",
+    "NNN"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:glowstone_dust"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansbasic:aa12_drum_20"
+      },
+      "minecraft:item_model": "flansbasic:aa12_drum_20"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "AA-12",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 2.6,
+  "rpm": 300,
+  "fire_mode": "auto",
+  "reload_ticks": 65,
+  "velocity": 9,
+  "spread": 8,
+  "ads_spread": 6,
+  "ads_zoom": 1.15,
+  "ads_move_speed": 0.6,
+  "recoil": {
+    "pitch": 2.5,
+    "yaw": 1.0
+  },
+  "magazines": [
+    "flansbasic:aa12_8",
+    "flansbasic:aa12_drum_20"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.shotgun.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "sight",
+    "underbarrel"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        7.7,
+        -6
+      ]
+    }
+  },
+  "lifetime_ticks": 15
+}

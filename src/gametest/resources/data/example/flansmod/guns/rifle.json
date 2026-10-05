@@ -3,7 +3,6 @@
   "damage": 6,
   "rpm": 600,
   "fire_mode": "auto",
-  "magazine": 30,
   "reload_ticks": 40,
   "velocity": 12,
   "gravity": 0.03,
@@ -14,10 +13,6 @@
     "pitch": 1.2,
     "yaw": 0.6
   },
-  "ammo": {
-    "item": "minecraft:iron_nugget",
-    "rounds_per_item": 10
-  },
   "sounds": {
     "shoot": "minecraft:entity.generic.explode",
     "reload": "minecraft:block.iron_door.open"
@@ -25,5 +20,8 @@
   "attachment_slots": [
     "sight",
     "barrel"
+  ],
+  "magazines": [
+    "example:rifle_mag"
   ]
 }

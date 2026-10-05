@@ -1,0 +1,13 @@
+{
+  "name": "12 Gauge Dragon's Breath",
+  "caliber": "12g",
+  "icon": "flansbasic:12g_dragon",
+  "pellets": 8,
+  "fire_seconds": 5,
+  "damage_multiplier": 0.6,
+  "tracer": {
+    "color": "#FF8A20",
+    "width": 0.08,
+    "length": 2
+  }
+}

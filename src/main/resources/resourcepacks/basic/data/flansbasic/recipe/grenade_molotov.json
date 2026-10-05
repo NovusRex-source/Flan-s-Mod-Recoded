@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NXN",
+    "IGI",
+    "NIN"
+  ],
+  "key": {
+    "G": "minecraft:gunpowder",
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "X": "minecraft:lapis_lazuli"
+  },
+  "result": {
+    "id": "flansmod:grenade",
+    "count": 2,
+    "components": {
+      "flansmod:grenade": "flansbasic:molotov",
+      "minecraft:item_model": "flansbasic:molotov"
+    }
+  }
+}

@@ -1,9 +1,15 @@
 {
   "subtitles.flansbasic.gun.pistol.shoot": "Gunshot",
+  "subtitles.flansbasic.gun.magnum.shoot": "Gunshot",
   "subtitles.flansbasic.gun.smg.shoot": "Gunshot",
   "subtitles.flansbasic.gun.rifle.shoot": "Gunshot",
+  "subtitles.flansbasic.gun.ak.shoot": "Gunshot",
+  "subtitles.flansbasic.gun.battle.shoot": "Gunshot",
   "subtitles.flansbasic.gun.shotgun.shoot": "Gunshot",
   "subtitles.flansbasic.gun.sniper.shoot": "Gunshot",
+  "subtitles.flansbasic.gun.heavy.shoot": "Gunshot",
+  "subtitles.flansbasic.gun.launcher.shoot": "Gunshot",
+  "subtitles.flansbasic.gun.rocket.shoot": "Gunshot",
   "subtitles.flansbasic.gun.suppressed": "Gunshot",
   "subtitles.flansbasic.gun.reload": "Gun reloads",
   "subtitles.flansbasic.gun.empty": "Gun clicks"

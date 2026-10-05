@@ -1,0 +1,13 @@
+{
+  "name": "Thermal Scope",
+  "slot": "sight",
+  "icon": "flansbasic:thermal_scope",
+  "ads_zoom": 3.0,
+  "ads_move_speed_multiplier": 0.85,
+  "ads_height": 1.8,
+  "scope": {
+    "overlay": "flansbasic:textures/scope/thermal.png",
+    "thermal": true,
+    "thermal_range": 96
+  }
+}

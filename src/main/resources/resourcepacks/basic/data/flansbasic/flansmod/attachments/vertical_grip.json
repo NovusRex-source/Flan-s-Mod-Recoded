@@ -1,7 +1,7 @@
 {
   "name": "Vertical Grip",
-  "slot": "grip",
+  "slot": "underbarrel",
   "icon": "flansbasic:vertical_grip",
-  "recoil_multiplier": 0.8,
+  "recoil_multiplier": 0.75,
   "spread_multiplier": 0.85
 }

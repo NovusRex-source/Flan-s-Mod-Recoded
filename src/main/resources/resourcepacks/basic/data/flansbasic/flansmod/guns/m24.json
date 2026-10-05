@@ -1,0 +1,77 @@
+{
+  "name": "M24",
+  "model": {
+    "texture": "flansbasic:textures/gun/basic.png"
+  },
+  "damage": 18,
+  "rpm": 40,
+  "fire_mode": "semi",
+  "reload_ticks": 70,
+  "velocity": 25,
+  "spread": 4,
+  "ads_spread": 0.05,
+  "ads_zoom": 1.5,
+  "ads_move_speed": 0.45,
+  "recoil": {
+    "pitch": 6,
+    "yaw": 0.8
+  },
+  "magazines": [
+    "flansbasic:m24_5"
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.sniper.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "attachment_slots": [
+    "sight",
+    "muzzle"
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.41,
+        0.41,
+        0.41
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.41,
+        0.41,
+        0.41
+      ]
+    },
+    "ads": {
+      "translation": [
+        0,
+        7.2,
+        -6
+      ]
+    }
+  },
+  "headshot_multiplier": 2.5,
+  "gravity": 0.01,
+  "lifetime_ticks": 60
+}
