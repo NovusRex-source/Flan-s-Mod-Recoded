@@ -1,0 +1,10 @@
+{
+  "name": "Flashbang",
+  "fuse_ticks": 35,
+  "bounciness": 0.4,
+  "flash": {
+    "radius": 12.0,
+    "duration_ticks": 100
+  },
+  "icon": "flansbasic:flashbang"
+}

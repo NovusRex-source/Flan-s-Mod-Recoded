@@ -3,6 +3,11 @@ package com.flansmod.recoded.registry
 import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.gun.AmmoTypes
 import com.flansmod.recoded.gun.Attachments
+import com.flansmod.recoded.gun.Grenades
+import com.flansmod.recoded.item.GrenadeItem
+import com.flansmod.recoded.entity.GrenadeEntity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.MobCategory
 import com.flansmod.recoded.item.AmmoItem
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.item.AttachmentItem
@@ -43,6 +48,11 @@ object FlansComponents {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     }
 
+    /** Which [com.flansmod.recoded.gun.GrenadeDefinition] a grenade stack represents. */
+    val GRENADE: DataComponentType<Identifier> = register("grenade") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
     /** Rounds currently loaded. */
     val AMMO: DataComponentType<Int> = register("ammo") {
         persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT)
@@ -70,6 +80,11 @@ object FlansItems {
         AmmoItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("ammo")))),
     )
 
+    val GRENADE: GrenadeItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("grenade"),
+        GrenadeItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("grenade"))).stacksTo(16)),
+    )
+
     init {
         Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB, FlansMod.id("guns"),
@@ -81,6 +96,7 @@ object FlansItems {
                     ids(Guns.all).forEach { output.accept(GunItem.stackFor(it)) }
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
                     ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
+                    ids(Grenades.all).forEach { output.accept(GrenadeItem.stackFor(it)) }
                 }
                 .build(),
         )
@@ -88,6 +104,17 @@ object FlansItems {
 
     /** Set on the client: ids whose content pack has its own creative tab are left out of the generic tab. */
     var coveredByPackTab: (Identifier) -> Boolean = { false }
+
+    fun init() = Unit
+}
+
+object FlansEntities {
+    private val GRENADE_KEY = ResourceKey.create(Registries.ENTITY_TYPE, FlansMod.id("grenade"))
+
+    val GRENADE: EntityType<GrenadeEntity> = Registry.register(
+        BuiltInRegistries.ENTITY_TYPE, GRENADE_KEY,
+        EntityType.Builder.of(::GrenadeEntity, MobCategory.MISC).sized(0.25f, 0.25f).clientTrackingRange(4).updateInterval(10).build(GRENADE_KEY),
+    )
 
     fun init() = Unit
 }

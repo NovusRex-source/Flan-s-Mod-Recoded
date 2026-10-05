@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generates the built-in "Basic" content pack (src/main/resources/resourcepacks/basic):
-gun/ammo/attachment definitions, recipes, GeckoLib models + animations, textures, icons and sounds.
+gun/ammo/attachment/grenade definitions, recipes, GeckoLib models + animations, textures, icons and sounds.
 
 It is a normal content pack; the mod code contains no guns. Re-run after editing the tables below:
     python3 tools/generate_basic_pack.py
@@ -108,6 +108,15 @@ AMMO = {
     "556": dict(name="5.56mm Rounds", per_craft=16, colour=(200, 160, 50), shape="long", recipe=["NIN", " G "]),
     "12gauge": dict(name="12 Gauge Shells", per_craft=8, colour=(190, 40, 40), shape="shell", recipe=["P", "G", "N"]),
     "308": dict(name=".308 Rounds", per_craft=8, colour=(180, 150, 60), shape="long", recipe=["NIN", "NGN"]),
+}
+
+GRENADES = {
+    "frag": dict(name="Frag Grenade", fuse_ticks=60, bounciness=0.35,
+                 explosion={"power": 2.5, "fire": False, "break_blocks": False}, recipe=["NIN", "IGI", "NIN"]),
+    "smoke": dict(name="Smoke Grenade", fuse_ticks=40, bounciness=0.3, smoke={"radius": 5.0, "duration_ticks": 300},
+                  detonate_sound="minecraft:block.fire.extinguish", recipe=["NIN", "IPI", "NIN"]),
+    "flashbang": dict(name="Flashbang", fuse_ticks=35, bounciness=0.4, flash={"radius": 12.0, "duration_ticks": 100},
+                      recipe=["NIN", "ILI", "NIN"]),
 }
 
 # slot, stats, recipe and a geometry factory: (gun geometry) -> cubes
@@ -270,6 +279,33 @@ def attachment_icon(aid):
     return px
 
 
+def grenade_icon(gid):
+    px = {}
+    body = {"frag": (70, 90, 50), "smoke": (120, 120, 125), "flashbang": (60, 62, 68)}[gid]
+    for x in range(5, 11):
+        for y in range(5, 14):
+            if gid == "frag" and (x in (5, 10) and y in (5, 13)):
+                continue
+            px[(x, y)] = shade(body, 1.15 if x < 7 else 0.85 if x > 8 else 1.0)
+    if gid == "frag":
+        for y in (7, 9, 11):
+            for x in range(5, 11):
+                px[(x, y)] = shade(body, 0.7)
+    if gid == "smoke":
+        for x in range(5, 11):
+            px[(x, 9)] = (200, 200, 200)
+    if gid == "flashbang":
+        for y in (7, 10):
+            for x in range(6, 10):
+                px[(x, y)] = (40, 40, 44)
+    for x in range(6, 10):
+        px[(x, 3)] = (160, 160, 165)
+        px[(x, 4)] = (130, 130, 135)
+    px[(10, 3)] = (190, 170, 60)
+    px[(11, 4)] = (190, 170, 60)
+    return px
+
+
 def item_model(name, texture_kind):
     write(ASSETS / "items" / f"{name}.json", {"model": {"type": "minecraft:model", "model": f"{NS}:item/{name}"}})
     write(ASSETS / "models" / "item" / f"{name}.json",
@@ -278,7 +314,8 @@ def item_model(name, texture_kind):
 
 # ------------------------------------------------------------------------------------------- recipes
 KEYS = {"I": "minecraft:iron_ingot", "G": "minecraft:gunpowder", "W": "#minecraft:planks", "N": "minecraft:iron_nugget",
-        "D": "minecraft:diamond", "R": "minecraft:redstone", "P": "minecraft:paper", "C": "minecraft:copper_ingot"}
+        "D": "minecraft:diamond", "R": "minecraft:redstone", "P": "minecraft:paper", "C": "minecraft:copper_ingot",
+        "L": "minecraft:glowstone_dust"}
 
 
 def shaped(name, pattern, result):
@@ -339,11 +376,19 @@ def main():
         shaped(f"attachment_{aid}", a["recipe"], {"id": "flansmod:attachment", "components": {
             "flansmod:attachment": f"{NS}:{aid}", "minecraft:item_model": f"{NS}:{aid}"}})
 
+    for gid, gr in GRENADES.items():
+        definition = {k: v for k, v in gr.items() if k != "recipe"}
+        write(DATA / "flansmod" / "grenades" / f"{gid}.json", {**definition, "icon": f"{NS}:{gid}"})
+        item_model(gid, "grenade")
+        icon(ASSETS / "textures" / "item" / "grenade" / f"{gid}.png", grenade_icon(gid))
+        shaped(f"grenade_{gid}", gr["recipe"], {"id": "flansmod:grenade", "count": 2, "components": {
+            "flansmod:grenade": f"{NS}:{gid}", "minecraft:item_model": f"{NS}:{gid}"}})
+
     for event in sounds():
         lang[f"subtitles.{NS}.{event}"] = "Gunshot" if "shoot" in event or "suppressed" in event else \
             "Gun reloads" if "reload" in event else "Gun clicks"
     write(ASSETS / "lang" / "en_us.json", lang)
-    print(f"Generated {len(GUNS)} guns, {len(AMMO)} ammo types, {len(ATTACHMENTS)} attachments in {ROOT}")
+    print(f"Generated {len(GUNS)} guns, {len(AMMO)} ammo types, {len(ATTACHMENTS)} attachments, {len(GRENADES)} grenades in {ROOT}")
 
 
 if __name__ == "__main__":

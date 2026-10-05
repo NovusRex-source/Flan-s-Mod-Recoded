@@ -1,0 +1,11 @@
+{
+  "name": "Smoke Grenade",
+  "fuse_ticks": 40,
+  "bounciness": 0.3,
+  "smoke": {
+    "radius": 5.0,
+    "duration_ticks": 300
+  },
+  "detonate_sound": "minecraft:block.fire.extinguish",
+  "icon": "flansbasic:smoke"
+}

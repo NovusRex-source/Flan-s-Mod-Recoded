@@ -4,6 +4,7 @@ import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.gun.AmmoDefinition
 import com.flansmod.recoded.gun.AttachmentDefinition
 import com.flansmod.recoded.gun.Content
+import com.flansmod.recoded.gun.GrenadeDefinition
 import com.flansmod.recoded.gun.GunDefinition
 import com.flansmod.recoded.gun.IdentifierSerializer
 import kotlinx.serialization.Serializable
@@ -61,6 +62,7 @@ data class ContentSyncPayload(
     val guns: Map<@Serializable(IdentifierSerializer::class) Identifier, GunDefinition>,
     val attachments: Map<@Serializable(IdentifierSerializer::class) Identifier, AttachmentDefinition>,
     val ammo: Map<@Serializable(IdentifierSerializer::class) Identifier, AmmoDefinition>,
+    val grenades: Map<@Serializable(IdentifierSerializer::class) Identifier, GrenadeDefinition>,
 ) : CustomPacketPayload {
     override fun type() = TYPE
 

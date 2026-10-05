@@ -12,6 +12,9 @@ import com.flansmod.recoded.network.ShotPayload
 import com.flansmod.recoded.client.fx.ShotEffects
 import com.flansmod.recoded.client.tab.PackTabs
 import net.fabricmc.api.ClientModInitializer
+import com.flansmod.recoded.registry.FlansEntities
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry
+import net.minecraft.client.renderer.entity.ThrownItemRenderer
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 
 object FlansModClient : ClientModInitializer {
@@ -23,6 +26,7 @@ object FlansModClient : ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(ShotPayload.TYPE) { payload, _ -> ShotEffects.onShot(payload) }
         ShotEffects.init()
         PackTabs.init()
+        EntityRendererRegistry.register(FlansEntities.GRENADE, ::ThrownItemRenderer)
         GunInput.init()
         GunHud.init()
     }

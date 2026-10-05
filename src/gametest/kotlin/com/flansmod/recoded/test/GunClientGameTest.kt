@@ -124,7 +124,7 @@ class GunClientGameTest : FabricClientGameTest {
                 check((mc.gui.screen() as FabricCreativeModeInventoryScreen).setSelectedTab(tab)) { "could not select pack tab" }
                 tab.displayItems.size
             }
-            check(tabItems == 14) { "basic pack tab should list 5 guns + 4 ammo + 5 attachments, has $tabItems" }
+            check(tabItems == 17) { "basic pack tab should list 5 guns + 4 ammo + 5 attachments + 3 grenades, has $tabItems" }
             context.waitTicks(2)
             context.takeScreenshot("flansmod-pack-tab")
             context.input.pressKey(InputConstants.KEY_ESCAPE)
@@ -145,6 +145,17 @@ class GunClientGameTest : FabricClientGameTest {
             server.runCommand("item replace entity @a weapon.mainhand with flansmod:gun[flansmod:gun=\"flansbasic:shotgun\",flansmod:ammo=6]")
             context.waitTicks(20)
             context.takeScreenshot("flansmod-basic-shotgun")
+
+            // Throw a smoke grenade with right click.
+            server.runCommand("item replace entity @a weapon.mainhand with flansmod:grenade[flansmod:grenade=\"flansbasic:smoke\",minecraft:item_model=\"flansbasic:smoke\"] 2")
+            context.waitTicks(5)
+            context.input.pressMouse(InputConstants.MOUSE_BUTTON_RIGHT)
+            context.waitTicks(10)
+            context.takeScreenshot("flansmod-grenade-flying")
+            context.waitTicks(70)
+            val left = server.compute { it.playerList.players.first().mainHandItem.count }
+            check(left == 1) { "throwing should use one grenade, $left left" }
+            context.takeScreenshot("flansmod-grenade-smoke")
         }
     }
 

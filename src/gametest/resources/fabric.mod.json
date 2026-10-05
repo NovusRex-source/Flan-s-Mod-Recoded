@@ -5,7 +5,10 @@
   "name": "Flan's Mod: Recoded GameTests",
   "environment": "*",
   "entrypoints": {
-    "fabric-gametest": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunGameTests" }],
+    "fabric-gametest": [
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunGameTests" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GrenadeGameTests" }
+    ],
     "fabric-client-gametest": [{ "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" }]
   },
   "depends": { "flansmod": "*" }

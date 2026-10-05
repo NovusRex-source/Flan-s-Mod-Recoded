@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "NIN",
+    "IPI",
+    "NIN"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "P": "minecraft:paper"
+  },
+  "result": {
+    "id": "flansmod:grenade",
+    "count": 2,
+    "components": {
+      "flansmod:grenade": "flansbasic:smoke",
+      "minecraft:item_model": "flansbasic:smoke"
+    }
+  }
+}

@@ -7,6 +7,7 @@ import com.flansmod.recoded.gun.Content
 import com.flansmod.recoded.network.FlansNetworking
 import com.flansmod.recoded.registry.FlansComponents
 import com.flansmod.recoded.registry.FlansItems
+import com.flansmod.recoded.registry.FlansEntities
 import com.geckolib.animatable.GeoItem
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader
@@ -28,6 +29,7 @@ object FlansMod : ModInitializer {
     override fun onInitialize() {
         FlansComponents.init()
         FlansItems.init()
+        FlansEntities.init()
         GeoItem.registerSyncedAnimatable(FlansItems.GUN)
         FlansNetworking.init()
         Content.init()

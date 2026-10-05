@@ -6,7 +6,9 @@ import com.flansmod.recoded.contentpack.ContentPackSource
 import com.flansmod.recoded.gun.AmmoTypes
 import com.flansmod.recoded.gun.Attachments
 import com.flansmod.recoded.gun.Content
+import com.flansmod.recoded.gun.Grenades
 import com.flansmod.recoded.gun.Guns
+import com.flansmod.recoded.item.GrenadeItem
 import com.flansmod.recoded.gun.IdentifierSerializer
 import com.flansmod.recoded.item.AmmoItem
 import com.flansmod.recoded.item.AttachmentItem
@@ -78,6 +80,7 @@ object PackTabs {
                     ids(Guns.all).forEach { output.accept(GunItem.stackFor(it)) }
                     ids(AmmoTypes.all).forEach { output.accept(AmmoItem.stackFor(it)) }
                     ids(Attachments.all).forEach { output.accept(AttachmentItem.stackFor(it)) }
+                    ids(Grenades.all).forEach { output.accept(GrenadeItem.stackFor(it)) }
                 }
                 .build(),
         )
@@ -87,6 +90,7 @@ object PackTabs {
     private fun stackFor(id: Identifier): ItemStack = when {
         AmmoTypes[id] != null -> AmmoItem.stackFor(id)
         Attachments[id] != null -> AttachmentItem.stackFor(id)
+        Grenades[id] != null -> GrenadeItem.stackFor(id)
         else -> GunItem.stackFor(id)
     }
 
