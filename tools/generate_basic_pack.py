@@ -278,16 +278,17 @@ FIRE_MODES = {
 }
 
 # ------------------------------------------------------------------------------------------- attachments
+# Sight attachments: ads_height = height of the optic's line of sight (dot / lens centre) above the rail, in model pixels.
 ATTACHMENTS = {
-    "red_dot": dict(name="Red Dot Sight", slot="sight", stats={"ads_zoom": 1.5, "spread_multiplier": 0.9, "ads_height": 1.2}),
-    "holographic": dict(name="Holographic Sight", slot="sight", stats={"ads_zoom": 1.4, "spread_multiplier": 0.85, "ads_height": 1.4}),
+    "red_dot": dict(name="Red Dot Sight", slot="sight", stats={"ads_zoom": 1.5, "spread_multiplier": 0.9, "ads_height": 1.5}),
+    "holographic": dict(name="Holographic Sight", slot="sight", stats={"ads_zoom": 1.4, "spread_multiplier": 0.85, "ads_height": 1.5}),
     "acog": dict(name="ACOG 4x Scope", slot="sight", stats={"ads_zoom": 4.0, "spread_multiplier": 0.8, "ads_move_speed_multiplier": 0.85,
-                 "ads_height": 1.6, "scope": {"overlay": f"{NS}:textures/scope/acog.png"}}),
+                 "ads_height": 1.7, "scope": {"overlay": f"{NS}:textures/scope/acog.png"}}),
     "sniper_scope": dict(name="8x Sniper Scope", slot="sight", stats={"ads_zoom": 8.0, "spread_multiplier": 0.7, "ads_move_speed_multiplier": 0.7,
-                         "ads_height": 2.0, "scope": {"overlay": f"{NS}:textures/scope/sniper.png"}}),
-    "nv_scope": dict(name="Night Vision Scope", slot="sight", stats={"ads_zoom": 4.0, "ads_move_speed_multiplier": 0.85, "ads_height": 1.8,
+                         "ads_height": 1.5, "scope": {"overlay": f"{NS}:textures/scope/sniper.png"}}),
+    "nv_scope": dict(name="Night Vision Scope", slot="sight", stats={"ads_zoom": 4.0, "ads_move_speed_multiplier": 0.85, "ads_height": 1.7,
                      "scope": {"overlay": f"{NS}:textures/scope/night_vision.png", "night_vision": True}}),
-    "thermal_scope": dict(name="Thermal Scope", slot="sight", stats={"ads_zoom": 3.0, "ads_move_speed_multiplier": 0.85, "ads_height": 1.8,
+    "thermal_scope": dict(name="Thermal Scope", slot="sight", stats={"ads_zoom": 3.0, "ads_move_speed_multiplier": 0.85, "ads_height": 1.7,
                           "scope": {"overlay": f"{NS}:textures/scope/thermal.png", "thermal": True, "thermal_range": 96}}),
     "suppressor": dict(name="Suppressor", slot="muzzle", stats={"damage_multiplier": 0.9, "hide_tracer": True, "shoot_sound": f"{NS}:gun.suppressed"}),
     "compensator": dict(name="Compensator", slot="muzzle", stats={"recoil_multiplier": 0.7}),
@@ -315,12 +316,18 @@ GRENADES = {
 def attachment_cubes(name, geo):
     top, sz = geo["sight"]
     my, mz = geo["muzzle"]
+    # Reflex sights are open frames (opaque textures cannot show glass) with the reticle floating in the window,
+    # centred ads_height = 1.5 px above the rail so aiming looks straight through it.
     if name == "red_dot":
-        return [cube((-1, top, sz - 1.5), (2, 0.5, 3)), cube((-1, top + 0.5, sz - 1), (2, 2, 0.4)),
-                cube((-0.3, top + 1.2, sz - 0.9), (0.6, 0.6, 0.2), "red")]
+        return [cube((-1, top, sz - 1.5), (2, 0.5, 3)), cube((-1, top + 0.5, sz - 1), (0.4, 2, 0.4)),
+                cube((0.6, top + 0.5, sz - 1), (0.4, 2, 0.4)), cube((-1, top + 2.5, sz - 1), (2, 0.4, 0.4)),
+                cube((-0.15, top + 1.35, sz - 0.9), (0.3, 0.3, 0.2), "red")]
     if name == "holographic":
-        return [cube((-1.1, top, sz - 2), (2.2, 0.6, 4)), cube((-1.1, top + 0.6, sz - 1.8), (0.4, 2, 3.6)),
-                cube((0.7, top + 0.6, sz - 1.8), (0.4, 2, 3.6)), cube((-0.7, top + 0.8, sz - 1.6), (1.4, 1.4, 0.2), "lens")]
+        ring = [((-0.1, 1.4), (0.2, 0.2)), ((-0.35, 1.95), (0.7, 0.1)), ((-0.35, 0.95), (0.7, 0.1)),
+                ((-0.45, 1.05), (0.1, 0.9)), ((0.35, 1.05), (0.1, 0.9))]
+        return [cube((-1.1, top, sz - 2), (2.2, 0.6, 4)), cube((-1.1, top + 0.6, sz - 1.8), (0.4, 2.2, 3.6)),
+                cube((0.7, top + 0.6, sz - 1.8), (0.4, 2.2, 3.6)), cube((-1.1, top + 2.8, sz - 1.8), (2.2, 0.3, 3.6))] + \
+            [cube((x, top + y, sz - 1.0), (w, h, 0.1), "red") for (x, y), (w, h) in ring]
     if name in ("acog", "nv_scope", "thermal_scope"):
         mat = {"acog": "tan", "nv_scope": "olive", "thermal_scope": "polymer"}[name]
         return [cube((-0.5, top, sz - 2), (1, 0.6, 1)), cube((-0.5, top, sz + 1), (1, 0.6, 1)),
@@ -674,6 +681,8 @@ def gun_definition(gid, g, geo):
         "damage": g["dmg"], "rpm": g["rpm"], "fire_mode": g["mode"], "reload_ticks": g["reload"],
         "velocity": g["vel"], "spread": g["spread"], "ads_spread": g.get("ads_spread", round(g["spread"] / 5, 2)),
         "ads_zoom": g["zoom"], "ads_move_speed": g.get("move", 0.6),
+        # Aiming pose height for a sight line exactly on the rail; optics add their own height above it.
+        "rail_ads": round(6.0 + (10 - geo["sight"][0]), 2),
         "recoil": {"pitch": g["recoil"][0], "yaw": g["recoil"][1]},
         "magazines": [f"{NS}:{m}" for m, mag in MAGAZINES.items() if gid in mag["guns"]],
         "sounds": {"shoot": f"{NS}:gun.{g['sound']}.shoot", "reload": f"{NS}:gun.reload", "empty": f"{NS}:gun.empty"},

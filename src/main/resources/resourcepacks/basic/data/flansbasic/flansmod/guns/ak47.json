@@ -12,6 +12,7 @@
   "ads_spread": 0.6,
   "ads_zoom": 1.35,
   "ads_move_speed": 0.6,
+  "rail_ads": 6.8,
   "recoil": {
     "pitch": 1.6,
     "yaw": 0.9

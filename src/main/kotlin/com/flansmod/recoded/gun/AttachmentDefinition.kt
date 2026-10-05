@@ -29,7 +29,10 @@ data class AttachmentDefinition(
     @SerialName("hide_tracer") val hideTracer: Boolean = false,
     /** Optic effects while aiming through this sight (overlay, night vision, thermal). */
     val scope: Scope? = null,
-    /** How much higher (in model pixels) this sight's line of sight is; the aiming pose is lowered by it. */
+    /**
+     * Height of this sight's line of sight (dot or lens centre) above the gun's rail, in model pixels. Guns with
+     * `rail_ads` aim exactly through it; for other guns the aiming pose is just lowered by this amount.
+     */
     @SerialName("ads_height") val adsHeight: Float = 0f,
     /** Item model (an `assets/<ns>/items/<name>.json` id) used for the attachment item. */
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
@@ -37,10 +40,11 @@ data class AttachmentDefinition(
     fun fits(gunId: Identifier, gun: GunDefinition) = slot in gun.attachmentSlots && (guns.isEmpty() || gunId in guns)
 }
 
-private fun GunDefinition.lowerAds(height: Float): Map<String, Transform> {
+private fun GunDefinition.adsThroughSight(height: Float): Map<String, Transform> {
     val ads = display[Transform.ADS] ?: Transform.DEFAULTS.getValue(Transform.ADS)
     val t = ads.translation
-    return display + (Transform.ADS to ads.copy(translation = listOf(t[0], t[1] - height, t.getOrElse(2) { 0f })))
+    val y = railAds?.minus(height) ?: (t[1] - height)
+    return display + (Transform.ADS to ads.copy(translation = listOf(t[0], y, t.getOrElse(2) { 0f })))
 }
 
 /** The gun's stats with all [attachments] applied. */
@@ -58,6 +62,6 @@ fun GunDefinition.withAttachments(attachments: Collection<AttachmentDefinition>)
             sounds = a.shootSound?.let { gun.sounds.copy(shoot = it) } ?: gun.sounds,
             tracer = if (a.hideTracer) null else gun.tracer,
             scope = a.scope ?: if (a.slot == "sight") null else gun.scope,
-            display = if (a.adsHeight == 0f) gun.display else gun.lowerAds(a.adsHeight),
+            display = if (a.adsHeight == 0f) gun.display else gun.adsThroughSight(a.adsHeight),
         )
     }

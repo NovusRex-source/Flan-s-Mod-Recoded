@@ -60,6 +60,11 @@ data class GunDefinition(
     val tracer: Tracer? = Tracer(),
     /** Attachment slots this gun offers, e.g. `["sight", "barrel"]`. */
     @SerialName("attachment_slots") val attachmentSlots: List<String> = emptyList(),
+    /**
+     * `ads` translation Y (1/16 block) that puts a line of sight lying exactly on the sight rail at the screen centre.
+     * Sight attachments then aim through their own optic ([AttachmentDefinition.adsHeight] above the rail).
+     */
+    @SerialName("rail_ads") val railAds: Float? = null,
     /** Vehicle weapon: only fired from a vehicle seat, never listed as an item. */
     val mounted: Boolean = false,
 ) {
@@ -111,7 +116,8 @@ data class Transform(
         val DEFAULTS = mapOf(
             "firstperson_righthand" to Transform(translation = listOf(6f, 2f, -3f)),
             ADS to Transform(translation = listOf(-1f, 6f, -6f)),
-            "thirdperson_righthand" to Transform(scale = listOf(0.8f, 0.8f, 0.8f)),
+            // Crossbow-hold arms converge on the chest: turn the gun back to straight ahead and pull the stock to the shoulder.
+            "thirdperson_righthand" to Transform(rotation = listOf(0f, -32f, 0f), translation = listOf(-3f, 1f, 8f), scale = listOf(0.8f, 0.8f, 0.8f)),
             "gui" to Transform(rotation = listOf(0f, -90f, 0f), translation = listOf(-1.5f, -0.5f, 0f), scale = listOf(0.65f, 0.65f, 0.65f)),
             "fixed" to Transform(rotation = listOf(0f, -90f, 0f), translation = listOf(-1.5f, -0.5f, 0f), scale = listOf(0.65f, 0.65f, 0.65f)),
             "ground" to Transform(translation = listOf(0f, -2f, 0f), scale = listOf(0.5f, 0.5f, 0.5f)),

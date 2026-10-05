@@ -5,7 +5,7 @@
   "ads_zoom": 4.0,
   "spread_multiplier": 0.8,
   "ads_move_speed_multiplier": 0.85,
-  "ads_height": 1.6,
+  "ads_height": 1.7,
   "scope": {
     "overlay": "flansbasic:textures/scope/acog.png"
   }

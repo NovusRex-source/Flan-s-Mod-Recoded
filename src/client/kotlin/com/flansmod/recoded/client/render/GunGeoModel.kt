@@ -60,7 +60,8 @@ class GunGeoModel : GeoModel<GunItem>() {
             is GeoItemRenderer.RenderData -> relatedObject.itemStack()
             else -> null
         }
-        val model = stack?.gunId?.let { id -> Guns[id]?.resolvedModel(id) } ?: MISSING
+        // The effective definition: sight attachments move the aiming pose to their own line of sight.
+        val model = stack?.gunId?.let { id -> stack.definition?.resolvedModel(id) } ?: MISSING
         renderState.addGeckolibData(MODEL, model)
         val owner = (relatedObject as? GeoItemRenderer.RenderData)?.itemOwner()?.asLivingEntity()
         renderState.addGeckolibData(ATTACHMENTS, InstalledAttachments(
@@ -131,7 +132,7 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
         val bones = renderPassInfo.model().boneLookup().get().keys
         // Looking through a scope overlay: the gun is not drawn in first person (like the spyglass).
         val context = state.getGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE)
-        if (info.scoped && context?.firstPerson() == true && (state.getGeckolibData(AIM) ?: 0f) > ScopeOverlay.THRESHOLD) {
+        if (state.lookingThroughScope) {
             bones.forEach { b -> snapshots.ifPresent(b) { it.skipRender(true).skipChildrenRender(true) } }
             return
         }
@@ -176,19 +177,26 @@ class GunRenderer : GeoItemRenderer<GunItem>(GunGeoModel()) {
 }
 
 
+/** Fully aimed through a scope overlay in first person: neither the gun nor the arms are drawn (like the spyglass). */
+private val GeoRenderState.lookingThroughScope: Boolean
+    get() = getGeckolibData(ATTACHMENTS)?.scoped == true &&
+        getGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE)?.firstPerson() == true &&
+        (getGeckolibData(AIM) ?: 0f) > ScopeOverlay.THRESHOLD
+
 private fun List<Float>.vec(divisor: Float = 1f) = Vector3f(getOrElse(0) { 0f } / divisor, getOrElse(1) { 0f } / divisor, getOrElse(2) { 0f } / divisor)
 
 private fun Transform.toVanilla() = ItemTransform(rotation.vec(), translation.vec(16f), scale.vec())
 
 /**
  * Re-draws an arm bone of the gun model with the local player's skin (GeckoLib's per-bone texture layer); only in
- * first person, the only view in which the arms exist.
+ * first person, the only view in which the arms exist, and not while looking through a scope.
  */
 private class SkinArmLayer(renderer: GeoRenderer<GunItem, GeoItemRenderer.RenderData, GeoRenderState>, bone: String) :
     CustomBoneTextureGeoLayer<GunItem, GeoItemRenderer.RenderData, GeoRenderState>(renderer, bone, DefaultPlayerSkin.getDefaultTexture()) {
 
+    // The layer draws its bone itself, so the scope's bone hiding does not reach it.
     override fun shouldRenderBone(renderState: GeoRenderState) =
-        renderState.getGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE)?.firstPerson() == true
+        renderState.getGeckolibData(DataTickets.ITEM_RENDER_PERSPECTIVE)?.firstPerson() == true && !renderState.lookingThroughScope
 
     override fun getTextureResource(renderState: GeoRenderState): Identifier =
         Minecraft.getInstance().player?.skin?.body()?.texturePath() ?: texture
