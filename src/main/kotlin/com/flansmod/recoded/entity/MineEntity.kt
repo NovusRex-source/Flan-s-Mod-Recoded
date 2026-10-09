@@ -99,10 +99,7 @@ class MineEntity(type: EntityType<out MineEntity>, level: Level) : Entity(type, 
             vehicle.definition?.parts?.filterValues { it.role == PartRole.PROPULSION }?.minByOrNull { (_, p) -> p.center.distanceToSqr(local) }
                 ?.let { (part, _) -> vehicle.hurtPart(level, source, mine.vehicleDamage, part) }
         }
-        def.explosion?.let { e ->
-            level.explode(this, x, y + 0.1, z, e.power, e.fire, if (e.breakBlocks) Level.ExplosionInteraction.TNT else Level.ExplosionInteraction.NONE)
-            if (e.fire) Incendiary.spreadFire(level, position(), e.power.toDouble() + 1.0, random)
-        }
+        def.explosion?.let { com.flansmod.recoded.combat.Explosives.explode(level, this, position().add(0.0, 0.1, 0.0), it) }
     }
 
     override fun hurtServer(level: ServerLevel, source: DamageSource, amount: Float): Boolean {

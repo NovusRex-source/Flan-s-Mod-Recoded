@@ -1,0 +1,13 @@
+{
+  "name": "122mm HE",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.05,
+  "fuse_ticks": 600,
+  "icon": "flansww2:122mm_howitzer_he",
+  "explosion": {
+    "power": 4.5,
+    "break_blocks": true
+  }
+}

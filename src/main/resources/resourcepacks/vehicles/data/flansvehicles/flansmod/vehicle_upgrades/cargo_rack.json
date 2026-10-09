@@ -1,0 +1,10 @@
+{
+  "name": "Cargo Rack",
+  "slot": "cargo",
+  "icon": "flansvehicles:cargo_rack",
+  "storage_bonus": 18,
+  "speed_multiplier": 0.97,
+  "types": [
+    "car"
+  ]
+}

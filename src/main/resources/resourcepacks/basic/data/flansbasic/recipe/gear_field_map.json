@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "HHH",
+    "HKV",
+    "HHH"
+  ],
+  "key": {
+    "H": "minecraft:paper",
+    "K": "minecraft:black_dye",
+    "V": "minecraft:green_dye"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansbasic:field_map"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Uprated Rotor Head",
+  "slot": "engine",
+  "icon": "flansvehicles:uprated_rotor",
+  "speed_multiplier": 1.1,
+  "acceleration_multiplier": 1.25,
+  "turn_multiplier": 1.15,
+  "types": [
+    "helicopter"
+  ]
+}

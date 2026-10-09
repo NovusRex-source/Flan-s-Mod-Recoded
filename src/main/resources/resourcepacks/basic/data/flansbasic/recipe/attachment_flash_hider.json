@@ -1,0 +1,22 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NXN"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "X": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:polymer"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:attachment",
+    "components": {
+      "flansmod:attachment": "flansbasic:flash_hider"
+    }
+  }
+}

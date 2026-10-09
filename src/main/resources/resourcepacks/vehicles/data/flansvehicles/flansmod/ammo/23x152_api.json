@@ -1,0 +1,7 @@
+{
+  "name": "23\u00d7152mm API",
+  "caliber": "23x152",
+  "icon": "flansvehicles:23x152_api",
+  "armor_piercing": true,
+  "fire_seconds": 4
+}

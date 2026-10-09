@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "PNP",
+    "I I"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "P": "minecraft:glass_pane"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansbasic:binoculars"
+    }
+  }
+}

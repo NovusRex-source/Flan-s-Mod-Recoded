@@ -1,0 +1,16 @@
+{
+  "name": "Concussion Grenade",
+  "fuse_ticks": 50,
+  "bounciness": 0.3,
+  "explosion": {
+    "power": 3.2,
+    "fire": false,
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 2.5,
+      "max_resistance": 1.5,
+      "chance": 0.6
+    }
+  },
+  "icon": "flansbasic:concussion"
+}

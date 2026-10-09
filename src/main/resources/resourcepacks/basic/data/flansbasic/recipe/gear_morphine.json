@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "P",
+    "Z",
+    "N"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "P": "minecraft:glass_pane",
+    "Z": "minecraft:blaze_powder"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 2,
+    "components": {
+      "flansmod:gear": "flansbasic:morphine",
+      "minecraft:max_stack_size": 8
+    }
+  }
+}

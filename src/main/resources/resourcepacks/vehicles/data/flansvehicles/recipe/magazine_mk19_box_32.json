@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IIIIN",
+    "IKKI "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "K": "minecraft:black_dye",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:magazine",
+    "components": {
+      "flansmod:magazine": {
+        "magazine": "flansvehicles:mk19_box_32"
+      }
+    }
+  }
+}

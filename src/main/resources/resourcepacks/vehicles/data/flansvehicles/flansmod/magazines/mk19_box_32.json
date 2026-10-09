@@ -1,0 +1,9 @@
+{
+  "name": "Mk 19 Ammo Can (32)",
+  "caliber": "40x53",
+  "capacity": 32,
+  "guns": [
+    "flansvehicles:mk19"
+  ],
+  "icon": "flansvehicles:mk19_box_32"
+}

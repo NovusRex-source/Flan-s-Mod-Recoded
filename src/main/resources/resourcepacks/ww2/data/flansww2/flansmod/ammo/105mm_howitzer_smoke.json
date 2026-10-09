@@ -1,0 +1,7 @@
+{
+  "name": "105mm Smoke Shell",
+  "caliber": "105mm",
+  "max_stack": 8,
+  "icon": "flansww2:105mm_howitzer_smoke",
+  "projectile": "flansww2:105mm_howitzer_smoke"
+}

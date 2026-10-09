@@ -1,0 +1,33 @@
+{
+  "name": "ZU-23-2 Twin 23mm",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 12,
+  "rpm": 1000,
+  "fire_mode": "auto",
+  "reload_ticks": 100,
+  "velocity": 18,
+  "spread": 0.8,
+  "ads_spread": 0.32000000000000006,
+  "ads_zoom": 2.0,
+  "scope": {
+    "overlay": "flansvehicles:textures/scope/aa_ring.png"
+  },
+  "lifetime_ticks": 30,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.autocannon.shoot",
+    "reload": "flansvehicles:vehicle.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
+  "pellets": 2,
+  "gravity": 0.012,
+  "recoil": {
+    "pitch": 0.25,
+    "yaw": 0.25
+  },
+  "tracer": {
+    "color": "#FFB040",
+    "width": 0.08,
+    "length": 5
+  }
+}

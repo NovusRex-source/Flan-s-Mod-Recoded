@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NINN",
+    "I I ",
+    "NIN "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:vehicle_upgrade",
+    "components": {
+      "flansmod:vehicle_upgrade": "flansvehicles:cargo_pod"
+    }
+  }
+}

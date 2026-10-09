@@ -1,0 +1,9 @@
+{
+  "name": "M134 Ammo Can (1000)",
+  "caliber": "762x51",
+  "capacity": 1000,
+  "guns": [
+    "flansvehicles:m134"
+  ],
+  "icon": "flansvehicles:m134_can_1000"
+}

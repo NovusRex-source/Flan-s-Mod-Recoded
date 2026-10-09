@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "PWP",
+    "I I"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:glass_pane",
+    "W": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansww2:dienstglas"
+    }
+  }
+}

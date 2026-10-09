@@ -1,0 +1,23 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "AAAA",
+    "N  N"
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:armor_plate"
+      }
+    },
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:vehicle_upgrade",
+    "components": {
+      "flansmod:vehicle_upgrade": "flansvehicles:side_skirts"
+    }
+  }
+}

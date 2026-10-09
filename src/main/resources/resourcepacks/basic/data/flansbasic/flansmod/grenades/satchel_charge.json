@@ -1,0 +1,19 @@
+{
+  "name": "Satchel Charge",
+  "fuse_ticks": 100,
+  "bounciness": 0.1,
+  "throw_velocity": 0.6,
+  "max_stack": 4,
+  "cooldown_ticks": 40,
+  "explosion": {
+    "power": 4.0,
+    "fire": false,
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 3.0,
+      "max_resistance": 6.0,
+      "chance": 0.75
+    }
+  },
+  "icon": "flansbasic:satchel_charge"
+}

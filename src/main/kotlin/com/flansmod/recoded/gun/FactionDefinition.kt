@@ -22,4 +22,4 @@ data class FactionDefinition(
 }
 
 /** The faction of whatever definition [id] names (guns, vehicles, grenades, clothing). */
-fun factionOf(id: Identifier): Identifier? = Guns[id]?.faction ?: Vehicles[id]?.faction ?: Grenades[id]?.faction ?: Clothing[id]?.faction
+fun factionOf(id: Identifier): Identifier? = Guns[id]?.faction ?: Vehicles[id]?.faction ?: Grenades[id]?.faction ?: Clothing[id]?.faction ?: Gear[id]?.faction

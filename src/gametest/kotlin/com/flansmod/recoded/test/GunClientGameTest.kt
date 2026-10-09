@@ -136,16 +136,18 @@ class GunClientGameTest : FabricClientGameTest {
             context.waitForScreen(CreativeModeInventoryScreen::class.java)
             val expected = context.client {
                 Guns.all.values.count { !it.mounted } + Magazines.all.values.count { !it.internal } + AmmoTypes.all.size + Attachments.all.size +
-                    Grenades.all.values.count { it.throwable } + com.flansmod.recoded.gun.Clothing.all.size + com.flansmod.recoded.gun.Parts.all.size + 1
+                    Grenades.all.values.count { it.throwable } + com.flansmod.recoded.gun.Clothing.all.size + com.flansmod.recoded.gun.Gear.all.size + com.flansmod.recoded.gun.Parts.all.size + 1 +
+                    com.flansmod.recoded.gun.Vehicles.all.size + com.flansmod.recoded.gun.VehicleUpgrades.all.size + com.flansmod.recoded.client.tab.CreativeContent.vehicleTools().size +
+                    com.flansmod.recoded.fortification.Fortifications.ALL.size + com.flansmod.recoded.gun.Structures.all.size + 4 // team flag, spawn point, border marker, battle master
             }
             val listed = context.client { mc ->
-                listOf("weapons", "ammo", "attachments", "explosives", "equipment", "crafting").sumOf { type ->
+                listOf("weapons", "ammo", "attachments", "vehicles", "equipment", "fortifications", "crafting").sumOf { type ->
                     val tab = BuiltInRegistries.CREATIVE_MODE_TAB.getValue(com.flansmod.recoded.client.tab.TypeTabs.id(type)) ?: error("no $type tab")
                     check((mc.gui.screen() as FabricCreativeModeInventoryScreen).setSelectedTab(tab)) { "could not select $type tab" }
                     tab.displayItems.size
                 }
             }
-            check(listed == expected) { "type tabs should list all $expected items once, list $listed" }
+            check(listed == expected) { "the type tabs should list every one of the $expected items exactly once, they list $listed" }
             context.input.pressKey(InputConstants.KEY_ESCAPE)
 
             // Basic pack guns in hand: scoped sniper (aimed) and shotgun (hip).
@@ -277,7 +279,7 @@ class GunClientGameTest : FabricClientGameTest {
             // Every type tab, with 3D item models.
             server.runCommand("gamemode creative @a")
             context.waitTicks(5)
-            for (type in listOf("weapons", "ammo", "attachments", "explosives", "vehicles", "equipment", "crafting")) {
+            for (type in listOf("weapons", "ammo", "attachments", "vehicles", "equipment", "fortifications", "crafting")) {
                 context.input.pressKey { it.keyInventory }
                 context.waitForScreen(CreativeModeInventoryScreen::class.java)
                 context.runOnClient<RuntimeException> { mc ->

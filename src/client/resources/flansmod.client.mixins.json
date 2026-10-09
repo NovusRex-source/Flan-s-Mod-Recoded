@@ -8,7 +8,9 @@
     "GameRendererMixin",
     "CreativeModeTabsAccessor",
     "MinecraftGlowMixin",
-    "MouseHandlerMixin"
+    "MouseHandlerMixin",
+    "AbstractContainerScreenAccessor",
+    "CreativeInventoryScreenMixin"
   ],
   "injectors": { "defaultRequire": 1 }
 }

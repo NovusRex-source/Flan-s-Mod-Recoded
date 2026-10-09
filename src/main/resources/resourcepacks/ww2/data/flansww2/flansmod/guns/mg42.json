@@ -29,7 +29,9 @@
     "safe",
     "auto"
   ],
-  "attachment_slots": [],
+  "attachment_slots": [
+    "underbarrel"
+  ],
   "category": "lmg",
   "display": {
     "gui": {

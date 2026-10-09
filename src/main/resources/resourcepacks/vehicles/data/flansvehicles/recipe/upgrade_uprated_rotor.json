@@ -1,0 +1,24 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "III",
+    "RER"
+  ],
+  "key": {
+    "E": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:engine"
+      }
+    },
+    "I": "minecraft:iron_ingot",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:vehicle_upgrade",
+    "components": {
+      "flansmod:vehicle_upgrade": "flansvehicles:uprated_rotor"
+    }
+  }
+}

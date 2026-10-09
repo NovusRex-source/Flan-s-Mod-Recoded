@@ -11,10 +11,19 @@ import net.minecraft.world.entity.player.Inventory
 
 /**
  * Vehicle menu: upgrade slots (drag upgrades in/out), the fuel slot, the vehicle's effective stats and, left of the
- * panel, a health bar per part (the right side is where recipe viewers list items).
+ * panel, a health bar per part (the right side is where recipe viewers list items), and a button to the cargo.
  */
 class VehicleMenuScreen(menu: VehicleMenu, inventory: Inventory, title: Component) :
     AbstractContainerScreen<VehicleMenu>(menu, inventory, title, 176, 166) {
+
+    override fun init() {
+        super.init()
+        // Cargo: opens the vehicle's storage as a chest (vanilla menu button).
+        val storage = menu.vehicle?.definition?.storage ?: 0
+        if (storage > 0) addRenderableWidget(net.minecraft.client.gui.components.Button.builder(Component.translatable("gui.flansmod.vehicle.storage", storage)) {
+            minecraft.gameMode?.handleInventoryButtonClick(menu.containerId, VehicleMenu.STORAGE_BUTTON)
+        }.bounds(leftPos + imageWidth + 4, topPos + 4, 70, 20).build())
+    }
 
     override fun extractBackground(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick)

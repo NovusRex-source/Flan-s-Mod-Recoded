@@ -1,0 +1,27 @@
+{
+  "name": "M2 Browning (wing guns)",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 11,
+  "rpm": 800,
+  "fire_mode": "auto",
+  "reload_ticks": 80,
+  "velocity": 18,
+  "spread": 1.3,
+  "ads_spread": 0.52,
+  "ads_zoom": 1.2,
+  "scope": {
+    "overlay": "flansww2:textures/scope/mg_ring.png"
+  },
+  "lifetime_ticks": 60,
+  "sounds": {
+    "shoot": "flansww2:vehicle.hmg.shoot",
+    "reload": "flansww2:vehicle.reload",
+    "empty": "flansww2:vehicle.empty"
+  },
+  "gravity": 0.015,
+  "recoil": {
+    "pitch": 0.4,
+    "yaw": 0.3
+  }
+}

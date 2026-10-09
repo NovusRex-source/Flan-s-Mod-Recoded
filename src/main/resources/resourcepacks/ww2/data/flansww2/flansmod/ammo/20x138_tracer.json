@@ -1,0 +1,11 @@
+{
+  "name": "2 cm (20\u00d7138mm) Tracer",
+  "caliber": "20x138",
+  "icon": "flansww2:20x138_tracer",
+  "damage_multiplier": 0.95,
+  "tracer": {
+    "color": "#FF4020",
+    "width": 0.06,
+    "length": 5
+  }
+}

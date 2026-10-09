@@ -1,7 +1,8 @@
 {
-  "name": "Suppressor",
+  "name": "Example Suppressor",
   "slot": "barrel",
   "damage_multiplier": 0.9,
   "hide_tracer": true,
-  "shoot_sound": "minecraft:entity.arrow.shoot"
+  "shoot_sound": "flansbasic:gun.suppressed",
+  "icon": "flansbasic:suppressor"
 }

@@ -1,0 +1,24 @@
+{
+  "name": "M776 155mm Howitzer",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 0,
+  "rpm": 6,
+  "fire_mode": "semi",
+  "reload_ticks": 120,
+  "velocity": 2.6,
+  "spread": 0.3,
+  "ads_spread": 0.12,
+  "ads_zoom": 1.0,
+  "lifetime_ticks": 600,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.cannon.shoot",
+    "reload": "flansvehicles:vehicle.cannon.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
+  "recoil": {
+    "pitch": 1.5,
+    "yaw": 0.4
+  },
+  "tracer": null
+}

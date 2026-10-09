@@ -1,0 +1,7 @@
+{
+  "name": "Binoculars",
+  "type": "binoculars",
+  "zoom": 6.0,
+  "overlay": "flansbasic:textures/scope/binoculars.png",
+  "icon": "flansbasic:binoculars"
+}

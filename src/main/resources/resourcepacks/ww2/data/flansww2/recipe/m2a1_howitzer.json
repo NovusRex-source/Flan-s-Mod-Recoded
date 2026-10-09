@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "   BB ",
+    "IIBIIC",
+    "I  I  ",
+    "N  N  "
+  ],
+  "key": {
+    "B": "minecraft:iron_block",
+    "C": "minecraft:copper_ingot",
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "flansmod:vehicle",
+    "components": {
+      "flansmod:vehicle": "flansww2:m2a1_howitzer"
+    }
+  }
+}

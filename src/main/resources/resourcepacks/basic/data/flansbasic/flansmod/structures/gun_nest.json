@@ -1,0 +1,11 @@
+{
+  "name": "Sandbag Gun Nest",
+  "category": "nest",
+  "y_offset": 0,
+  "price": 200,
+  "size": [
+    5,
+    2,
+    5
+  ]
+}

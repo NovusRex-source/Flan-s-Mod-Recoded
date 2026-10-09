@@ -38,6 +38,10 @@ class ClothingItem(properties: Properties) : Item(properties) {
     override fun appendHoverText(stack: ItemStack, context: TooltipContext, display: net.minecraft.world.item.component.TooltipDisplay,
                                  add: java.util.function.Consumer<Component>, flag: net.minecraft.world.item.TooltipFlag) {
         Tooltips.faction(add, stack.clothingDefinition?.faction)
+        stack.clothingDefinition?.plateSlots?.takeIf { it > 0 }?.let { slots ->
+            val used = com.flansmod.recoded.gear.GearSlots.plates(stack, slots).count { !it.isEmpty }
+            add.accept(Component.translatable("tooltip.flansmod.clothing.plates", used, slots).withStyle(net.minecraft.ChatFormatting.GRAY))
+        }
     }
 
     override fun inventoryTick(stack: ItemStack, level: ServerLevel, owner: Entity, slot: EquipmentSlot?) {
@@ -62,11 +66,16 @@ class ClothingItem(properties: Properties) : Item(properties) {
                 .build())
             val group = EquipmentSlotGroup.bySlot(slot)
             val modifierId = FlansMod.id("clothing.${def.slot}")
+            // Inserted armour plates (modern armour) add their protection to the clothing's own.
+            val plates = if (def.plateSlots > 0) com.flansmod.recoded.gear.GearSlots.plates(stack, def.plateSlots).mapNotNull { com.flansmod.recoded.gun.Gear[it.get(FlansComponents.GEAR)] } else emptyList()
+            val armor = def.armor + plates.sumOf { it.armor }
+            val toughness = def.toughness + plates.sumOf { it.toughness }
+            val speed = def.speedModifier + plates.sumOf { it.speedModifier }
             stack.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.builder().apply {
-                if (def.armor != 0.0) add(Attributes.ARMOR, AttributeModifier(modifierId, def.armor, AttributeModifier.Operation.ADD_VALUE), group)
-                if (def.toughness != 0.0) add(Attributes.ARMOR_TOUGHNESS, AttributeModifier(modifierId, def.toughness, AttributeModifier.Operation.ADD_VALUE), group)
+                if (armor != 0.0) add(Attributes.ARMOR, AttributeModifier(modifierId, armor, AttributeModifier.Operation.ADD_VALUE), group)
+                if (toughness != 0.0) add(Attributes.ARMOR_TOUGHNESS, AttributeModifier(modifierId, toughness, AttributeModifier.Operation.ADD_VALUE), group)
                 if (def.knockbackResistance != 0.0) add(Attributes.KNOCKBACK_RESISTANCE, AttributeModifier(modifierId, def.knockbackResistance, AttributeModifier.Operation.ADD_VALUE), group)
-                if (def.speedModifier != 0.0) add(Attributes.MOVEMENT_SPEED, AttributeModifier(modifierId, def.speedModifier, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), group)
+                if (speed != 0.0) add(Attributes.MOVEMENT_SPEED, AttributeModifier(modifierId, speed, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), group)
             }.build())
         }
 

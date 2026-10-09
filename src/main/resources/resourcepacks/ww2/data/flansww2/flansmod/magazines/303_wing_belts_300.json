@@ -1,0 +1,9 @@
+{
+  "name": ".303 Ammo Belts (300)",
+  "caliber": "303",
+  "capacity": 300,
+  "guns": [
+    "flansww2:browning303_wings"
+  ],
+  "icon": "flansww2:303_wing_belts_300"
+}

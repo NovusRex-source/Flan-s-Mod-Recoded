@@ -26,6 +26,10 @@ import com.flansmod.recoded.client.fuel.PetrolStationScreen
 import com.flansmod.recoded.client.gamemode.BattleHud
 import com.flansmod.recoded.client.gamemode.BattleMasterScreen
 import com.flansmod.recoded.client.gamemode.TeamFlagScreen
+import com.flansmod.recoded.client.gamemode.ShopEditorScreen
+import com.flansmod.recoded.client.gamemode.BattleSpawnScreen
+import com.flansmod.recoded.client.gamemode.SoldierRenderer
+import com.flansmod.recoded.client.gamemode.BattleMenuScreen
 import com.flansmod.recoded.registry.FlansMenus
 import net.minecraft.client.gui.screens.MenuScreens
 import com.flansmod.recoded.registry.FlansEntities
@@ -50,6 +54,8 @@ object FlansModClient : ClientModInitializer {
         EntityRendererRegistry.register(FlansEntities.MINE, ::MineRenderer)
         VehicleClient.init()
         com.flansmod.recoded.client.vehicle.ArtilleryClient.init()
+        com.flansmod.recoded.client.aircraft.AircraftClient.init()
+        com.flansmod.recoded.client.utility.UtilityClient.init()
         MenuScreens.register(FlansMenus.WEAPONS_BENCH, ::WeaponsBenchScreen)
         MenuScreens.register(FlansMenus.WEAPON, ::WeaponMenuScreen)
         MenuScreens.register(FlansMenus.VEHICLE, ::VehicleMenuScreen)
@@ -57,7 +63,17 @@ object FlansModClient : ClientModInitializer {
         MenuScreens.register(FlansMenus.PETROL_STATION, ::PetrolStationScreen)
         MenuScreens.register(FlansMenus.BATTLE_MASTER, ::BattleMasterScreen)
         MenuScreens.register(FlansMenus.TEAM_FLAG, ::TeamFlagScreen)
+        MenuScreens.register(FlansMenus.SHOP_EDITOR, ::ShopEditorScreen)
+        MenuScreens.register(FlansMenus.BATTLE_SPAWN, ::BattleSpawnScreen)
+        // The border wall stops the local player only while fighting (the server decides the same for everyone).
+        com.flansmod.recoded.gamemode.BattleWallBlock.clientFighter = { e ->
+            e == net.minecraft.client.Minecraft.getInstance().player && BattleHud.current?.let { it.inBattle && it.running && !it.waiting } == true
+        }
+        EntityRendererRegistry.register(FlansEntities.SOLDIER, ::SoldierRenderer)
         BattleHud.init()
+        BattleMenuScreen.init()
+        com.flansmod.recoded.client.movement.MovementClient.init()
+        com.flansmod.recoded.client.gear.GearClient.init()
         GunInput.init()
         GunHud.init()
     }

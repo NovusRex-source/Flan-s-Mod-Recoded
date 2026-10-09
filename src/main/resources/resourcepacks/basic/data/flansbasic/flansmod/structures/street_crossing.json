@@ -1,0 +1,11 @@
+{
+  "name": "Street Crossing",
+  "category": "street",
+  "y_offset": -1,
+  "price": 80,
+  "size": [
+    7,
+    5,
+    7
+  ]
+}

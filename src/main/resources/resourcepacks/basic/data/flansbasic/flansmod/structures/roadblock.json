@@ -1,0 +1,11 @@
+{
+  "name": "Roadblock",
+  "category": "checkpoint",
+  "y_offset": 0,
+  "price": 300,
+  "size": [
+    7,
+    2,
+    3
+  ]
+}

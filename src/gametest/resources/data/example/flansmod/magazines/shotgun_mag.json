@@ -1,5 +1,6 @@
 {
-  "name": "Shotgun Shells",
+  "name": "Tube Magazine (6)",
   "caliber": "example_shell",
-  "capacity": 6
+  "capacity": 6,
+  "internal": true
 }

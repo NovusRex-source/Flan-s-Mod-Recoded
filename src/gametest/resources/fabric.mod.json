@@ -11,10 +11,12 @@
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BenchGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.ClothingGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleGameTests" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.AircraftGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.AmmoGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.ContentGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.UtilityGameTests" },
-      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BattleGameTests" }
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BattleGameTests" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GearMovementGameTests" }
     ],
     "fabric-client-gametest": [
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" },
@@ -22,7 +24,10 @@
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleSeatsClientGameTest" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GalleryClientGameTest" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.VehicleGalleryClientGameTest" },
-      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BattleClientGameTest" }
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BattleClientGameTest" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GearMovementClientGameTest" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.AircraftClientGameTest" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.UtilityClientGameTest" }
     ]
   },
   "depends": { "flansmod": "*" }

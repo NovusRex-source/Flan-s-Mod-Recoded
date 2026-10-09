@@ -1,0 +1,52 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "OOOOOO",
+    "SS E  ",
+    "GFFFFF",
+    "  G   "
+  ],
+  "key": {
+    "E": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:aero_engine"
+      }
+    },
+    "F": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:airframe"
+      }
+    },
+    "G": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:mg_mount"
+      }
+    },
+    "O": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:rotor_blade"
+      }
+    },
+    "S": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:seat"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:vehicle",
+    "components": {
+      "flansmod:vehicle": "flansvehicles:uh1"
+    }
+  }
+}

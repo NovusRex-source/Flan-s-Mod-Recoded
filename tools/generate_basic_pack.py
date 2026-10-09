@@ -2,7 +2,7 @@
 """
 Generates the built-in "Basic" content pack (src/main/resources/resourcepacks/basic): famous real-world guns
 with their magazines and ammunition, attachments (incl. scopes), grenades and launcher projectiles, plus
-recipes, GeckoLib models + animations, textures, icons, scope overlays and sounds.
+recipes, GeckoLib models + animations, textures, icons, scope overlays, sounds and structure kits (structuresmith).
 
 It is a normal content pack; the mod code contains no guns. Edit the tables below and re-run:
     python3 tools/generate_basic_pack.py
@@ -17,6 +17,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 import gunsmith as gs
+import structuresmith as ss
 
 NS = "flansbasic"
 ROOT = Path(__file__).resolve().parent.parent / "src/main/resources/resourcepacks/basic"
@@ -207,17 +208,17 @@ GUNS = {
                    recoil=(1.7, 0.8), zoom=1.45, slots=["sight", "muzzle", "underbarrel"], sound="battle", body="tan"),
     # DMRs
     "svd": dict(name="SVD Dragunov", arch="dmr", L=1.25, furniture="wood", dmg=13, rpm=120, mode="semi", reload=60, vel=20, spread=3,
-                ads_spread=0.1, recoil=(3.2, 0.8), zoom=4.0, slots=["sight", "muzzle"], sound="battle",
+                ads_spread=0.1, recoil=(3.2, 0.8), zoom=4.0, slots=["sight", "muzzle", "underbarrel"], sound="battle",
                 scope={"overlay": f"{NS}:textures/scope/pso.png"}, ads_height=1.6),
     "m14": dict(name="M14 EBR", arch="dmr", L=1.15, furniture="polymer", dmg=9, rpm=300, mode="semi", reload=55, vel=18, spread=2.5,
                 ads_spread=0.2, recoil=(2.2, 0.7), zoom=1.5, slots=["sight", "muzzle", "underbarrel"], sound="battle"),
     # Snipers
     "m24": dict(name="M24", arch="sniper", L=1.2, furniture="olive", dmg=18, rpm=40, mode="semi", reload=70, vel=25, spread=4,
-                ads_spread=0.05, recoil=(6, 0.8), zoom=1.5, slots=["sight", "muzzle"], sound="sniper", headshot=2.5, move=0.45),
+                ads_spread=0.05, recoil=(6, 0.8), zoom=1.5, slots=["sight", "muzzle", "underbarrel"], sound="sniper", headshot=2.5, move=0.45),
     "awm": dict(name="AWM", arch="sniper", L=1.3, furniture="olive", dmg=22, rpm=35, mode="semi", reload=75, vel=28, spread=4,
-                ads_spread=0.03, recoil=(7, 0.8), zoom=1.5, slots=["sight", "muzzle"], sound="sniper", headshot=2.5, move=0.45),
+                ads_spread=0.03, recoil=(7, 0.8), zoom=1.5, slots=["sight", "muzzle", "underbarrel"], sound="sniper", headshot=2.5, move=0.45),
     "barrett": dict(name="Barrett M82", arch="sniper", L=1.5, furniture="polymer", dmg=28, rpm=90, mode="semi", reload=80, vel=30,
-                    spread=5, ads_spread=0.08, recoil=(8, 1.5), zoom=1.5, slots=["sight", "muzzle"], sound="heavy", headshot=2.0, move=0.4),
+                    spread=5, ads_spread=0.08, recoil=(8, 1.5), zoom=1.5, slots=["sight", "muzzle", "underbarrel"], sound="heavy", headshot=2.0, move=0.4),
     # Shotguns
     "m870": dict(name="Remington 870", arch="shotgun", L=1.0, furniture="wood", dmg=3, rpm=70, mode="semi", reload=60, vel=9, spread=7,
                  ads_spread=5, recoil=(4.5, 1.2), zoom=1.15, slots=["sight"], sound="shotgun", lifetime=15),
@@ -229,7 +230,7 @@ GUNS = {
     "m249": dict(name="M249 SAW", arch="lmg", L=1.1, furniture="polymer", dmg=6, rpm=800, mode="auto", reload=90, vel=14, spread=3.5,
                  recoil=(1.0, 0.8), zoom=1.35, slots=["sight", "muzzle", "underbarrel"], sound="rifle", move=0.5),
     "pkm": dict(name="PKM", arch="lmg", L=1.2, furniture="wood", dmg=8, rpm=650, mode="auto", reload=95, vel=16, spread=3.5,
-                recoil=(1.4, 1.0), zoom=1.35, slots=["sight", "muzzle"], sound="battle", move=0.5),
+                recoil=(1.4, 1.0), zoom=1.35, slots=["sight", "muzzle", "underbarrel"], sound="battle", move=0.5),
     # Launchers (fire grenade-type projectiles from their ammo)
     "m79": dict(name="M79 Grenade Launcher", arch="launcher", L=0.9, furniture="wood", dmg=0, rpm=30, mode="semi", reload=45, vel=1.6,
                 spread=1, recoil=(4, 1), zoom=1.2, slots=[], sound="launcher"),
@@ -312,19 +313,22 @@ ATTACHMENT_RECIPES = {
     "red_dot": ["ILI", " X "], "holographic": ["ILLI", " XX "], "acog": ["ILLI", "I  I"], "sniper_scope": ["ILLLI", "I   I"],
     "nv_scope": ["ILLI", "OXXO"], "thermal_scope": ["ILLI", "ZXXZ"], "suppressor": ["IKKKK"], "compensator": ["NIN"],
     "muzzle_brake": ["INI", "N N"], "vertical_grip": ["XX", " X", " X"], "angled_grip": ["XXX", "  X"],
+    "bipod": ["NXN", "N N"], "tripod": ["IXI", "N N", "N N"], "laser_sight": ["XLR"], "green_laser": ["XLV"], "flash_hider": ["NXN"],
 }
 GRENADE_RECIPES = {"frag": ["NIN", "IUI", "NIN"], "smoke": ["NHN", "IUI", "NIN"], "flashbang": ["NYN", "IUI", "NIN"],
+                   "concussion": ["NUN", "IUI", "NUN"], "impact_grenade": ["NRN", "IUI", "NIN"], "satchel_charge": ["MEM", "UTU", "MMM"],
+                   "thermite": ["NZN", "IZI", "NIN"],
                    "molotov": [" E ", " Z ", "PUP"]}
 
 # ------------------------------------------------------------------------------------------- clothing
 CLOTHING = {
     "army_helmet": dict(name="Army Helmet", slot="head", set="army", armor=2, toughness=0.5, recipe=["IVI", "I I"]),
-    "army_jacket": dict(name="Army Jacket", slot="chest", set="army", armor=5, recipe=["MVM", "MMM", "MMM"]),
+    "army_jacket": dict(name="Army Jacket", slot="chest", set="army", armor=5, plate_slots=1, recipe=["MVM", "MMM", "MMM"]),
     "army_pants": dict(name="Army Pants", slot="legs", set="army", armor=4, recipe=["MVM", "M M", "M M"]),
     "army_boots": dict(name="Army Boots", slot="feet", set="army", armor=2, recipe=["JVJ", "J J"]),
     "spec_ops_helmet": dict(name="Spec Ops Helmet (NVG)", slot="head", set="spec_ops", armor=3, toughness=1, night_vision=True,
                             recipe=["IKI", "LXL"]),
-    "spec_ops_vest": dict(name="Spec Ops Plate Carrier", slot="chest", set="spec_ops", armor=7, toughness=2, speed_modifier=-0.05,
+    "spec_ops_vest": dict(name="Spec Ops Plate Carrier", slot="chest", set="spec_ops", armor=7, toughness=2, speed_modifier=-0.05, plate_slots=2,
                           recipe=["IKI", "III", "IKI"]),
     "spec_ops_pants": dict(name="Spec Ops Pants", slot="legs", set="spec_ops", armor=5, toughness=1, recipe=["MKM", "M M", "M M"]),
     "spec_ops_boots": dict(name="Spec Ops Boots", slot="feet", set="spec_ops", armor=2, toughness=1, recipe=["JKJ", "J J"]),
@@ -359,15 +363,134 @@ ATTACHMENTS = {
     "muzzle_brake": dict(name="Muzzle Brake", slot="muzzle", stats={"recoil_multiplier": 0.6, "spread_multiplier": 1.1}),
     "vertical_grip": dict(name="Vertical Grip", slot="underbarrel", stats={"recoil_multiplier": 0.75, "spread_multiplier": 0.85}),
     "angled_grip": dict(name="Angled Grip", slot="underbarrel", stats={"recoil_multiplier": 0.85, "ads_move_speed_multiplier": 1.15}),
+    # Set-down supports (Stance.deployed: prone or crouching): steadier, but a bit heavier to carry and aim.
+    "bipod": dict(name="Bipod", slot="underbarrel", stats={"ads_move_speed_multiplier": 0.9,
+                  "deploy": {"spread_multiplier": 0.5, "recoil_multiplier": 0.4}}),
+    "tripod": dict(name="Tripod", slot="underbarrel", stats={"spread_multiplier": 1.25, "ads_move_speed_multiplier": 0.6,
+                   "deploy": {"spread_multiplier": 0.3, "recoil_multiplier": 0.2},
+                   "guns": [f"{NS}:m249", f"{NS}:pkm", f"{NS}:barrett", "flansww2:mg42", "flansww2:bren", "flansww2:bar", "flansww2:dp28"]}),
+    "laser_sight": dict(name="Laser Sight", slot="underbarrel", stats={"laser": {"color": "#FF2020", "hip_spread_multiplier": 0.6}}),
+    "green_laser": dict(name="Green Laser Sight", slot="underbarrel", stats={"laser": {"color": "#30FF40", "hip_spread_multiplier": 0.55, "range": 96}}),
+    "flash_hider": dict(name="Flash Hider", slot="muzzle", stats={"hide_flash": True, "spread_multiplier": 0.95}),
 }
 
+# ------------------------------------------------------------------------------------------- gear
+# Clothing accessories (GearDefinition): backpacks/pouches (slots), medical supplies (vanilla status effects, used over
+# consume_seconds or applied to someone else), binoculars (zoom + overlay).
+def effect(name, seconds=0, amplifier=0):
+    return {"effect": f"minecraft:{name}", "duration": max(1, int(seconds * 20)), "amplifier": amplifier}
+
+
+GEAR = {
+    "assault_pack": dict(name="Assault Pack", type="backpack", slots=9, recipe=["JEJ", "J J", "JJJ"]),
+    "rucksack": dict(name="Rucksack", type="backpack", slots=18, recipe=["JEJ", "JMJ", "JJJ"]),
+    "field_pack": dict(name="Large Field Pack", type="backpack", slots=27, recipe=["MEM", "JMJ", "JJJ"]),
+    "ammo_pouch": dict(name="Ammo Pouch", type="pouch", slots=9, recipe=["J J", "JJJ"]),
+    "bandage": dict(name="Bandage", type="medical", consume_seconds=1.5, max_stack=16, count=4, recipe=["MEM"],
+                    effects=[effect("instant_health", 0.05)]),
+    "first_aid_kit": dict(name="First Aid Kit", type="medical", consume_seconds=3.0, max_stack=4, recipe=["HRH", "MEM"],
+                          effects=[effect("instant_health", 0.05, 1), effect("regeneration", 10)]),
+    "morphine": dict(name="Morphine Syrette", type="medical", consume_seconds=1.0, max_stack=8, count=2, recipe=["P", "Z", "N"],
+                     effects=[effect("absorption", 30, 1), effect("speed", 15), effect("resistance", 10)]),
+    "binoculars": dict(name="Binoculars", type="binoculars", zoom=6.0, overlay=f"{NS}:textures/scope/binoculars.png", recipe=["PNP", "I I"]),
+    # Armour plates for the plate slots of modern armour (plate carrier, army jacket). Durability = hits taken.
+    "soft_armor_insert": dict(name="Soft Armour Insert (IIIA)", type="plate", armor=2.0, durability=60, recipe=["MMM", "MEM"]),
+    "steel_plate": dict(name="Steel Plate (III)", type="plate", armor=4.0, toughness=1.0, durability=40, speed_modifier=-0.01, recipe=["III", "IBI"]),
+    "ceramic_plate": dict(name="Ceramic Plate (IV)", type="plate", armor=5.0, toughness=2.5, durability=20, speed_modifier=-0.005, recipe=["QQQ", "QIQ"]),
+    # Field utilities (the mod's utility package): terrain map with waypoints, flashlight, compass.
+    "field_map": dict(name="Field Map", type="map", range=160, recipe=["HHH", "HKV", "HHH"]),
+    "flashlight": dict(name="Flashlight", type="flashlight", range=24, light_level=15, recipe=["IYP", "IRI"]),
+    "lensatic_compass": dict(name="Lensatic Compass", type="compass", recipe=[" N ", "NRN", " N "]),
+}
+
+
+def gear_model(gid):
+    """Item models (also drawn on the wearer's back for backpacks: the front faces -Z, against the back)."""
+    m = {"assault_pack": [el((4, 1, 6), (12, 12, 10), "olive"), el((4.5, 2, 10), (11.5, 8, 11.5), "olive"), el((4.5, 8, 10), (11.5, 9, 11.7), "black"),
+                          el((5, 2, 5), (6, 13, 6), "black"), el((10, 2, 5), (11, 13, 6), "black")],
+         "rucksack": [el((3, 0, 5.5), (13, 13, 11), "olive"), el((3, 13, 5.5), (13, 14.5, 11.5), "green"), el((1.5, 1, 6.5), (3, 8, 10), "olive"),
+                      el((13, 1, 6.5), (14.5, 8, 10), "olive"), el((4.5, 1, 11), (11.5, 7, 12.5), "olive"), el((5, 2, 4.5), (6, 14, 5.5), "black"),
+                      el((10, 2, 4.5), (11, 14, 5.5), "black")],
+         "field_pack": [el((2.5, 0, 5), (13.5, 15, 11.5), "olive"), el((1.5, 15, 6), (14.5, 18, 10), "green"), el((1, 1, 6), (2.5, 9, 10.5), "olive"),
+                        el((13.5, 1, 6), (15, 9, 10.5), "olive"), el((4, 1, 11.5), (12, 8, 13), "olive"), el((4.5, 2, 4), (5.5, 15, 5), "black"),
+                        el((10.5, 2, 4), (11.5, 15, 5), "black"), el((2, 4, 4), (14, 5, 5), "black")],
+         "ammo_pouch": [el((5, 4, 6), (11, 11, 10), "olive"), el((4.8, 9.5, 5.8), (11.2, 11.5, 10.2), "green"), el((7.5, 8, 10), (8.5, 10, 10.5), "brass")],
+         "bandage": [el((5, 4, 6), (11, 11, 10), "white"), el((6, 4, 5), (10, 11, 11), "white"), el((7, 4, 4.8), (9, 11, 5), "gray")],
+         "first_aid_kit": [el((3, 3, 5), (13, 11, 11), "olive"), el((5.5, 4.5, 4.9), (10.5, 9.5, 5), "white"), el((7.25, 5, 4.8), (8.75, 9, 4.9), "red"),
+                           el((6, 6.25, 4.8), (10, 7.75, 4.9), "red"), el((6, 11, 7.5), (10, 12, 8.5), "black")],
+         "morphine": [el((7, 3, 7), (9, 11, 9), "glass"), el((6.5, 2, 6.5), (9.5, 3, 9.5), "red"), el((7.6, 11, 7.6), (8.4, 15, 8.4), "steel")],
+         "soft_armor_insert": [el((3, 1, 7), (13, 15, 9), "olive"), el((4, 2, 6.8), (12, 14, 7), "black")],
+         "steel_plate": [el((3, 1, 7), (13, 13, 8.5), "gray"), el((4.5, 13, 7), (11.5, 15, 8.5), "gray"), el((4, 2, 6.8), (12, 12, 7), "steel")],
+         "ceramic_plate": [el((3, 1, 7), (13, 13, 9), "tan"), el((4.5, 13, 7), (11.5, 15, 9), "tan"), el((4, 2, 6.8), (12, 12, 7), "black")],
+         "field_map": [el((1, 7, 2), (15, 7.6, 14), "tan"), el((2, 7.6, 3), (8, 7.7, 9), "green"), el((8, 7.6, 7), (14, 7.7, 13), "olive"),
+                       el((5, 7.6, 10), (11, 7.75, 10.6), "red"), el((7.5, 7.6, 3), (8.1, 7.75, 13), "white")],
+         "flashlight": [el((7, 6, 1), (9, 8, 11), "black"), el((6.5, 5.5, 11), (9.5, 8.5, 14), "black"), el((7, 6, 13.8), (9, 8, 14.1), "glass"),
+                        el((7.5, 8, 5), (8.5, 8.4, 6.5), "red")],
+         "lensatic_compass": [el((4, 6, 4), (12, 8, 12), "olive"), el((5, 8, 5), (11, 8.1, 11), "white"), el((7.75, 8.1, 5.5), (8.25, 8.2, 10.5), "red"),
+                              el((7, 8, 11.5), (9, 11, 12), "olive"), el((7.5, 6.5, 3.5), (8.5, 7.5, 4), "brass")],
+         "binoculars": [el((3, 5, 4), (7, 10, 12), "black"), el((9, 5, 4), (13, 10, 12), "black"), el((7, 7, 6), (9, 9, 10), "metal"),
+                        el((3.5, 5.5, 3.8), (6.5, 9.5, 4), "lens"), el((9.5, 5.5, 3.8), (12.5, 9.5, 4), "lens")]}
+    return m[gid]
+
+
+GEAR_DISPLAY = {"gui": {"rotation": [25, 210, 0], "scale": [0.9, 0.9, 0.9]}, "fixed": {"scale": [1, 1, 1]},
+                "ground": {"translation": [0, 3, 0], "scale": [0.4, 0.4, 0.4]}}
+
+
+def write_gear(table, models, factions=None, extra_key=None):
+    """Gear definitions, item models and Weapons Bench recipes (shared with the WW2 generator)."""
+    for gid, g in table.items():
+        definition = {k: v for k, v in g.items() if k not in ("recipe", "count")}
+        definition["icon"] = f"{NS}:{gid}"
+        if factions and gid in factions:
+            definition["faction"] = factions[gid]
+        write(DATA / "flansmod" / "gear" / f"{gid}.json", definition)
+        model3d(gid, models(gid), GEAR_DISPLAY)
+        components = {"flansmod:gear": f"{NS}:{gid}"}
+        if g.get("max_stack", 1) != 1:
+            components["minecraft:max_stack_size"] = g["max_stack"]
+        bench(f"gear_{gid}", g["recipe"], raw_key(g["recipe"], extra_key), {"id": "flansmod:gear", "count": g.get("count", 1), "components": components},
+              extend=True)
+
+
+def binocular_overlay(path: Path):
+    """Two overlapping round fields of view, a range scale and a centre mark."""
+    img = Image.new("RGBA", (256, 256), (0, 0, 0, 255))
+    d = ImageDraw.Draw(img)
+    for cx in (92, 164):
+        d.ellipse((cx - 84, 128 - 84, cx + 84, 128 + 84), fill=(0, 0, 0, 0))
+    for i in range(-4, 5):
+        d.line((128 + i * 12, 150, 128 + i * 12, 146 if i % 2 else 142), fill=(20, 20, 20, 220))
+    d.line((80, 150, 176, 150), fill=(20, 20, 20, 220))
+    d.line((124, 128, 132, 128), fill=(20, 20, 20, 220)); d.line((128, 124, 128, 132), fill=(20, 20, 20, 220))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path)
+
+
+# Damage to the surroundings by grenade type (see GrenadeDefinition.BlockDamage): max blast resistance broken.
+SHATTER = {"radius": 1.8, "max_resistance": 0.3, "chance": 0.8}          # glass, leaves, plants
+FRAGMENTATION = {"radius": 2.0, "max_resistance": 0.5, "chance": 0.6}    # + soil, sand, snow
+BLAST = {"radius": 2.5, "max_resistance": 1.5, "chance": 0.6}            # + wool, clay, netherrack, concrete powder
+DEMOLITION = {"radius": 3.0, "max_resistance": 6.0, "chance": 0.75}      # + wood, stone, bricks (not sandbags/bunkers)
+INCENDIARY = {"radius": 1.5, "max_resistance": 3.0, "chance": 0.4}       # burns through planks and wool
+
+
+def blast(power, damage, fire=False):
+    return {"power": power, "fire": fire, "break_blocks": False, "block_damage": damage}
+
+
 GRENADES = {
-    "frag": dict(name="Frag Grenade", fuse_ticks=60, bounciness=0.35, explosion={"power": 2.5, "fire": False, "break_blocks": False}),
+    "frag": dict(name="Frag Grenade", fuse_ticks=60, bounciness=0.35, explosion=blast(2.5, FRAGMENTATION)),
     "smoke": dict(name="Smoke Grenade", fuse_ticks=40, bounciness=0.3, smoke={"radius": 5.0, "duration_ticks": 300},
                   detonate_sound="minecraft:block.fire.extinguish"),
-    "flashbang": dict(name="Flashbang", fuse_ticks=35, bounciness=0.4, flash={"radius": 12.0, "duration_ticks": 100}),
-    "molotov": dict(name="Incendiary Grenade", fuse_ticks=40, bounciness=0.2, contact=True,
-                    explosion={"power": 1.2, "fire": True, "break_blocks": False}),
+    "flashbang": dict(name="Flashbang", fuse_ticks=35, bounciness=0.4, flash={"radius": 12.0, "duration_ticks": 100},
+                      explosion=blast(0.6, SHATTER)),
+    "molotov": dict(name="Incendiary Grenade", fuse_ticks=40, bounciness=0.2, contact=True, explosion=blast(1.2, INCENDIARY, fire=True)),
+    "concussion": dict(name="Concussion Grenade", fuse_ticks=50, bounciness=0.3, explosion=blast(3.2, BLAST)),
+    "impact_grenade": dict(name="Impact Grenade", fuse_ticks=100, contact=True, explosion=blast(2.3, FRAGMENTATION)),
+    "satchel_charge": dict(name="Satchel Charge", fuse_ticks=100, bounciness=0.1, throw_velocity=0.6, max_stack=4, cooldown_ticks=40,
+                           explosion=blast(4.0, DEMOLITION)),
+    "thermite": dict(name="Thermite Grenade", fuse_ticks=45, bounciness=0.2, explosion=blast(0.8, INCENDIARY, fire=True)),
     # Launcher projectiles (not throwable)
     "40mm_he": dict(name="40mm HE", throwable=False, contact=True, gravity=0.03, fuse_ticks=200,
                     explosion={"power": 2.2, "fire": False, "break_blocks": True}),
@@ -405,6 +528,21 @@ def attachment_cubes(name, geo):
         return [cube((-0.7, my - 0.7, mz - 2), (1.4, 1.4, 2))]
     if name == "muzzle_brake":
         return [cube((-1, my - 0.6, mz - 2.5), (2, 1.2, 2.5), "steel")]
+    if name in ("bipod", "tripod", "laser_sight", "green_laser"):
+        # Guns without a rail mount take these under the barrel, a third of the way back from the muzzle.
+        uy, uz = geo["under"] or (my - 1.0, mz + 7)
+        if name == "bipod":  # clamp and two splayed legs
+            return [cube((-0.6, uy - 0.8, uz - 1), (1.2, 0.8, 1.5), "steel"), cube((-1.6, uy - 6.5, uz - 0.8), (0.5, 6, 0.5), "steel"),
+                    cube((1.1, uy - 6.5, uz - 0.8), (0.5, 6, 0.5), "steel"), cube((-1.8, uy - 6.8, uz - 1), (0.9, 0.3, 0.9), "polymer"),
+                    cube((0.9, uy - 6.8, uz - 1), (0.9, 0.3, 0.9), "polymer")]
+        if name == "tripod":  # cradle and three long legs
+            return [cube((-0.8, uy - 1.2, uz - 2), (1.6, 1.2, 3), "steel"), cube((-0.3, uy - 3, uz - 0.3), (0.6, 1.8, 0.6), "steel"),
+                    cube((-3.2, uy - 10, uz - 2.5), (0.5, 7.5, 0.5), "steel"), cube((2.7, uy - 10, uz - 2.5), (0.5, 7.5, 0.5), "steel"),
+                    cube((-0.25, uy - 10, uz + 4), (0.5, 7.5, 0.5), "steel")]
+        lens = "red" if name == "laser_sight" else "lens"
+        return [cube((-0.7, uy - 1.8, uz - 2.5), (1.4, 1.8, 3), "polymer"), cube((-0.35, uy - 1.4, uz - 2.6), (0.7, 0.7, 0.1), lens)]
+    if name == "flash_hider":
+        return [cube((-0.6, my - 0.6, mz - 2.5), (1.2, 1.2, 2.5), "polymer"), cube((-0.75, my - 0.2, mz - 2.3), (1.5, 0.4, 1.6), "polymer")]
     if geo["under"] and name in ("vertical_grip", "angled_grip"):
         uy, uz = geo["under"]
         if name == "vertical_grip":
@@ -815,7 +953,16 @@ def grenade_model(gid):
          "smoke": [el((5, 2, 5), (11, 12, 11), "gray"), el((5, 8, 5), (11, 9, 11), "white"), el((6.5, 12, 6.5), (9.5, 13, 9.5), "steel")],
          "flashbang": [el((5.5, 2, 5.5), (10.5, 12, 10.5), "black"), el((5.25, 4, 5.25), (10.75, 5, 10.75), "steel"),
                        el((5.25, 9, 5.25), (10.75, 10, 10.75), "steel"), el((7, 12, 7), (9, 14, 9), "steel")],
-         "molotov": [el((5.5, 1, 5.5), (10.5, 9, 10.5), "glass"), el((7, 9, 7), (9, 13, 9), "glass"), el((7.25, 13, 7.25), (8.75, 15, 8.75), "red")]}
+         "molotov": [el((5.5, 1, 5.5), (10.5, 9, 10.5), "glass"), el((7, 9, 7), (9, 13, 9), "glass"), el((7.25, 13, 7.25), (8.75, 15, 8.75), "red")],
+         # Concussion: smooth black cylinder with tape; impact: egg with a nose fuze; satchel: canvas bag with a strap
+         # and a fuze cord; thermite: grey can with a red band.
+         "concussion": [el((5.5, 2, 5.5), (10.5, 12, 10.5), "black"), el((5.25, 6, 5.25), (10.75, 8, 10.75), "olive"), el((7, 12, 7), (9, 14, 9), "steel")],
+         "impact_grenade": [el((5, 2, 5), (11, 9, 11), "olive"), el((5.5, 9, 5.5), (10.5, 11, 10.5), "olive"), el((7, 11, 7), (9, 14, 9), "steel"),
+                            el((5.5, 1, 5.5), (10.5, 2, 10.5), "olive")],
+         "satchel_charge": [el((2, 1, 4), (14, 9, 12), "tan"), el((2.5, 9, 7), (13.5, 10, 9), "tan"), el((3, 9, 7.5), (4, 15, 8.5), "olive"),
+                            el((12, 9, 7.5), (13, 15, 8.5), "olive"), el((3, 14, 7.5), (13, 15, 8.5), "olive"), el((7, 5, 12), (9, 7, 14), "red")],
+         "thermite": [el((5.5, 2, 5.5), (10.5, 12, 10.5), "gray"), el((5.25, 7, 5.25), (10.75, 9, 10.75), "red"), el((7, 12, 7), (9, 14, 9), "steel"),
+                      el((9.5, 8, 7.5), (10.5, 13, 8.5), "steel")]}
     return m[gid]
 
 
@@ -990,6 +1137,7 @@ def main():
     material_atlas(ASSETS / "textures" / "item" / "materials.png")
     for kind in ("acog", "pso", "sniper", "night_vision", "thermal"):
         scope_overlay(ASSETS / "textures" / "scope" / f"{kind}.png", kind)
+    binocular_overlay(ASSETS / "textures" / "scope" / "binoculars.png")
 
     for pid, part in PARTS.items():
         write(DATA / "flansmod" / "parts" / f"{pid}.json", {"name": part["name"], "icon": f"{NS}:{pid}"})
@@ -1060,7 +1208,7 @@ def main():
         fake_gun = {"sight": (4, 0), "muzzle": (8, 6), "under": (12, -2)}
         model3d(aid, normalize(attachment_cubes(aid, fake_gun)))
         shape = ATTACHMENT_RECIPES[aid]
-        bench(f"attachment_{aid}", shape, raw_key(shape, {"L": part_ingredient("lens"), "X": part_ingredient("circuit") if "scope" in aid or aid in ("red_dot", "holographic") else part_ingredient("polymer")}), {"id": "flansmod:attachment", "components": {
+        bench(f"attachment_{aid}", shape, raw_key(shape, {"L": part_ingredient("lens"), "X": part_ingredient("circuit") if "scope" in aid or aid in ("red_dot", "holographic", "laser_sight", "green_laser") else part_ingredient("polymer")}), {"id": "flansmod:attachment", "components": {
             "flansmod:attachment": f"{NS}:{aid}"}})
 
     for i, (gid, gr) in enumerate(GRENADES.items()):
@@ -1069,8 +1217,10 @@ def main():
             definition["icon"] = f"{NS}:{gid}"
             model3d(gid, grenade_model(gid))
             shape = GRENADE_RECIPES[gid]
-            bench(f"grenade_{gid}", shape, raw_key(shape), {"id": "flansmod:grenade", "count": 2, "components": {
-                "flansmod:grenade": f"{NS}:{gid}"}})
+            components = {"flansmod:grenade": f"{NS}:{gid}"}
+            if gr.get("max_stack", 16) != 16:  # like GrenadeItem.stackFor, so crafted and creative stacks stack
+                components["minecraft:max_stack_size"] = gr["max_stack"]
+            bench(f"grenade_{gid}", shape, raw_key(shape), {"id": "flansmod:grenade", "count": 2 if gr.get("max_stack", 16) >= 8 else 1, "components": components})
         else:
             # Flying launcher projectiles render with their ammo item's look.
             ammo_id = next(a for a, ad in AMMO.items() if ad.get("projectile") == gid)
@@ -1083,7 +1233,7 @@ def main():
             "humanoid": [{"texture": f"{NS}:{set_name}"}], "humanoid_leggings": [{"texture": f"{NS}:{set_name}"}]}})
     for cid, c in CLOTHING.items():
         definition = {"name": c["name"], "slot": c["slot"], "asset": f"{NS}:{c['set']}", "icon": f"{NS}:{cid}", "armor": c["armor"]}
-        for key in ("toughness", "night_vision", "speed_modifier"):
+        for key in ("toughness", "night_vision", "speed_modifier", "plate_slots"):
             if key in c:
                 definition[key] = c[key]
         write(DATA / "flansmod" / "clothing" / f"{cid}.json", definition)
@@ -1091,6 +1241,15 @@ def main():
         icon(ASSETS / "textures" / "item" / "clothing" / f"{cid}.png", clothing_icon(c))
         bench(f"clothing_{cid}", c["recipe"], raw_key(c["recipe"], {"L": part_ingredient("lens"), "X": part_ingredient("circuit")}),
               {"id": "flansmod:clothing", "components": {"flansmod:clothing": f"{NS}:{cid}"}}, extend=True)
+
+    write_gear(GEAR, gear_model)
+
+    # Structure kits (bunkers, trenches, tower, streets, ...): vanilla structure templates + definitions + bench recipes.
+    structure_key = {"C": "flansmod:reinforced_concrete", "S": "flansmod:sandbags", "P": "#minecraft:planks", "L": "#minecraft:logs",
+                     "D": "flansmod:bunker_door", "G": "minecraft:gravel", "W": "flansmod:barbed_wire", "H": "flansmod:czech_hedgehog"}
+    for sid, pattern in ss.write_structures(DATA, NS).items():
+        bench(f"structure_{sid}", pattern, {ch: structure_key[ch] for row in pattern for ch in row if ch != " "},
+              {"id": "flansmod:structure", "components": {"flansmod:structure": f"{NS}:{sid}"}}, extend=True)
 
     lang = {}
     for event in sounds():

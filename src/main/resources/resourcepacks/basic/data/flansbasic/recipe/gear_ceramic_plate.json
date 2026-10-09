@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "QQQ",
+    "QIQ"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "Q": "minecraft:quartz"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansbasic:ceramic_plate"
+    }
+  }
+}

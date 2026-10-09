@@ -261,7 +261,8 @@ class Model:
         """All boxes back in vehicle space (for the item icon), without upgrades, muzzle flash and interior details."""
         out = []
         for b in self.bones:
-            if b["name"].startswith("upgrade_") or b["name"] in ("muzzle_flash", "interior"):
+            # Rotor blades (aircraftsmith) would dwarf the rest of the icon.
+            if b["name"].startswith(("upgrade_", "muzzle_flash")) or b["name"] in ("interior", "blades"):
                 continue
             for c in b["cubes"]:
                 x0, y0, z0 = c["origin"]
@@ -311,15 +312,16 @@ def mount(m, name, pivot_at, muzzle, sight, seat=None):
         m.mounts[name]["seat"] = [round(x, 3) for x in seat]
 
 
-def _mg(m, r, gu, f, gun_len, gun_bone, parent, mat, ammo="olive", flash=True):
-    """Machine gun along forward from f (grips) - receiver - barrel; pitch bone pivoting at the receiver."""
+def _mg(m, r, gu, f, gun_len, gun_bone, parent, mat, ammo="olive", flash=True, flash_bone="muzzle_flash"):
+    """Machine gun along forward from f (grips) - receiver - barrel; pitch bone pivoting at the receiver. Bone names are
+    unique per model, so a second flashing gun needs its own [flash_bone] (`muzzle_flash*`)."""
     m.bone(gun_bone, [box(r - 0.08, gu - 0.08, f + 0.1, r + 0.08, gu + 0.08, f + 0.6, mat),
                       *barrel(r, gu, f + 0.6, f + 0.6 + gun_len, 0.04, mat),
                       box(r - 0.06, gu - 0.06, f + 0.75, r + 0.06, gu + 0.06, f + 0.95, "steel"),  # barrel jacket
                       box(r - 0.12, gu - 0.05, f, r + 0.12, gu, f + 0.1, mat),  # spade grips
                       box(r + 0.08, gu - 0.16, f + 0.2, r + 0.24, gu, f + 0.45, ammo)], parent=parent, at=(r, gu, f + 0.35))
     if flash:
-        m.bone("muzzle_flash", [box(r - 0.08, gu - 0.07, f + 0.6 + gun_len, r + 0.08, gu + 0.07, f + 0.8 + gun_len, "flash")], parent=gun_bone, at=(r, gu, f + 0.35))
+        m.bone(flash_bone, [box(r - 0.08, gu - 0.07, f + 0.6 + gun_len, r + 0.08, gu + 0.07, f + 0.8 + gun_len, "flash")], parent=gun_bone, at=(r, gu, f + 0.35))
 
 
 def mg_turret(m, r, u, f, paint, gun_len=1.0, shield=True, radius=0.55, gun_bone="mg", turret_bone="turret", mat="metal", name="mg", flash=True):
@@ -345,12 +347,12 @@ def mg_turret(m, r, u, f, paint, gun_len=1.0, shield=True, radius=0.55, gun_bone
     mount(m, name, (r, gu, f), [0, 0, g0 - f + 0.65 + gun_len], [0, 0.17, g0 - f + 0.62], seat=(r, gu - 0.68, f))
 
 
-def post_mg(m, r, u0, u1, f, gun_len=0.9, gun_bone="mg", turret_bone="turret", mat="metal", name="mg", parent="body"):
+def post_mg(m, r, u0, u1, f, gun_len=0.9, gun_bone="mg", turret_bone="turret", mat="metal", name="mg", parent="body", flash_bone="muzzle_flash"):
     """Pedestal mount (jeeps, carriers): a post fixed to the body, a swivel on top (yaw bone) and the gun (pitch bone)."""
     m.add("hull", [box(r - 0.05, u0, f - 0.05, r + 0.05, u1, f + 0.05, mat)])
     m.bone(turret_bone, [box(r - 0.07, u1, f - 0.07, r + 0.07, u1 + 0.1, f + 0.07, mat)], parent=parent, at=(r, u1, f))
     gu = u1 + 0.17
-    _mg(m, r, gu, f - 0.35, gun_len, gun_bone, turret_bone, mat)
+    _mg(m, r, gu, f - 0.35, gun_len, gun_bone, turret_bone, mat, flash_bone=flash_bone)
     mount(m, name, (r, gu, f), [0, 0, 0.3 + gun_len], [0, 0.17, 0.27])
 
 
@@ -392,12 +394,23 @@ def cupola_mg(m, f, u, gun_len=0.9, mat="metal", name="cupola"):
 def sight_overlay(path: Path, kind):
     """256x256 gunner's sight overlay: opaque black outside the field of view, reticle inside.
     tank_modern (thermal-green tint, ranging cross), tank_soviet (TPD chevrons + range scale), tzf (German sharks'
-    teeth), telescope (WW2 Allied crosshair with range lines), mg_ring (open ring and post, mostly see-through)."""
+    teeth), telescope (WW2 Allied crosshair with range lines), mg_ring (open ring and post, mostly see-through),
+    aa_ring (anti-aircraft lead rings: concentric rings for leading crossing aircraft, see-through)."""
     from PIL import ImageDraw
     path.parent.mkdir(parents=True, exist_ok=True)
     size, c = 256, 128
     img = Image.new("RGBA", (size, size), (0, 0, 0, 255))
     d = ImageDraw.Draw(img)
+    if kind == "aa_ring":
+        d.rectangle((0, 0, size, size), fill=(0, 0, 0, 0))
+        for rr, w in ((110, 3), (74, 2), (38, 2)):
+            d.ellipse((c - rr, c - rr, c + rr, c + rr), outline=(25, 25, 25, 255), width=w)
+        for a in range(0, 360, 45):  # spokes between the rings, for estimating the target's course
+            ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
+            d.line((c + ca * 38, c + sa * 38, c + ca * 110, c + sa * 110), fill=(25, 25, 25, 160), width=1)
+        d.ellipse((c - 3, c - 3, c + 3, c + 3), fill=(25, 25, 25, 255))
+        img.save(path)
+        return
     if kind == "mg_ring":
         d.rectangle((0, 0, size, size), fill=(0, 0, 0, 0))
         for rr, w in ((90, 3), (45, 2)):
@@ -745,6 +758,133 @@ def mortar(tube_len=1.2, radius=0.06, paint="olive_drab", plate="metal", plate_s
            parent="mount", at=(0, 0.12, 0))
     m.bone("muzzle_flash", [box(-radius * 2, 0.12 - radius * 2, tube_len, radius * 2, 0.12 + radius * 2, tube_len + 0.4, "flash")], parent="tube", at=(0, 0.12, 0))
     mount(m, "main", (0, 0.12, 0), [0, 0, tube_len + 0.1], [radius + 0.05, radius + 0.25, 0.45])
+    return m
+
+
+def aa_gun(barrels=2, gun_len=2.0, radius=0.05, paint="olive_drab", shield=False, magazines="top"):
+    """Towed light anti-aircraft gun (ZU-23-2, Flak 38): a cruciform ground carriage, a mount turning around the
+    gunner's seat (yaw bone `mount`) and the cradle with [barrels] barrels side by side (pitch bone `guns`) with box
+    magazines on top or at the sides; optional gun shield. The gunner sits on the yaw axis (mount `main`)."""
+    m = Model()
+    m.bone("hull", [box(-1.3, 0, -0.12, 1.3, 0.12, 0.12, paint), box(-0.12, 0, -1.3, 0.12, 0.12, 1.3, paint),  # outriggers
+                    box(-0.35, 0.12, -0.35, 0.35, 0.3, 0.35, paint)] +  # pedestal
+           [box(x - 0.12, 0, z - 0.12, x + 0.12, 0.05, z + 0.12, "metal") for x, z in ((-1.25, 0), (1.25, 0), (0, -1.25), (0, 1.25))])  # jacks
+    gu, gf = 1.15, 0.55  # trunnions: in front of the gunner, at chest height
+    mount_boxes = [box(-0.5, 0.3, -0.45, 0.5, 0.42, 0.75, paint),  # turntable
+                   box(-0.5, 0.42, gf - 0.15, -0.4, gu + 0.1, gf + 0.15, paint), box(0.4, 0.42, gf - 0.15, 0.5, gu + 0.1, gf + 0.15, paint),  # side frames
+                   *seat(0, 0.75, -0.05, width=0.4, back=0.35), box(-0.04, 0.42, -0.1, 0.04, 0.63, 0.0, "metal"),
+                   box(-0.35, 0.6, 0.15, -0.3, 0.75, 0.35, "metal"), box(0.3, 0.6, 0.15, 0.35, 0.75, 0.35, "metal")]  # hand wheels
+    if shield:
+        mount_boxes += [box(-0.75, 0.45, gf + 0.25, 0.75, gu - 0.12, gf + 0.3, paint), box(-0.75, gu + 0.12, gf + 0.25, 0.75, gu + 0.45, gf + 0.3, paint),
+                        box(-0.75, gu - 0.12, gf + 0.25, -0.25, gu + 0.12, gf + 0.3, paint), box(0.25, gu - 0.12, gf + 0.25, 0.75, gu + 0.12, gf + 0.3, paint)]
+    m.bone("mount", mount_boxes, at=(0, 0.3, 0))
+    spacing = 0.28
+    offsets = [(i - (barrels - 1) / 2) * spacing for i in range(barrels)]
+    guns = [box(-0.38, gu - 0.12, gf - 0.55, 0.38, gu + 0.1, gf + 0.25, "metal")]  # cradle
+    for r in offsets:
+        guns += [box(r - 0.1, gu - 0.1, gf - 0.5, r + 0.1, gu + 0.1, gf + 0.45, "metal"), *barrel(r, gu, gf + 0.45, gf + 0.45 + gun_len, radius, "metal"),
+                 box(r - radius * 1.8, gu - radius * 1.8, gf + 0.3 + gun_len, r + radius * 1.8, gu + radius * 1.8, gf + 0.45 + gun_len, "black")]  # flash hider
+        guns.append(box(r - 0.07, gu + 0.1, gf - 0.35, r + 0.07, gu + 0.42, gf + 0.05, paint) if magazines == "top"
+                    else box(r + (0.1 if r >= 0 else -0.32), gu - 0.08, gf - 0.3, r + (0.32 if r >= 0 else -0.1), gu + 0.06, gf + 0.05, paint))
+    guns += [box(-0.04, gu + 0.12, gf + 0.05, 0.04, gu + 0.3, gf + 0.1, "black"),  # forward sight ring post
+             box(-0.12, gu + 0.28, gf + 0.06, 0.12, gu + 0.3, gf + 0.09, "black")]
+    m.bone("guns", guns, parent="mount", at=(0, gu, gf))
+    end = gf + 0.45 + gun_len
+    m.bone("muzzle_flash", [box(r - 0.12, gu - 0.12, end, r + 0.12, gu + 0.12, end + 0.45, "flash") for r in offsets], parent="guns", at=(0, gu, gf))
+    # Pivot on the yaw axis at trunnion height; the gunner's eye (seat + 1.0) looks over the cradle through the ring sight.
+    mount(m, "main", (0, gu, 0), [0, 0, end + 0.1], [0, 0.6, gf + 0.05])
+    return m
+
+
+def tripod_mg(gun_len=0.9, mat="metal", paint="olive_drab", shield=False, water_jacket=False, wheels=False, box_mag="olive"):
+    """Machine gun on a tall tripod (or, with [wheels], a wheeled carriage like the Maxim's), traversing on a swivel
+    (yaw bone `mount`) with the gun tilting in it (pitch bone `gun`); optional gun shield and water-cooling jacket.
+    The gunner sits behind the grips (mount `main`, like post_mg)."""
+    m = Model()
+    gu = 1.1
+    legs = [plate(-0.05, 0.05, 0.0, 0.95, 0.75, 0.0, mat, t=0.06),  # front leg
+            plate(-0.42, -0.32, 0.0, 0.95, -0.7, 0.0, mat, t=0.06), plate(0.32, 0.42, 0.0, 0.95, -0.7, 0.0, mat, t=0.06),
+            box(-0.12, 0.88, -0.12, 0.12, 0.95, 0.12, mat)]
+    if wheels:  # Sokolov carriage: two wheels, a trail and a small shield on the gun
+        legs += [box(-0.45, 0.25, -0.05, 0.45, 0.32, 0.05, mat), box(-0.05, 0.0, -1.1, 0.05, 0.3, 0.0, mat)]
+        legs += wheel_disc(-0.5, 0.0, 0.25, 0.25, 0.06, "tyre") + wheel_disc(0.5, 0.0, 0.25, 0.25, 0.06, "tyre")
+    m.bone("hull", legs)
+    post_mg(m, 0, 0.95, gu - 0.17, 0, gun_len=gun_len, gun_bone="gun", turret_bone="mount", mat=mat, name="main")
+    if shield:
+        m.add("mount", [box(-0.45, gu - 0.45, 0.35, 0.45, gu - 0.07, 0.4, paint), box(-0.45, gu + 0.07, 0.35, 0.45, gu + 0.35, 0.4, paint),
+                        box(-0.45, gu - 0.07, 0.35, -0.12, gu + 0.07, 0.4, paint), box(0.12, gu - 0.07, 0.35, 0.45, gu + 0.07, 0.4, paint)])
+    if water_jacket:
+        m.add("gun", [box(-0.09, gu - 0.09, 0.25, 0.09, gu + 0.09, 0.25 + gun_len * 0.8, "steel")])
+    m.add("gun", [box(-0.24, gu - 0.25, -0.05, -0.08, gu - 0.05, 0.25, box_mag)])  # ammo box/belt feed
+    return m
+
+
+def sentry_turret(gun_len=1.0, twin=False, paint="olive_drab"):
+    """Automatic sentry turret: a pedestal with a turning head (yaw bone `head`) carrying the gun (pitch bone `gun`),
+    a sensor box and an ammo can; [twin] adds a second barrel (anti-aircraft). Can also be manned (mount `main`)."""
+    m = Model()
+    m.bone("hull", [box(-0.5, 0, -0.5, 0.5, 0.12, 0.5, paint), box(-0.15, 0.12, -0.15, 0.15, 0.9, 0.15, "metal"),
+                    box(-0.4, 0.12, -0.4, -0.2, 0.5, -0.2, paint)])  # power unit
+    post_mg(m, 0, 0.12, 1.0, 0, gun_len=gun_len, gun_bone="gun", turret_bone="head", name="main")
+    gu = 1.17
+    m.add("head", [box(-0.3, 1.0, -0.3, 0.3, 1.08, 0.3, paint)])
+    m.add("gun", [box(0.12, gu + 0.05, -0.15, 0.32, gu + 0.25, 0.15, "black"), box(0.14, gu + 0.1, 0.15, 0.3, gu + 0.2, 0.17, "glass"),  # sensor
+                  box(-0.34, gu - 0.2, -0.2, -0.12, gu + 0.05, 0.2, paint)])  # ammo can
+    if twin:
+        m.add("gun", barrel(0.18, gu - 0.12, 0.25, 0.25 + gun_len, 0.04, "metal"))
+    return m
+
+
+def howitzer(barrel_len=2.4, radius=0.08, paint="olive_drab", shield=True, wheel_r=0.5, trail_len=2.2, muzzle_brake=True, tire="tyre"):
+    """Towed howitzer / field gun: axle with two wheels, split trails with spades resting on the ground, a cradle with
+    an optional shield (yaw bone `mount`) and the barrel with its recuperator (pitch bone `barrel`). Laid like a
+    mortar: the whole carriage turns, the barrel elevates (mount `main`)."""
+    m = Model()
+    hull = [box(-0.75, wheel_r - 0.06, -0.06, 0.75, wheel_r + 0.06, 0.06, "metal")]  # axle
+    for side in (-1, 1):  # trails from the axle to the spades
+        hull.append(plate(side * 0.35 - 0.07, side * 0.35 + 0.07, 0.0, wheel_r, -trail_len, 0.1, paint, t=0.12))
+        hull.append(box(side * 0.35 - 0.2, 0.0, -trail_len - 0.05, side * 0.35 + 0.2, 0.3, -trail_len + 0.05, "metal"))  # spade
+    m.bone("hull", hull)
+    for side, n in ((-1, "l"), (1, "r")):
+        m.wheel(n, side * 0.8, 0.0, wheel_r, 0.14, mat=tire)
+    gu = wheel_r + 0.35
+    mount_boxes = [box(-0.3, wheel_r + 0.06, -0.4, 0.3, gu - 0.1, 0.3, paint)]
+    if shield:
+        mount_boxes += [box(-0.75, wheel_r - 0.1, 0.35, 0.75, gu + 0.55, 0.4, paint), box(-0.75, gu + 0.55, 0.3, 0.75, gu + 0.6, 0.4, paint)]
+    m.bone("mount", mount_boxes, at=(0, wheel_r, 0))
+    end = barrel_len
+    gun = [box(-0.2, gu - 0.15, -0.9, 0.2, gu + 0.15, 0.4, "metal"),  # breech and cradle
+           box(-0.1, gu + 0.12, -0.6, 0.1, gu + 0.28, 0.9, paint),  # recuperator
+           *barrel(0, gu, 0.4, end, radius, "metal")]
+    if muzzle_brake:
+        gun.append(box(-radius * 2, gu - radius * 1.6, end - 0.05, radius * 2, gu + radius * 1.6, end + 0.2, "metal"))
+        end += 0.2
+    m.bone("barrel", gun, parent="mount", at=(0, gu, 0.0))
+    m.bone("muzzle_flash", [box(-radius * 3, gu - radius * 3, end, radius * 3, gu + radius * 3, end + 0.8, "flash")], parent="barrel", at=(0, gu, 0.0))
+    mount(m, "main", (0, gu, 0), [0, 0, end + 0.1], [-0.45, 0.3, 0.2])
+    return m
+
+
+def rocket_launcher(rows=3, cols=4, tube_len=1.6, radius=0.07, paint="olive_drab"):
+    """Towed multiple rocket launcher: a two-wheeled carriage with a trail, the launcher frame turning (yaw bone
+    `mount`) and the tube bundle elevating (pitch bone `tubes`). Fires salvos from the bundle's middle (mount `main`)."""
+    m = Model()
+    m.bone("hull", [box(-0.6, 0.3, -0.05, 0.6, 0.38, 0.05, "metal"), plate(-0.06, 0.06, 0.0, 0.35, -1.6, 0.05, paint, t=0.1),
+                    box(-0.2, 0.0, -1.65, 0.2, 0.15, -1.55, "metal")])
+    for side, n in ((-1, "l"), (1, "r")):
+        m.wheel(n, side * 0.65, 0.0, 0.34, 0.12)
+    m.bone("mount", [box(-0.25, 0.38, -0.3, 0.25, 0.6, 0.3, paint)], at=(0, 0.38, 0))
+    gu = 0.8
+    spacing = radius * 2.4
+    tubes = [box(-cols * spacing / 2 - 0.04, gu - rows * spacing / 2 - 0.04, -0.5, cols * spacing / 2 + 0.04, gu - rows * spacing / 2, tube_len - 0.5, paint)]
+    for i in range(rows):
+        for j in range(cols):
+            r, u = (j - (cols - 1) / 2) * spacing, gu + (i - (rows - 1) / 2) * spacing
+            tubes += barrel(r, u, -0.5, tube_len - 0.5, radius, "olive_dark")
+    m.bone("tubes", tubes, parent="mount", at=(0, gu, 0))
+    m.bone("muzzle_flash", [box(-cols * spacing / 2, gu - rows * spacing / 2, -1.1, cols * spacing / 2, gu + rows * spacing / 2, -0.55, "flash")],
+           parent="tubes", at=(0, gu, 0))  # the back blast
+    mount(m, "main", (0, gu, 0), [0, 0, tube_len - 0.4], [-0.4, 0.3, 0.0])
     return m
 
 

@@ -3,7 +3,9 @@
   "type": "tank",
   "upgrade_slots": [
     "engine",
-    "tank"
+    "armor",
+    "tank",
+    "cargo"
   ],
   "step_height": 1.0,
   "repair": {
@@ -112,6 +114,7 @@
       "role": "hull"
     }
   },
+  "storage": 18,
   "seats": [
     {
       "position": [

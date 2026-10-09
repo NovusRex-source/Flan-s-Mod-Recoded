@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "HRH",
+    "MEM"
+  ],
+  "key": {
+    "E": "minecraft:string",
+    "H": "minecraft:paper",
+    "M": "#minecraft:wool",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansbasic:first_aid_kit",
+      "minecraft:max_stack_size": 4
+    }
+  }
+}

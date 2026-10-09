@@ -1,0 +1,22 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "AAA",
+    "A A"
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:armor_plate"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:vehicle_upgrade",
+    "components": {
+      "flansmod:vehicle_upgrade": "flansvehicles:cockpit_armor"
+    }
+  }
+}

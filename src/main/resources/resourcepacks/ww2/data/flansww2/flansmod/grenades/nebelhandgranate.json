@@ -1,0 +1,13 @@
+{
+  "name": "Nebelhandgranate 39",
+  "fuse_ticks": 90,
+  "bounciness": 0.25,
+  "throw_velocity": 1.5,
+  "smoke": {
+    "radius": 5.0,
+    "duration_ticks": 300
+  },
+  "detonate_sound": "minecraft:block.fire.extinguish",
+  "faction": "flansww2:axis",
+  "icon": "flansww2:nebelhandgranate"
+}

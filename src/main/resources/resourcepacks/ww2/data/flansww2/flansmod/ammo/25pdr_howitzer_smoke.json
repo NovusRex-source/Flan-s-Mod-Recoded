@@ -1,0 +1,7 @@
+{
+  "name": "25-pdr Smoke Shell",
+  "caliber": "25pdr",
+  "max_stack": 8,
+  "icon": "flansww2:25pdr_howitzer_smoke",
+  "projectile": "flansww2:25pdr_howitzer_smoke"
+}

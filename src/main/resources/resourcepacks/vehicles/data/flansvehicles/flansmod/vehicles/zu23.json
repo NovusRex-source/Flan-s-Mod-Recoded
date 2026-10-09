@@ -1,0 +1,62 @@
+{
+  "name": "ZU-23-2",
+  "type": "static",
+  "health": 90,
+  "armor": 0.2,
+  "max_speed": 0.0,
+  "max_reverse_speed": 0.0,
+  "collision_damage": 0,
+  "death_explosion": 2.0,
+  "camera_distance": 5,
+  "fuel": {
+    "capacity": 0
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -0.6,
+        0,
+        -0.6,
+        0.6,
+        1.4,
+        1.0
+      ],
+      "role": "hull"
+    }
+  },
+  "lay_with_keys": false,
+  "seats": [
+    {
+      "position": [
+        0.0,
+        0.75,
+        -0.05
+      ],
+      "gun": "flansvehicles:zu23",
+      "turret": true,
+      "pivot": [
+        0,
+        1.15,
+        0
+      ],
+      "muzzle": [
+        0,
+        0,
+        3.2
+      ],
+      "sight": [
+        0,
+        0.6,
+        0.6
+      ],
+      "min_pitch": -5,
+      "max_pitch": 85,
+      "yaw_bone": "mount",
+      "pitch_bone": "guns"
+    }
+  ],
+  "model": {
+    "texture": "flansvehicles:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansvehicles:zu23"
+}

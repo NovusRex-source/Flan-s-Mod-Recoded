@@ -1,0 +1,11 @@
+{
+  "name": "2 cm (20\u00d7138mm) HE-FRAG",
+  "caliber": "20x138",
+  "icon": "flansww2:20x138_flak",
+  "damage_multiplier": 0.6,
+  "flak": {
+    "proximity": 3.0,
+    "power": 1.6,
+    "fuse_ticks": 14
+  }
+}

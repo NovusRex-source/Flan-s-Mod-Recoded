@@ -1,0 +1,9 @@
+{
+  "name": "Breech (1)",
+  "caliber": "155mm",
+  "capacity": 1,
+  "guns": [
+    "flansvehicles:m777_gun"
+  ],
+  "internal": true
+}

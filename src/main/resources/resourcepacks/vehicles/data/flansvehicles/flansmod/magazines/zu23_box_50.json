@@ -1,0 +1,10 @@
+{
+  "name": "ZU-23 Ammo Box (50)",
+  "caliber": "23x152",
+  "capacity": 50,
+  "guns": [
+    "flansvehicles:zu23",
+    "flansvehicles:sentry_23mm"
+  ],
+  "icon": "flansvehicles:zu23_box_50"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "40\u00d753mm HEDP",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.02,
+  "fuse_ticks": 600,
+  "icon": "flansvehicles:40x53_gmg_he",
+  "explosion": {
+    "power": 1.6,
+    "break_blocks": true
+  }
+}

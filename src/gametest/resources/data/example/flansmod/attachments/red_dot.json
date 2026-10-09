@@ -1,6 +1,8 @@
 {
-  "name": "Red Dot Sight",
+  "name": "Example Red Dot",
   "slot": "sight",
   "ads_zoom": 1.8,
-  "spread_multiplier": 0.7
+  "spread_multiplier": 0.7,
+  "ads_height": 1.5,
+  "icon": "flansbasic:red_dot"
 }

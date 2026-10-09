@@ -386,4 +386,137 @@ class VehicleGameTests {
         helper.assertTrue(vehicle.switchSeat(player) && vehicle.seatOf(player) == 2, "switching skips taken seats")
         helper.succeed()
     }
+
+    @GameTest
+    fun cargoIsKeptOnTheItemAndDropsWhenDestroyed(helper: GameTestHelper) {
+        val def = car.copy(storage = 9, health = 10f, deathExplosion = null)
+        val vehicle = helper.spawnVehicle("cargo_car", def)
+        vehicle.storage.setItem(0, ItemStack(Items.DIAMOND, 3))
+        val player = helper.makeMockServerPlayerInLevel()
+        helper.assertTrue(vehicle.openStorage(player), "a vehicle with storage opens it")
+        helper.assertTrue(player.containerMenu.slots[0].item.`is`(Items.DIAMOND), "the cargo shows in the chest menu")
+        helper.assertTrue(player.containerMenu.slots.size == 9 + 36, "one row of cargo plus the player's inventory")
+        player.closeContainer()
+
+        val item = vehicle.toItem()
+        val kept = item.get(net.minecraft.core.component.DataComponents.CONTAINER)?.nonEmptyItemCopyStream()?.toList().orEmpty()
+        helper.assertTrue(kept.singleOrNull()?.count == 3, "the cargo stays in the picked-up item: $kept")
+
+        vehicle.hurtPart(helper.level, helper.level.damageSources().generic(), 100f, DriveableEntity.HULL)
+        val drops = helper.level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity::class.java, vehicle.boundingBox.inflate(3.0)) { it.item.`is`(Items.DIAMOND) }
+        helper.assertTrue(drops.sumOf { it.item.count } == 3, "a destroyed vehicle drops its cargo")
+        drops.forEach { it.discard() }
+        helper.succeed()
+    }
+
+    @GameTest
+    fun cargoUpgradesAddStorageRows(helper: GameTestHelper) {
+        val rack = VehicleUpgradeDefinition("Rack", "cargo", storageBonus = 18)
+        val def = car.copy(storage = 9, upgradeSlots = listOf("cargo"))
+        helper.assertTrue(def.withUpgrades(listOf(rack)).storage == 27, "a cargo rack adds two rows")
+        helper.assertTrue(def.copy(storage = 45).withUpgrades(listOf(rack)).storage == 54, "never more than a double chest")
+        helper.assertTrue(def.withUpgrades(listOf(rack.copy(storageBonus = 5))).storage == 9, "partial rows do not count")
+        helper.succeed()
+    }
+
+    @GameTest(maxTicks = 100)
+    fun artilleryMapLaysTheMortarOntoItsTarget(helper: GameTestHelper) {
+        val gunId = test("map_mortar")
+        val magId = test("map_mortar_tube")
+        com.flansmod.recoded.gun.Grenades.replace(com.flansmod.recoded.gun.Grenades.all + (test("map_bomb") to com.flansmod.recoded.gun.GrenadeDefinition("Bomb", contact = true, throwable = false, gravity = 0.05)))
+        AmmoTypes.replace(AmmoTypes.all + (test("map_round") to AmmoDefinition("Bomb", caliber = "test_map_mortar", projectile = test("map_bomb"))))
+        Magazines.replace(Magazines.all + (magId to MagazineDefinition("Tube", caliber = "test_map_mortar", capacity = 1, internal = true)))
+        Guns.replace(Guns.all + (gunId to GunDefinition("Mortar", mounted = true, velocity = 0.6, spread = 0f, magazines = listOf(magId))))
+        val def = VehicleDefinition("Mortar", type = VehicleType.STATIC, maxSpeed = 0.0, fuel = Fuel(capacity = 0), deathExplosion = null,
+            seats = listOf(Seat(gun = gunId, turret = true, pivot = listOf(0.0, 0.2, 0.0), muzzle = listOf(0.0, 0.0, 0.5), minPitch = 45f, maxPitch = 85f)))
+        val mortar = helper.spawnVehicle("map_mortar", def, at = Vec3(3.5, 1.0, 3.5))
+        mortar.setMagazine(0, MagazineContents.full(magId, test("map_round")))
+        val round = com.flansmod.recoded.combat.Artillery.round(mortar, 0)!!
+        val target = helper.absoluteVec(Vec3(6.5, 1.0, 5.5))
+        val solution = com.flansmod.recoded.combat.Artillery.solve(helper.level, mortar, 0, target, round)
+        helper.assertTrue(solution != null, "the target is in range")
+        val (yaw, elevation) = solution!!
+        val impact = com.flansmod.recoded.combat.Artillery.impact(helper.level, mortar, 0, yaw, elevation, round)!!
+        helper.assertTrue(impact.subtract(target).horizontalDistance() < 1.0, "the solution lands on the target, off by ${impact.subtract(target).horizontalDistance()}")
+        helper.assertTrue(elevation > 45f, "mortars fire the high angle: $elevation")
+        helper.assertTrue(com.flansmod.recoded.combat.Artillery.solve(helper.level, mortar, 0, helper.absoluteVec(Vec3(60.5, 1.0, 1.5)), round) == null,
+            "a target far beyond the range has no solution")
+        // Handed to the emplacement, it lays itself (no gunner: the server simulates it).
+        mortar.layTarget = solution
+        mortar.autopilot = DriveableEntity.Controls.NONE
+        helper.succeedWhen {
+            helper.assertTrue(kotlin.math.abs(net.minecraft.util.Mth.wrapDegrees(mortar.yRot - yaw)) < 0.5f && kotlin.math.abs(mortar.layElevation() - elevation) < 0.5f,
+                "the mortar should lay itself onto ${yaw}/${elevation}, is at ${mortar.yRot}/${mortar.layElevation()}")
+        }
+    }
+
+    @GameTest(maxTicks = 120)
+    fun sentryShootsMonstersButNotAnimalsOrPlayersAndReloadsFromItsCargo(helper: GameTestHelper) {
+        val gunId = test("sentry_gun")
+        val magId = test("sentry_box")
+        AmmoTypes.replace(AmmoTypes.all + (test("sentry_round") to AmmoDefinition("Round", caliber = "test_sentry")))
+        Magazines.replace(Magazines.all + (magId to MagazineDefinition("Box", caliber = "test_sentry", capacity = 20)))
+        Guns.replace(Guns.all + (gunId to GunDefinition("Sentry MG", mounted = true, damage = 5f, spread = 0f, velocity = 4.0, lifetimeTicks = 3,
+            rpm = 600, reloadTicks = 5, magazines = listOf(magId))))
+        val def = VehicleDefinition("Sentry", type = VehicleType.STATIC, layWithKeys = false, fuel = Fuel(capacity = 0), deathExplosion = null, storage = 9,
+            width = 1f, height = 1f, sentry = com.flansmod.recoded.emplacement.SentryDefinition(range = 8.0, turnSpeed = 30f, scanTicks = 2),
+            seats = listOf(Seat(gun = gunId, turret = true, pivot = listOf(0.0, 1.2, 0.0), muzzle = listOf(0.0, 0.0, 0.6), minPitch = -30f, maxPitch = 60f)))
+        val turret = helper.spawnVehicle("sentry", def, at = Vec3(1.5, 1.0, 1.5))
+        turret.storage.setItem(0, com.flansmod.recoded.item.MagazineItem.stackFor(MagazineContents.full(magId, test("sentry_round"))!!))
+        val owner = helper.makeMockServerPlayerInLevel()
+        turret.owner = owner.uuid
+        // A sheep and a player close by, a husk further away: only the husk is a target.
+        helper.spawnWithNoFreeWill(EntityTypes.SHEEP, BlockPos(3, 1, 1))
+        val stranger = helper.makeMockServerPlayerInLevel()
+        stranger.snapTo(helper.absoluteVec(Vec3(1.5, 1.0, 3.5)))
+        val husk = helper.spawnWithNoFreeWill(EntityTypes.HUSK, BlockPos(5, 1, 5))
+        helper.succeedWhen {
+            // Entities in test areas do not always tick: run the turret's AI here.
+            com.flansmod.recoded.emplacement.Sentries.tick(helper.level, turret, def)
+            helper.assertTrue(com.flansmod.recoded.emplacement.Sentries.target(turret) == husk, "the sentry should pick the husk")
+            helper.assertTrue(turret.storage.getItem(0).isEmpty, "it loads the magazine from its cargo")
+            helper.assertTrue(husk.health < husk.maxHealth, "and shoots the husk")
+            helper.assertTrue(stranger.health == stranger.maxHealth, "players outside a battle are never shot")
+        }
+    }
+
+    @GameTest
+    fun stationaryGunsTraverseOnlyWithinTheirArc(helper: GameTestHelper) {
+        val def = VehicleDefinition("MG", type = VehicleType.STATIC, layWithKeys = false, fuel = Fuel(capacity = 0),
+            seats = listOf(Seat(gun = test("arc_mg"), turret = true, yawLimit = 45f)))
+        val mg = helper.spawnVehicle("arc_mg", def, yaw = 30f)
+        val gunner = helper.makeMockServerPlayerInLevel()
+        gunner.startRiding(mg, true, false)
+        gunner.yRot = 30f + 90f
+        gunner.yHeadRot = gunner.yRot
+        helper.assertTrue(kotlin.math.abs(mg.aim(0, gunner).first - 75f) < 0.01f, "clamped to 45° right of the front: ${mg.aim(0, gunner).first}")
+        gunner.yRot = 30f - 20f
+        gunner.yHeadRot = gunner.yRot
+        helper.assertTrue(kotlin.math.abs(mg.aim(0, gunner).first - 10f) < 0.01f, "free within the arc")
+        helper.succeed()
+    }
+
+    @GameTest
+    fun howitzersTakeTheFlatTrajectoryMortarsTheHighOne(helper: GameTestHelper) {
+        val gunId = test("test_howitzer")
+        val magId = test("test_howitzer_breech")
+        com.flansmod.recoded.gun.Grenades.replace(com.flansmod.recoded.gun.Grenades.all + (test("howitzer_shell") to com.flansmod.recoded.gun.GrenadeDefinition("Shell", contact = true, throwable = false, gravity = 0.05)))
+        AmmoTypes.replace(AmmoTypes.all + (test("howitzer_round") to AmmoDefinition("Shell", caliber = "test_howitzer", projectile = test("howitzer_shell"))))
+        Magazines.replace(Magazines.all + (magId to MagazineDefinition("Breech", caliber = "test_howitzer", capacity = 1, internal = true)))
+        Guns.replace(Guns.all + (gunId to GunDefinition("Howitzer", mounted = true, velocity = 0.6, spread = 0f, magazines = listOf(magId))))
+        fun emplacement(name: String, min: Float, max: Float) = helper.spawnVehicle(name, VehicleDefinition(name, type = VehicleType.STATIC, maxSpeed = 0.0,
+            fuel = Fuel(capacity = 0), deathExplosion = null, seats = listOf(Seat(gun = gunId, turret = true, pivot = listOf(0.0, 0.2, 0.0),
+                muzzle = listOf(0.0, 0.0, 0.5), minPitch = min, maxPitch = max))), at = Vec3(3.5, 1.0, 3.5)).also {
+            it.setMagazine(0, MagazineContents.full(magId, test("howitzer_round")))
+        }
+        val target = helper.absoluteVec(Vec3(6.5, 1.0, 5.5))
+        val howitzer = emplacement("flat_howitzer", -5f, 70f)
+        val flat = com.flansmod.recoded.combat.Artillery.solve(helper.level, howitzer, 0, target, com.flansmod.recoded.combat.Artillery.round(howitzer, 0)!!)
+        helper.assertTrue(flat != null && flat.second < 45f, "a gun that can fire low takes the flat trajectory: $flat")
+        howitzer.discard()
+        val mortar = emplacement("high_mortar", 45f, 85f)
+        val high = com.flansmod.recoded.combat.Artillery.solve(helper.level, mortar, 0, target, com.flansmod.recoded.combat.Artillery.round(mortar, 0)!!)
+        helper.assertTrue(high != null && high.second > 45f, "a mortar fires the high angle: $high")
+        helper.succeed()
+    }
 }

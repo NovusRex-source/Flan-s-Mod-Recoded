@@ -1,0 +1,24 @@
+{
+  "name": "10.5 cm leFH 18",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 0,
+  "rpm": 6,
+  "fire_mode": "semi",
+  "reload_ticks": 110,
+  "velocity": 2.4,
+  "spread": 0.3,
+  "ads_spread": 0.12,
+  "ads_zoom": 1.0,
+  "lifetime_ticks": 600,
+  "sounds": {
+    "shoot": "flansww2:vehicle.cannon.shoot",
+    "reload": "flansww2:vehicle.cannon.reload",
+    "empty": "flansww2:vehicle.empty"
+  },
+  "recoil": {
+    "pitch": 1.5,
+    "yaw": 0.4
+  },
+  "tracer": null
+}

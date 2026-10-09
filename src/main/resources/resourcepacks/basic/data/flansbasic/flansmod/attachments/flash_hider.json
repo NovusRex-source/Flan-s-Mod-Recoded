@@ -1,0 +1,7 @@
+{
+  "name": "Flash Hider",
+  "slot": "muzzle",
+  "icon": "flansbasic:flash_hider",
+  "hide_flash": true,
+  "spread_multiplier": 0.95
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Cockpit Armour",
+  "slot": "armor",
+  "icon": "flansvehicles:cockpit_armor",
+  "armor_bonus": 0.15,
+  "health_multiplier": 1.25,
+  "speed_multiplier": 0.95,
+  "types": [
+    "plane",
+    "helicopter"
+  ]
+}

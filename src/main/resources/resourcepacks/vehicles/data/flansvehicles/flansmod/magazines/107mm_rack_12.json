@@ -1,0 +1,9 @@
+{
+  "name": "Launch Tubes (12)",
+  "caliber": "107mm",
+  "capacity": 12,
+  "guns": [
+    "flansvehicles:type63_launcher"
+  ],
+  "internal": true
+}

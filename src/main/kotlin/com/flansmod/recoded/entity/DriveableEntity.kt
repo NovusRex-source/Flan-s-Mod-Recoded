@@ -1,6 +1,8 @@
 package com.flansmod.recoded.entity
 
 import com.flansmod.recoded.FlansMod
+import com.flansmod.recoded.aircraft.FlightModel
+import com.flansmod.recoded.aircraft.FlightState
 import com.flansmod.recoded.gun.MagazineContents
 import com.flansmod.recoded.gun.Seat
 import com.flansmod.recoded.gun.VehicleDefinition
@@ -69,15 +71,18 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 /**
- * A content-pack vehicle (car, tank, ...). Built on vanilla's [VehicleEntity] like boats and minecarts: the driver's
+ * A content-pack vehicle (car, tank, emplacement, plane, helicopter). Built on vanilla's [VehicleEntity] like boats and minecarts: the driver's
  * client simulates movement and vanilla syncs it to the server (`ServerboundMoveVehiclePacket`), exactly as for
  * boats; without a player driver the server simulates. Fuel, damage, upgrades, seats and mounted-gun magazines are
  * decided by the server and synced with entity data. Hits are resolved per part ([raycastParts]): parts have their own
  * health and break with effects (engine, wheels/tracks, gun mounts, fuel tank).
  */
 class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : VehicleEntity(type, level), GeoEntity {
-    /** Throttle (-1..1), steering (-1..1, positive = left, like [LivingEntity.xxa]) and brake. */
-    data class Controls(val throttle: Float, val steer: Float, val brake: Boolean) {
+    /**
+     * Throttle (-1..1), steering (-1..1, positive = left, like [LivingEntity.xxa]) and brake. [lift] (-1..1) is the
+     * helicopter collective (jump / sprint key) and, without a player pilot, the pitch a plane flies at.
+     */
+    data class Controls(val throttle: Float, val steer: Float, val brake: Boolean, val lift: Float = 0f) {
         companion object {
             val NONE = Controls(0f, 0f, false)
         }
@@ -156,9 +161,39 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         get() = entityData.get(MAGAZINES)
         private set(value) = entityData.set(MAGAZINES, value)
 
-    /** Forward speed in blocks per tick, only meaningful on the simulating side. */
+    /** Forward speed in blocks per tick (airspeed for planes), only meaningful on the simulating side. */
     var speed = 0.0
-        private set
+        internal set
+
+    /** Planes and helicopters: throttle, engine spool, rotor angle (see [FlightModel]). */
+    val flight = FlightState()
+
+    /** Cargo ([VehicleDefinition.storage] slots of it are usable); saved, dropped when destroyed, kept on the item. */
+    val storage = net.minecraft.world.SimpleContainer(com.flansmod.recoded.gun.MAX_STORAGE)
+
+    /**
+     * Emplacements laid with the keys: a laying (yaw, elevation) the gun turns towards by itself, set from the artillery
+     * map on the gunner's client (which owns the emplacement's rotation); any laying key cancels it.
+     */
+    var layTarget: Pair<Float, Float>? = null
+
+    /** Who placed it: a sentry turret's battle side (its owner's team) and who is credited for its kills. */
+    var owner: java.util.UUID? = null
+
+    /** A sentry turret's aim (world yaw, elevation), synced for its model; see [com.flansmod.recoded.emplacement.Sentries]. */
+    var sentryAim: Pair<Float, Float>
+        get() = entityData.get(AIM_YAW) to entityData.get(AIM_PITCH)
+        set(value) {
+            entityData.set(AIM_YAW, Mth.wrapDegrees(value.first))
+            entityData.set(AIM_PITCH, value.second)
+        }
+    private var prevSentryAim = 0f to 0f
+
+    /** Clamps a world [yaw] to [seat]'s traverse arc around the vehicle's front. */
+    fun limitYaw(seat: Seat, yaw: Float): Float {
+        val limit = seat.yawLimit ?: return yaw
+        return yRot + Mth.wrapDegrees(yaw - yRot).coerceIn(-limit, limit)
+    }
 
     /** Controls used when there is no player driver (tests, future AI); null = coast. */
     var autopilot: Controls? = null
@@ -189,6 +224,8 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         builder.define(FUEL, 0)
         builder.define(SEATS, emptyList())
         builder.define(MAGAZINES, emptyMap())
+        builder.define(AIM_YAW, 0f)
+        builder.define(AIM_PITCH, 0f)
     }
 
     override fun onSyncedDataUpdated(accessor: EntityDataAccessor<*>) {
@@ -233,6 +270,23 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
     fun toItem(): ItemStack = VehicleItem.stackFor(vehicleId, fuel).apply {
         if (upgrades.isNotEmpty()) set(FlansComponents.VEHICLE_UPGRADES, upgrades)
         if (damage.isNotEmpty()) set(FlansComponents.VEHICLE_DAMAGE, damage)
+        if (!storage.isEmpty) set(net.minecraft.core.component.DataComponents.CONTAINER, net.minecraft.world.item.component.ItemContainerContents.fromItems(storage.items))
+    }
+
+    /** Opens the cargo as a chest; false if this vehicle has no storage. */
+    fun openStorage(player: ServerPlayer): Boolean {
+        val size = definition?.storage ?: 0
+        if (size <= 0) return false
+        com.flansmod.recoded.bench.VehicleStorageMenu.open(player, this, size)
+        return true
+    }
+
+    /** Cargo beyond the current storage size (a cargo upgrade was removed) falls out. */
+    private fun dropOverflow(level: ServerLevel, size: Int) {
+        for (i in size until storage.containerSize) {
+            val stack = storage.removeItemNoUpdate(i)
+            if (!stack.isEmpty) spawnAtLocation(level, stack)
+        }
     }
 
     // ------------------------------------------------------------------------------------------------- seats
@@ -289,6 +343,13 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         if (!level().isClientSide()) seats = seats.map { if (it == passenger.id) -1 else it }
     }
 
+    /** Aircraft fly: the server must not kick their pilots for floating (vanilla's check for flying hacks). */
+    override fun isFlyingVehicle() = definition?.type?.flies == true
+
+    /** Aircraft handle hard landings themselves ([FlightModel.afterMove]); a long glide down is no fall. */
+    override fun causeFallDamage(fallDistance: Double, damageModifier: Float, damageSource: DamageSource): Boolean =
+        if (definition?.type?.flies == true) false else super.causeFallDamage(fallDistance, damageModifier, damageSource)
+
     /** Vehicle space `[right, up, forward]` to a world offset, ignoring the body's tilt (bounding box, ground probes). */
     fun flatToWorld(local: Vec3, yaw: Float = yRot): Vec3 = Vec3(-local.x, local.y, local.z).yRot(-yaw * Mth.DEG_TO_RAD)
 
@@ -316,6 +377,7 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
      * once while the rear wheels are still below, so the body sits nose-up and half a block lower until they follow.
      */
     private fun updateBodyPose(def: VehicleDefinition) {
+        if (def.type.flies) return FlightModel.updatePose(this, def)
         prevBodyPitch = bodyPitch; prevBodyRoll = bodyRoll; prevBodySink = bodySink
         val (min, max) = def.contactArea
         val reach = def.stepHeight + 0.5
@@ -338,13 +400,22 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         bodySink = Mth.lerp(SUSPENSION, bodySink, sink)
     }
 
+    /** Body pose set by [FlightModel] (aircraft bank and tilt instead of resting on the ground). */
+    internal fun setBodyPose(pitch: Float, roll: Float, sink: Float, smooth: Boolean = false) {
+        prevBodyPitch = bodyPitch; prevBodyRoll = bodyRoll; prevBodySink = bodySink
+        bodyPitch = if (smooth) Mth.lerp(SUSPENSION, bodyPitch, pitch) else pitch
+        bodyRoll = roll
+        bodySink = sink
+    }
+
     override fun getPassengerAttachmentPoint(passenger: Entity, dimensions: EntityDimensions, scale: Float): Vec3 =
         seat(seatOf(passenger))?.offset?.let(::toWorld) ?: super.getPassengerAttachmentPoint(passenger, dimensions, scale)
 
     override fun positionRider(passenger: Entity, moveFunction: MoveFunction) {
         super.positionRider(passenger, moveFunction)
         // Riders turn with the vehicle (like boats); only the side that owns the rider's rotation applies it.
-        if (passenger.isLocalInstanceAuthoritative && deltaYaw != 0f) {
+        // A plane's pilot steers with their view, so the plane chases it instead of turning it.
+        if (passenger.isLocalInstanceAuthoritative && deltaYaw != 0f && !FlightModel.steersByView(this, passenger)) {
             passenger.yRot += deltaYaw
             passenger.yHeadRot += deltaYaw
         }
@@ -396,12 +467,17 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
                 }
                 return InteractionResult.SUCCESS
             }
-            // Sneak + empty hand on an empty vehicle: pick it up (keeps fuel, upgrades and damage).
+            // Sneak + empty hand on an empty vehicle: pick it up (keeps fuel, upgrades, damage and cargo).
             player.isSecondaryUseActive && stack.isEmpty && passengers.isEmpty() -> {
                 if (level() is ServerLevel) {
                     player.inventory.placeItemBackInInventory(toItem(), net.minecraft.util.Prediction.SERVER_ONLY)
                     discard()
                 }
+                return InteractionResult.SUCCESS
+            }
+            // Sneak + right click holding something: the cargo (like a chest boat).
+            player.isSecondaryUseActive && def.storage > 0 && !stack.isEmpty -> {
+                if (player is ServerPlayer) openStorage(player)
                 return InteractionResult.SUCCESS
             }
             player.isSecondaryUseActive -> return InteractionResult.PASS
@@ -453,23 +529,29 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
     override fun tick() {
         if (hurtTime > 0) hurtTime--
         super.tick()
+        prevSentryAim = sentryAim
         val def = definition
         if (def == null) {
             deltaMovement = Vec3.ZERO
             return
         }
         val yawBefore = yRot
+        if (def.type.flies) FlightModel.tickPower(this)
         if (isLocalInstanceAuthoritative) {
             simulate(def, controls())
             // Turning swings the (rotated) box: refuse turns that would push it into blocks.
             val turned = makeBoundingBox()
             if (yRot != yawBefore && !level().noCollision(this, turned.deflate(0.05))) yRot = yawBefore
             boundingBox = makeBoundingBox()
+            val from = position()
+            val intended = deltaMovement
             move(MoverType.SELF, deltaMovement)
-            if (horizontalCollision) speed *= 0.3
+            if (def.type.flies) FlightModel.afterMove(this, def, intended, from)
+            else if (horizontalCollision) speed *= 0.3
         } else {
             deltaMovement = Vec3.ZERO
             boundingBox = makeBoundingBox()
+            flight.simulating = false
         }
         deltaYaw = if (isLocalInstanceAuthoritative) Mth.wrapDegrees(yRot - yawBefore) else Mth.wrapDegrees(yRot - yRotO)
         updateBodyPose(def)
@@ -481,7 +563,13 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
     /** The driver's input; their client sets [LivingEntity.xxa]/[LivingEntity.zza] from the movement keys. */
     private fun controls(): Controls {
         val driver = controllingPassenger as? Player ?: return autopilot ?: Controls.NONE
-        return Controls(driver.zza.sign, driver.xxa.sign, driver.isJumping)
+        // Helicopters climb with jump and descend with the sprint key (vanilla's sneak key dismounts).
+        val lift = when {
+            driver.isJumping -> 1f
+            level().isClientSide() && FlightModel.descendHeld -> -1f
+            else -> 0f
+        }
+        return Controls(driver.zza.sign, driver.xxa.sign, driver.isJumping, lift)
     }
 
     val hasFuel: Boolean
@@ -494,6 +582,13 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
      */
     private fun lay(def: VehicleDefinition, c: Controls) {
         val seat = def.seats.firstOrNull() ?: return
+        if (c.throttle != 0f || c.steer != 0f) layTarget = null
+        layTarget?.let { (yaw, elevation) ->
+            // Laid from the map: traverse and elevate towards the fire mission.
+            yRot = Mth.approachDegrees(yRot, yaw, AUTO_TRAVERSE)
+            xRot = Mth.approach(xRot, elevation.coerceIn(seat.minPitch, seat.maxPitch), AUTO_ELEVATION)
+            return
+        }
         val fine = c.brake
         yRot -= c.steer * if (fine) FINE_TRAVERSE else TRAVERSE
         xRot = (xRot + c.throttle * if (fine) FINE_ELEVATION else ELEVATION).coerceIn(seat.minPitch, seat.maxPitch)
@@ -507,8 +602,9 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
 
     /** One tick of driving physics; runs on whichever side owns the movement. */
     private fun simulate(def: VehicleDefinition, c: Controls) {
+        if (def.type.flies) return FlightModel.simulate(this, def, c)
         if (def.type == VehicleType.STATIC) {
-            lay(def, c)
+            if (def.layWithKeys) lay(def, c)
             speed = 0.0
             deltaMovement = Vec3(0.0, if (onGround()) -gravity else (deltaMovement.y - gravity) * 0.98, 0.0)
             return
@@ -530,7 +626,7 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
             // Wheels need rolling to steer; full lock is reached at a third of top speed. Reversing flips it.
             VehicleType.CAR -> c.steer * def.turnSpeed * (abs(speed) / (def.maxSpeed / 3)).coerceAtMost(1.0).toFloat() * sign(speed).toFloat()
             VehicleType.TANK -> if (hasFuel && engineWorks) c.steer * def.turnSpeed * drive else 0f
-            VehicleType.STATIC -> 0f
+            VehicleType.STATIC, VehicleType.PLANE, VehicleType.HELICOPTER -> 0f
         }
         yRot -= turn
 
@@ -558,13 +654,19 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
 
         val driver = controllingPassenger as? ServerPlayer
         val throttle = when {
+            // Aircraft engines run (and burn fuel) as long as someone flies them.
+            def.type.flies -> flight.power > 0f && (driver != null || autopilot != null)
             driver != null -> driver.lastClientInput.let { it.forward() || it.backward() }
             else -> autopilot?.throttle?.let { it != 0f } == true
         }
         if (throttle && def.needsFuel && driver?.hasInfiniteMaterials() != true) fuel -= def.fuelPerTick
         // A holed fuel tank leaks.
         if (def.parts.any { (name, p) -> p.role == PartRole.FUEL_TANK && isBroken(name) }) fuel -= FUEL_LEAK
-        if (groundSpeed > 0.15) runOver(level, def)
+        // Aircraft only run things over on the ground (in the air they would hit the crew that just bailed out).
+        if (groundSpeed > 0.15 && (!def.type.flies || onGround())) runOver(level, def)
+        if (tickCount % 20 == 0) dropOverflow(level, def.storage)
+        // Sentry turrets fight by themselves while nobody mans them.
+        if (def.sentry != null && occupant(0) == null) com.flansmod.recoded.emplacement.Sentries.tick(level, this, def)
     }
 
     /** Mobs in the way take damage scaled by speed and are thrown aside. */
@@ -665,8 +767,20 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         return true
     }
 
+    /** A hard landing or flying into something: [amount] hull damage (armour doesn't help), and the crew is shaken. */
+    fun crash(level: ServerLevel, amount: Float) {
+        if (isRemoved || destroyed || amount <= 0f) return
+        hurtTime = 10
+        damage = damage + (HULL to (damage[HULL] ?: 0f) + amount)
+        playSound(SoundEvents.ZOMBIE_ATTACK_IRON_DOOR, 1.5f, 0.6f)
+        level.sendParticles(ParticleTypes.LARGE_SMOKE, x, y + 0.5, z, 10, bbWidth / 4.0, 0.2, bbWidth / 4.0, 0.02)
+        passengers.toList().forEach { it.hurtServer(level, damageSources().flyIntoWall(), amount * 0.1f) }
+        if (health <= 0f) destroy(level, damageSources().flyIntoWall())
+    }
+
     override fun destroy(level: ServerLevel, source: DamageSource) {
         destroyed = true
+        net.minecraft.world.Containers.dropContents(level, this, storage)
         ejectPassengers()
         definition?.deathExplosion?.let { level.explode(this, x, y + bbHeight / 2, z, it, Level.ExplosionInteraction.NONE) }
         level.sendParticles(ParticleTypes.LARGE_SMOKE, x, y + 1, z, 30, bbWidth / 3.0, 0.5, bbWidth / 3.0, 0.02)
@@ -681,8 +795,15 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
     fun aim(seatIndex: Int, shooter: Entity, partialTick: Float = 1f): Pair<Float, Float> {
         val seat = seat(seatIndex) ?: return yRot to 0f
         // Emplacements point where they were laid, not where the gunner looks.
-        if (definition?.type == VehicleType.STATIC) return getViewYRot(partialTick) to layElevation(partialTick)
-        val yaw = if (seat.turret) shooter.getViewYRot(partialTick) else getViewYRot(partialTick)
+        if (definition?.let { it.type == VehicleType.STATIC && it.layWithKeys } == true) return getViewYRot(partialTick) to layElevation(partialTick)
+        // An unmanned sentry turret aims by itself (the renderer asks with the turret as the "shooter").
+        if (shooter == this && definition?.sentry != null) {
+            val (yaw, pitch) = sentryAim
+            return Mth.rotLerp(partialTick, prevSentryAim.first, yaw) to Mth.lerp(partialTick, prevSentryAim.second, pitch)
+        }
+        // Fixed guns of aircraft fire along the nose.
+        if (definition?.type?.flies == true && !seat.turret) return getViewYRot(partialTick) to Mth.lerp(partialTick, prevBodyPitch, bodyPitch)
+        val yaw = if (seat.turret) limitYaw(seat, shooter.getViewYRot(partialTick)) else getViewYRot(partialTick)
         return yaw to (-shooter.getViewXRot(partialTick)).coerceIn(seat.minPitch, seat.maxPitch)
     }
 
@@ -717,7 +838,9 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         output.store("Damage", DAMAGE_CODEC, damage)
         output.store("Upgrades", UPGRADES_CODEC, upgrades)
         output.putInt("Fuel", fuel)
+        owner?.let { output.putString("Owner", it.toString()) }
         output.store("Magazines", MAGAZINES_CODEC, seatMagazines.mapKeys { it.key.toString() })
+        net.minecraft.world.ContainerHelper.saveAllItems(output.child("Storage"), storage.items)
     }
 
     override fun readAdditionalSaveData(input: ValueInput) {
@@ -725,8 +848,10 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         damage = input.read("Damage", DAMAGE_CODEC).orElse(emptyMap())
         upgrades = input.read("Upgrades", UPGRADES_CODEC).orElse(emptyMap())
         fuel = input.getIntOr("Fuel", 0)
+        owner = input.getString("Owner").flatMap { runCatching { java.util.UUID.fromString(it) }.map { java.util.Optional.of(it) }.getOrDefault(java.util.Optional.empty()) }.orElse(null)
         seatMagazines = input.read("Magazines", MAGAZINES_CODEC).orElse(emptyMap())
             .mapNotNull { (k, v) -> k.toIntOrNull()?.let { it to v } }.toMap()
+        input.child("Storage").ifPresent { net.minecraft.world.ContainerHelper.loadAllItems(it, storage.items) }
         refreshDimensions()
         boundingBox = makeBoundingBox()
     }
@@ -742,9 +867,14 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         const val FINE_TRAVERSE = 0.1f
         const val ELEVATION = 0.4f
         const val FINE_ELEVATION = 0.05f
+        /** Laying towards a fire mission from the artillery map, degrees per tick. */
+        const val AUTO_TRAVERSE = 2f
+        const val AUTO_ELEVATION = 1f
         const val WHEEL_RADIUS = 0.4
         /** Damage key of the hull. */
         const val HULL = "hull"
+        /** Weapon slot of a seat's secondary weapon: seat index + this (magazines, reloads). */
+        const val SECONDARY = 100
         private const val FUEL_LEAK = 5
         private const val MAX_TILT = 35f
         private const val MAX_HEAD_TURN = 120f
@@ -777,6 +907,8 @@ class DriveableEntity(type: EntityType<out DriveableEntity>, level: Level) : Veh
         private val FUEL: EntityDataAccessor<Int> = SynchedEntityData.defineId(DriveableEntity::class.java, EntityDataSerializers.INT)
         private val SEATS: EntityDataAccessor<List<Int>> = SynchedEntityData.defineId(DriveableEntity::class.java, SEATS_SERIALIZER)
         private val MAGAZINES: EntityDataAccessor<Map<Int, MagazineContents>> = SynchedEntityData.defineId(DriveableEntity::class.java, MAGAZINES_SERIALIZER)
+        private val AIM_YAW: EntityDataAccessor<Float> = SynchedEntityData.defineId(DriveableEntity::class.java, EntityDataSerializers.FLOAT)
+        private val AIM_PITCH: EntityDataAccessor<Float> = SynchedEntityData.defineId(DriveableEntity::class.java, EntityDataSerializers.FLOAT)
 
         private val MAGAZINES_CODEC = Codec.unboundedMap(Codec.STRING, MagazineContents.CODEC)
         private val DAMAGE_CODEC = Codec.unboundedMap(Codec.STRING, Codec.FLOAT)

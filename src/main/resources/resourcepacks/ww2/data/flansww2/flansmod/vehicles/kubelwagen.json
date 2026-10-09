@@ -4,7 +4,8 @@
   "upgrade_slots": [
     "engine",
     "tyres",
-    "tank"
+    "tank",
+    "cargo"
   ],
   "health": 50,
   "armor": 0.05,
@@ -22,6 +23,7 @@
     "capacity": 20000,
     "consumption": 1
   },
+  "storage": 9,
   "parts": {
     "hull": {
       "box": [

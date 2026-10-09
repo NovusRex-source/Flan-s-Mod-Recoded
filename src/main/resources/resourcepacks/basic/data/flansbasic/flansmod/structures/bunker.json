@@ -1,0 +1,11 @@
+{
+  "name": "Concrete Bunker",
+  "category": "bunker",
+  "y_offset": -1,
+  "price": 1500,
+  "size": [
+    9,
+    5,
+    7
+  ]
+}

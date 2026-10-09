@@ -1,0 +1,27 @@
+{
+  "name": "Vickers K (rear gun)",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 8,
+  "rpm": 1000,
+  "fire_mode": "auto",
+  "reload_ticks": 80,
+  "velocity": 17,
+  "spread": 1.5,
+  "ads_spread": 0.6000000000000001,
+  "ads_zoom": 1.4,
+  "scope": {
+    "overlay": "flansww2:textures/scope/mg_ring.png"
+  },
+  "lifetime_ticks": 60,
+  "sounds": {
+    "shoot": "flansww2:vehicle.hmg.shoot",
+    "reload": "flansww2:vehicle.reload",
+    "empty": "flansww2:vehicle.empty"
+  },
+  "gravity": 0.015,
+  "recoil": {
+    "pitch": 0.4,
+    "yaw": 0.3
+  }
+}

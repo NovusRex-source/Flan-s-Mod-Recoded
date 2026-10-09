@@ -1,0 +1,8 @@
+{
+  "name": "2 cm (20\u00d7138mm) HEI",
+  "caliber": "20x138",
+  "icon": "flansww2:20x138_hei",
+  "damage_multiplier": 0.9,
+  "explosion": 1.0,
+  "fire_seconds": 3
+}

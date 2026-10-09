@@ -1,0 +1,13 @@
+{
+  "name": "25-pdr HE",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.05,
+  "fuse_ticks": 600,
+  "icon": "flansww2:25pdr_howitzer_he",
+  "explosion": {
+    "power": 4.5,
+    "break_blocks": true
+  }
+}

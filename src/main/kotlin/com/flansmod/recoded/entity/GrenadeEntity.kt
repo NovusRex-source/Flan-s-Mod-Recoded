@@ -99,11 +99,7 @@ class GrenadeEntity : ThrowableItemProjectile {
         deltaMovement = Vec3.ZERO
         def.detonateSound?.let { level.playSound(null, x, y, z, SoundEvent.createVariableRangeEvent(it), SoundSource.PLAYERS, 1f, 1f) }
 
-        def.explosion?.let { e ->
-            level.explode(this, x, y, z, e.power, e.fire, if (e.breakBlocks) Level.ExplosionInteraction.TNT else Level.ExplosionInteraction.NONE)
-            // Vanilla only sets fire where the explosion destroyed blocks; incendiaries must burn either way.
-            if (e.fire) Incendiary.spreadFire(level, position(), e.power.toDouble() + 1.0, random)
-        }
+        def.explosion?.let { com.flansmod.recoded.combat.Explosives.explode(level, this, position(), it) }
         def.flash?.let { flash(level, it) }
 
         smokeTicksLeft = def.smoke?.durationTicks ?: 0

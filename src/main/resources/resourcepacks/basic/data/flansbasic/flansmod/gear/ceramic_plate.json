@@ -1,0 +1,9 @@
+{
+  "name": "Ceramic Plate (IV)",
+  "type": "plate",
+  "armor": 5.0,
+  "toughness": 2.5,
+  "durability": 20,
+  "speed_modifier": -0.005,
+  "icon": "flansbasic:ceramic_plate"
+}

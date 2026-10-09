@@ -1,0 +1,9 @@
+{
+  "name": "Maxim Belt Box (250)",
+  "caliber": "762x54",
+  "capacity": 250,
+  "guns": [
+    "flansww2:maxim_mounted"
+  ],
+  "icon": "flansww2:maxim_belt_250"
+}

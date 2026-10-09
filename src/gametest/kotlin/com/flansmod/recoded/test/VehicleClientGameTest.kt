@@ -125,6 +125,100 @@ class VehicleClientGameTest : FabricClientGameTest {
             context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.FIRST_PERSON }
             context.waitTicks(2)
             context.takeScreenshot("flansmod-vehicles-tank-firstperson")
+            server.compute { s -> s.playerList.players.first().stopRiding() }
+            context.waitTicks(5)
+
+            // Cargo: the Humvee's storage as a chest (from the vehicle menu's button, or sneak + right click with an item).
+            server.compute { s ->
+                val humvee = s.overworld().getEntity(ids[1]) as DriveableEntity
+                humvee.storage.setItem(0, net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_INGOT, 16))
+                humvee.storage.setItem(4, com.flansmod.recoded.fuel.FuelCanItem.stackFor(com.flansmod.recoded.fuel.FuelStack(com.flansmod.recoded.gun.FuelTypes.DIESEL, com.flansmod.recoded.fuel.FuelCanItem.CAPACITY)))
+                s.playerList.players.first().startRiding(humvee, true, true)
+                humvee.openStorage(s.playerList.players.first())
+            }
+            context.waitForScreen(net.minecraft.client.gui.screens.inventory.ContainerScreen::class.java)
+            context.takeScreenshot("flansmod-vehicles-storage")
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+            server.compute { s -> s.playerList.players.first().stopRiding() }
+            context.waitTicks(5)
+
+            // Mortar: the artillery map (N) lays the gun onto a clicked point; the impact marker follows.
+            val mortar = server.compute { s ->
+                DriveableEntity(s.overworld(), vehicle("m252"), base.add(-4.0, 0.0, -8.0), 180f).also {
+                    s.overworld().addFreshEntity(it)
+                    it.setMagazine(0, MagazineContents.full(vehicle("81mm_tube"), vehicle("81mm_mortar_he")))
+                    s.playerList.players.first().startRiding(it, true, true)
+                }.id
+            }
+            context.waitTicks(10)
+            context.input.pressKey(InputConstants.KEY_N)
+            context.waitForScreen(com.flansmod.recoded.client.vehicle.ArtilleryMapScreen::class.java)
+            val target = base.add(-4.0 + 30.0, 0.0, -8.0 - 40.0)
+            context.runOnClient<RuntimeException> { mc ->
+                (mc.gui.screen() as com.flansmod.recoded.client.vehicle.ArtilleryMapScreen).aimAt(target.x.toInt(), target.z.toInt())
+            }
+            context.waitTicks(60) // traverse and elevate onto the fire mission
+            context.takeScreenshot("flansmod-artillery-map")
+            val laid = context.client { mc -> (mc.player!!.vehicle as DriveableEntity).layTarget }
+            check(laid != null) { "the target should be in range of the mortar" }
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+            context.waitTicks(10)
+            val impact = context.client { com.flansmod.recoded.client.vehicle.ArtilleryClient.impact }
+            check(impact != null && impact.subtract(target).horizontalDistance() < 4.0) { "the predicted impact should be on the target: $impact vs $target" }
+            check(server.compute { s -> s.overworld().getEntity(mortar)!!.yRot }.let { kotlin.math.abs(net.minecraft.util.Mth.wrapDegrees(it - laid!!.first)) < 1f }) {
+                "the server should see the mortar laid"
+            }
+            server.compute { s -> s.playerList.players.first().stopRiding() }
+            context.waitTicks(5)
+
+            // Sentry turret: unmanned, it finds the husk, loads a belt from its cargo and shoots.
+            val husk = server.compute { s ->
+                DriveableEntity(s.overworld(), vehicle("sentry_mg"), base.add(6.0, 0.0, -14.0), 0f).also {
+                    it.owner = s.playerList.players.first().uuid
+                    it.storage.setItem(0, com.flansmod.recoded.item.MagazineItem.stackFor(MagazineContents.full(vehicle("m60_belt_200"))!!))
+                    s.overworld().addFreshEntity(it)
+                }
+                net.minecraft.world.entity.EntityTypes.HUSK.create(s.overworld(), net.minecraft.world.entity.EntitySpawnReason.COMMAND)!!.also {
+                    it.snapTo(base.x + 6.5, base.y.toDouble(), base.z - 26.5, 0f, 0f)
+                    it.isNoAi = true
+                    s.overworld().addFreshEntity(it)
+                }.id
+            }
+            server.runCommand("tp @a ${base.x + 1.5} ${base.y + 2} ${base.z - 11.5} facing ${base.x + 6.5} ${base.y + 1} ${base.z - 20}")
+            context.waitTicks(40)
+            context.takeScreenshot("flansmod-sentry-turret")
+            var waited = 0
+            while (server.compute { s -> (s.overworld().getEntity(husk) as? net.minecraft.world.entity.LivingEntity)?.let { it.health >= it.maxHealth } == true }) {
+                check(waited++ < 200) { "the sentry should shoot the husk" }
+                context.waitTicks(1)
+            }
+
+            // Howitzer: laid from the artillery map onto a point ~70 blocks away, then fired.
+            val m777 = server.compute { s ->
+                DriveableEntity(s.overworld(), vehicle("m777"), base.add(-12.0, 0.0, 6.0), 180f).also {
+                    s.overworld().addFreshEntity(it)
+                    it.setMagazine(0, MagazineContents.full(vehicle("155mm_breech"), vehicle("155mm_howitzer_he")))
+                    s.playerList.players.first().startRiding(it, true, true)
+                }.id
+            }
+            context.waitTicks(10)
+            context.input.pressKey(InputConstants.KEY_N)
+            context.waitForScreen(com.flansmod.recoded.client.vehicle.ArtilleryMapScreen::class.java)
+            val fireAt = base.add(-12.0 + 25.0, 0.0, 6.0 - 65.0)
+            context.runOnClient<RuntimeException> { mc ->
+                (mc.gui.screen() as com.flansmod.recoded.client.vehicle.ArtilleryMapScreen).aimAt(fireAt.x.toInt(), fireAt.z.toInt())
+            }
+            context.waitTicks(60)
+            context.takeScreenshot("flansmod-howitzer-map")
+            check(context.client { mc -> (mc.player!!.vehicle as DriveableEntity).layTarget?.second?.let { it < 45f } == true }) { "the howitzer should take the flat trajectory" }
+            context.input.pressKey(InputConstants.KEY_ESCAPE)
+            context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.THIRD_PERSON_BACK }
+            context.waitTicks(10)
+            context.input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT)
+            context.waitTicks(8)
+            context.takeScreenshot("flansmod-howitzer-fired")
+            check(server.compute { s -> (s.overworld().getEntity(m777) as DriveableEntity).seatMagazines[0]?.rounds ?: 0 } == 0) { "the howitzer should have fired its shell" }
+            context.runOnClient<RuntimeException> { it.options.cameraType = CameraType.FIRST_PERSON }
         }
     }
 

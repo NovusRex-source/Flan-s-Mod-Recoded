@@ -31,6 +31,13 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration
 import mezz.jei.api.registration.IRecipeRegistration
 import mezz.jei.api.registration.IRecipeTransferRegistration
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.client.renderer.Rect2i
+import mezz.jei.api.gui.handlers.IGuiContainerHandler
+import com.flansmod.recoded.client.gamemode.BattleMasterScreen
+import com.flansmod.recoded.client.gamemode.ShopEditorScreen
+import com.flansmod.recoded.client.gamemode.SideButtons
+import com.flansmod.recoded.client.gamemode.TeamFlagScreen
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.world.item.crafting.RecipeHolder
 
@@ -89,6 +96,13 @@ class FlansJeiPlugin : IModPlugin {
 
     override fun registerGuiHandlers(registration: IGuiHandlerRegistration) {
         registration.addRecipeClickArea(WeaponsBenchScreen::class.java, 120, 44, 24, 18, TYPE)
+        // Battle screens have a button column right of the panel: keep JEI's item list clear of it.
+        fun <T : AbstractContainerScreen<*>> buttonsBeside(screen: Class<T>) = registration.addGuiContainerHandler(screen, object : IGuiContainerHandler<T> {
+            override fun getGuiExtraAreas(containerScreen: T): List<Rect2i> = (containerScreen as SideButtons).sideAreas()
+        })
+        buttonsBeside(BattleMasterScreen::class.java)
+        buttonsBeside(TeamFlagScreen::class.java)
+        buttonsBeside(ShopEditorScreen::class.java)
     }
 
     private class AssemblyCategory(guiHelper: IGuiHelper) : IRecipeCategory<RecipeHolder<WeaponAssemblyRecipe>> {

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "WWW",
+    "SSS"
+  ],
+  "key": {
+    "W": "#minecraft:wool",
+    "S": "minecraft:smooth_stone_slab"
+  },
+  "result": {
+    "id": "flansmod:battle_spawn"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "U",
+    "N"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 8,
+    "components": {
+      "flansmod:part": "flansvehicles:bullet_explosive"
+    }
+  }
+}

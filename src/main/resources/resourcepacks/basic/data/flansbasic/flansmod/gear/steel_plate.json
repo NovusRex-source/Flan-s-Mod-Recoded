@@ -1,0 +1,9 @@
+{
+  "name": "Steel Plate (III)",
+  "type": "plate",
+  "armor": 4.0,
+  "toughness": 1.0,
+  "durability": 40,
+  "speed_modifier": -0.01,
+  "icon": "flansbasic:steel_plate"
+}

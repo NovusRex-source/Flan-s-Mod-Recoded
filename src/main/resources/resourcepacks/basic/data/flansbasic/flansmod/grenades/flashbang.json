@@ -6,5 +6,15 @@
     "radius": 12.0,
     "duration_ticks": 100
   },
+  "explosion": {
+    "power": 0.6,
+    "fire": false,
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 1.8,
+      "max_resistance": 0.3,
+      "chance": 0.8
+    }
+  },
   "icon": "flansbasic:flashbang"
 }

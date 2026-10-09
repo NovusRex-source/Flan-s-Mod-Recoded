@@ -30,6 +30,8 @@ import net.minecraft.world.phys.Vec3;
 public abstract class CameraMixin {
 	@ModifyReturnValue(method = "calculateFov", at = @At("RETURN"))
 	private float flansmod$adsZoom(float fov, float partialTick) {
+		float binoculars = com.flansmod.recoded.client.gear.GearClient.binocularZoom();
+		if (binoculars > 1f) return fov / binoculars;
 		float progress = GunInput.INSTANCE.aimProgress(partialTick);
 		if (progress <= 0f) return fov;
 		GunDefinition gun = GunInput.getAimedGun();

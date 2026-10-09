@@ -1,0 +1,11 @@
+{
+  "name": "Two-Stage Supercharger",
+  "slot": "engine",
+  "icon": "flansvehicles:supercharger",
+  "speed_multiplier": 1.12,
+  "acceleration_multiplier": 1.3,
+  "fuel_consumption_multiplier": 1.3,
+  "types": [
+    "plane"
+  ]
+}

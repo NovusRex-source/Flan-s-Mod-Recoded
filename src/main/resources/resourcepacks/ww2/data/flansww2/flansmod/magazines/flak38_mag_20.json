@@ -1,0 +1,9 @@
+{
+  "name": "Flak 38 Magazine (20)",
+  "caliber": "20x138",
+  "capacity": 20,
+  "guns": [
+    "flansww2:flak38"
+  ],
+  "icon": "flansww2:flak38_mag_20"
+}

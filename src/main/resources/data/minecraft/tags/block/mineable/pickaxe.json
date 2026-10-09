@@ -11,6 +11,7 @@
     "flansmod:bunker_door",
     "flansmod:bunker_hatch",
     "flansmod:czech_hedgehog",
-    "flansmod:battle_master"
+    "flansmod:battle_master",
+    "flansmod:battle_spawn"
   ]
 }

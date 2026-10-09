@@ -1,0 +1,7 @@
+{
+  "name": "T-10 Parachute",
+  "type": "parachute",
+  "fall_speed": 0.2,
+  "canopy": "flansvehicles:parachute_canopy",
+  "icon": "flansvehicles:t10_parachute"
+}

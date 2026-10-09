@@ -1,0 +1,10 @@
+{
+  "name": "M60 Belt Box (200)",
+  "caliber": "762x51",
+  "capacity": 200,
+  "guns": [
+    "flansvehicles:m60d",
+    "flansvehicles:sentry_m240"
+  ],
+  "icon": "flansvehicles:m60_belt_200"
+}

@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "ZZZ",
+    "Y Y",
+    " J "
+  ],
+  "key": {
+    "J": "minecraft:leather",
+    "Y": "minecraft:string",
+    "Z": "minecraft:white_wool"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansvehicles:t10_parachute"
+    }
+  }
+}

@@ -22,6 +22,7 @@ object Incendiary {
     /** Places fire at [pos] if it is air with something burnable or solid next to it. */
     fun ignite(level: ServerLevel, pos: BlockPos): Boolean {
         if (!level.getBlockState(pos).isAir || !BaseFireBlock.canBePlacedAt(level, pos, Direction.UP)) return false
+        if (com.flansmod.recoded.gamemode.BattleWall.protects(level, pos)) return false
         return level.setBlockAndUpdate(pos, BaseFireBlock.getState(level, pos))
     }
 }

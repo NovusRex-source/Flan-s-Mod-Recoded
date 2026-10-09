@@ -3,7 +3,8 @@
   "caliber": "3006",
   "capacity": 150,
   "guns": [
-    "flansww2:m1919_mounted"
+    "flansww2:m1919_mounted",
+    "flansww2:m1919_rear"
   ],
   "icon": "flansww2:m1919_belt_150"
 }

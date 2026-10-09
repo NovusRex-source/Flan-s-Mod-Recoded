@@ -84,4 +84,34 @@ class GrenadeGameTests {
         }
         helper.succeed()
     }
+
+    /** chance 3: every block in range of the right resistance breaks (the chance falls to 30 % at the edge). */
+    private fun damaging(maxResistance: Float) = GrenadeDefinition("Charge", fuseTicks = 5, explosion = GrenadeDefinition.Explosion(power = 0.5f,
+        blockDamage = GrenadeDefinition.BlockDamage(radius = 2.5, maxResistance = maxResistance, chance = 3.0, drops = 0.0)))
+
+    @GameTest(maxTicks = 40, padding = 8)
+    fun fragmentsShatterGlassButNotStone(helper: GameTestHelper) {
+        helper.setBlock(BlockPos(3, 1, 3), Blocks.GLASS)
+        helper.setBlock(BlockPos(4, 1, 3), Blocks.STONE)
+        val grenade = helper.throwGrenade("shatter", damaging(0.5f), Vec3(3.5, 2.05, 3.5))
+        helper.succeedWhen {
+            helper.assertTrue(grenade.isRemoved, "the grenade went off")
+            helper.assertBlockNotPresent(Blocks.GLASS, BlockPos(3, 1, 3))
+            helper.assertBlockPresent(Blocks.STONE, BlockPos(4, 1, 3))
+        }
+    }
+
+    @GameTest(maxTicks = 40, padding = 8)
+    fun demolitionChargesBreakStoneButNotFortifications(helper: GameTestHelper) {
+        helper.setBlock(BlockPos(3, 1, 3), Blocks.STONE)
+        helper.setBlock(BlockPos(4, 1, 3), com.flansmod.recoded.fortification.Fortifications.SANDBAGS)
+        helper.setBlock(BlockPos(2, 1, 3), com.flansmod.recoded.fortification.Fortifications.REINFORCED_CONCRETE)
+        val grenade = helper.throwGrenade("demolition", damaging(6f), Vec3(3.5, 2.05, 3.5))
+        helper.succeedWhen {
+            helper.assertTrue(grenade.isRemoved, "the charge went off")
+            helper.assertBlockNotPresent(Blocks.STONE, BlockPos(3, 1, 3))
+            helper.assertBlockPresent(com.flansmod.recoded.fortification.Fortifications.SANDBAGS, BlockPos(4, 1, 3))
+            helper.assertBlockPresent(com.flansmod.recoded.fortification.Fortifications.REINFORCED_CONCRETE, BlockPos(2, 1, 3))
+        }
+    }
 }

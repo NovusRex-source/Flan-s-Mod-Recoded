@@ -1,0 +1,20 @@
+{
+  "name": "Geballte Ladung",
+  "fuse_ticks": 90,
+  "bounciness": 0.1,
+  "throw_velocity": 0.8,
+  "max_stack": 4,
+  "cooldown_ticks": 40,
+  "explosion": {
+    "power": 4.0,
+    "fire": false,
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 3.0,
+      "max_resistance": 6.0,
+      "chance": 0.75
+    }
+  },
+  "faction": "flansww2:axis",
+  "icon": "flansww2:geballte_ladung"
+}

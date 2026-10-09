@@ -1,5 +1,6 @@
 {
-  "name": "Rifle Magazine",
+  "name": "Example Rifle Magazine (30)",
   "caliber": "example_rifle",
-  "capacity": 30
+  "capacity": 30,
+  "icon": "flansbasic:stanag_30"
 }

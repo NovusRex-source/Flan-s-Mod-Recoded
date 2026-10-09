@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NZN",
+    "IHI",
+    "NIN"
+  ],
+  "key": {
+    "H": "minecraft:paper",
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "Z": "minecraft:blaze_powder"
+  },
+  "result": {
+    "id": "flansmod:grenade",
+    "count": 2,
+    "components": {
+      "flansmod:grenade": "flansww2:m15_wp"
+    }
+  }
+}

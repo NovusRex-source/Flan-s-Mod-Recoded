@@ -1,0 +1,63 @@
+{
+  "name": "105mm Howitzer M2A1",
+  "type": "static",
+  "health": 120,
+  "armor": 0.2,
+  "max_speed": 0.0,
+  "max_reverse_speed": 0.0,
+  "collision_damage": 0,
+  "death_explosion": 2.5,
+  "camera_distance": 6,
+  "fuel": {
+    "capacity": 0
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -0.9,
+        0,
+        -2.4,
+        0.9,
+        1.5,
+        1.0
+      ],
+      "role": "hull"
+    }
+  },
+  "storage": 9,
+  "seats": [
+    {
+      "position": [
+        -0.6,
+        0.3,
+        -0.8
+      ],
+      "gun": "flansww2:m2a1_gun",
+      "turret": true,
+      "pivot": [
+        0,
+        0.9,
+        0
+      ],
+      "muzzle": [
+        0,
+        0,
+        2.4
+      ],
+      "sight": [
+        -0.45,
+        0.3,
+        0.2
+      ],
+      "min_pitch": -5,
+      "max_pitch": 65,
+      "yaw_bone": "mount",
+      "pitch_bone": "barrel"
+    }
+  ],
+  "model": {
+    "texture": "flansww2:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansww2:m2a1_howitzer",
+  "faction": "flansww2:usa"
+}

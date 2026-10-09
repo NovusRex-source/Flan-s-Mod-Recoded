@@ -1,8 +1,14 @@
 {
-  "name": "Test Rifle",
+  "name": "Example Rifle",
+  "category": "rifle",
   "damage": 6,
   "rpm": 600,
   "fire_mode": "auto",
+  "fire_modes": [
+    "safe",
+    "semi",
+    "auto"
+  ],
   "reload_ticks": 40,
   "velocity": 12,
   "gravity": 0.03,
@@ -14,8 +20,9 @@
     "yaw": 0.6
   },
   "sounds": {
-    "shoot": "minecraft:entity.generic.explode",
-    "reload": "minecraft:block.iron_door.open"
+    "shoot": "flansbasic:gun.rifle.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
   },
   "attachment_slots": [
     "sight",
@@ -23,5 +30,54 @@
   ],
   "magazines": [
     "example:rifle_mag"
-  ]
+  ],
+  "model": {
+    "geo": "flansbasic:gun/m4a1",
+    "texture": "flansbasic:textures/gun/basic.png",
+    "animations": "flansbasic:gun/m4a1"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.38,
+        0.38,
+        0.38
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.38,
+        0.38,
+        0.38
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        5.5,
+        -6
+      ]
+    }
+  },
+  "rail_ads": 6.55
 }

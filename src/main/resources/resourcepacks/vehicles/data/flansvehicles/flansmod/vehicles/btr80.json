@@ -4,7 +4,8 @@
   "upgrade_slots": [
     "engine",
     "tyres",
-    "tank"
+    "tank",
+    "cargo"
   ],
   "health": 200,
   "armor": 0.6,
@@ -205,6 +206,7 @@
       ]
     }
   },
+  "storage": 18,
   "seats": [
     {
       "position": [

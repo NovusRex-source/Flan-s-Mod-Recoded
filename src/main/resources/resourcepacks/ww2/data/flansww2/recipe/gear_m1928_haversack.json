@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "JEJ",
+    "JJJ",
+    "J J"
+  ],
+  "key": {
+    "E": "minecraft:string",
+    "J": "minecraft:leather"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansww2:m1928_haversack"
+    }
+  }
+}

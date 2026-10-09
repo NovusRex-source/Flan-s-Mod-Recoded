@@ -37,7 +37,7 @@ data class VehicleMenuData(val vehicle: Int, val slots: List<String>) {
 /**
  * Vehicle menu, opened with the weapon-menu key while riding: one slot per upgrade slot, mirrored live into the
  * vehicle's installed upgrades (like [WeaponMenu] does for gun attachments), and a fuel slot that pours any fuel item
- * into the tank. The screen also shows the state of every part.
+ * into the tank. The screen also shows the state of every part, and a button opens the cargo ([VehicleStorageMenu]).
  *
  * Slot layout: 0 until [slotNames].size = upgrade slots, then the fuel slot, then 27 inventory + 9 hotbar slots.
  */
@@ -105,6 +105,12 @@ class VehicleMenu(id: Int, private val inventory: Inventory, data: VehicleMenuDa
         }
     }
 
+    /** Button 0: open the vehicle's cargo (the screen shows the button only when there is storage). */
+    override fun clickMenuButton(player: Player, id: Int): Boolean {
+        if (id != STORAGE_BUTTON || player !is ServerPlayer) return false
+        return vehicle?.openStorage(player) == true
+    }
+
     override fun removed(player: Player) {
         super.removed(player)
         // The fuel slot is not part of the vehicle: leftovers go back to the player.
@@ -140,6 +146,7 @@ class VehicleMenu(id: Int, private val inventory: Inventory, data: VehicleMenuDa
     }
 
     companion object {
+        const val STORAGE_BUTTON = 0
         const val SLOT_Y = 32
         /** The fuel slot sits right of the upgrade row, in the same line. */
         const val FUEL_X = 152

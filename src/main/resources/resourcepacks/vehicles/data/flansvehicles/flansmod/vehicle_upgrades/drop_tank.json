@@ -1,0 +1,10 @@
+{
+  "name": "Drop Tank",
+  "slot": "tank",
+  "icon": "flansvehicles:drop_tank",
+  "fuel_capacity_multiplier": 1.6,
+  "speed_multiplier": 0.97,
+  "types": [
+    "plane"
+  ]
+}

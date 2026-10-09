@@ -1,0 +1,20 @@
+{
+  "name": "Tripod",
+  "slot": "underbarrel",
+  "icon": "flansbasic:tripod",
+  "spread_multiplier": 1.25,
+  "ads_move_speed_multiplier": 0.6,
+  "deploy": {
+    "spread_multiplier": 0.3,
+    "recoil_multiplier": 0.2
+  },
+  "guns": [
+    "flansbasic:m249",
+    "flansbasic:pkm",
+    "flansbasic:barrett",
+    "flansww2:mg42",
+    "flansww2:bren",
+    "flansww2:bar",
+    "flansww2:dp28"
+  ]
+}

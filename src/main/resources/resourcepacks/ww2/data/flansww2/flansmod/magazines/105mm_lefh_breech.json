@@ -1,0 +1,9 @@
+{
+  "name": "Breech (1)",
+  "caliber": "105mm_lefh",
+  "capacity": 1,
+  "guns": [
+    "flansww2:lefh18_gun"
+  ],
+  "internal": true
+}

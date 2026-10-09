@@ -68,7 +68,9 @@ class GunGeoModel : GeoModel<GunItem>() {
             stack?.attachments ?: emptyMap(), stack?.loadedMagazine?.magazine, stack?.definition?.scope?.overlay != null,
             loaded = stack?.loadedMagazine?.isEmpty == false || stack?.has(com.flansmod.recoded.registry.FlansComponents.RELOADING) == true,
             reloading = stack?.has(com.flansmod.recoded.registry.FlansComponents.RELOADING) == true,
-            flash = owner != null && ShotEffects.recentlyFired(owner.id),
+            // Flash hiders hide the muzzle flash.
+            flash = owner != null && ShotEffects.recentlyFired(owner.id) &&
+                stack?.attachments?.values?.none { com.flansmod.recoded.gun.Attachments[it]?.hideFlash == true } != false,
         ))
         currentAnimations = model.animations
     }

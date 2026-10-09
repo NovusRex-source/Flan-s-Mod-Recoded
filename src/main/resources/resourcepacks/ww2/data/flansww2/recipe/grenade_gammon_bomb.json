@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "MUM",
+    "MTM",
+    " N "
+  ],
+  "key": {
+    "M": "#minecraft:wool",
+    "N": "minecraft:iron_nugget",
+    "T": "minecraft:tnt",
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:grenade",
+    "count": 2,
+    "components": {
+      "flansmod:grenade": "flansww2:gammon_bomb"
+    }
+  }
+}

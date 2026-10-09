@@ -1,5 +1,6 @@
 {
-  "name": "Shell",
+  "name": "Example Shell",
   "caliber": "example_shell",
-  "pellets": 8
+  "pellets": 8,
+  "icon": "flansbasic:12g"
 }

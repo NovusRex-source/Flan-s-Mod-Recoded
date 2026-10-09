@@ -36,7 +36,30 @@ data class AttachmentDefinition(
     @SerialName("ads_height") val adsHeight: Float = 0f,
     /** Item model (an `assets/<ns>/items/<name>.json` id) used for the attachment item. */
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
+    /** Bipods and tripods: much steadier while the gun is set down (prone, or crouching unless [Deploy.proneOnly]). */
+    val deploy: Deploy? = null,
+    /** Laser sight: a visible dot where the gun points, tighter hip fire. */
+    val laser: Laser? = null,
+    /** Flash hiders: no muzzle flash. */
+    @SerialName("hide_flash") val hideFlash: Boolean = false,
 ) {
+    @Serializable
+    data class Deploy(
+        @SerialName("spread_multiplier") val spreadMultiplier: Float = 0.5f,
+        @SerialName("recoil_multiplier") val recoilMultiplier: Float = 0.4f,
+        @SerialName("prone_only") val proneOnly: Boolean = false,
+    )
+
+    @Serializable
+    data class Laser(
+        /** `#RRGGBB`. */
+        val color: String = "#FF2020",
+        @SerialName("hip_spread_multiplier") val hipSpreadMultiplier: Float = 0.6f,
+        val range: Double = 64.0,
+    ) {
+        val rgb: Int get() = color.removePrefix("#").toIntOrNull(16) ?: 0xFF2020
+    }
+
     fun fits(gunId: Identifier, gun: GunDefinition) = slot in gun.attachmentSlots && (guns.isEmpty() || gunId in guns)
 }
 

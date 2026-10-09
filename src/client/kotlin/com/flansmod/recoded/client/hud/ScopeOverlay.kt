@@ -22,6 +22,7 @@ object ScopeOverlay {
     /** The scope the local player is looking through right now, if any. */
     val activeScope: Scope?
         get() {
+            com.flansmod.recoded.client.gear.GearClient.binocularOverlay()?.let { return Scope(overlay = it) }
             if (!Minecraft.getInstance().options.cameraType.isFirstPerson || GunInput.aimProgress < THRESHOLD) return null
             return GunInput.aimedGun?.scope
         }

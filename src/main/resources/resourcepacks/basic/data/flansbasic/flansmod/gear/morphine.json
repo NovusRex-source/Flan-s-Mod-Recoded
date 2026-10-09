@@ -1,0 +1,24 @@
+{
+  "name": "Morphine Syrette",
+  "type": "medical",
+  "consume_seconds": 1.0,
+  "max_stack": 8,
+  "effects": [
+    {
+      "effect": "minecraft:absorption",
+      "duration": 600,
+      "amplifier": 1
+    },
+    {
+      "effect": "minecraft:speed",
+      "duration": 300,
+      "amplifier": 0
+    },
+    {
+      "effect": "minecraft:resistance",
+      "duration": 200,
+      "amplifier": 0
+    }
+  ],
+  "icon": "flansbasic:morphine"
+}

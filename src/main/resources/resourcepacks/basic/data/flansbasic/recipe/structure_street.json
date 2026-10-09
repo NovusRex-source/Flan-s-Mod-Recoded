@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "GGG",
+    "CCC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete",
+    "G": "minecraft:gravel"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:street"
+    }
+  }
+}

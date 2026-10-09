@@ -3,5 +3,6 @@
   "slot": "chest",
   "asset": "flansbasic:army",
   "icon": "flansbasic:army_jacket",
-  "armor": 5
+  "armor": 5,
+  "plate_slots": 1
 }

@@ -1,0 +1,7 @@
+{
+  "name": "107mm HE Rocket",
+  "caliber": "107mm",
+  "max_stack": 8,
+  "icon": "flansvehicles:107mm_rocket_art_he",
+  "projectile": "flansvehicles:107mm_rocket_art_he"
+}

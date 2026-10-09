@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IIIIII",
+    "C    C",
+    "CCCCCC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansvehicles:hangar"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": ".50 BMG Ammo Belts (250)",
+  "caliber": "50bmg",
+  "capacity": 250,
+  "guns": [
+    "flansww2:m2_wings"
+  ],
+  "icon": "flansww2:50bmg_wing_belts_250"
+}

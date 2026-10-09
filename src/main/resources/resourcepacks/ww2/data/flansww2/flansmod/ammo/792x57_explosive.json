@@ -1,0 +1,7 @@
+{
+  "name": "7.92\u00d757mm Mauser Explosive",
+  "caliber": "792x57",
+  "icon": "flansww2:792x57_explosive",
+  "damage_multiplier": 0.8,
+  "explosion": 0.6
+}

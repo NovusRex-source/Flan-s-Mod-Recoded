@@ -32,6 +32,7 @@ import com.flansmod.recoded.item.MagazineItem
 import com.flansmod.recoded.item.GrenadeItem
 import com.flansmod.recoded.entity.GrenadeEntity
 import com.flansmod.recoded.entity.MineEntity
+import com.flansmod.recoded.gamemode.SoldierEntity
 import com.flansmod.recoded.fuel.FuelSynthesizerBlock
 import com.flansmod.recoded.fuel.FuelSynthesizerBlockEntity
 import com.flansmod.recoded.fuel.PetrolStationBlock
@@ -118,6 +119,16 @@ object FlansComponents {
     val VEHICLE_DAMAGE: DataComponentType<Map<String, Float>> = register("vehicle_damage") {
         persistent(Codec.unboundedMap(Codec.STRING, Codec.FLOAT))
             .networkSynchronized(ByteBufCodecs.map(::HashMap, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.FLOAT))
+    }
+
+    /** Which [com.flansmod.recoded.gear.GearDefinition] a gear stack represents. */
+    val GEAR: DataComponentType<Identifier> = register("gear") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
+    }
+
+    /** Which [com.flansmod.recoded.gun.StructureDefinition] a structure kit builds. */
+    val STRUCTURE: DataComponentType<Identifier> = register("structure") {
+        persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     }
 
     /** Contents of a fuel can. */
@@ -225,6 +236,13 @@ object FlansItems {
     val PETROL_STATION: BlockItem = blockItem("petrol_station", FlansBlocks.PETROL_STATION)
     val BATTLE_MASTER: BlockItem = blockItem("battle_master", FlansBlocks.BATTLE_MASTER)
     val TEAM_FLAG: BlockItem = blockItem("team_flag", FlansBlocks.TEAM_FLAG)
+    val BATTLE_BORDER: BlockItem = blockItem("battle_border", FlansBlocks.BATTLE_BORDER)
+    val BATTLE_SPAWN: BlockItem = blockItem("battle_spawn", FlansBlocks.BATTLE_SPAWN)
+
+    val STRUCTURE: com.flansmod.recoded.item.StructureItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("structure"),
+        com.flansmod.recoded.item.StructureItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("structure"))).stacksTo(16)),
+    )
 
     private fun blockItem(name: String, block: net.minecraft.world.level.block.Block): BlockItem = Registry.register(
         BuiltInRegistries.ITEM, FlansMod.id(name),
@@ -248,6 +266,12 @@ object FlansBlocks {
     val PETROL_STATION: com.flansmod.recoded.fuel.PetrolStationBlock = register("petrol_station", ::PetrolStationBlock)
     val BATTLE_MASTER: com.flansmod.recoded.gamemode.BattleMasterBlock = register("battle_master", ::BattleMasterBlock)
     val TEAM_FLAG: com.flansmod.recoded.gamemode.TeamFlagBlock = register("team_flag") { TeamFlagBlock(it.strength(2f)) }
+    val BATTLE_BORDER: com.flansmod.recoded.gamemode.BattleBorderBlock = register("battle_border") { com.flansmod.recoded.gamemode.BattleBorderBlock(it.strength(2f)) }
+    val BATTLE_SPAWN: com.flansmod.recoded.gamemode.BattleSpawnBlock = register("battle_spawn") { com.flansmod.recoded.gamemode.BattleSpawnBlock(it.strength(2f)) }
+    /** Border wall (placed by the Battle Master only): unbreakable, no item, solid only for fighters. */
+    val BATTLE_WALL: com.flansmod.recoded.gamemode.BattleWallBlock = register("battle_wall") {
+        com.flansmod.recoded.gamemode.BattleWallBlock(it.strength(-1f, 3600000f).noLootTable().isViewBlocking { _, _, _, _ -> false }.isSuffocating { _, _, _ -> false })
+    }
 
     private fun <B : net.minecraft.world.level.block.Block> register(name: String, create: (BlockBehaviour.Properties) -> B): B {
         val key = ResourceKey.create(Registries.BLOCK, FlansMod.id(name))
@@ -273,6 +297,8 @@ object FlansBlockEntities {
         register("battle_master", ::BattleMasterBlockEntity, FlansBlocks.BATTLE_MASTER)
     val TEAM_FLAG: net.minecraft.world.level.block.entity.BlockEntityType<com.flansmod.recoded.gamemode.TeamFlagBlockEntity> =
         register("team_flag", ::TeamFlagBlockEntity, FlansBlocks.TEAM_FLAG)
+    val BATTLE_SPAWN: net.minecraft.world.level.block.entity.BlockEntityType<com.flansmod.recoded.gamemode.BattleSpawnBlockEntity> =
+        register("battle_spawn", { p, s -> com.flansmod.recoded.gamemode.BattleSpawnBlockEntity(p, s) }, FlansBlocks.BATTLE_SPAWN)
 
     fun init() {
         // Water from pipes/tanks of other mods (Fabric Transfer API).
@@ -305,6 +331,16 @@ object FlansMenus {
     val TEAM_FLAG: ExtendedMenuType<com.flansmod.recoded.gamemode.TeamFlagMenu, com.flansmod.recoded.gamemode.TeamFlagView> = Registry.register(
         BuiltInRegistries.MENU, FlansMod.id("team_flag"),
         ExtendedMenuType({ id, inventory, view -> com.flansmod.recoded.gamemode.TeamFlagMenu(id, inventory, view) }, com.flansmod.recoded.gamemode.TeamFlagView.STREAM_CODEC),
+    )
+
+    val BATTLE_SPAWN: ExtendedMenuType<com.flansmod.recoded.gamemode.BattleSpawnMenu, com.flansmod.recoded.gamemode.BattleSpawnView> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("battle_spawn"),
+        ExtendedMenuType({ id, inventory, view -> com.flansmod.recoded.gamemode.BattleSpawnMenu(id, inventory, view) }, com.flansmod.recoded.gamemode.BattleSpawnView.STREAM_CODEC),
+    )
+
+    val SHOP_EDITOR: ExtendedMenuType<com.flansmod.recoded.gamemode.ShopEditorMenu, com.flansmod.recoded.gamemode.ShopEditorView> = Registry.register(
+        BuiltInRegistries.MENU, FlansMod.id("shop_editor"),
+        ExtendedMenuType({ id, inventory, view -> com.flansmod.recoded.gamemode.ShopEditorMenu(id, inventory, view) }, com.flansmod.recoded.gamemode.ShopEditorView.STREAM_CODEC),
     )
 
     val PETROL_STATION: MenuType<com.flansmod.recoded.fuel.PetrolStationMenu> = Registry.register(
@@ -351,7 +387,18 @@ object FlansEntities {
         EntityType.Builder.of(::MineEntity, MobCategory.MISC).sized(0.5f, 0.2f).clientTrackingRange(6).updateInterval(20).build(MINE_KEY),
     )
 
-    fun init() = DriveableEntity.registerDataSerializers()
+    private val SOLDIER_KEY = ResourceKey.create(Registries.ENTITY_TYPE, FlansMod.id("soldier"))
+
+    /** Battle bots ("fill teams with bots"). */
+    val SOLDIER: EntityType<com.flansmod.recoded.gamemode.SoldierEntity> = Registry.register(
+        BuiltInRegistries.ENTITY_TYPE, SOLDIER_KEY,
+        EntityType.Builder.of(::SoldierEntity, MobCategory.MISC).sized(0.6f, 1.8f).eyeHeight(1.62f).clientTrackingRange(10).build(SOLDIER_KEY),
+    )
+
+    fun init() {
+        DriveableEntity.registerDataSerializers()
+        net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry.register(SOLDIER, com.flansmod.recoded.gamemode.SoldierEntity.createAttributes())
+    }
 }
 
 object FlansDamageTypes {

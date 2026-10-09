@@ -1,0 +1,19 @@
+{
+  "name": "RPG-40 Anti-Tank Grenade",
+  "fuse_ticks": 200,
+  "contact": true,
+  "throw_velocity": 1.0,
+  "max_stack": 8,
+  "explosion": {
+    "power": 3.4,
+    "fire": false,
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 2.0,
+      "max_resistance": 3.0,
+      "chance": 0.6
+    }
+  },
+  "faction": "flansww2:ussr",
+  "icon": "flansww2:rpg40"
+}

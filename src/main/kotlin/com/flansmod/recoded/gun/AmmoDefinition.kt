@@ -32,6 +32,25 @@ data class AmmoDefinition(
     val tracer: Tracer? = null,
     /** Fires this grenade definition as a projectile instead of a bullet (rockets, 40mm grenades). */
     @Serializable(IdentifierSerializer::class) val projectile: Identifier? = null,
+    /** Anti-aircraft shells (HE-FRAG): burst near aircraft, or in the air when the fuse runs out. */
+    val flak: Flak? = null,
+    /**
+     * Explosive and HEI rounds: a small explosion of this power where the round hits (0 = none). It hurts what is
+     * around but never breaks blocks; with `fire_seconds` it also sets the spot alight.
+     */
+    val explosion: Float = 0f,
+)
+
+/**
+ * Proximity and time fuze of an anti-aircraft round: it bursts when it passes within [proximity] blocks of an aircraft
+ * (or a flying mob or a player gliding with an elytra), else after [fuseTicks] (the gun's bullet lifetime when unset).
+ * The burst is an explosion of [power] that breaks no blocks.
+ */
+@Serializable
+data class Flak(
+    val proximity: Double = 3.0,
+    val power: Float = 1.5f,
+    @SerialName("fuse_ticks") val fuseTicks: Int? = null,
 )
 
 /**

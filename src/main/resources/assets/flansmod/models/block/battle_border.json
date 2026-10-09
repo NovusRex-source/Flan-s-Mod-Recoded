@@ -1,0 +1,93 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "post": "flansmod:block/battle_border",
+    "pennant": "flansmod:block/battle_border_pennant",
+    "particle": "flansmod:block/battle_border"
+  },
+  "elements": [
+    {
+      "from": [
+        7,
+        0,
+        7
+      ],
+      "to": [
+        9,
+        24,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#post"
+        },
+        "south": {
+          "texture": "#post"
+        },
+        "east": {
+          "texture": "#post"
+        },
+        "west": {
+          "texture": "#post"
+        },
+        "up": {
+          "texture": "#post"
+        },
+        "down": {
+          "texture": "#post"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        18,
+        7.5
+      ],
+      "to": [
+        15,
+        23,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#pennant"
+        },
+        "south": {
+          "texture": "#pennant"
+        },
+        "east": {
+          "texture": "#pennant"
+        },
+        "west": {
+          "texture": "#pennant"
+        },
+        "up": {
+          "texture": "#pennant"
+        },
+        "down": {
+          "texture": "#pennant"
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        -2,
+        0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    }
+  }
+}

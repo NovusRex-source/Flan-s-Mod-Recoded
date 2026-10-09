@@ -1,0 +1,9 @@
+{
+  "name": "Turret Stowage Bin",
+  "slot": "cargo",
+  "icon": "flansvehicles:stowage_bin",
+  "storage_bonus": 9,
+  "types": [
+    "tank"
+  ]
+}

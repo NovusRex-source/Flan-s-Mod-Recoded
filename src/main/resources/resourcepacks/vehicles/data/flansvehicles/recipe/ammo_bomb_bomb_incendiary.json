@@ -1,0 +1,31 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "AUUD"
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:casing_bomb"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:bomb_filling_incendiary"
+      }
+    },
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 1,
+    "components": {
+      "flansmod:ammo_type": "flansvehicles:bomb_bomb_incendiary",
+      "minecraft:max_stack_size": 8
+    }
+  }
+}

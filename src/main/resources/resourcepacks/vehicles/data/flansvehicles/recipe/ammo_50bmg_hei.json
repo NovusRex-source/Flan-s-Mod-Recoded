@@ -1,0 +1,30 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "AUUUD"
+  ],
+  "key": {
+    "A": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:casing_50bmg"
+      }
+    },
+    "D": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:bullet_hei"
+      }
+    },
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:ammo",
+    "count": 6,
+    "components": {
+      "flansmod:ammo_type": "flansvehicles:50bmg_hei"
+    }
+  }
+}

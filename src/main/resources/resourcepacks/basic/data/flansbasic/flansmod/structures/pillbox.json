@@ -1,0 +1,11 @@
+{
+  "name": "Pillbox",
+  "category": "bunker",
+  "y_offset": -1,
+  "price": 800,
+  "size": [
+    5,
+    4,
+    5
+  ]
+}

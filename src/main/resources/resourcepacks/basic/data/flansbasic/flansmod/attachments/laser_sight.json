@@ -1,0 +1,9 @@
+{
+  "name": "Laser Sight",
+  "slot": "underbarrel",
+  "icon": "flansbasic:laser_sight",
+  "laser": {
+    "color": "#FF2020",
+    "hip_spread_multiplier": 0.6
+  }
+}

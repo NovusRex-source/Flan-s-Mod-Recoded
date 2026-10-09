@@ -31,7 +31,8 @@
   ],
   "attachment_slots": [
     "sight",
-    "muzzle"
+    "muzzle",
+    "underbarrel"
   ],
   "category": "lmg",
   "display": {

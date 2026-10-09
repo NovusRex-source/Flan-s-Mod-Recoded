@@ -1,0 +1,32 @@
+{
+  "name": "2 cm Flak 38",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 13,
+  "rpm": 450,
+  "fire_mode": "auto",
+  "reload_ticks": 80,
+  "velocity": 17,
+  "spread": 0.7,
+  "ads_spread": 0.27999999999999997,
+  "ads_zoom": 2.0,
+  "scope": {
+    "overlay": "flansww2:textures/scope/aa_ring.png"
+  },
+  "lifetime_ticks": 30,
+  "sounds": {
+    "shoot": "flansww2:vehicle.autocannon.shoot",
+    "reload": "flansww2:vehicle.reload",
+    "empty": "flansww2:vehicle.empty"
+  },
+  "gravity": 0.012,
+  "recoil": {
+    "pitch": 0.3,
+    "yaw": 0.2
+  },
+  "tracer": {
+    "color": "#FFB040",
+    "width": 0.08,
+    "length": 5
+  }
+}

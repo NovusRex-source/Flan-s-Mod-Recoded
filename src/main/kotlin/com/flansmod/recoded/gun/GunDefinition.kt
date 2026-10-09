@@ -69,6 +69,11 @@ data class GunDefinition(
     val category: String? = null,
     /** Vehicle weapon: only fired from a vehicle seat, never listed as an item. */
     val mounted: Boolean = false,
+    /**
+     * Bombs: the round (a projectile) is released with the vehicle's own velocity instead of being fired with
+     * [velocity], and falls under the projectile's gravity.
+     */
+    val drop: Boolean = false,
     /** Side this belongs to (a [FactionDefinition] id): faction creative tab and tooltip line. */
     @Serializable(IdentifierSerializer::class) val faction: Identifier? = null,
 ) {

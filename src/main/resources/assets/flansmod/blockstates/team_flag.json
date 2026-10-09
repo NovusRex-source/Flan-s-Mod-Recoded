@@ -1,52 +1,100 @@
 {
   "variants": {
-    "color=black": {
+    "color=black,stolen=false": {
       "model": "flansmod:block/team_flag_black"
     },
-    "color=dark_blue": {
+    "color=black,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=dark_blue,stolen=false": {
       "model": "flansmod:block/team_flag_dark_blue"
     },
-    "color=dark_green": {
+    "color=dark_blue,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=dark_green,stolen=false": {
       "model": "flansmod:block/team_flag_dark_green"
     },
-    "color=dark_aqua": {
+    "color=dark_green,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=dark_aqua,stolen=false": {
       "model": "flansmod:block/team_flag_dark_aqua"
     },
-    "color=dark_red": {
+    "color=dark_aqua,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=dark_red,stolen=false": {
       "model": "flansmod:block/team_flag_dark_red"
     },
-    "color=dark_purple": {
+    "color=dark_red,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=dark_purple,stolen=false": {
       "model": "flansmod:block/team_flag_dark_purple"
     },
-    "color=gold": {
+    "color=dark_purple,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=gold,stolen=false": {
       "model": "flansmod:block/team_flag_gold"
     },
-    "color=gray": {
+    "color=gold,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=gray,stolen=false": {
       "model": "flansmod:block/team_flag_gray"
     },
-    "color=dark_gray": {
+    "color=gray,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=dark_gray,stolen=false": {
       "model": "flansmod:block/team_flag_dark_gray"
     },
-    "color=blue": {
+    "color=dark_gray,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=blue,stolen=false": {
       "model": "flansmod:block/team_flag_blue"
     },
-    "color=green": {
+    "color=blue,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=green,stolen=false": {
       "model": "flansmod:block/team_flag_green"
     },
-    "color=aqua": {
+    "color=green,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=aqua,stolen=false": {
       "model": "flansmod:block/team_flag_aqua"
     },
-    "color=red": {
+    "color=aqua,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=red,stolen=false": {
       "model": "flansmod:block/team_flag_red"
     },
-    "color=light_purple": {
+    "color=red,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=light_purple,stolen=false": {
       "model": "flansmod:block/team_flag_light_purple"
     },
-    "color=yellow": {
+    "color=light_purple,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=yellow,stolen=false": {
       "model": "flansmod:block/team_flag_yellow"
     },
-    "color=white": {
+    "color=yellow,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
+    },
+    "color=white,stolen=false": {
       "model": "flansmod:block/team_flag_white"
+    },
+    "color=white,stolen=true": {
+      "model": "flansmod:block/team_flag_bare"
     }
   }
 }

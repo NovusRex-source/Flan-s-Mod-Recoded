@@ -1,0 +1,21 @@
+{
+  "name": "Bomb Racks (4)",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 0,
+  "rpm": 120,
+  "fire_mode": "semi",
+  "reload_ticks": 80,
+  "velocity": 0.0,
+  "spread": 0.0,
+  "ads_spread": 0.0,
+  "ads_zoom": 1.0,
+  "lifetime_ticks": 80,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.bomb.shoot",
+    "reload": "flansvehicles:vehicle.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
+  "drop": true,
+  "tracer": null
+}

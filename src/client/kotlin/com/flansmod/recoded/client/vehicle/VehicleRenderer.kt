@@ -31,6 +31,10 @@ private class VehiclePose(
     val upgrades: Map<String, Identifier>, val brokenBones: Set<String>,
     /** Body on uneven ground: degrees nose up / left side up, blocks below the entity position. */
     val pitch: Float, val roll: Float, val sink: Float,
+    /** Aircraft rotor/propeller angle (radians). */
+    val spin: Float,
+    /** Rounds left in each seat's secondary weapon (bombs on their racks), by seat. */
+    val secondary: Map<Int, Int>,
 )
 private val POSE: DataTicket<VehiclePose> = DataTicket.create("flansmod_vehicle_pose", VehiclePose::class.java)
 
@@ -54,8 +58,11 @@ class VehicleGeoModel : GeoModel<DriveableEntity>() {
 /**
  * GeckoLib renderer for vehicles. Bones are driven procedurally:
  * `wheel*` spin with the distance travelled, `steer*` turn with the steering, each seat's `yaw_bone`/`pitch_bone`
- * follow where its occupant aims (turrets, gun mounts) and `muzzle_flash` shows briefly after a crew member fired.
+ * follow where its occupant aims (turrets, gun mounts) and `muzzle_flash*` show briefly after a crew member fired.
  * `upgrade_<name>`/`default_<slot>` follow the installed upgrades; bones listed by a broken part are hidden.
+ * Aircraft: `rotor*` spin around the vertical axis, `tail_rotor*` around the sideways axis and `propeller*` around
+ * the forward axis while the engine runs. `secondary_<seat>` shows while that seat's secondary weapon is loaded,
+ * `secondary_<seat>_<n>` while it holds more than n rounds (bombs on their racks).
  */
 class VehicleRenderer(context: EntityRendererProvider.Context) : GeoEntityRenderer<DriveableEntity, EntityRenderState>(context, VehicleGeoModel()) {
     init {
@@ -72,7 +79,8 @@ class VehicleRenderer(context: EntityRendererProvider.Context) : GeoEntityRender
         val hullPitch = Mth.lerp(partialTick, animatable.prevBodyPitch, animatable.bodyPitch)
         val hullRoll = Mth.lerp(partialTick, animatable.prevBodyRoll, animatable.bodyRoll)
         animatable.definition?.seats?.forEachIndexed { index, seat ->
-            val occupant = animatable.occupant(index) ?: return@forEachIndexed
+            // An unmanned sentry turret aims by itself.
+            val occupant = animatable.occupant(index) ?: animatable.takeIf { index == 0 && it.definition?.sentry != null } ?: return@forEachIndexed
             val (aimYaw, elevation) = animatable.aim(index, occupant, partialTick)
             val relYaw = Mth.wrapDegrees(aimYaw - hullYaw)
             // Positive Y rotation turns the model's front (-Z) to the vehicle's left, which is a smaller world yaw.
@@ -85,10 +93,13 @@ class VehicleRenderer(context: EntityRendererProvider.Context) : GeoEntityRender
             Mth.lerp(partialTick, animatable.prevWheelSpin, animatable.wheelSpin),
             -Mth.lerp(partialTick, animatable.prevSteering, animatable.steering) * MAX_STEER,
             yaw, pitch,
-            flash = animatable.passengers.any { ShotEffects.recentlyFired(it.id) },
+            flash = animatable.passengers.any { ShotEffects.recentlyFired(it.id) } || ShotEffects.recentlyFired(animatable.id),
             upgrades = animatable.upgrades,
             brokenBones = animatable.definition?.parts.orEmpty().filter { (name, _) -> animatable.isBroken(name) }.values.flatMapTo(HashSet()) { it.bones },
             pitch = hullPitch, roll = hullRoll, sink = Mth.lerp(partialTick, animatable.prevBodySink, animatable.bodySink),
+            spin = Mth.lerp(partialTick, animatable.flight.prevSpin, animatable.flight.spin),
+            secondary = animatable.seatMagazines.filterKeys { it >= DriveableEntity.SECONDARY }
+                .map { (slot, mag) -> slot - DriveableEntity.SECONDARY to mag.rounds }.toMap(),
         ))
     }
 
@@ -109,7 +120,14 @@ class VehicleRenderer(context: EntityRendererProvider.Context) : GeoEntityRender
             when {
                 bone.startsWith("wheel") -> snapshots.ifPresent(bone) { it.setRotX(-pose.wheelSpin) }
                 bone.startsWith("steer") -> snapshots.ifPresent(bone) { it.setRotY(pose.steering) }
-                bone == "muzzle_flash" -> snapshots.hide(bone, !pose.flash)
+                bone.startsWith("rotor") -> snapshots.ifPresent(bone) { it.setRotY(pose.spin) }
+                bone.startsWith("tail_rotor") -> snapshots.ifPresent(bone) { it.setRotX(pose.spin * 1.5f) }
+                bone.startsWith("propeller") -> snapshots.ifPresent(bone) { it.setRotZ(pose.spin) }
+                bone.startsWith("secondary_") -> {
+                    val (seat, n) = bone.removePrefix("secondary_").split("_").let { it[0].toIntOrNull() to (it.getOrNull(1)?.toIntOrNull() ?: 0) }
+                    snapshots.hide(bone, (pose.secondary[seat ?: -1] ?: 0) <= n)
+                }
+                bone.startsWith("muzzle_flash") -> snapshots.hide(bone, !pose.flash)
                 // Like gun attachments: `upgrade_<name>` while installed, `default_<slot>` while the slot is empty.
                 bone.startsWith("upgrade_") -> snapshots.hide(bone, pose.upgrades.values.none { it.path == bone.removePrefix("upgrade_") })
                 bone.startsWith("default_") -> snapshots.hide(bone, bone.removePrefix("default_") in pose.upgrades)

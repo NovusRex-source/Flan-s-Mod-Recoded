@@ -4,7 +4,10 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "FolderRepositorySourceAccessor",
-    "PackRepositoryMixin"
+    "PackRepositoryMixin",
+    "PlayerPoseMixin",
+    "InventoryMenuMixin",
+    "ServerLevelMixin"
   ],
   "injectors": { "defaultRequire": 1 }
 }

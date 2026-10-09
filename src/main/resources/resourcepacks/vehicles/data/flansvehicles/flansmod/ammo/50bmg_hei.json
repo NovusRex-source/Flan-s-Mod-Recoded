@@ -1,0 +1,8 @@
+{
+  "name": ".50 BMG HEI",
+  "caliber": "50bmg",
+  "icon": "flansvehicles:50bmg_hei",
+  "damage_multiplier": 0.9,
+  "explosion": 1.0,
+  "fire_seconds": 3
+}

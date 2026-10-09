@@ -1,0 +1,25 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "IXI",
+    "N N",
+    "N N"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "N": "minecraft:iron_nugget",
+    "X": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:polymer"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:attachment",
+    "components": {
+      "flansmod:attachment": "flansbasic:tripod"
+    }
+  }
+}

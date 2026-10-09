@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "R",
+    "S",
+    "S"
+  ],
+  "key": {
+    "R": "minecraft:red_wool",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "flansmod:battle_border",
+    "count": 4
+  }
+}

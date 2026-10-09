@@ -1,0 +1,28 @@
+{
+  "name": "Mk 19 Grenade Launcher",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 0,
+  "rpm": 350,
+  "fire_mode": "auto",
+  "reload_ticks": 100,
+  "velocity": 2.4,
+  "spread": 1.0,
+  "ads_spread": 0.4,
+  "ads_zoom": 1.4,
+  "scope": {
+    "overlay": "flansvehicles:textures/scope/mg_ring.png"
+  },
+  "lifetime_ticks": 200,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.autocannon.shoot",
+    "reload": "flansvehicles:vehicle.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
+  "gravity": 0.02,
+  "recoil": {
+    "pitch": 0.6,
+    "yaw": 0.3
+  },
+  "tracer": null
+}

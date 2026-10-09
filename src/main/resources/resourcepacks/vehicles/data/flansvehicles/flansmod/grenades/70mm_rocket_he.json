@@ -1,0 +1,13 @@
+{
+  "name": "Hydra 70 HE",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.005,
+  "fuse_ticks": 600,
+  "icon": "flansvehicles:70mm_rocket_he",
+  "explosion": {
+    "power": 2.8,
+    "break_blocks": true
+  }
+}

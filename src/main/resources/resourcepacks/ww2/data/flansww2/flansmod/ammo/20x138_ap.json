@@ -1,0 +1,7 @@
+{
+  "name": "2 cm (20\u00d7138mm) AP",
+  "caliber": "20x138",
+  "icon": "flansww2:20x138_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

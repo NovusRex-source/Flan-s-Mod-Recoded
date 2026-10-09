@@ -26,6 +26,8 @@ data class VehicleUpgradeDefinition(
     @SerialName("fuel_capacity_multiplier") val fuelCapacityMultiplier: Float = 1f,
     @SerialName("fuel_consumption_multiplier") val fuelConsumptionMultiplier: Float = 1f,
     @SerialName("step_height_bonus") val stepHeightBonus: Float = 0f,
+    /** Cargo slots added to the vehicle's storage (rounded down to whole rows of 9). */
+    @SerialName("storage_bonus") val storageBonus: Int = 0,
     /** Speed factor in water (snorkel / amphibious kits); only ever raises the vehicle's own value. */
     @SerialName("water_speed") val waterSpeed: Double? = null,
     /** Item model (an `assets/<ns>/items/<name>.json` id) used for the upgrade item. */

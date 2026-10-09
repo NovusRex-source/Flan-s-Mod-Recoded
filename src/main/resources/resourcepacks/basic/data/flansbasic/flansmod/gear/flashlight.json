@@ -1,0 +1,7 @@
+{
+  "name": "Flashlight",
+  "type": "flashlight",
+  "range": 24,
+  "light_level": 15,
+  "icon": "flansbasic:flashlight"
+}

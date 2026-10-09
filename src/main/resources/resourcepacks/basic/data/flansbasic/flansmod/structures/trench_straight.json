@@ -1,0 +1,11 @@
+{
+  "name": "Trench",
+  "category": "trench",
+  "y_offset": -3,
+  "price": 150,
+  "size": [
+    7,
+    4,
+    4
+  ]
+}

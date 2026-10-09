@@ -1,0 +1,9 @@
+{
+  "name": "MG 15 Saddle Drum (75)",
+  "caliber": "792x57",
+  "capacity": 75,
+  "guns": [
+    "flansww2:mg15_rear"
+  ],
+  "icon": "flansww2:mg15_drum_75"
+}

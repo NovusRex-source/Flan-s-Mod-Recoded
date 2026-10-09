@@ -1,0 +1,8 @@
+{
+  "name": "25\u00d7137mm HEI",
+  "caliber": "25x137",
+  "icon": "flansvehicles:25x137_hei",
+  "damage_multiplier": 0.9,
+  "explosion": 1.0,
+  "fire_seconds": 3
+}

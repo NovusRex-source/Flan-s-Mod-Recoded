@@ -26,6 +26,12 @@ object VehicleClient {
         return Guns[vehicle.seat(vehicle.seatOf(player))?.gun]
     }
 
+    /** The second weapon (bombs, rockets) of the seat [player] sits in, if any. */
+    fun seatSecondary(player: Player): GunDefinition? {
+        val vehicle = player.vehicle as? DriveableEntity ?: return null
+        return Guns[vehicle.seat(vehicle.seatOf(player))?.secondary]
+    }
+
     /** True while looking through the sight of the local player's vehicle gun (set by GunInput). */
     @JvmStatic
     var sighting = false
@@ -69,7 +75,8 @@ object VehicleClient {
             val def = vehicle.definition ?: return
             val speed = (vehicle.position().subtract(vehicle.xo, vehicle.yo, vehicle.zo).horizontalDistance() / def.maxSpeed).toFloat().coerceIn(0f, 1f)
             val running = vehicle.controllingPassenger != null && vehicle.hasFuel
-            volume = if (running) 0.4f + 0.6f * speed else 0f
+            // Aircraft engines spool up and down with the rotor/propeller.
+            volume = if (def.type.flies) vehicle.flight.power * (0.5f + 0.5f * speed) else if (running) 0.4f + 0.6f * speed else 0f
             pitch = 0.6f + 0.8f * speed
         }
     }

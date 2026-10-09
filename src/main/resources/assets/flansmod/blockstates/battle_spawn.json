@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "color=black": {
+      "model": "flansmod:block/battle_spawn_black"
+    },
+    "color=dark_blue": {
+      "model": "flansmod:block/battle_spawn_dark_blue"
+    },
+    "color=dark_green": {
+      "model": "flansmod:block/battle_spawn_dark_green"
+    },
+    "color=dark_aqua": {
+      "model": "flansmod:block/battle_spawn_dark_aqua"
+    },
+    "color=dark_red": {
+      "model": "flansmod:block/battle_spawn_dark_red"
+    },
+    "color=dark_purple": {
+      "model": "flansmod:block/battle_spawn_dark_purple"
+    },
+    "color=gold": {
+      "model": "flansmod:block/battle_spawn_gold"
+    },
+    "color=gray": {
+      "model": "flansmod:block/battle_spawn_gray"
+    },
+    "color=dark_gray": {
+      "model": "flansmod:block/battle_spawn_dark_gray"
+    },
+    "color=blue": {
+      "model": "flansmod:block/battle_spawn_blue"
+    },
+    "color=green": {
+      "model": "flansmod:block/battle_spawn_green"
+    },
+    "color=aqua": {
+      "model": "flansmod:block/battle_spawn_aqua"
+    },
+    "color=red": {
+      "model": "flansmod:block/battle_spawn_red"
+    },
+    "color=light_purple": {
+      "model": "flansmod:block/battle_spawn_light_purple"
+    },
+    "color=yellow": {
+      "model": "flansmod:block/battle_spawn_yellow"
+    },
+    "color=white": {
+      "model": "flansmod:block/battle_spawn_white"
+    }
+  }
+}

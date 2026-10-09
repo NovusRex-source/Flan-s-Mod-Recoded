@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "NUN",
+    "NUN"
+  ],
+  "key": {
+    "N": "minecraft:iron_nugget",
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 2,
+    "components": {
+      "flansmod:part": "flansvehicles:casing_70mm"
+    }
+  }
+}

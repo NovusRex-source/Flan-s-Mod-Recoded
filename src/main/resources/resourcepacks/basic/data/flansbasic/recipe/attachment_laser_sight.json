@@ -1,0 +1,29 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "XLR"
+  ],
+  "key": {
+    "L": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:lens"
+      }
+    },
+    "R": "minecraft:redstone",
+    "X": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansbasic:circuit"
+      }
+    }
+  },
+  "result": {
+    "id": "flansmod:attachment",
+    "components": {
+      "flansmod:attachment": "flansbasic:laser_sight"
+    }
+  }
+}

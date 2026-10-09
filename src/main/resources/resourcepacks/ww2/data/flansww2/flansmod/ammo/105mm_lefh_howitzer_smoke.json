@@ -1,0 +1,7 @@
+{
+  "name": "10.5cm Smoke Shell",
+  "caliber": "105mm_lefh",
+  "max_stack": 8,
+  "icon": "flansww2:105mm_lefh_howitzer_smoke",
+  "projectile": "flansww2:105mm_lefh_howitzer_smoke"
+}

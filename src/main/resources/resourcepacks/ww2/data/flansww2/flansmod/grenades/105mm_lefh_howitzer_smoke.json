@@ -1,0 +1,13 @@
+{
+  "name": "10.5cm Smoke",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.05,
+  "fuse_ticks": 600,
+  "icon": "flansww2:105mm_lefh_howitzer_smoke",
+  "smoke": {
+    "radius": 7.0,
+    "duration_ticks": 500
+  }
+}

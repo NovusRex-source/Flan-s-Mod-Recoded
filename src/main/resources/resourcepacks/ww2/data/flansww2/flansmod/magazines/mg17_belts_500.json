@@ -1,0 +1,9 @@
+{
+  "name": "7.92mm Ammo Belts (500)",
+  "caliber": "792x57",
+  "capacity": 500,
+  "guns": [
+    "flansww2:mg17_cowl"
+  ],
+  "icon": "flansww2:mg17_belts_500"
+}

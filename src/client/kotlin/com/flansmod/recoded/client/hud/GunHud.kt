@@ -73,6 +73,14 @@ object GunHud {
             val modeText = Component.translatable("item.flansmod.gun.mode.${mode.name.lowercase()}").string.uppercase()
             graphics.text(mc.font, "[$modeText]", x + mc.font.width("${mag.rounds} / ${mag.capacity} "), y, if (mode == FireMode.SAFE) 0xFF55FF55.toInt() else 0xFFFFCC55.toInt())
             mag.ammo?.let { graphics.text(mc.font, AmmoItem.displayName(it).string, x, y - 10, 0xFFAAAAAA.toInt()) }
+            // Stance: prone, or a bipod/tripod set down (steadier aim).
+            val player = mc.player!!
+            val stance = when {
+                com.flansmod.recoded.movement.Stance.deployed(player, stack) != null -> "hud.flansmod.stance.deployed"
+                com.flansmod.recoded.movement.Stance.isProne(player) -> "hud.flansmod.stance.prone"
+                else -> null
+            }
+            stance?.let { graphics.text(mc.font, Component.translatable(it).string, x, y - 20, 0xFF7FD0FF.toInt()) }
         }
 
         ScopeOverlay.init()

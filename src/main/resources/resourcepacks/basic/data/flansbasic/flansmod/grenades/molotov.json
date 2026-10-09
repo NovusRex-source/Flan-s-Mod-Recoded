@@ -6,7 +6,12 @@
   "explosion": {
     "power": 1.2,
     "fire": true,
-    "break_blocks": false
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 1.5,
+      "max_resistance": 3.0,
+      "chance": 0.4
+    }
   },
   "icon": "flansbasic:molotov"
 }

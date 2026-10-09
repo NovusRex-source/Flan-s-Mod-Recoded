@@ -1,0 +1,9 @@
+{
+  "name": "Vickers K Pan (100)",
+  "caliber": "303",
+  "capacity": 100,
+  "guns": [
+    "flansww2:vickers_k_rear"
+  ],
+  "icon": "flansww2:vickers_k_pan_100"
+}

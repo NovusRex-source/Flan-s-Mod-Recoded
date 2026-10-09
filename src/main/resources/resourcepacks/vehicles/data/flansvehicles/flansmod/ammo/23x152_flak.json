@@ -1,0 +1,11 @@
+{
+  "name": "23\u00d7152mm HE-FRAG",
+  "caliber": "23x152",
+  "icon": "flansvehicles:23x152_flak",
+  "damage_multiplier": 0.6,
+  "flak": {
+    "proximity": 3.0,
+    "power": 1.6,
+    "fuse_ticks": 14
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "TTT",
+    "TUT"
+  ],
+  "key": {
+    "T": "minecraft:tnt",
+    "U": "minecraft:gunpowder"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 1,
+    "components": {
+      "flansmod:part": "flansvehicles:bomb_filling_he"
+    }
+  }
+}

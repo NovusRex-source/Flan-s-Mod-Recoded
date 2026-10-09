@@ -1,5 +1,7 @@
 package com.flansmod.recoded.gun
 
+import com.flansmod.recoded.aircraft.FlightDefinition
+import com.flansmod.recoded.emplacement.SentryDefinition
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.minecraft.resources.Identifier
@@ -45,13 +47,27 @@ data class VehicleDefinition(
     /** Speed multiplier in water; 0 stalls the engine (amphibious vehicles use 1). */
     @SerialName("water_speed") val waterSpeed: Double = 0.2,
     val fuel: Fuel = Fuel(),
-    /** Seat 0 is the driver's. */
+    /**
+     * Cargo slots (a multiple of 9, up to 54): opened as a chest from the vehicle menu, or with sneak + right click
+     * holding an item. The contents stay in the item when the vehicle is picked up and drop when it is destroyed.
+     */
+    val storage: Int = 0,
+    /** Planes and helicopters: how they fly (see [FlightDefinition]). */
+    val flight: FlightDefinition = FlightDefinition(),
+    /** Seat 0 is the driver's (the pilot's). */
     val seats: List<Seat> = listOf(Seat()),
     /** Damage dealt to mobs that are run over, per block/tick of speed. */
     @SerialName("collision_damage") val collisionDamage: Float = 20f,
     /** Explosion when destroyed; `null` for none. */
     @SerialName("death_explosion") val deathExplosion: Float? = 3f,
     @SerialName("camera_distance") val cameraDistance: Float = 6f,
+    /**
+     * Emplacements (`static`): the gunner lays the gun with the movement keys (mortars, the default), or with false
+     * aims it with their view like a turret (anti-aircraft guns).
+     */
+    @SerialName("lay_with_keys") val layWithKeys: Boolean = true,
+    /** Emplacements: a sentry turret that fights by itself while seat 0 is empty (see [SentryDefinition]). */
+    val sentry: SentryDefinition? = null,
     val sounds: VehicleSounds = VehicleSounds(),
     /** Item model (an `assets/<ns>/items/<name>.json` id) for the vehicle item. */
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
@@ -100,6 +116,7 @@ data class VehicleDefinition(
             health = v.health * u.healthMultiplier,
             parts = v.parts.mapValues { (_, p) -> p.copy(health = p.health * u.healthMultiplier, armor = (p.armor + u.armorBonus).coerceIn(0f, 0.95f)) },
             stepHeight = v.stepHeight + u.stepHeightBonus,
+            storage = ((v.storage + u.storageBonus) / 9 * 9).coerceIn(0, MAX_STORAGE),
             waterSpeed = maxOf(v.waterSpeed, u.waterSpeed ?: 0.0),
             fuel = v.fuel.copy(
                 capacity = (v.fuel.capacity * u.fuelCapacityMultiplier).toInt(),
@@ -110,6 +127,9 @@ data class VehicleDefinition(
 }
 
 /** What happens when a part is destroyed. */
+/** Largest vehicle storage: a double chest. */
+const val MAX_STORAGE = 54
+
 @Serializable
 enum class PartRole {
     /** Structure: damage goes straight to the hull health (the vehicle's [VehicleDefinition.health]). */
@@ -156,8 +176,15 @@ enum class VehicleType {
     @SerialName("car") CAR,
     /** Tracked: turns on the spot. */
     @SerialName("tank") TANK,
-    /** Emplacement (mortar, field gun): never drives; seat 0 is a gunner, not a driver. */
+    /** Emplacement (mortar, field gun, AA gun): never drives; seat 0 is a gunner, not a driver (see `lay_with_keys`). */
     @SerialName("static") STATIC,
+    /** Fixed-wing aircraft: needs airspeed to fly, the nose follows the pilot's view (see [com.flansmod.recoded.aircraft.FlightModel]). */
+    @SerialName("plane") PLANE,
+    /** Rotorcraft: hovers, climbs with jump and descends with the sprint key. */
+    @SerialName("helicopter") HELICOPTER;
+
+    /** Planes and helicopters. */
+    val flies: Boolean get() = this == PLANE || this == HELICOPTER
 }
 
 /**
@@ -202,6 +229,15 @@ data class Seat(
     @SerialName("max_pitch") val maxPitch: Float = 15f,
     @SerialName("yaw_bone") val yawBone: String? = null,
     @SerialName("pitch_bone") val pitchBone: String? = null,
+    /**
+     * A second weapon of this seat (bombs, rockets), fired with the secondary-weapon key and loaded with the reload key
+     * like [gun]. It fires from [secondaryMuzzle] (vehicle space, not turning with the aim) in the aim direction; bomb
+     * definitions (`drop`) just let go with the vehicle's velocity.
+     */
+    @Serializable(IdentifierSerializer::class) val secondary: Identifier? = null,
+    @SerialName("secondary_muzzle") val secondaryMuzzle: List<Double> = listOf(0.0, 0.5, 0.0),
+    /** Turret seats: how far the gun traverses to either side of the vehicle's front (null = all around). */
+    @SerialName("yaw_limit") val yawLimit: Float? = null,
 ) {
     val offset: Vec3 get() = position.vec()
 }

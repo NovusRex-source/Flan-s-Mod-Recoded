@@ -1,0 +1,10 @@
+{
+  "name": "Bipod",
+  "slot": "underbarrel",
+  "icon": "flansbasic:bipod",
+  "ads_move_speed_multiplier": 0.9,
+  "deploy": {
+    "spread_multiplier": 0.5,
+    "recoil_multiplier": 0.4
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "JEJ",
+    "JWJ",
+    "JJJ"
+  ],
+  "key": {
+    "E": "minecraft:string",
+    "J": "minecraft:leather",
+    "W": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansww2:tornister"
+    }
+  }
+}

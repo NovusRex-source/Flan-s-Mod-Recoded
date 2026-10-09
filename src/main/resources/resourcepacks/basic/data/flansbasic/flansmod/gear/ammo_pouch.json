@@ -1,0 +1,6 @@
+{
+  "name": "Ammo Pouch",
+  "type": "pouch",
+  "slots": 9,
+  "icon": "flansbasic:ammo_pouch"
+}

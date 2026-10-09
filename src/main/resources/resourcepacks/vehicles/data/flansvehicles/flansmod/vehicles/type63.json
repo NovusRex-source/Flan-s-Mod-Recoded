@@ -1,0 +1,62 @@
+{
+  "name": "Type 63 107mm Rocket Launcher",
+  "type": "static",
+  "health": 70,
+  "armor": 0.2,
+  "max_speed": 0.0,
+  "max_reverse_speed": 0.0,
+  "collision_damage": 0,
+  "death_explosion": 2.5,
+  "camera_distance": 6,
+  "fuel": {
+    "capacity": 0
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -0.9,
+        0,
+        -2.4,
+        0.9,
+        1.5,
+        1.0
+      ],
+      "role": "hull"
+    }
+  },
+  "storage": 9,
+  "seats": [
+    {
+      "position": [
+        -0.6,
+        0.3,
+        -0.8
+      ],
+      "gun": "flansvehicles:type63_launcher",
+      "turret": true,
+      "pivot": [
+        0,
+        0.8,
+        0
+      ],
+      "muzzle": [
+        0,
+        0,
+        1.2
+      ],
+      "sight": [
+        -0.4,
+        0.3,
+        0.0
+      ],
+      "min_pitch": 0,
+      "max_pitch": 55,
+      "yaw_bone": "mount",
+      "pitch_bone": "tubes"
+    }
+  ],
+  "model": {
+    "texture": "flansvehicles:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansvehicles:type63"
+}

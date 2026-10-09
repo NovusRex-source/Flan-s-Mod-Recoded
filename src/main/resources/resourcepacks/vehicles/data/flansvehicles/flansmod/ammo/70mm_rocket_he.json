@@ -1,0 +1,7 @@
+{
+  "name": "Hydra 70 HE Rocket",
+  "caliber": "70mm",
+  "max_stack": 8,
+  "icon": "flansvehicles:70mm_rocket_he",
+  "projectile": "flansvehicles:70mm_rocket_he"
+}

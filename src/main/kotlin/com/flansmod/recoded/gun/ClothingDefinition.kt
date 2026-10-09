@@ -22,6 +22,8 @@ data class ClothingDefinition(
     /** Night-vision goggles: night vision while worn (applied by the server). */
     @SerialName("night_vision") val nightVision: Boolean = false,
     @Serializable(IdentifierSerializer::class) val icon: Identifier? = null,
+    /** Modern armour: armour plates (gear of type `plate`) that can be inserted while it is worn (inventory slots). */
+    @SerialName("plate_slots") val plateSlots: Int = 0,
     /** Side this belongs to (a [FactionDefinition] id): faction creative tab and tooltip line. */
     @Serializable(IdentifierSerializer::class) val faction: Identifier? = null,
 )

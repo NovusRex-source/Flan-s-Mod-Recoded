@@ -1,0 +1,7 @@
+{
+  "name": ".303 British Explosive",
+  "caliber": "303",
+  "icon": "flansww2:303_explosive",
+  "damage_multiplier": 0.8,
+  "explosion": 0.6
+}

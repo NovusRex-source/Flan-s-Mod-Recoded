@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "JEJ",
+    "JMJ",
+    "JJJ"
+  ],
+  "key": {
+    "E": "minecraft:string",
+    "J": "minecraft:leather",
+    "M": "#minecraft:wool"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansbasic:rucksack"
+    }
+  }
+}

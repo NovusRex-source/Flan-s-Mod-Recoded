@@ -36,11 +36,31 @@ data class GrenadeDefinition(
     /** Side this belongs to (a [FactionDefinition] id): faction creative tab and tooltip line. */
     @Serializable(IdentifierSerializer::class) val faction: Identifier? = null,
 ) {
+    /**
+     * [breakBlocks]: a full vanilla (TNT-like) explosion. Otherwise the vanilla explosion only hurts and pushes, and
+     * [blockDamage] does the limited, grenade-type-specific damage to the surroundings.
+     */
     @Serializable
     data class Explosion(
         val power: Float = 2.5f,
         val fire: Boolean = false,
         @SerialName("break_blocks") val breakBlocks: Boolean = false,
+        @SerialName("block_damage") val blockDamage: BlockDamage? = null,
+    )
+
+    /**
+     * Light damage to the surroundings: within [radius] blocks, blocks whose blast resistance is at most
+     * [maxResistance] break with [chance] (falling off to 0 at the edge). Typical: fragmentation 0.5 (glass, leaves,
+     * plants, some soil), concussion/HE 1.5 (also sand, gravel, wood planks are 3), demolition 6 (stone).
+     * Off when the `tnt_explodes` gamerule is false.
+     */
+    @Serializable
+    data class BlockDamage(
+        val radius: Double = 2.0,
+        @SerialName("max_resistance") val maxResistance: Float = 0.5f,
+        val chance: Double = 0.7,
+        /** Chance a broken block drops itself. */
+        val drops: Double = 0.3,
     )
 
     @Serializable

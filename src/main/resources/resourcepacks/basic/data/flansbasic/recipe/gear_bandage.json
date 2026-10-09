@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "MEM"
+  ],
+  "key": {
+    "E": "minecraft:string",
+    "M": "#minecraft:wool"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 4,
+    "components": {
+      "flansmod:gear": "flansbasic:bandage",
+      "minecraft:max_stack_size": 16
+    }
+  }
+}

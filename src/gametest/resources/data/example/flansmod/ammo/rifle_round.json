@@ -1,4 +1,5 @@
 {
-  "name": "Rifle Round",
-  "caliber": "example_rifle"
+  "name": "Example Rifle Round",
+  "caliber": "example_rifle",
+  "icon": "flansbasic:556"
 }

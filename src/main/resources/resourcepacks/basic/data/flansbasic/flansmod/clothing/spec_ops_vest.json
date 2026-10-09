@@ -5,5 +5,6 @@
   "icon": "flansbasic:spec_ops_vest",
   "armor": 7,
   "toughness": 2,
-  "speed_modifier": -0.05
+  "speed_modifier": -0.05,
+  "plate_slots": 2
 }

@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "CCCCCC",
+    "GGGGGG",
+    "CLCCLC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete",
+    "G": "minecraft:gravel",
+    "L": "minecraft:sea_lantern"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansvehicles:runway"
+    }
+  }
+}

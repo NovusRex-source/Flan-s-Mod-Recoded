@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "MEM",
+    "JWJ",
+    "JJJ"
+  ],
+  "key": {
+    "E": "minecraft:string",
+    "J": "minecraft:leather",
+    "M": "#minecraft:wool",
+    "W": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansww2:p37_pack"
+    }
+  }
+}

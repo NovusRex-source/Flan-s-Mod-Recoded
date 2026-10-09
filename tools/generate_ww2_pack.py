@@ -2,7 +2,8 @@
 """
 Generates the built-in "WW2" content pack (src/main/resources/resourcepacks/ww2, namespace flansww2): the Second World
 War by faction - Axis (Germany), Allies (USA, UK) and the Soviet Union - with each side's small arms, grenades, uniforms
-and vehicles (jeeps, a Bren Carrier, Sherman, Cromwell, Panzer IV, Tiger I, T-34-85), their magazines, ammunition,
+and vehicles (jeeps, a Bren Carrier, Sherman, Cromwell, Panzer IV, Tiger I, T-34-85, a Flak 38), fighters (Spitfire,
+Bf 109, P-51, Yak-3) and attack planes with rear gunners (Ju 87, SBD, Il-2, Fairey Battle), their magazines, ammunition,
 tank shells, crafting parts and Weapons Bench recipes, plus GeckoLib models and animations.
 
 Models come from gunsmith (shared with the Basic pack); writing models, definitions, animations and recipes reuses the
@@ -16,7 +17,10 @@ import json
 import shutil
 from pathlib import Path
 
+import aircraftsmith as asm
 import generate_basic_pack as base
+
+BASIC_ATTACHMENTS = dict(base.ATTACHMENTS)
 import generate_vehicle_pack as vp
 import gunsmith as gs
 import vehiclesmith as vs
@@ -59,13 +63,13 @@ GUNS = {
                   zoom=1.3, slots=[], sound="ak"),
     # Machine guns
     "bar": dict(name="M1918 BAR", arch="lmg", dmg=10, rpm=500, mode="auto", reload=65, vel=17, spread=3, recoil=(2.0, 0.9), zoom=1.3,
-                slots=[], sound="battle", move=0.5),
+                slots=["underbarrel"], sound="battle", move=0.5),
     "mg42": dict(name="MG 42", arch="lmg", dmg=9, rpm=1200, mode="auto", reload=100, vel=17, spread=4, recoil=(1.4, 1.1), zoom=1.3,
-                 slots=[], sound="heavy", move=0.45),
+                 slots=["underbarrel"], sound="heavy", move=0.45),
     "bren": dict(name="Bren Mk II", arch="lmg", dmg=9.5, rpm=500, mode="auto", reload=60, vel=17, spread=2.6, recoil=(1.6, 0.8),
-                 zoom=1.3, slots=[], sound="battle", move=0.5),
+                 zoom=1.3, slots=["underbarrel"], sound="battle", move=0.5),
     "dp28": dict(name="DP-28", arch="lmg", dmg=9.5, rpm=550, mode="auto", reload=80, vel=17, spread=3.2, recoil=(1.6, 0.9),
-                 zoom=1.3, slots=[], sound="battle", move=0.5),
+                 zoom=1.3, slots=["underbarrel"], sound="battle", move=0.5),
     # Pistols
     "luger_p08": dict(name="Luger P08", arch="pistol", dmg=5, rpm=350, mode="semi", reload=35, vel=10, spread=1.7, recoil=(2.0, 0.6),
                       zoom=1.2, slots=[], sound="pistol"),
@@ -83,9 +87,10 @@ FIRE_MODES["bazooka"] = ["semi"]
 
 # New calibers of this pack (casing class decides icon size, gunpowder and ammo types; see the Basic generator).
 CALIBERS = {
-    "3006": dict(name=".30-06 Springfield", cls="full", band="brass"),
-    "792x57": dict(name="7.92×57mm Mauser", cls="full", band="steel"),
-    "303": dict(name=".303 British", cls="full", band="red"),
+    # Rifle calibers of the aircraft and vehicle machine guns also come as explosive rounds (B-Patrone, de Wilde).
+    "3006": dict(name=".30-06 Springfield", cls="full", band="brass", types=["fmj", "ap", "tracer", "incendiary", "explosive"]),
+    "792x57": dict(name="7.92×57mm Mauser", cls="full", band="steel", types=["fmj", "ap", "tracer", "incendiary", "explosive"]),
+    "303": dict(name=".303 British", cls="full", band="red", types=["fmj", "ap", "tracer", "incendiary", "explosive"]),
     "792x33": dict(name="7.92×33mm Kurz", cls="rifle", band="steel", types=["fmj", "ap"]),
     "762x25": dict(name="7.62×25mm Tokarev", cls="pistol", band="green"),
     "30carbine": dict(name=".30 Carbine", cls="pistol", band="brass", types=["fmj", "ap"]),
@@ -160,15 +165,26 @@ ASSEMBLY = {
 
 # Grenades and the bazooka rocket.
 GRENADES = {
-    "stielhandgranate": dict(name="Stielhandgranate 24", fuse_ticks=90, bounciness=0.25, throw_velocity=1.5,
-                             explosion={"power": 2.6, "fire": False, "break_blocks": False}),
-    "mk2": dict(name="Mk 2 Grenade", fuse_ticks=80, bounciness=0.35, explosion={"power": 2.4, "fire": False, "break_blocks": False}),
+    # Stick grenades are blast (concussion) grenades; the "pineapples" fragment.
+    "stielhandgranate": dict(name="Stielhandgranate 24", fuse_ticks=90, bounciness=0.25, throw_velocity=1.5, explosion=base.blast(2.6, base.BLAST)),
+    "mk2": dict(name="Mk 2 Grenade", fuse_ticks=80, bounciness=0.35, explosion=base.blast(2.4, base.FRAGMENTATION)),
     "bazooka_rocket": dict(name="2.36in Rocket", throwable=False, contact=True, gravity=0.006, fuse_ticks=120, trail=True,
                            explosion={"power": 3.0, "fire": False, "break_blocks": True}),
 }
 GRENADE_RECIPES = {"stielhandgranate": ["NUN", " W ", " W "], "mk2": ["NIN", "IUI", "IIN"], "mills_bomb": ["NIN", "IUI", "NIN"], "f1": ["NIN", "IUI", "N N"]}
-GRENADES["mills_bomb"] = dict(name="No. 36M Mills Bomb", fuse_ticks=80, bounciness=0.3, explosion={"power": 2.5, "fire": False, "break_blocks": False})
-GRENADES["f1"] = dict(name="F-1 Grenade", fuse_ticks=80, bounciness=0.3, explosion={"power": 2.6, "fire": False, "break_blocks": False})
+GRENADES["mills_bomb"] = dict(name="No. 36M Mills Bomb", fuse_ticks=80, bounciness=0.3, explosion=base.blast(2.5, base.FRAGMENTATION))
+GRENADES["f1"] = dict(name="F-1 Grenade", fuse_ticks=80, bounciness=0.3, explosion=base.blast(2.6, base.FRAGMENTATION))
+GRENADES["geballte_ladung"] = dict(name="Geballte Ladung", fuse_ticks=90, bounciness=0.1, throw_velocity=0.8, max_stack=4, cooldown_ticks=40,
+                                   explosion=base.blast(4.0, base.DEMOLITION))
+GRENADES["nebelhandgranate"] = dict(name="Nebelhandgranate 39", fuse_ticks=90, bounciness=0.25, throw_velocity=1.5,
+                                    smoke={"radius": 5.0, "duration_ticks": 300}, detonate_sound="minecraft:block.fire.extinguish")
+GRENADES["m15_wp"] = dict(name="M15 White Phosphorus", fuse_ticks=80, bounciness=0.3, smoke={"radius": 4.0, "duration_ticks": 220},
+                          explosion=base.blast(1.0, base.INCENDIARY, fire=True))
+GRENADES["gammon_bomb"] = dict(name="No. 82 Gammon Bomb", fuse_ticks=200, contact=True, explosion=base.blast(3.0, base.BLAST))
+GRENADES["rpg40"] = dict(name="RPG-40 Anti-Tank Grenade", fuse_ticks=200, contact=True, throw_velocity=1.0, max_stack=8,
+                         explosion=base.blast(3.4, {"radius": 2.0, "max_resistance": 3.0, "chance": 0.6}))
+GRENADE_RECIPES.update({"geballte_ladung": ["NWN", "UTU", "NWN"], "nebelhandgranate": ["NHN", " W ", " W "], "m15_wp": ["NZN", "IHI", "NIN"],
+                        "gammon_bomb": ["MUM", "MTM", " N "], "rpg40": ["NTN", "IUI", " W "]})
 
 # ------------------------------------------------------------------------------------------- factions
 # Each faction: creative tab, tooltip colour. Everything below names its side.
@@ -179,11 +195,11 @@ FACTIONS = {
     "ussr": dict(name="Soviet Union", color="#E05050", icon="t34_85", order=3),
 }
 FACTION_ITEMS = {
-    "axis": ["kar98k", "kar98k_scoped", "g43", "mp40", "stg44", "mg42", "luger_p08", "walther_p38", "stielhandgranate",
-             "kubelwagen", "panzer4", "tiger1", "grw34", "tellermine", "s_mine"],
-    "usa": ["m1_garand", "m1903", "m1_carbine", "m3_grease_gun", "bar", "bazooka", "mk2", "willys", "sherman", "m2_mortar", "m1a1_mine"],
-    "uk": ["lee_enfield", "sten", "bren", "mills_bomb", "universal_carrier", "cromwell", "ml_3inch", "mk5_mine"],
-    "ussr": ["mosin_nagant", "ppsh41", "dp28", "tt33", "f1", "gaz67", "t34_85", "bm37", "pmd6"],
+    "axis": ["tornister", "dienstglas", "kar98k", "kar98k_scoped", "g43", "mp40", "stg44", "mg42", "luger_p08", "walther_p38", "stielhandgranate", "geballte_ladung", "nebelhandgranate",
+             "kubelwagen", "panzer4", "tiger1", "grw34", "tellermine", "s_mine", "bf109", "ju87", "flak38", "mg42_lafette", "lefh18"],
+    "usa": ["m1928_haversack", "m1_garand", "m1903", "m1_carbine", "m3_grease_gun", "bar", "bazooka", "mk2", "m15_wp", "willys", "sherman", "m2_mortar", "m1a1_mine", "p51", "sbd", "m1919_tripod", "m2a1_howitzer"],
+    "uk": ["p37_pack", "lee_enfield", "sten", "bren", "mills_bomb", "gammon_bomb", "universal_carrier", "cromwell", "ml_3inch", "mk5_mine", "spitfire", "fairey_battle", "vickers_mg", "qf25pdr"],
+    "ussr": ["veshmeshok", "mosin_nagant", "ppsh41", "dp28", "tt33", "f1", "rpg40", "gaz67", "t34_85", "bm37", "pmd6", "yak3", "il2", "maxim_m1910", "m30_howitzer"],
 }
 FACTION_OF = {item: f"{NS}:{faction}" for faction, items in FACTION_ITEMS.items() for item in items}
 
@@ -304,6 +320,31 @@ def uniform_icon(faction, slot):
     return p
 
 
+# ------------------------------------------------------------------------------------------- gear
+# Each side's pack (18 slots) and the German service binoculars.
+GEAR = {
+    "tornister": dict(name="Tornister 39", type="backpack", slots=18, recipe=["JEJ", "JWJ", "JJJ"]),
+    "m1928_haversack": dict(name="M1928 Haversack", type="backpack", slots=18, recipe=["JEJ", "JJJ", "J J"]),
+    "p37_pack": dict(name="Pattern 37 Large Pack", type="backpack", slots=18, recipe=["MEM", "JWJ", "JJJ"]),
+    "veshmeshok": dict(name="Veshmeshok", type="backpack", slots=18, recipe=["E E", "MMM", "MMM"]),
+    "dienstglas": dict(name="Dienstglas 6x30", type="binoculars", zoom=6.0, overlay="flansbasic:textures/scope/binoculars.png", recipe=["PWP", "I I"]),
+}
+
+
+def gear_model(gid):
+    el = base.el
+    return {"tornister": [el((3, 1, 5.5), (13, 13, 10.5), "wood"), el((3, 10, 10.5), (13, 13, 11.5), "tan"), el((5, 2, 4.5), (6, 13, 5.5), "black"),
+                          el((10, 2, 4.5), (11, 13, 5.5), "black")],
+            "m1928_haversack": [el((4, 0, 6), (12, 15, 9.5), "olive"), el((4.5, 10, 9.5), (11.5, 14, 10.3), "olive"), el((5, 1, 5), (6, 15, 6), "tan"),
+                                el((10, 1, 5), (11, 15, 6), "tan")],
+            "p37_pack": [el((3, 2, 5.5), (13, 12, 10.5), "tan"), el((3, 10, 10.5), (13, 12, 11.2), "tan"), el((4.5, 2, 4.5), (5.5, 13, 5.5), "tan"),
+                         el((10.5, 2, 4.5), (11.5, 13, 5.5), "tan")],
+            "veshmeshok": [el((4, 0, 5.5), (12, 10, 11), "olive"), el((5, 10, 6.5), (11, 12, 10), "olive"), el((6.5, 12, 7.5), (9.5, 13, 9), "tan"),
+                           el((5, 1, 4.5), (6, 12, 5.5), "tan"), el((10, 1, 4.5), (11, 12, 5.5), "tan")],
+            "dienstglas": [el((3, 5, 4), (7, 10, 12), "black"), el((9, 5, 4), (13, 10, 12), "black"), el((7, 7, 6), (9, 9, 10), "metal"),
+                           el((3.5, 5.5, 3.8), (6.5, 9.5, 4), "lens"), el((9.5, 5.5, 3.8), (12.5, 9.5, 4), "lens")]}[gid]
+
+
 # ------------------------------------------------------------------------------------------- vehicles
 VP = "flansvehicles"
 JEEP_WHEELS = [("fl", -0.75, 1.0), ("fr", 0.75, 1.0), ("rl", -0.75, -1.05), ("rr", 0.75, -1.05)]
@@ -315,13 +356,14 @@ seat, gun_seat, car, tank = vp.seat, vp.gun_seat, vp.car, vp.tank
 def light_car(name, health, speed, **kw):
     return car(name, health=health, armor=0.05, max_speed=speed, max_reverse_speed=0.28, acceleration=0.026, braking=0.07, drag=0.015,
                turn_speed=5.0, water_speed=0.2, collision_damage=15, death_explosion=2.5, camera_distance=6,
-               fuel={"capacity": 20000, "consumption": 1}, upgrade_slots=["engine", "tyres", "tank"], **kw)
+               fuel={"capacity": 20000, "consumption": 1}, upgrade_slots=["engine", "tyres", "tank", "cargo"], storage=9, **kw)
 
 
 def ww2_tank(name, health, armor, speed, turn, parts, **kw):
     return tank(name, **{**dict(health=health, armor=armor, max_speed=speed, max_reverse_speed=0.15, acceleration=0.011, braking=0.05, drag=0.03,
                                 turn_speed=turn, water_speed=0.2, collision_damage=36, death_explosion=4.5, camera_distance=11,
-                                fuel={"capacity": 48000, "consumption": 2}, upgrade_slots=["engine", "tank"], parts=parts), **kw})
+                                fuel={"capacity": 48000, "consumption": 2}, upgrade_slots=["engine", "armor", "tank", "cargo"], parts=parts,
+                                storage=9), **kw})
 
 
 VEHICLES = {
@@ -340,7 +382,7 @@ VEHICLES = {
     "universal_carrier": dict(model=vs.universal_carrier, recipe=["SSGE", "AAAA", "KKKK"], definition=ww2_tank(
         "Universal Carrier", 120, 0.4, 0.75, 4.0,
         vp.tracked_parts(0.97, 1.4, -1.6, 1.55, 0.35, 1.1, 0.7, -0.6, None, 0.4, 120, 60),
-        step_height=1.0, death_explosion=3.0, camera_distance=7),
+        step_height=1.0, death_explosion=3.0, camera_distance=7, storage=18),
         seats=lambda m: [seat(0.45, 0.75, 0.25), gun_seat(m, "mg", [-0.45, 0.75, 0.25], f"{NS}:bren_mounted", -10, 40, "turret", "mg"),
                          seat(-0.6, 0.75, -0.95), seat(0.6, 0.75, -0.95)]),
     "sherman": dict(model=vs.sherman, recipe=["  TBB", " AAAE", "AHHHA", "KKKKK"], definition=ww2_tank(
@@ -379,7 +421,76 @@ VEHICLES.update({
     "ml_3inch": ww2_mortar("ML 3-inch Mortar", 1.2, 0.068, "khaki_green", "ml_3inch_tube", recipe=(" I ", " IN", "BNB")),
     "bm37": ww2_mortar("82-BM-37", 1.2, 0.066, "soviet_green", "bm37_tube", plate=0.4, round_plate=True, recipe=(" I ", " I ", "BBB")),
 })
+# Fighters: the pilot fires the plane's guns along the nose through a reflector sight (aircraftsmith.fighter) and drops
+# a bomb (secondary weapon). Attack planes carry four bombs and a rear gunner.
+def ww2_fighter(model, name, speed, turn, health, span, root, nose, gun, recipe, rear_gun=None, bombs=1, armor=0.05):
+    def seats(m):
+        out = [vp.bomb_seat(vp.fixed_seat(m, "guns", asm.SEAT, f"{NS}:{gun}"), bombs)]
+        if rear_gun:
+            out.append(gun_seat(m, "rear", list(asm.REAR_SEAT), f"{NS}:{rear_gun}", -25, 60, "rear_ring", "rear_mg"))
+        return out
+    return dict(model=model, recipe=recipe, engine="aero_engine", definition=vp.fighter(name, speed, turn, health, span, root, nose, armor=armor),
+                seats=seats)
+
+
+VEHICLES.update({
+    "spitfire": ww2_fighter(asm.spitfire, "Supermarine Spitfire Mk IX", 2.2, 4.0, 90, 4.3, 1.6, 3.0, "browning303_wings",
+                            ["  L  G", "PESFFF", "  L  G", " W  W "]),
+    "bf109": ww2_fighter(asm.bf109, "Messerschmitt Bf 109 G", 2.25, 3.6, 90, 3.9, 1.4, 2.9, "mg17_cowl",
+                         [" L   G", "PESFFF", " L    ", " W  W "]),
+    "p51": ww2_fighter(asm.p51, "North American P-51D Mustang", 2.4, 3.3, 100, 4.2, 1.65, 3.1, "m2_wings",
+                       ["  LL G", "PESFFF", "  LL G", " W  W "]),
+    "yak3": ww2_fighter(asm.yak3, "Yakovlev Yak-3", 2.2, 4.3, 80, 3.7, 1.45, 2.9, "ubs_cowl",
+                        ["  L  G", "PESFF ", "  L   ", " W  W "]),
+    "ju87": ww2_fighter(asm.ju87, "Junkers Ju 87 B Stuka", 1.6, 3.0, 120, 4.3, 1.6, 2.9, "mg17_cowl",
+                        ["  LL G", "PESSFF", "  LL G", " W  W "], rear_gun="mg15_rear", bombs=4),
+    "sbd": ww2_fighter(asm.sbd, "Douglas SBD-3 Dauntless", 1.7, 3.2, 120, 4.4, 1.7, 3.0, "m2_wings",
+                       ["  LLLG", "PESSFF", "  LLLG", " W  W "], rear_gun="m1919_rear", bombs=4),
+    "il2": ww2_fighter(asm.il2, "Ilyushin Il-2M Shturmovik", 1.6, 2.8, 160, 4.4, 1.7, 3.2, "ubs_cowl",
+                       [" LL  G", "PESSFF", " LL  G", " W  W "], rear_gun="ubt_rear", bombs=4, armor=0.3),
+    "fairey_battle": ww2_fighter(asm.fairey_battle, "Fairey Battle", 1.6, 2.8, 110, 4.6, 1.8, 3.1, "browning303_wings",
+                                 ["LLL  G", "PESSFF", "LLL  G", " W  W "], rear_gun="vickers_k_rear", bombs=4),
+    # Stationary machine guns (aimed with the view within their arc) and field howitzers (laid, artillery map).
+    "mg42_lafette": dict(model=lambda: vs.tripod_mg(0.9, paint="panzer_grey", box_mag="panzer_grey"), recipe=[" II  ", "IIIIK", " N N "],
+                         definition=vp.mg_emplacement("MG 42 on Lafette 42"), seats=lambda m: [vp.mg_seat(m, f"{NS}:mg42_mounted")]),
+    "m1919_tripod": dict(model=lambda: vs.tripod_mg(0.85, paint="olive_drab", box_mag="olive_drab"), recipe=[" II  ", "IIIIC", " N N "],
+                         definition=vp.mg_emplacement("M1919A4 on M2 Tripod"), seats=lambda m: [vp.mg_seat(m, f"{NS}:m1919_mounted")]),
+    "vickers_mg": dict(model=lambda: vs.tripod_mg(0.8, paint="khaki_green", water_jacket=True, box_mag="khaki_green"), recipe=[" IIB ", "IIIIC", " N N "],
+                       definition=vp.mg_emplacement("Vickers Mk I"), seats=lambda m: [vp.mg_seat(m, f"{NS}:vickers_mounted")]),
+    "maxim_m1910": dict(model=lambda: vs.tripod_mg(0.8, paint="soviet_green", shield=True, water_jacket=True, wheels=True, box_mag="soviet_green"),
+                        recipe=[" IIB ", "IIIIK", "N   N"], definition=vp.mg_emplacement("Maxim M1910"), seats=lambda m: [vp.mg_seat(m, f"{NS}:maxim_mounted")]),
+    "lefh18": dict(model=lambda: vs.howitzer(2.3, 0.075, "panzer_grey", wheel_r=0.6, muzzle_brake=False), recipe=["   BB ", "IIBII ", "I  I  ", "N  N  "],
+                   definition=vp.howitzer_emplacement("10.5 cm leFH 18"), seats=lambda m: [vp.artillery_seat(m, f"{NS}:lefh18_gun", -5, 42)]),
+    "m2a1_howitzer": dict(model=lambda: vs.howitzer(2.3, 0.075, "olive_drab", wheel_r=0.55, muzzle_brake=False), recipe=["   BB ", "IIBIIC", "I  I  ", "N  N  "],
+                          definition=vp.howitzer_emplacement("105mm Howitzer M2A1"), seats=lambda m: [vp.artillery_seat(m, f"{NS}:m2a1_gun", -5, 65)]),
+    "qf25pdr": dict(model=lambda: vs.howitzer(2.2, 0.07, "khaki_green", wheel_r=0.55), recipe=["   BB ", "IIBIIG", "I  I  ", "N  N  "],
+                    definition=vp.howitzer_emplacement("Ordnance QF 25-pounder"), seats=lambda m: [vp.artillery_seat(m, f"{NS}:qf25pdr_gun", -5, 45)]),
+    "m30_howitzer": dict(model=lambda: vs.howitzer(2.4, 0.085, "soviet_green", wheel_r=0.6, muzzle_brake=False), recipe=["   BB ", "IIBIIK", "I  I  ", "N  N  "],
+                         definition=vp.howitzer_emplacement("122mm Howitzer M-30"), seats=lambda m: [vp.artillery_seat(m, f"{NS}:m30_gun", -3, 63)]),
+    # Light anti-aircraft gun: aimed with the view through a ring sight, HE-FRAG bursts next to aircraft.
+    "flak38": dict(model=lambda: vs.aa_gun(1, 2.0, 0.04, "panzer_grey", shield=True, magazines="side"), recipe=["BB  ", " IB ", "IIII", "N  N"],
+                   definition=vp.aa_emplacement("2 cm Flak 38", health=80),
+                   seats=lambda m: [gun_seat(m, "main", [0.0, 0.75, -0.05], f"{NS}:flak38", -5, 85, "mount", "guns")]),
+})
 MOUNTED_GUNS = {
+    "browning303_wings": vp.mg("Browning .303 (wing guns)", 8, 1100, 17, spread=1.6, zoom=1.2),
+    "mg17_cowl": vp.mg("MG 17 (cowling guns)", 9, 1000, 17, spread=1.1, zoom=1.2),
+    "m2_wings": vp.mg("M2 Browning (wing guns)", 11, 800, 18, spread=1.3, zoom=1.2),
+    "ubs_cowl": vp.mg("UBS 12.7mm (cowling gun)", 11, 800, 17, spread=1.0, zoom=1.2),
+    # Rear gunners of the attack planes.
+    "mg15_rear": vp.mg("MG 15 (rear gun)", 9, 900, 17, spread=1.4, zoom=1.4),
+    "m1919_rear": vp.mg("Twin M1919 (rear guns)", 9, 1000, 17, spread=1.5, zoom=1.4),
+    "ubt_rear": vp.mg("UBT 12.7mm (rear gun)", 11, 800, 17, spread=1.3, zoom=1.4),
+    "vickers_k_rear": vp.mg("Vickers K (rear gun)", 8, 1000, 17, spread=1.5, zoom=1.4),
+    "mg42_mounted": vp.mg("MG 42 (Lafette)", 9, 1200, 17, spread=1.2, zoom=1.6),
+    "vickers_mounted": vp.mg("Vickers Mk I", 9, 500, 17, spread=0.9, zoom=1.6),
+    "maxim_mounted": vp.mg("Maxim M1910", 9, 600, 17, spread=0.9, zoom=1.6),
+    "lefh18_gun": vp.mounted_gun("10.5 cm leFH 18", 0, 6, "semi", 110, 2.4, 0.3, 1.0, None, "cannon", lifetime_ticks=600, recoil={"pitch": 1.5, "yaw": 0.4}, tracer=None),
+    "m2a1_gun": vp.mounted_gun("105mm M2A1", 0, 6, "semi", 110, 2.5, 0.3, 1.0, None, "cannon", lifetime_ticks=600, recoil={"pitch": 1.5, "yaw": 0.4}, tracer=None),
+    "qf25pdr_gun": vp.mounted_gun("QF 25-pounder", 0, 8, "semi", 90, 2.6, 0.3, 1.0, None, "cannon", lifetime_ticks=600, recoil={"pitch": 1.5, "yaw": 0.4}, tracer=None),
+    "m30_gun": vp.mounted_gun("122mm M-30", 0, 5, "semi", 120, 2.4, 0.3, 1.0, None, "cannon", lifetime_ticks=600, recoil={"pitch": 1.8, "yaw": 0.4}, tracer=None),
+    "flak38": vp.mounted_gun("2 cm Flak 38", 13, 450, "auto", 80, 17, 0.7, 2.0, vp.scope("aa_ring"), "autocannon", gravity=0.012,
+                             lifetime_ticks=30, recoil={"pitch": 0.3, "yaw": 0.2}, tracer={"color": "#FFB040", "width": 0.08, "length": 5}),
     "grw34_tube": vp.mortar_gun("8 cm Granatwerfer 34", 2.3),
     "m2_mortar_tube": vp.mortar_gun("M2 60mm Mortar", 2.0, reload=25),
     "ml_3inch_tube": vp.mortar_gun("ML 3-inch Mortar", 2.35),
@@ -396,7 +507,21 @@ MOUNTED_GUNS = {
     "zis_s53": vp.cannon("85mm ZiS-S-53", 44, 110, 5.5, 2.5, vp.scope("tank_soviet")),
 }
 MOUNTED_MAGAZINES = {
-    "m1919_belt_150": dict(name=".30-06 Belt Box (150)", caliber="3006", capacity=150, guns=["m1919_mounted"], recipe=["III", "NKN"]),
+    "303_wing_belts_300": dict(name=".303 Ammo Belts (300)", caliber="303", capacity=300, guns=["browning303_wings"], recipe=["III", "KIK", "III"]),
+    "mg17_belts_500": dict(name="7.92mm Ammo Belts (500)", caliber="792x57", capacity=500, guns=["mg17_cowl"], recipe=["KIK", "III"]),
+    "50bmg_wing_belts_250": dict(name=".50 BMG Ammo Belts (250)", caliber="50bmg", capacity=250, guns=["m2_wings"], recipe=["IIII", "KIIK"]),
+    "ubs_belt_200": dict(name="12.7×108mm Ammo Belt (200)", caliber="127x108", capacity=200, guns=["ubs_cowl", "ubt_rear"], recipe=["IKI", "III"]),
+    "m1919_belt_150": dict(name=".30-06 Belt Box (150)", caliber="3006", capacity=150, guns=["m1919_mounted", "m1919_rear"], recipe=["III", "NKN"]),
+    "mg15_drum_75": dict(name="MG 15 Saddle Drum (75)", caliber="792x57", capacity=75, guns=["mg15_rear"], recipe=["NIN", "IKI"]),
+    "vickers_k_pan_100": dict(name="Vickers K Pan (100)", caliber="303", capacity=100, guns=["vickers_k_rear"], recipe=["NIN", "IKI", "III"]),
+    "mg42_belt_250": dict(name="MG 42 Belt Box (250)", caliber="792x57", capacity=250, guns=["mg42_mounted"], recipe=["III", "KIK", "I I"]),
+    "vickers_belt_250": dict(name="Vickers Belt Box (250)", caliber="303", capacity=250, guns=["vickers_mounted"], recipe=["III", "CIC", "I I"]),
+    "maxim_belt_250": dict(name="Maxim Belt Box (250)", caliber="762x54", capacity=250, guns=["maxim_mounted"], recipe=["III", "NIN", "I I"]),
+    "105mm_lefh_breech": dict(name="Breech (1)", caliber="105mm_lefh", capacity=1, guns=["lefh18_gun"], internal=True),
+    "105mm_breech": dict(name="Breech (1)", caliber="105mm", capacity=1, guns=["m2a1_gun"], internal=True),
+    "25pdr_breech": dict(name="Breech (1)", caliber="25pdr", capacity=1, guns=["qf25pdr_gun"], internal=True),
+    "122mm_breech": dict(name="Breech (1)", caliber="122mm", capacity=1, guns=["m30_gun"], internal=True),
+    "flak38_mag_20": dict(name="Flak 38 Magazine (20)", caliber="20x138", capacity=20, guns=["flak38"], recipe=["III", "IKI", "I I"]),
     "mg34_belt_150": dict(name="MG 34 Belt Box (150)", caliber="792x57", capacity=150, guns=["mg34_mounted"], recipe=["III", "KNK"]),
     "dt_pan_63": dict(name="DT Pan Magazine (63)", caliber="762x54", capacity=63, guns=["dt_mounted"], recipe=["NIN", "IKI", "NIN"]),
     "75mm_breech": dict(name="Breech (1)", caliber="75mm", capacity=1, guns=["m3_75mm", "qf75"], internal=True),
@@ -408,8 +533,18 @@ MOUNTED_MAGAZINES = {
     "ml_3inch_tube": dict(name="Mortar Tube (1)", caliber="3in", capacity=1, guns=["ml_3inch_tube"], internal=True),
     "bm37_tube": dict(name="Mortar Tube (1)", caliber="82mm", capacity=1, guns=["bm37_tube"], internal=True),
 }
-MAG_ICONS = {"m1919_belt_150": "olive_drab", "mg34_belt_150": "panzer_grey", "dt_pan_63": "metal"}
+MAG_ICONS = {"m1919_belt_150": "olive_drab", "mg34_belt_150": "panzer_grey", "dt_pan_63": "metal", "303_wing_belts_300": "khaki_green",
+             "mg17_belts_500": "panzer_grey", "50bmg_wing_belts_250": "olive_drab", "ubs_belt_200": "soviet_green",
+             "mg15_drum_75": "panzer_grey", "vickers_k_pan_100": "khaki_green", "flak38_mag_20": "panzer_grey",
+             "mg42_belt_250": "panzer_grey", "vickers_belt_250": "khaki_green", "maxim_belt_250": "soviet_green"}
+# Anti-aircraft cartridges (Vehicles pack writer; the HE-FRAG fuze comes from the Vehicles pack).
+AA_CARTRIDGES = {"20x138": dict(name="2 cm (20×138mm)", cls="heavy", band="red", types=["flak", "hei", "api", "ap", "tracer"])}
+AA_CASINGS = {"20x138": (["CC ", "C C"], 3)}
 SHELLS = {
+    "105mm_lefh": dict(name="10.5 cm Howitzer Shell", label="10.5cm", length=1.2, radius=0.16, casing=["C C", "CCC", " C "], types=["howitzer_he", "howitzer_smoke"]),
+    "105mm": dict(name="105mm Howitzer Shell", label="105mm", length=1.2, radius=0.16, casing=["C C", "CCC", "C  "], types=["howitzer_he", "howitzer_smoke"]),
+    "25pdr": dict(name="25-pounder Shell", label="25-pdr", length=1.1, radius=0.14, casing=["C C", "CCC", "  C"], types=["howitzer_he", "howitzer_smoke"]),
+    "122mm": dict(name="122mm Howitzer Shell", label="122mm", length=1.3, radius=0.18, casing=["CCC", "C C", "CCC"], types=["howitzer_he", "howitzer_smoke"]),
     "75mm": dict(name="75mm Tank Shell (US/UK)", label="75mm", length=1.05, radius=0.15, casing=["C C", "CCC"], types=["apcbc", "he"]),
     "75mm_kwk": dict(name="7.5 cm KwK 40 Shell", label="7.5cm KwK", length=1.2, radius=0.15, casing=["C C", "C C", "CC "], types=["apcbc", "he"]),
     "88mm": dict(name="8.8 cm KwK 36 Shell", label="8.8cm KwK", length=1.35, radius=0.17, casing=["C C", "C C", " CC"], types=["apcbc", "he"]),
@@ -430,13 +565,24 @@ MINES = {
     "mk5_mine": vp.at_mine("Mk V Anti-Tank Mine", "mk5", "khaki_green", power=3.5, vehicle_damage=320, recipe=("NIN", "ITI", "INI")),
     "pmd6": vp.ap_mine("PMD-6 Mine", "pmd6", recipe=("WUW",), power=1.8),
 }
-SIGHTS = ["mg_ring", "telescope", "tzf", "tank_soviet"]
+SIGHTS = ["mg_ring", "telescope", "tzf", "tank_soviet", "aa_ring"]
 
 
 def grenade_model(gid):
     el = base.el
     if gid == "stielhandgranate":
         return [el((7, 0, 7), (9, 10, 9), "wood"), el((5.5, 10, 5.5), (10.5, 15, 10.5), "olive"), el((6.5, 15, 6.5), (9.5, 15.5, 9.5), "steel")]
+    if gid == "nebelhandgranate":  # stick grenade with the white smoke band
+        return [el((7, 0, 7), (9, 10, 9), "wood"), el((5.5, 10, 5.5), (10.5, 15, 10.5), "gray"), el((5.25, 12, 5.25), (10.75, 13, 10.75), "white")]
+    if gid == "geballte_ladung":  # one stick grenade with six heads wired around its head
+        heads = [el((5.5 + dx, 10, 5.5 + dz), (10.5 + dx, 14, 10.5 + dz), "olive") for dx, dz in ((-4, 0), (4, 0), (0, -4), (0, 4))]
+        return [el((7, 0, 7), (9, 10, 9), "wood"), el((5.5, 10, 5.5), (10.5, 15, 10.5), "olive"), *heads, el((3, 12, 3), (13, 12.5, 13), "steel")]
+    if gid == "gammon_bomb":  # cloth bag with the fuze cap on top
+        return [el((4, 1, 4), (12, 10, 12), "tan"), el((5, 10, 5), (11, 12, 11), "tan"), el((6.5, 12, 6.5), (9.5, 14, 9.5), "black")]
+    if gid == "rpg40":  # big can on a short handle
+        return [el((7, 0, 7), (9, 6, 9), "wood"), el((4.5, 6, 4.5), (11.5, 14, 11.5), "green"), el((5, 14, 5), (11, 15, 11), "steel")]
+    if gid == "m15_wp":
+        return [el((5.5, 2, 5.5), (10.5, 12, 10.5), "gray"), el((5.25, 7, 5.25), (10.75, 9, 10.75), "brass"), el((7, 12, 7), (9, 14, 9), "steel")]
     if gid in ("mills_bomb", "f1"):  # segmented egg, filler plug, lever and ring
         body = "olive" if gid == "mills_bomb" else "green"
         return [el((5, 2, 5), (11, 11, 11), body), el((4.5, 4, 4.5), (11.5, 9, 11.5), body), el((6, 1, 6), (10, 2, 10), "steel"),
@@ -464,7 +610,9 @@ def seed_signatures():
 def main():
     # The Basic generator's writers with this pack's namespace and tables.
     base.NS, base.ROOT, base.DATA, base.ASSETS = NS, ROOT, ROOT / "data" / NS, ROOT / "assets" / NS
-    base.MAGAZINES, base.MAG_SHAPES, base.FIRE_MODES, base.ATTACHMENTS = MAGAZINES, MAG_SHAPES, FIRE_MODES, {}
+    # The Basic pack's bipod/tripod fit the WW2 machine guns: their models need the attachment bones.
+    base.MAGAZINES, base.MAG_SHAPES, base.FIRE_MODES = MAGAZINES, MAG_SHAPES, FIRE_MODES
+    base.ATTACHMENTS = {k: v for k, v in BASIC_ATTACHMENTS.items() if k in ("bipod", "tripod")}
     base.GUN_BUILDERS = gs.WW2_GUNS
     DATA, ASSETS = base.DATA, base.ASSETS
     if ROOT.exists():
@@ -532,7 +680,7 @@ def main():
         components = {"flansmod:ammo_type": f"{NS}:{aid}"}
         if a.get("max_stack", 64) != 64:
             components["minecraft:max_stack_size"] = a["max_stack"]
-        tip = ingredient(NS, "warhead_bazooka") if a["cls"] == "rocket" else ingredient(BASIC, a["tip"])
+        tip = ingredient(NS, "warhead_bazooka") if a["cls"] == "rocket" else ingredient(VP, a["tip"]) if a["tip"] in vp.OWN_TIPS else ingredient(BASIC, a["tip"])
         base.bench(f"ammo_{aid}", ["A" + "U" * cls["powder"] + "D"], {"A": ingredient(NS, f"casing_{a['caliber']}"), "U": base.RAW["U"], "D": tip},
                    {"id": "flansmod:ammo", "count": cls["count"], "components": components}, extend=True)
 
@@ -544,8 +692,11 @@ def main():
             definition["icon"] = f"{NS}:{gid}"
             base.model3d(gid, grenade_model(gid))
             shape = GRENADE_RECIPES[gid]
-            base.bench(f"grenade_{gid}", shape, base.raw_key(shape), {"id": "flansmod:grenade", "count": 2,
-                       "components": {"flansmod:grenade": f"{NS}:{gid}"}}, extend=True)
+            components = {"flansmod:grenade": f"{NS}:{gid}"}
+            if gr.get("max_stack", 16) != 16:
+                components["minecraft:max_stack_size"] = gr["max_stack"]
+            base.bench(f"grenade_{gid}", shape, base.raw_key(shape), {"id": "flansmod:grenade", "count": 2 if gr.get("max_stack", 16) >= 8 else 1,
+                       "components": components}, extend=True)
         else:
             definition["icon"] = f"{NS}:rocket236"  # flies with the look of its round
         base.write(DATA / "flansmod" / "grenades" / f"{gid}.json", definition)
@@ -566,11 +717,14 @@ def main():
         base.bench(f"clothing_{cid}", shape, base.raw_key(shape, {"D": FACTION_DYE[faction]}),
                    {"id": "flansmod:clothing", "components": {"flansmod:clothing": f"{NS}:{cid}"}}, extend=True)
 
+    base.write_gear(GEAR, gear_model, FACTION_OF)
+
     # Vehicles with the Vehicles pack's writers (same namespace and pack root as this pack).
     vp.configure(NS, ROOT)
     vp.write_textures()
     vp.write_vehicles({vid: {**v, "faction": FACTION_OF[vid]} for vid, v in VEHICLES.items()})
     vp.write_weapons(MOUNTED_GUNS, MOUNTED_MAGAZINES, MAG_ICONS)
+    aa_calibers = vp.write_cartridges(AA_CARTRIDGES, AA_CASINGS)
     shell_names = vp.write_shells(SHELLS, {k: vp.WARHEADS[k] for k in ("shot_apcbc", "warhead_he_shell", "warhead_mortar_he", "warhead_mortar_smoke")})
     vp.write_sights(SIGHTS)
     vp.write_mines(MINES, FACTION_OF)
@@ -581,6 +735,7 @@ def main():
                  for e in gun_events})
     lang.update({f"caliber.flansmod.{cal}": c["name"] for cal, c in CALIBERS.items()})
     lang.update({f"caliber.flansmod.{cal}": name for cal, name in shell_names.items()})
+    lang.update({f"caliber.flansmod.{cal}": name for cal, name in aa_calibers.items()})
     base.write(ASSETS / "lang" / "en_us.json", lang)
     print(f"Generated {len(GUNS)} guns, {len(MAGAZINES)} magazines, {len(ammo)} ammo types, {len(GRENADES)} grenades, "
           f"{len(VEHICLES)} vehicles, {len(CLOTHING)} uniform pieces, {len(FACTIONS)} factions in {ROOT}")

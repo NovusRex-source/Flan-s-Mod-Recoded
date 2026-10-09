@@ -1,0 +1,17 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "CC ",
+    "C C"
+  ],
+  "key": {
+    "C": "minecraft:copper_ingot"
+  },
+  "result": {
+    "id": "flansmod:part",
+    "count": 3,
+    "components": {
+      "flansmod:part": "flansww2:casing_20x138"
+    }
+  }
+}

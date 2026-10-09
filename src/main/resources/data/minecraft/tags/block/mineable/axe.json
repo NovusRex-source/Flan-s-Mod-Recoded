@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "flansmod:team_flag"
+    "flansmod:team_flag",
+    "flansmod:battle_border"
   ]
 }

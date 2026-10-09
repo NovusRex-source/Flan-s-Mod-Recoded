@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "CCCC",
+    "CDCC",
+    "CCCC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete",
+    "D": "flansmod:bunker_door"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:pillbox"
+    }
+  }
+}

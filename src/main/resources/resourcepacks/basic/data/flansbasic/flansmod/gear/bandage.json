@@ -1,0 +1,14 @@
+{
+  "name": "Bandage",
+  "type": "medical",
+  "consume_seconds": 1.5,
+  "max_stack": 16,
+  "effects": [
+    {
+      "effect": "minecraft:instant_health",
+      "duration": 1,
+      "amplifier": 0
+    }
+  ],
+  "icon": "flansbasic:bandage"
+}

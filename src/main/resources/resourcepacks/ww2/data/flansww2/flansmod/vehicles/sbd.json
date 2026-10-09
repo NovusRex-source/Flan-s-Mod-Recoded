@@ -1,0 +1,190 @@
+{
+  "name": "Douglas SBD-3 Dauntless",
+  "type": "plane",
+  "upgrade_slots": [
+    "engine",
+    "armor",
+    "tank"
+  ],
+  "step_height": 0.6,
+  "flight": {
+    "lift_speed": 0.9,
+    "pitch_speed": 2.5,
+    "max_pitch": 60,
+    "crash_speed": 0.5,
+    "crash_damage": 100
+  },
+  "repair": {
+    "item": "minecraft:iron_ingot",
+    "amount": 25
+  },
+  "health": 120,
+  "armor": 0.05,
+  "max_speed": 1.7,
+  "max_reverse_speed": 0.0,
+  "acceleration": 0.03,
+  "braking": 0.04,
+  "drag": 0.01,
+  "turn_speed": 3.2,
+  "collision_damage": 30,
+  "death_explosion": 3.0,
+  "camera_distance": 12,
+  "fuel": {
+    "capacity": 36000,
+    "consumption": 1
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -0.6,
+        0.93,
+        -2.8,
+        0.6,
+        2.5,
+        1.6
+      ],
+      "armor": 0.05,
+      "role": "hull"
+    },
+    "tail": {
+      "box": [
+        -1.4,
+        1.25,
+        -4.1,
+        1.4,
+        2.6500000000000004,
+        -2.8
+      ],
+      "armor": 0.05,
+      "role": "hull"
+    },
+    "engine": {
+      "box": [
+        -0.55,
+        1.0,
+        1.6,
+        0.55,
+        2.1,
+        3.4
+      ],
+      "health": 40,
+      "armor": 0.05,
+      "role": "engine",
+      "core_damage": 0.4
+    },
+    "gear": {
+      "box": [
+        -1.3,
+        0,
+        0.55,
+        1.3,
+        1.05,
+        1.25
+      ],
+      "armor": 0.05,
+      "role": "hull"
+    },
+    "wing_left": {
+      "box": [
+        -4.4,
+        1.05,
+        -0.44999999999999996,
+        -0.6,
+        1.3,
+        1.3
+      ],
+      "health": 48,
+      "armor": 0.05,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "wing_l"
+      ]
+    },
+    "wing_right": {
+      "box": [
+        0.6,
+        1.05,
+        -0.44999999999999996,
+        4.4,
+        1.3,
+        1.3
+      ],
+      "health": 48,
+      "armor": 0.05,
+      "role": "propulsion",
+      "core_damage": 0.2,
+      "bones": [
+        "wing_r"
+      ]
+    }
+  },
+  "seats": [
+    {
+      "position": [
+        0.0,
+        1.3,
+        0.1
+      ],
+      "gun": "flansww2:m2_wings",
+      "turret": false,
+      "pivot": [
+        0.0,
+        2.3,
+        0.1
+      ],
+      "muzzle": [
+        0.0,
+        -0.23,
+        3.1
+      ],
+      "sight": [
+        0,
+        0,
+        0.35
+      ],
+      "secondary": "flansvehicles:bomb_bay",
+      "secondary_muzzle": [
+        0.0,
+        0.45,
+        0.3
+      ]
+    },
+    {
+      "position": [
+        0.0,
+        1.3,
+        -1.5
+      ],
+      "gun": "flansww2:m1919_rear",
+      "turret": true,
+      "pivot": [
+        0,
+        2.32,
+        -1.15
+      ],
+      "muzzle": [
+        0,
+        0,
+        0.9
+      ],
+      "sight": [
+        0,
+        0.17,
+        0.27
+      ],
+      "min_pitch": -25,
+      "max_pitch": 60,
+      "yaw_bone": "rear_ring",
+      "pitch_bone": "rear_mg"
+    }
+  ],
+  "model": {
+    "texture": "flansww2:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansww2:sbd",
+  "sounds": {
+    "engine": "flansww2:vehicle.plane.engine"
+  },
+  "faction": "flansww2:usa"
+}

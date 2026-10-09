@@ -1,0 +1,7 @@
+{
+  "name": "2 cm (20\u00d7138mm) API",
+  "caliber": "20x138",
+  "icon": "flansww2:20x138_api",
+  "armor_piercing": true,
+  "fire_seconds": 4
+}

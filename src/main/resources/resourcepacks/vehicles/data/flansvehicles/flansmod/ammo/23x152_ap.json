@@ -1,0 +1,7 @@
+{
+  "name": "23\u00d7152mm AP",
+  "caliber": "23x152",
+  "icon": "flansvehicles:23x152_ap",
+  "armor_piercing": true,
+  "damage_multiplier": 0.9
+}

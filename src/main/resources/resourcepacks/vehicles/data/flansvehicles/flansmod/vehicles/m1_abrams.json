@@ -4,7 +4,8 @@
   "upgrade_slots": [
     "engine",
     "armor",
-    "tank"
+    "tank",
+    "cargo"
   ],
   "step_height": 1.1,
   "repair": {
@@ -129,6 +130,7 @@
       "core_damage": 0.5
     }
   },
+  "storage": 9,
   "seats": [
     {
       "position": [

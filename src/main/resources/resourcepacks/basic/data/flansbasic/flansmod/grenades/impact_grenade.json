@@ -1,0 +1,16 @@
+{
+  "name": "Impact Grenade",
+  "fuse_ticks": 100,
+  "contact": true,
+  "explosion": {
+    "power": 2.3,
+    "fire": false,
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 2.0,
+      "max_resistance": 0.5,
+      "chance": 0.6
+    }
+  },
+  "icon": "flansbasic:impact_grenade"
+}

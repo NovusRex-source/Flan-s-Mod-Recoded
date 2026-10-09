@@ -1,0 +1,17 @@
+{
+  "name": "No. 82 Gammon Bomb",
+  "fuse_ticks": 200,
+  "contact": true,
+  "explosion": {
+    "power": 3.0,
+    "fire": false,
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 2.5,
+      "max_resistance": 1.5,
+      "chance": 0.6
+    }
+  },
+  "faction": "flansww2:uk",
+  "icon": "flansww2:gammon_bomb"
+}

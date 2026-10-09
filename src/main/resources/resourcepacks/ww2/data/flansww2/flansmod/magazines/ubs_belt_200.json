@@ -1,0 +1,10 @@
+{
+  "name": "12.7\u00d7108mm Ammo Belt (200)",
+  "caliber": "127x108",
+  "capacity": 200,
+  "guns": [
+    "flansww2:ubs_cowl",
+    "flansww2:ubt_rear"
+  ],
+  "icon": "flansww2:ubs_belt_200"
+}

@@ -109,7 +109,8 @@ object GunHandler {
         state.nextShotTick = player.level().gameTime + gun.ticksBetweenShots
         if (state.burstLeft > 0) state.burstLeft--
 
-        val spread = if (state.aiming) gun.adsSpread else gun.spread
+        // Prone/crouched, a set-down bipod or tripod, and a laser (hip fire) tighten the spread.
+        val spread = (if (state.aiming) gun.adsSpread else gun.spread) * com.flansmod.recoded.movement.Stance.spreadMultiplier(player, stack, state.aiming)
         val directions = List(gun.pellets.coerceAtLeast(1)) { scatter(player, player.lookAngle, spread) }
         val projectile = ammo?.projectile?.let(GrenadeItem::stackFor)
         if (projectile != null) {
@@ -300,7 +301,7 @@ object GunHandler {
     }
 
     /** Rotates [dir] by a random angle inside a cone of [degrees] half-angle. */
-    internal fun scatter(player: ServerPlayer, dir: Vec3, degrees: Float): Vec3 {
+    internal fun scatter(player: net.minecraft.world.entity.LivingEntity, dir: Vec3, degrees: Float): Vec3 {
         if (degrees <= 0f) return dir
         val random = player.random
         val angle = Math.toRadians(degrees * random.nextDouble())

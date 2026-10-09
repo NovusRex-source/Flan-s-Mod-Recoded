@@ -1,0 +1,9 @@
+{
+  "name": "Bomb Racks (4)",
+  "caliber": "bomb",
+  "capacity": 4,
+  "guns": [
+    "flansvehicles:bomb_bay"
+  ],
+  "internal": true
+}

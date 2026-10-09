@@ -69,8 +69,16 @@ object CreativeContent {
     fun attachments(filter: (Identifier) -> Boolean = { true }): List<ItemStack> = Attachments.all.filter { filter(it.key) }.entries
         .sortedWith(compareBy({ order(SLOTS, it.value.slot) }, { it.value.name })).map { AttachmentItem.stackFor(it.key) }
 
+    /** Hand grenades (harmful ones first, then incendiary, smoke and flash), then anti-personnel and anti-tank mines. */
     fun explosives(filter: (Identifier) -> Boolean = { true }): List<ItemStack> = Grenades.all.filter { (id, g) -> filter(id) && g.throwable }
-        .entries.sortedBy { it.value.name }.map { GrenadeItem.stackFor(it.key) }
+        .entries.sortedWith(compareBy({ explosiveOrder(it.value) }, { it.value.explosion?.power ?: 0f }, { it.value.name })).map { GrenadeItem.stackFor(it.key) }
+
+    private fun explosiveOrder(g: com.flansmod.recoded.gun.GrenadeDefinition) = when {
+        g.mine != null -> if (g.mine?.trigger == com.flansmod.recoded.gun.GrenadeDefinition.Mine.Trigger.VEHICLE) 5 else 4
+        g.smoke != null || g.flash != null -> 3
+        g.explosion?.fire == true -> 2
+        else -> 1
+    }
 
     /** Field equipment for vehicles (not from content packs): wrench, fuel cans, fuel synthesizer, petrol station. */
     fun vehicleTools(): List<ItemStack> = listOf(
@@ -79,17 +87,29 @@ object CreativeContent {
         ItemStack(FlansItems.FUEL_SYNTHESIZER), ItemStack(FlansItems.PETROL_STATION),
     )
 
-    /** Vehicles (driveable, then emplacements like mortars), their upgrades, the tools and the ammunition their guns use. */
+    /**
+     * Vehicles (cars, tanks, emplacements like mortars, then planes and helicopters), their upgrades and the field gear. Their ammunition is in
+     * the ammunition tab with every other round (tank shells and mortar bombs come last there).
+     */
     fun vehicles(filter: (Identifier) -> Boolean = { true }, tools: Boolean = true): List<ItemStack> {
-        val mountedCalibers = Guns.all.filterValues { it.mounted }.keys.flatMap { GunItem.acceptedMagazines(it) }.mapNotNull { Magazines[it]?.caliber }.toSet()
-        return Vehicles.all.filter { filter(it.key) }.entries.sortedWith(compareBy({ it.value.type == com.flansmod.recoded.gun.VehicleType.STATIC }, { it.value.name }))
-            .map { VehicleItem.stackFor(it.key) } + (if (tools) vehicleTools() else emptyList()) +
+        return Vehicles.all.filter { filter(it.key) }.entries.sortedWith(compareBy({ it.value.type.ordinal }, { it.value.name }))
+            .map { VehicleItem.stackFor(it.key) } +
             VehicleUpgrades.all.filter { filter(it.key) }.entries.sortedWith(compareBy({ it.value.slot }, { it.value.name })).map { VehicleUpgradeItem.stackFor(it.key) } +
-            ammunition(filter, mountedCalibers)
+            (if (tools) vehicleTools() else emptyList())
     }
 
+    /** Uniforms by set, then gear: backpacks (by size), pouches, medical supplies, binoculars. */
     fun equipment(filter: (Identifier) -> Boolean = { true }): List<ItemStack> = Clothing.all.filter { filter(it.key) }.entries
-        .sortedWith(compareBy({ it.value.asset.toString() }, { order(CLOTHING_SLOTS, it.value.slot) })).map { ClothingItem.stackFor(it.key) }
+        .sortedWith(compareBy({ it.value.asset.toString() }, { order(CLOTHING_SLOTS, it.value.slot) })).map { ClothingItem.stackFor(it.key) } +
+        com.flansmod.recoded.gun.Gear.all.filter { filter(it.key) }.entries.sortedWith(compareBy({ it.value.type.ordinal }, { it.value.slots }, { it.value.name }))
+            .map { com.flansmod.recoded.gear.GearItem.stackFor(it.key) }
+
+    private val STRUCTURE_ORDER = listOf("bunker", "trench", "nest", "tower", "checkpoint", "street")
+
+    /** Structure kits by category (bunkers, trenches, ..., streets), then name. */
+    fun structures(filter: (Identifier) -> Boolean = { true }): List<ItemStack> = com.flansmod.recoded.gun.Structures.all.filter { filter(it.key) }.entries
+        .sortedWith(compareBy({ order(STRUCTURE_ORDER, it.value.category) }, { it.value.name }))
+        .map { com.flansmod.recoded.item.StructureItem.stackFor(it.key) }
 
     fun crafting(filter: (Identifier) -> Boolean = { true }, withBench: Boolean = true): List<ItemStack> =
         (if (withBench) listOf(ItemStack(FlansItems.WEAPONS_BENCH)) else emptyList()) +
@@ -97,6 +117,6 @@ object CreativeContent {
 
     /** Everything from one content pack, in tab order (pack tabs). */
     fun all(filter: (Identifier) -> Boolean): List<ItemStack> =
-        weapons(filter) + ammunition(filter) + attachments(filter) + explosives(filter) + vehicles(filter, tools = false).filter { it.item !is AmmoItem && it.item !is MagazineItem } +
-            equipment(filter) + crafting(filter, withBench = false)
+        weapons(filter) + explosives(filter) + ammunition(filter) + attachments(filter) + vehicles(filter, tools = false) +
+            equipment(filter) + structures(filter) + crafting(filter, withBench = false)
 }

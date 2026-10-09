@@ -1,0 +1,7 @@
+{
+  "name": "250 kg Incendiary Bomb",
+  "caliber": "bomb",
+  "max_stack": 8,
+  "icon": "flansvehicles:bomb_bomb_incendiary",
+  "projectile": "flansvehicles:bomb_bomb_incendiary"
+}

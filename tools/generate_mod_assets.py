@@ -393,7 +393,7 @@ def fortification_models():
     root = Path(__file__).resolve().parent.parent / "src/main/resources/data/minecraft/tags/block"
     write(root / "mineable/pickaxe.json", {"replace": False, "values": ["flansmod:weapons_bench", "flansmod:fuel_synthesizer", "flansmod:petrol_station",
         "flansmod:reinforced_concrete", "flansmod:reinforced_concrete_slab", "flansmod:reinforced_concrete_stairs", "flansmod:bunker_embrasure",
-        "flansmod:bunker_door", "flansmod:bunker_hatch", "flansmod:czech_hedgehog", "flansmod:battle_master"]})
+        "flansmod:bunker_door", "flansmod:bunker_hatch", "flansmod:czech_hedgehog", "flansmod:battle_master", "flansmod:battle_spawn"]})
     write(root / "mineable/shovel.json", {"replace": False, "values": ["flansmod:sandbags", "flansmod:sandbag_slab", "flansmod:sandbag_stairs"]})
     write(root / "doors.json", {"replace": False, "values": ["flansmod:bunker_door"]})
     write(root / "trapdoors.json", {"replace": False, "values": ["flansmod:bunker_hatch"]})
@@ -461,10 +461,76 @@ def battle_assets():
             "elements": [{"from": [7, 0, 7], "to": [9, 32, 9], "faces": pole}, {"from": [6, 0, 6], "to": [10, 2, 10], "faces": pole},
                          {"from": [9, 19, 7.75], "to": [25, 31, 8.25], "faces": cloth}],
             "display": {"gui": {"rotation": [30, 225, 0], "translation": [0, -3, 0], "scale": [0.45, 0.45, 0.45]}}})
-    write(ASSETS / "blockstates/team_flag.json", {"variants": {f"color={n}": {"model": f"flansmod:block/team_flag_{n}"} for n in TEAM_COLORS}})
+    # Stolen (capture the flag): the bare pole.
+    pole = {f: {"texture": "#pole"} for f in ("north", "south", "east", "west", "up", "down")}
+    write(ASSETS / "models/block/team_flag_bare.json", {"parent": "minecraft:block/block", "textures": {
+        "pole": "flansmod:block/team_flag_pole", "particle": "flansmod:block/team_flag_pole"},
+        "elements": [{"from": [7, 0, 7], "to": [9, 32, 9], "faces": pole}, {"from": [6, 0, 6], "to": [10, 2, 10], "faces": pole}]})
+    variants = {}
+    for n in TEAM_COLORS:
+        variants[f"color={n},stolen=false"] = {"model": f"flansmod:block/team_flag_{n}"}
+        variants[f"color={n},stolen=true"] = {"model": "flansmod:block/team_flag_bare"}
+    write(ASSETS / "blockstates/team_flag.json", {"variants": variants})
+
+    # Border marker: a red and white striped post with a small red pennant.
+    img = Image.new("RGBA", (16, 16))
+    for y in range(16):
+        for x in range(16):
+            img.putpixel((x, y), (205, 40, 40, 255) if (y // 4) % 2 == 0 else (235, 235, 235, 255))
+    img.save(folder / "battle_border.png")
+    noisy((200, 30, 30), seed=46, var=8).save(folder / "battle_border_pennant.png")
+    post = {f: {"texture": "#post"} for f in ("north", "south", "east", "west", "up", "down")}
+    pennant = {f: {"texture": "#pennant"} for f in ("north", "south", "east", "west", "up", "down")}
+    write(ASSETS / "models/block/battle_border.json", {"parent": "minecraft:block/block", "textures": {
+        "post": "flansmod:block/battle_border", "pennant": "flansmod:block/battle_border_pennant", "particle": "flansmod:block/battle_border"},
+        "elements": [{"from": [7, 0, 7], "to": [9, 24, 9], "faces": post}, {"from": [9, 18, 7.5], "to": [15, 23, 8.5], "faces": pennant}],
+        "display": {"gui": {"rotation": [30, 225, 0], "translation": [0, -2, 0], "scale": [0.55, 0.55, 0.55]}}})
+    write(ASSETS / "blockstates/battle_border.json", {"variants": {"": {"model": "flansmod:block/battle_border"}}})
+    write(ASSETS / "items/battle_border.json", {"model": {"type": "minecraft:model", "model": "flansmod:block/battle_border"}})
+    write(DATA / "recipe/battle_border.json", {"type": "minecraft:crafting_shaped", "category": "misc", "pattern": ["R", "S", "S"],
+        "key": {"R": "minecraft:red_wool", "S": "minecraft:stick"}, "result": {"id": "flansmod:battle_border", "count": 4}})
+
+    # Default spawn point: a low pad, grey rim with a cross in the team colour (one texture + model per colour).
+    noisy((96, 98, 100), seed=47, var=5).save(folder / "battle_spawn_side.png")
+    for name, rgb in TEAM_COLORS.items():
+        img = noisy((110, 112, 114), seed=48, var=5)
+        d = ImageDraw.Draw(img)
+        d.rectangle((2, 2, 13, 13), fill=rgb)
+        light = tuple(min(255, int(c * 1.25) + 25) for c in rgb)
+        d.rectangle((6, 3, 9, 12), fill=light); d.rectangle((3, 6, 12, 9), fill=light)
+        img.save(folder / f"battle_spawn_{name}.png")
+        side = {f: {"texture": "#side", "uv": [1, 13, 15, 16]} for f in ("north", "south", "east", "west")}
+        write(ASSETS / f"models/block/battle_spawn_{name}.json", {"parent": "minecraft:block/block", "textures": {
+            "top": f"flansmod:block/battle_spawn_{name}", "side": "flansmod:block/battle_spawn_side", "particle": "flansmod:block/battle_spawn_side"},
+            "elements": [{"from": [1, 0, 1], "to": [15, 3, 15], "faces": dict(side, up={"texture": "#top", "uv": [1, 1, 15, 15]}, down={"texture": "#side"})}],
+            "display": {"gui": {"rotation": [30, 225, 0], "translation": [0, 2, 0], "scale": [0.7, 0.7, 0.7]}}})
+    write(ASSETS / "blockstates/battle_spawn.json", {"variants": {f"color={n}": {"model": f"flansmod:block/battle_spawn_{n}"} for n in TEAM_COLORS}})
+    write(ASSETS / "items/battle_spawn.json", {"model": {"type": "minecraft:model", "model": "flansmod:block/battle_spawn_white"}})
+    write(DATA / "recipe/battle_spawn.json", {"type": "minecraft:crafting_shaped", "category": "misc", "pattern": ["WWW", "SSS"],
+        "key": {"W": "#minecraft:wool", "S": "minecraft:smooth_stone_slab"}, "result": {"id": "flansmod:battle_spawn"}})
+
+    # Border wall: translucent red and white hazard stripes (render type follows from the alpha).
+    img = Image.new("RGBA", (16, 16))
+    for y in range(16):
+        for x in range(16):
+            img.putpixel((x, y), (220, 40, 40, 110) if ((x + y) // 4) % 2 == 0 else (240, 240, 240, 80))
+    img.save(folder / "battle_wall.png")
+    write(ASSETS / "models/block/battle_wall.json", {"parent": "minecraft:block/cube_all", "textures": {"all": "flansmod:block/battle_wall"}})
+    write(ASSETS / "blockstates/battle_wall.json", {"variants": {"": {"model": "flansmod:block/battle_wall"}}})
+
+    # Structure kit: a rolled-out blueprint.
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rectangle((1, 3, 14, 13), fill=(40, 90, 170, 255), outline=(25, 55, 110, 255))
+    d.rectangle((3, 5, 8, 10), outline=(220, 235, 255, 255)); d.line((8, 8, 12, 8), fill=(220, 235, 255, 255)); d.line((12, 5, 12, 11), fill=(220, 235, 255, 255))
+    d.rectangle((0, 2, 1, 14), fill=(230, 225, 200, 255)); d.rectangle((14, 2, 15, 14), fill=(230, 225, 200, 255))
+    (ASSETS / "textures/item").mkdir(parents=True, exist_ok=True)
+    img.save(ASSETS / "textures/item/structure.png")
+    write(ASSETS / "models/item/structure.json", {"parent": "minecraft:item/generated", "textures": {"layer0": "flansmod:item/structure"}})
+    write(ASSETS / "items/structure.json", {"model": {"type": "minecraft:model", "model": "flansmod:item/structure"}})
     write(ASSETS / "items/team_flag.json", {"model": {"type": "minecraft:model", "model": "flansmod:block/team_flag_white"}})
 
-    for name in ("battle_master", "team_flag"):
+    for name in ("battle_master", "team_flag", "battle_border", "battle_spawn"):
         write(DATA / f"loot_table/blocks/{name}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "entries": [
             {"type": "minecraft:item", "name": f"flansmod:{name}"}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
     write(DATA / "recipe/battle_master.json", {"type": "minecraft:crafting_shaped", "category": "misc", "pattern": ["GBG", "IRI", "PPP"],
@@ -473,7 +539,7 @@ def battle_assets():
     write(DATA / "recipe/team_flag.json", {"type": "minecraft:crafting_shaped", "category": "misc", "pattern": ["SWW", "SWW", "S  "],
         "key": {"S": "minecraft:stick", "W": "#minecraft:wool"}, "result": {"id": "flansmod:team_flag"}})
     root = Path(__file__).resolve().parent.parent / "src/main/resources/data/minecraft/tags/block"
-    write(root / "mineable/axe.json", {"replace": False, "values": ["flansmod:team_flag"]})
+    write(root / "mineable/axe.json", {"replace": False, "values": ["flansmod:team_flag", "flansmod:battle_border"]})
 
     # GUIs: Battle Master panel; flag post with a 3x9 shop grid above the inventory.
     img = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
@@ -493,9 +559,36 @@ def battle_assets():
     for col in range(9):
         slot(d, 7 + col * 18, 161)
     img.save(ASSETS / "textures/gui/team_flag.png")
+    img = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    panel(d, 0, 0, 176, 166)
+    d.line((8, 28, 167, 28), fill=SLOT)
+    img.save(ASSETS / "textures/gui/battle_spawn.png")
+
+
+# ------------------------------------------------------------------------------------------- gear slots
+def gear_slot_assets():
+    """Frame for Flan's extra inventory slots and the empty-slot icons (gui sprite atlas, like vanilla's armour icons)."""
+    img = Image.new("RGBA", (18, 18), (0, 0, 0, 0))
+    slot(ImageDraw.Draw(img), 0, 0)
+    img.save(ASSETS / "textures/gui/gear_slot.png")
+    folder = ASSETS / "textures/gui/sprites/container/slot"
+    folder.mkdir(parents=True, exist_ok=True)
+    ink = (198, 198, 198, 110)
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))  # backpack: body, flap, straps
+    d = ImageDraw.Draw(img)
+    d.rectangle((4, 3, 11, 14), outline=ink); d.rectangle((5, 3, 10, 6), fill=ink); d.rectangle((6, 9, 9, 12), outline=ink)
+    d.line((6, 1, 9, 1), fill=ink); d.point((5, 2), fill=ink); d.point((10, 2), fill=ink)
+    img.save(folder / "backpack.png")
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))  # armour plate: a cut-corner shooter's plate
+    d = ImageDraw.Draw(img)
+    d.polygon([(5, 2), (10, 2), (12, 4), (12, 13), (3, 13), (3, 4)], outline=ink)
+    d.line((5, 7, 10, 7), fill=ink)
+    img.save(folder / "plate.png")
 
 
 if __name__ == "__main__":
+    gear_slot_assets()
     battle_assets()
     fortification_textures()
     fortification_models()

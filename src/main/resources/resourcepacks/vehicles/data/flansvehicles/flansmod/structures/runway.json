@@ -1,0 +1,11 @@
+{
+  "name": "Runway",
+  "category": "airfield",
+  "y_offset": -1,
+  "price": 400,
+  "size": [
+    13,
+    4,
+    48
+  ]
+}

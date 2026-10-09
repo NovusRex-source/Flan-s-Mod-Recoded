@@ -1,0 +1,11 @@
+{
+  "name": "Aircraft Hangar",
+  "category": "airfield",
+  "y_offset": -1,
+  "price": 2500,
+  "size": [
+    19,
+    11,
+    17
+  ]
+}

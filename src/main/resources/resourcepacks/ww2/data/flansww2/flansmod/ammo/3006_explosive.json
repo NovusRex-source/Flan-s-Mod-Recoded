@@ -1,0 +1,7 @@
+{
+  "name": ".30-06 Springfield Explosive",
+  "caliber": "3006",
+  "icon": "flansww2:3006_explosive",
+  "damage_multiplier": 0.8,
+  "explosion": 0.6
+}

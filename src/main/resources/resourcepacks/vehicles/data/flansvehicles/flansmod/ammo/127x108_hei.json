@@ -1,0 +1,8 @@
+{
+  "name": "12.7\u00d7108mm HEI",
+  "caliber": "127x108",
+  "icon": "flansvehicles:127x108_hei",
+  "damage_multiplier": 0.9,
+  "explosion": 1.0,
+  "fire_seconds": 3
+}

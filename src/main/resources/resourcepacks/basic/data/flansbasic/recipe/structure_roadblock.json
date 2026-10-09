@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "H H H",
+    "WWWWW",
+    "SSSSS"
+  ],
+  "key": {
+    "H": "flansmod:czech_hedgehog",
+    "S": "flansmod:sandbags",
+    "W": "flansmod:barbed_wire"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:roadblock"
+    }
+  }
+}

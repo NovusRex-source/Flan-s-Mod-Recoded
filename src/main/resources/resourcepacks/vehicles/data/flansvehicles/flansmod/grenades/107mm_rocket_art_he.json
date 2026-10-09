@@ -1,0 +1,13 @@
+{
+  "name": "107mm HE",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.04,
+  "fuse_ticks": 600,
+  "icon": "flansvehicles:107mm_rocket_art_he",
+  "explosion": {
+    "power": 3.5,
+    "break_blocks": true
+  }
+}

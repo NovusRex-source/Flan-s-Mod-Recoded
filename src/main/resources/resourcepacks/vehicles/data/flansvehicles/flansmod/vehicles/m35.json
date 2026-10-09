@@ -5,7 +5,8 @@
     "engine",
     "armor",
     "tyres",
-    "tank"
+    "tank",
+    "cargo"
   ],
   "health": 110,
   "armor": 0.15,
@@ -168,6 +169,7 @@
       ]
     }
   },
+  "storage": 54,
   "seats": [
     {
       "position": [

@@ -38,6 +38,10 @@ class VehicleItem(properties: Properties) : Item(properties) {
         line("health", (effective.health - (stack.get(FlansComponents.VEHICLE_DAMAGE)?.get(DriveableEntity.HULL) ?: 0f)).toInt(), effective.health.toInt())
         upgrades.values.mapNotNull { com.flansmod.recoded.gun.VehicleUpgrades[it] }.forEach { line("upgrade", it.name) }
         if (effective.needsFuel) line("fuel", stack.getOrDefault(FlansComponents.FUEL, 0) * 100 / effective.fuel.capacity)
+        if (effective.storage > 0) {
+            val used = stack.get(net.minecraft.core.component.DataComponents.CONTAINER)?.nonEmptyItemCopyStream()?.count() ?: 0
+            line("storage", used, effective.storage)
+        }
     }
 
     override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
@@ -51,7 +55,9 @@ class VehicleItem(properties: Properties) : Item(properties) {
             fuel = stack.getOrDefault(FlansComponents.FUEL, 0)
             upgrades = stack.getOrDefault(FlansComponents.VEHICLE_UPGRADES, emptyMap())
             damage = stack.getOrDefault(FlansComponents.VEHICLE_DAMAGE, emptyMap())
+            stack.get(net.minecraft.core.component.DataComponents.CONTAINER)?.copyInto(storage.items) // cargo kept when picked up
             boundingBox = makeBoundingBoxAt(position())
+            owner = player.uuid
         }
         if (!level.noCollision(vehicle, vehicle.boundingBox.deflate(0.05))) return InteractionResult.FAIL
         if (!level.isClientSide()) {

@@ -1,0 +1,8 @@
+{
+  "name": "Dienstglas 6x30",
+  "type": "binoculars",
+  "zoom": 6.0,
+  "overlay": "flansbasic:textures/scope/binoculars.png",
+  "icon": "flansww2:dienstglas",
+  "faction": "flansww2:axis"
+}

@@ -49,6 +49,10 @@ object GunInput {
     private val ATTACH = KeyMappingHelper.registerKeyMapping(
         KeyMapping("key.flansmod.attach", InputConstants.Type.KEYBOARD, InputConstants.KEY_J, CATEGORY)
     )
+    /** The vehicle seat's second weapon: drop a bomb, fire a rocket. */
+    private val SECONDARY = KeyMappingHelper.registerKeyMapping(
+        KeyMapping("key.flansmod.secondary", InputConstants.Type.KEYBOARD, InputConstants.KEY_H, CATEGORY)
+    )
 
     /** True while aiming down sights. Read by the FOV/sensitivity mixins and the HUD. */
     var aiming = false
@@ -130,7 +134,8 @@ object GunInput {
         burstLeft--
         cooldown = gun.ticksBetweenShots
         ticksSinceShot = 0
-        val strength = FlansConfig.get.recoilMultiplier / 100f * if (aiming) gun.recoil.adsMultiplier else 1f
+        val strength = FlansConfig.get.recoilMultiplier / 100f * (if (aiming) gun.recoil.adsMultiplier else 1f) *
+            com.flansmod.recoded.movement.Stance.recoilMultiplier(player, player.mainHandItem)
         pendingPitch += gun.recoil.pitch * strength
         pendingYaw += (player.random.nextFloat() * 2f - 1f) * gun.recoil.yaw * strength
     }
@@ -164,6 +169,7 @@ object GunInput {
             else if (gun != null) ClientPlayNetworking.send(OpenWeaponMenuPayload)
         }
         while (ATTACH.consumeClick()) if (gun != null) ClientPlayNetworking.send(AttachPayload(remove = player.isShiftKeyDown))
+        while (SECONDARY.consumeClick()) if (VehicleClient.seatSecondary(player) != null) ClientPlayNetworking.send(com.flansmod.recoded.network.SecondaryFirePayload)
         applyRecoil(player, gun ?: mounted)
     }
 

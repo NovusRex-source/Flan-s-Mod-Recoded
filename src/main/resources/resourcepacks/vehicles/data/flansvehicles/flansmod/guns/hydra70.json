@@ -1,0 +1,28 @@
+{
+  "name": "Hydra 70 Rocket Pod",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 0,
+  "rpm": 300,
+  "fire_mode": "auto",
+  "reload_ticks": 120,
+  "velocity": 3.0,
+  "spread": 0.8,
+  "ads_spread": 0.32000000000000006,
+  "ads_zoom": 1.2,
+  "scope": {
+    "overlay": "flansvehicles:textures/scope/mg_ring.png"
+  },
+  "lifetime_ticks": 200,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.rocket.shoot",
+    "reload": "flansvehicles:vehicle.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
+  "gravity": 0.005,
+  "recoil": {
+    "pitch": 0.3,
+    "yaw": 0.2
+  },
+  "tracer": null
+}

@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
+import net.minecraft.world.level.block.state.properties.BooleanProperty
 import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
@@ -39,17 +40,18 @@ import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraft.world.scores.TeamColor
 
 /**
- * Team flag post: a team's base in a battle. Claimed by a member for their team (one per team), it is where the
- * team respawns, where members enter and leave the battle (leaving gives back the inventory left behind) and where
- * they spend battle money in the team shop. The cloth shows the team colour ([COLOR]).
+ * Team flag post: a team's base in a battle. Claimed by a member for their team, it is where the team respawns,
+ * where members enter and leave the battle (leaving gives back the inventory left behind) and where they spend battle
+ * money in the team shop. The cloth shows the owner's colour ([COLOR]) and disappears while the flag is stolen
+ * ([STOLEN], capture the flag). A Battle Master's manager can lock a post or make it a hill (an objective).
  */
 class TeamFlagBlock(properties: Properties) : BaseEntityBlock(properties) {
     init {
-        registerDefaultState(stateDefinition.any().setValue(COLOR, TeamColor.WHITE))
+        registerDefaultState(stateDefinition.any().setValue(COLOR, TeamColor.WHITE).setValue(STOLEN, false))
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(COLOR)
+        builder.add(COLOR, STOLEN)
     }
 
     override fun newBlockEntity(pos: BlockPos, state: BlockState): BlockEntity = TeamFlagBlockEntity(pos, state)
@@ -63,41 +65,79 @@ class TeamFlagBlock(properties: Properties) : BaseEntityBlock(properties) {
 
     companion object {
         val COLOR: EnumProperty<TeamColor> = EnumProperty.create("color", TeamColor::class.java)
+        val STOLEN: BooleanProperty = BooleanProperty.create("stolen")
         private val POLE: VoxelShape = Block.box(6.0, 0.0, 6.0, 10.0, 16.0, 10.0)
     }
 }
 
 class TeamFlagBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(FlansBlockEntities.TEAM_FLAG, pos, state), ExtendedMenuProvider<TeamFlagView> {
-    /** Battle Master (same dimension) and team this flag belongs to. */
+    /** Battle Master (same dimension) this post belongs to; its [Post] there says which team owns it. */
     var master: BlockPos? = null
-    var team: String? = null
 
-    fun battle(): BattleMasterBlockEntity? = master?.let { level?.getBlockEntity(it) as? BattleMasterBlockEntity }?.takeIf { it.flag(team ?: "") == blockPos }
+    fun battle(): BattleMasterBlockEntity? = master?.let { level?.getBlockEntity(it) as? BattleMasterBlockEntity }?.takeIf { it.post(blockPos) != null }
+    fun post(): Post? = battle()?.post(blockPos)
+    val team get() = post()?.team
 
-    /** Makes this the base of [player]'s team (the team's previous flag is released). */
+    /**
+     * Makes this a base of [player]'s team. Before the battle a team has one base (its previous one is released);
+     * during it, a team may only set up a new base when it has none left. Locked posts and hills cannot be claimed.
+     */
     fun claim(player: ServerPlayer): Boolean {
         val data = Battles.data(player) ?: return false
-        val battle = Battles.master(player.level().server, data.master) ?: return false
-        if (battle.level != level) return false
-        battle.flag(data.team)?.let { old -> (level?.getBlockEntity(old) as? TeamFlagBlockEntity)?.takeIf { it != this }?.release() }
-        battle()?.setFlag(team ?: "", null)
+        val battle = Battles.master(player.level().server, data.master)?.takeIf { it.level == level } ?: return false
+        if (!canClaim(player, battle)) return false
+        if (!battle.running) battle.posts(data.team).forEach { battle.setPost(it.blockPos, null) }
+        battle()?.takeIf { it != battle }?.setPost(blockPos, null)
         master = battle.blockPos
-        team = data.team
-        battle.setFlag(data.team, blockPos)
-        level?.setBlockAndUpdate(blockPos, blockState.setValue(TeamFlagBlock.COLOR, battle.settings.team(data.team)?.teamColor ?: TeamColor.WHITE))
+        battle.setPost(blockPos, Post(listOf(blockPos.x, blockPos.y, blockPos.z), data.team, label = data.team))
         setChanged()
         return true
     }
 
-    fun release() {
-        master = null
-        team = null
-        level?.setBlockAndUpdate(blockPos, blockState.setValue(TeamFlagBlock.COLOR, TeamColor.WHITE))
+    fun canClaim(player: ServerPlayer, battle: BattleMasterBlockEntity? = Battles.data(player)?.let { Battles.master(player.level().server, it.master) }): Boolean {
+        val data = Battles.data(player) ?: return false
+        if (battle == null || battle.level != level) return false
+        val post = battle.post(blockPos)
+        if (post != null && (post.locked || post.hill || post.team == data.team)) return false
+        return !battle.running || (post == null && battle.posts(data.team).isEmpty())
+    }
+
+    /** Manager actions: lock/unlock, toggle hill (neutral objective), release (no longer part of the battle). */
+    fun manage(player: ServerPlayer, action: Int) {
+        val battle = battle() ?: BattleMasterBlockEntity.near(level ?: return, blockPos, player) ?: return
+        if (!battle.canManage(player)) return
+        val post = battle.post(blockPos) ?: Post(listOf(blockPos.x, blockPos.y, blockPos.z))
+        master = battle.blockPos
+        when (action) {
+            TeamFlagMenu.LOCK -> battle.setPost(blockPos, post.copy(locked = !post.locked))
+            TeamFlagMenu.HILL -> battle.setPost(blockPos, if (post.hill) post.copy(hill = false, label = post.team ?: "")
+                else post.copy(hill = true, team = null, label = battle.nextHillLabel()))
+            TeamFlagMenu.RELEASE -> {
+                battle.setPost(blockPos, null)
+                master = null
+            }
+        }
+        updateLook()
         setChanged()
     }
 
+    /** Cloth colour of the owning team (white when neutral) and hidden while the flag is carried away. */
+    fun updateLook() {
+        val level = level ?: return
+        val battle = battle()
+        val color = battle?.let { b -> post()?.team?.let { b.settings.team(it)?.teamColor } } ?: TeamColor.WHITE
+        val stolen = battle?.carried(Post.key(blockPos)) == true
+        val state = level.getBlockState(blockPos)
+        if (state.block is TeamFlagBlock && (state.getValue(TeamFlagBlock.COLOR) != color || state.getValue(TeamFlagBlock.STOLEN) != stolen)) {
+            level.setBlockAndUpdate(blockPos, state.setValue(TeamFlagBlock.COLOR, color).setValue(TeamFlagBlock.STOLEN, stolen))
+        }
+    }
+
     override fun preRemoveSideEffects(pos: BlockPos, blockState: BlockState) {
-        battle()?.setFlag(team ?: "", null)
+        battle()?.let { b ->
+            b.state = b.state.copy(carriers = b.state.carriers.filterValues { it != Post.key(pos) })
+            b.setPost(pos, null)
+        }
         super.preRemoveSideEffects(pos, blockState)
     }
 
@@ -110,27 +150,30 @@ class TeamFlagBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(FlansB
 
     fun view(player: ServerPlayer): TeamFlagView {
         val battle = battle()
+        val post = post()
+        val team = post?.team
         val me = Battles.data(player)
         val mine = battle != null && me != null && me.master == battle.globalPos && me.team == team
         val color = battle?.settings?.team(team)?.teamColor?.rgb() ?: 0xFFFFFF
+        val manager = (battle ?: level?.let { BattleMasterBlockEntity.near(it, blockPos, player) })?.canManage(player) == true
         return TeamFlagView(
-            team = team.takeIf { battle != null }, rgb = color, battle = battle?.settings?.name, running = battle?.running == true,
+            team = team, rgb = color, battle = battle?.settings?.name, running = battle?.running == true,
             myTeam = me?.team, mine = mine, inBattle = mine && me.inBattle,
-            canClaim = me != null && Battles.master(player.level().server, me.master)?.level == level && !mine,
+            canClaim = canClaim(player),
             pages = if (mine) Battles.shop(battle, team!!).size.let { (it + PAGE - 1) / PAGE }.coerceAtLeast(1) else 0,
+            label = post?.label ?: "", hill = post?.hill == true, locked = post?.locked == true, canManage = manager,
+            stolen = battle?.carried(Post.key(blockPos)) == true,
         )
     }
 
     override fun saveAdditional(output: ValueOutput) {
         super.saveAdditional(output)
         master?.let { output.putLong("Master", it.asLong()) }
-        team?.let { output.putString("Team", it) }
     }
 
     override fun loadAdditional(input: ValueInput) {
         super.loadAdditional(input)
         master = input.getLong("Master").map(BlockPos::of).orElse(null)
-        team = input.getString("Team").orElse(null)
     }
 
     companion object {
@@ -143,6 +186,7 @@ data class TeamFlagView(
     val team: String?, val rgb: Int, val battle: String?, val running: Boolean, val myTeam: String?,
     /** The player is a member of this flag's team (shop, enter/leave). */
     val mine: Boolean, val inBattle: Boolean, val canClaim: Boolean, val pages: Int,
+    val label: String = "", val hill: Boolean = false, val locked: Boolean = false, val canManage: Boolean = false, val stolen: Boolean = false,
 ) {
     companion object {
         val STREAM_CODEC: StreamCodec<RegistryFriendlyByteBuf, TeamFlagView> = ByteBufCodecs.stringUtf8(1 shl 16).map(
@@ -153,7 +197,7 @@ data class TeamFlagView(
 
 /**
  * Slots 0..26: the shop page (display copies with their price; clicking one buys it), then the player inventory.
- * Data: money (two 16-bit halves) and the page. Buttons: [CLAIM], [ENTER], [LEAVE], [PREV], [NEXT].
+ * Data: money (two 16-bit halves) and the page. Buttons: [CLAIM], [ENTER], [LEAVE], [PREV], [NEXT]; managers [LOCK], [HILL], [RELEASE].
  */
 class TeamFlagMenu(
     id: Int, inventory: Inventory, val view: TeamFlagView,
@@ -180,7 +224,9 @@ class TeamFlagMenu(
     private fun fillPage() {
         val p = player as? ServerPlayer ?: return
         val entries = entries().takeIf { view.mine }.orEmpty()
-        for (i in 0 until TeamFlagBlockEntity.PAGE) shop.setItem(i, entries.getOrNull(page * TeamFlagBlockEntity.PAGE + i)?.display() ?: ItemStack.EMPTY)
+        for (i in 0 until TeamFlagBlockEntity.PAGE) {
+            shop.setItem(i, entries.getOrNull(page * TeamFlagBlockEntity.PAGE + i)?.takeIf { !it.stack.isEmpty }?.display() ?: ItemStack.EMPTY)
+        }
         val money = Battles.data(p)?.money ?: 0
         data.set(0, money and 0xFFFF)
         data.set(1, money ushr 16)
@@ -191,7 +237,7 @@ class TeamFlagMenu(
         if (slotId in 0 until TeamFlagBlockEntity.PAGE) {
             // Shop slots never move items: a click buys (server side).
             val p = player as? ServerPlayer ?: return
-            val entry = entries().getOrNull(page * TeamFlagBlockEntity.PAGE + slotId) ?: return
+            val entry = entries().getOrNull(page * TeamFlagBlockEntity.PAGE + slotId)?.takeIf { !it.stack.isEmpty } ?: return
             if (view.mine && Battles.data(p)?.inBattle == true) Battles.buy(p, entry)
             fillPage()
             return
@@ -208,6 +254,7 @@ class TeamFlagMenu(
             LEAVE -> if (view.mine) Battles.exit(p)
             PREV -> { page = (page - 1).coerceAtLeast(0); fillPage(); return true }
             NEXT -> { page = (page + 1).coerceAtMost((view.pages - 1).coerceAtLeast(0)); fillPage(); return true }
+            LOCK, HILL, RELEASE -> flag.manage(p, id)
             else -> return false
         }
         p.openMenu(flag) // fresh view
@@ -223,5 +270,8 @@ class TeamFlagMenu(
         const val LEAVE = 2
         const val PREV = 3
         const val NEXT = 4
+        const val LOCK = 5
+        const val HILL = 6
+        const val RELEASE = 7
     }
 }

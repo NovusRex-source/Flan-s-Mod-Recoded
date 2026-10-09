@@ -23,16 +23,21 @@ object TypeTabs {
     /** [icon]: preferred icon (a well-known item of the basic packs), else the tab's first item. */
     private class TypeTab(val key: String, val icon: String?, val items: () -> List<ItemStack>)
 
+    /**
+     * By what players look for: guns and everything thrown or laid (grenades, mines) under Weapons; every round,
+     * shell and magazine under Ammunition (by caliber, hand-held first); Vehicles with emplacements, upgrades and
+     * field gear; Uniforms; Fortifications with the battle blocks; crafting parts last. Faction tabs follow.
+     */
     private val tabs = listOf(
-        TypeTab("weapons", "flansbasic:m4a1") { CreativeContent.weapons() },
+        TypeTab("weapons", "flansbasic:m4a1") { CreativeContent.weapons() + CreativeContent.explosives() },
         TypeTab("ammo", "flansbasic:556") { CreativeContent.ammunition() },
         TypeTab("attachments", "flansbasic:acog") { CreativeContent.attachments() },
-        TypeTab("explosives", "flansbasic:frag") { CreativeContent.explosives() },
         TypeTab("vehicles", "flansvehicles:m1_abrams") { CreativeContent.vehicles() },
         TypeTab("equipment", "flansbasic:army_helmet") { CreativeContent.equipment() },
         TypeTab("fortifications", null) {
-            com.flansmod.recoded.fortification.Fortifications.ALL.map { ItemStack(it) } +
-                listOf(ItemStack(com.flansmod.recoded.registry.FlansItems.BATTLE_MASTER), ItemStack(com.flansmod.recoded.registry.FlansItems.TEAM_FLAG))
+            com.flansmod.recoded.fortification.Fortifications.ALL.map { ItemStack(it) } + CreativeContent.structures() +
+                listOf(com.flansmod.recoded.registry.FlansItems.TEAM_FLAG, com.flansmod.recoded.registry.FlansItems.BATTLE_SPAWN, com.flansmod.recoded.registry.FlansItems.BATTLE_BORDER,
+                    com.flansmod.recoded.registry.FlansItems.BATTLE_MASTER).map(::ItemStack)
         },
         TypeTab("crafting", null) { CreativeContent.crafting() },
     )

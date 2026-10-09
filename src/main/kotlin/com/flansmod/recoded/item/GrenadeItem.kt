@@ -39,6 +39,18 @@ class GrenadeItem(properties: Properties) : Item(properties) {
         Tooltips.faction(add, def.faction)
         fun effect(key: String, color: ChatFormatting, vararg args: Any) = add.accept(Component.translatable("tooltip.flansmod.grenade.$key", *args).withStyle(color))
         def.explosion?.let { effect(if (it.fire) "incendiary" else "explosion", ChatFormatting.RED, it.power) }
+        // How much of the surroundings it wrecks: shatters glass < fragments soil < blasts softer blocks < demolishes stone.
+        def.explosion?.let { e ->
+            val level = when {
+                e.breakBlocks -> "heavy"
+                e.blockDamage == null -> null
+                e.blockDamage.maxResistance >= 6f -> "demolition"
+                e.blockDamage.maxResistance >= 1f -> "blast"
+                e.blockDamage.maxResistance >= 0.5f -> "fragmentation"
+                else -> "shatter"
+            }
+            level?.let { effect("blocks.$it", ChatFormatting.DARK_RED) }
+        }
         def.smoke?.let { effect("smoke", ChatFormatting.GRAY) }
         def.flash?.let { effect("flash", ChatFormatting.YELLOW) }
         val mine = def.mine

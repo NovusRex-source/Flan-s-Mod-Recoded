@@ -1,0 +1,7 @@
+{
+  "name": "Soft Armour Insert (IIIA)",
+  "type": "plate",
+  "armor": 2.0,
+  "durability": 60,
+  "icon": "flansbasic:soft_armor_insert"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "MG 42 Belt Box (250)",
+  "caliber": "792x57",
+  "capacity": 250,
+  "guns": [
+    "flansww2:mg42_mounted"
+  ],
+  "icon": "flansww2:mg42_belt_250"
+}

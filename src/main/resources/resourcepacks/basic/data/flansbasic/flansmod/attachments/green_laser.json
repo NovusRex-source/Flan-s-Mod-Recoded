@@ -1,0 +1,10 @@
+{
+  "name": "Green Laser Sight",
+  "slot": "underbarrel",
+  "icon": "flansbasic:green_laser",
+  "laser": {
+    "color": "#30FF40",
+    "hip_spread_multiplier": 0.55,
+    "range": 96
+  }
+}

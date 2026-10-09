@@ -1,6 +1,7 @@
 package com.flansmod.recoded.client.vehicle
 
 import com.flansmod.recoded.FlansMod
+import com.flansmod.recoded.client.aircraft.AircraftClient
 import com.flansmod.recoded.entity.DriveableEntity
 import com.flansmod.recoded.gun.Guns
 import com.flansmod.recoded.gun.withAmmo
@@ -16,7 +17,7 @@ import net.minecraft.util.Mth
 
 /**
  * Vehicle HUD (Fabric HUD API): a panel at the bottom right matching the seat and vehicle - hull state for everyone,
- * speed and fuel gauges for the driver, a hull/turret direction indicator on tracked vehicles and turret seats, and
+ * speed and fuel gauges for the driver (pilots also get throttle, altitude and climb rate), a hull/turret direction indicator on tracked vehicles and turret seats, and
  * the seat gun's ammunition with a reload bar for gunners. While looking through a gun sight only the gun part shows.
  */
 object VehicleHud {
@@ -39,16 +40,22 @@ object VehicleHud {
         val def = vehicle.definition ?: return
         val gunId = vehicle.seat(seat)?.gun
         val gun = Guns[gunId]
-        val static = def.type == VehicleType.STATIC
-        val driver = seat == 0 && !static
+        // Emplacements laid with the movement keys (mortars); AA guns aim with the view like turrets.
+        val static = def.type == VehicleType.STATIC && def.layWithKeys
+        val secondaryId = vehicle.seat(seat)?.secondary
+        val secondary = Guns[secondaryId]
+        val driver = seat == 0 && def.type != VehicleType.STATIC
         val turret = vehicle.seat(seat)?.turret == true
-        val showIndicator = (def.type == VehicleType.TANK || turret) && !static
+        val showIndicator = (def.type == VehicleType.TANK || turret) && def.type != VehicleType.STATIC
         val sighting = VehicleClient.sighting
+        val flies = def.type.flies
+        val plane = def.type == VehicleType.PLANE
 
         // Rows: header, hull, [speed, fuel], [gun, ammo, reload], hints.
         var rows = 2
-        if (driver && !sighting) rows += if (def.needsFuel) 2 else 1
+        if (driver && !sighting) rows += (if (def.needsFuel) 2 else 1) + (if (plane) 2 else if (flies) 1 else 0)
         if (gun != null) rows += 2
+        if (secondary != null) rows += 1
         if (static && gun != null) rows += 1
         rows += 1
         val height = rows * 11 + 6
@@ -61,20 +68,24 @@ object VehicleHud {
 
         val role = when {
             static && gun != null -> "gunner"
+            driver && flies -> "pilot"
             driver -> "driver"
             gun != null -> "gunner"
             else -> "passenger"
         }
         val name = Component.translatableWithFallback("vehicle.${vehicle.vehicleId?.toLanguageKey()}", def.name).string
         val header = row()
-        g.text(font, name, x + 4, header, TEXT)
         val roleText = Component.translatable("hud.flansmod.vehicle.role.$role").string
+        g.text(font, font.plainSubstrByWidth(name, WIDTH - 12 - font.width(roleText)), x + 4, header, TEXT)
         g.text(font, roleText, x + WIDTH - 4 - font.width(roleText), header, DIM)
 
         bar(g, font, x, row(), Component.translatable("hud.flansmod.vehicle.hull").string, vehicle.health / def.health, healthColor(vehicle.health / def.health))
         if (driver && !sighting) {
-            val speed = vehicle.position().subtract(vehicle.xo, vehicle.yo, vehicle.zo).horizontalDistance()
+            val speed = if (flies) vehicle.flight.velocity.length() else vehicle.position().subtract(vehicle.xo, vehicle.yo, vehicle.zo).horizontalDistance()
             bar(g, font, x, row(), "${(speed * 72).toInt()} km/h", (speed / def.maxSpeed).toFloat(), 0xFF6FB0E0.toInt())
+            if (plane) bar(g, font, x, row(), Component.translatable("hud.flansmod.vehicle.throttle").string, vehicle.flight.throttle, 0xFFE0B040.toInt())
+            if (flies) g.text(font, Component.translatable("hud.flansmod.vehicle.altitude", AircraftClient.altitude(vehicle),
+                "%+.1f".format(AircraftClient.climbRate(vehicle))).string, x + 4, row(), TEXT)
             if (def.needsFuel) bar(g, font, x, row(), com.flansmod.recoded.fuel.FuelStack.name(def.fuel.type).string,
                 vehicle.fuel.toFloat() / def.fuel.capacity, if (vehicle.fuel < def.fuel.capacity / 10) 0xFFE05030.toInt() else 0xFFE0B040.toInt())
         }
@@ -94,6 +105,22 @@ object VehicleHud {
                 g.text(font, font.plainSubstrByWidth(ammo, WIDTH - 12 - font.width(count)), x + 8 + font.width(count), ammoLine, DIM)
             }
         }
+        if (secondary != null) {
+            // Second weapon (bombs, rockets): name and rounds, or its reload.
+            val slot = seat + com.flansmod.recoded.entity.DriveableEntity.SECONDARY
+            val line = row()
+            val reloadEnd = vehicle.reloadEnds[slot]
+            val mag = vehicle.seatMagazines[slot]
+            if (reloadEnd != null) {
+                val left = (reloadEnd - vehicle.level().gameTime - partial).coerceAtLeast(0f)
+                bar(g, font, x, line, Component.translatable("hud.flansmod.vehicle.reloading").string, 1f - left / secondary.reloadTicks.coerceAtLeast(1), 0xFFE0B040.toInt())
+            } else {
+                val count = "${mag?.rounds ?: 0}/${mag?.capacity ?: 0}"
+                val label = Component.translatable("hud.flansmod.vehicle.hint_secondary", secondary.name).string
+                g.text(font, count, x + 4, line, if (mag == null || mag.isEmpty) 0xFFE05030.toInt() else TEXT)
+                g.text(font, font.plainSubstrByWidth(label, WIDTH - 12 - font.width(count)), x + 8 + font.width(count), line, DIM)
+            }
+        }
         if (static && gun != null) {
             // Emplacements (mortars): elevation, compass bearing and the distance to the predicted impact.
             val bearing = Mth.positiveModulo(vehicle.getViewYRot(partial) + 180f, 360f)
@@ -103,6 +130,8 @@ object VehicleHud {
         }
         val hint = Component.translatable(when {
             static && gun != null -> "hud.flansmod.vehicle.hint_lay"
+            driver && plane -> "hud.flansmod.vehicle.hint_plane"
+            driver && flies -> "hud.flansmod.vehicle.hint_helicopter"
             gun != null -> "hud.flansmod.vehicle.hint_gun"
             else -> "hud.flansmod.vehicle.hint"
         }).string
@@ -150,6 +179,7 @@ object VehicleHud {
     /** Broken engine / wheels / own gun, above the panel. */
     private fun warnings(g: GuiGraphicsExtractor, font: Font, vehicle: DriveableEntity, seat: Int, x: Int, y: Int) {
         val lines = buildList {
+            if (seat == 0 && AircraftClient.stalling(vehicle)) add(Component.translatable("hud.flansmod.vehicle.stall").string)
             if (seat == 0 && !vehicle.engineWorks) add(Component.translatable("hud.flansmod.vehicle.engine_broken").string)
             if (seat == 0 && vehicle.propulsion < 1f) add(Component.translatable("hud.flansmod.vehicle.propulsion", (vehicle.propulsion * 100).toInt()).string)
             if (vehicle.seat(seat)?.gun != null && !vehicle.weaponWorks(seat)) add(Component.translatable("hud.flansmod.vehicle.weapon_broken").string)

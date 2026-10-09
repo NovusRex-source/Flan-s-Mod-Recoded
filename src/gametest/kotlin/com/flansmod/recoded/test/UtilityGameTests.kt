@@ -163,9 +163,14 @@ class UtilityGameTests {
         helper.spawnWithNoFreeWill(EntityTypes.HUSK, BlockPos(1, 1, 3))
         helper.runAfterDelay(15) {
             helper.assertTrue(!mine.isRemoved, "people do not set off anti-tank mines")
-            // Rear wheel (vehicle right = -X side) right above the mine.
+            // Rear wheel right above the mine. The vehicle's yaw is absolute while test areas may be rotated: put the mine
+            // under where the wheel really is.
             val vehicle = helper.spawnVehicle("mine_truck", truck, at = Vec3(2.5, 1.0, 4.1))
+            val wheel = vehicle.position().add(vehicle.toWorld(truck.parts["wheel_rear"]!!.center))
+            mine.setPos(wheel.x, mine.y, wheel.z)
             helper.succeedWhen {
+                // The test area's entities do not always tick: check the mine here too.
+                if (!mine.isRemoved) mine.tick()
                 helper.assertTrue(mine.isRemoved, "a vehicle sets it off")
                 helper.assertTrue(vehicle.isBroken("wheel_rear"), "the wheel above the mine is destroyed: ${vehicle.damage}")
             }
@@ -185,12 +190,14 @@ class UtilityGameTests {
             seats = listOf(Seat(gun = gunId, turret = true, pivot = listOf(0.0, 0.2, 0.0), muzzle = listOf(0.0, 0.0, 1.0), minPitch = 45f, maxPitch = 85f)))
         val mortar = helper.spawnVehicle("mortar", def)
         val start = mortar.position()
-        // "W" and "A" held for 30 ticks (no rider: the server lays it): tube raised, turned left, never moved.
+        // "W" and "A" held for 10 ticks (no rider: the server lays it), ticked here so the test does not depend on when
+        // the test area's entities start ticking: tube raised, turned left, never moved.
         mortar.autopilot = DriveableEntity.Controls(1f, 1f, false)
-        helper.runAfterDelay(30) {
-            mortar.autopilot = null
+        repeat(10) { mortar.tick() }
+        mortar.autopilot = null
+        helper.runAfterDelay(1) {
             val elevation = mortar.layElevation()
-            helper.assertTrue(elevation > 49f && elevation < 60f, "W raises the tube about 0.4°/tick: $elevation")
+            helper.assertTrue(elevation > 47.5f && elevation < 52f, "W raises the tube about 0.4°/tick: $elevation")
             helper.assertTrue(mortar.yRot < -5f, "A turns the mortar: ${mortar.yRot}")
             helper.assertTrue(mortar.position().subtract(start).horizontalDistance() < 0.05, "an emplacement never drives: ${mortar.position().subtract(start)}")
             val player = helper.makeMockServerPlayerInLevel()

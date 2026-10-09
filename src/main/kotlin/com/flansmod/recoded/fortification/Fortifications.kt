@@ -104,7 +104,7 @@ class BarbedWireBlock(properties: Properties) : Block(properties) {
     override fun entityInside(state: BlockState, level: Level, pos: BlockPos, entity: Entity, effects: InsideBlockEffectApplier, pastEdges: Boolean) {
         if (entity is DriveableEntity) {
             if (entity.definition?.type == VehicleType.TANK) {
-                if (level is ServerLevel) level.destroyBlock(pos, false, entity)
+                if (level is ServerLevel && !com.flansmod.recoded.gamemode.BattleWall.protects(level, pos)) level.destroyBlock(pos, false, entity)
             } else entity.makeStuckInBlock(state, Vec3(0.5, 1.0, 0.5))
             return
         }

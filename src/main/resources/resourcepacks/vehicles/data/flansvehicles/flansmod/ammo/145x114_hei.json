@@ -1,0 +1,8 @@
+{
+  "name": "14.5\u00d7114mm HEI",
+  "caliber": "145x114",
+  "icon": "flansvehicles:145x114_hei",
+  "damage_multiplier": 0.9,
+  "explosion": 1.0,
+  "fire_seconds": 3
+}

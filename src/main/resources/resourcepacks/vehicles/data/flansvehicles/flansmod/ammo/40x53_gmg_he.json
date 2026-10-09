@@ -1,0 +1,7 @@
+{
+  "name": "40\u00d753mm HEDP Grenade",
+  "caliber": "40x53",
+  "max_stack": 8,
+  "icon": "flansvehicles:40x53_gmg_he",
+  "projectile": "flansvehicles:40x53_gmg_he"
+}

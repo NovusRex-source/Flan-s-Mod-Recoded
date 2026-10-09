@@ -76,6 +76,8 @@ data class ContentSyncPayload(
     val vehicles: Map<@Serializable(IdentifierSerializer::class) Identifier, VehicleDefinition>,
     val vehicleUpgrades: Map<@Serializable(IdentifierSerializer::class) Identifier, com.flansmod.recoded.gun.VehicleUpgradeDefinition>,
     val factions: Map<@Serializable(IdentifierSerializer::class) Identifier, com.flansmod.recoded.gun.FactionDefinition>,
+    val gear: Map<@Serializable(IdentifierSerializer::class) Identifier, com.flansmod.recoded.gear.GearDefinition>,
+    val structures: Map<@Serializable(IdentifierSerializer::class) Identifier, com.flansmod.recoded.gun.StructureDefinition> = emptyMap(),
 ) : CustomPacketPayload {
     override fun type() = TYPE
 
@@ -113,6 +115,13 @@ object OpenVehicleMenuPayload : CustomPacketPayload {
 object SwitchSeatPayload : CustomPacketPayload {
     val TYPE = type<SwitchSeatPayload>("switch_seat")
     val CODEC: StreamCodec<FriendlyByteBuf, SwitchSeatPayload> = StreamCodec.unit(this)
+    override fun type() = TYPE
+}
+
+/** Client → server: fire the second weapon of your vehicle seat (bombs, rockets). */
+object SecondaryFirePayload : CustomPacketPayload {
+    val TYPE = type<SecondaryFirePayload>("secondary_fire")
+    val CODEC: StreamCodec<FriendlyByteBuf, SecondaryFirePayload> = StreamCodec.unit(this)
     override fun type() = TYPE
 }
 
@@ -154,6 +163,7 @@ object FlansNetworking {
         PayloadTypeRegistry.serverboundPlay().register(OpenWeaponMenuPayload.TYPE, OpenWeaponMenuPayload.CODEC)
         PayloadTypeRegistry.serverboundPlay().register(OpenVehicleMenuPayload.TYPE, OpenVehicleMenuPayload.CODEC)
         PayloadTypeRegistry.serverboundPlay().register(SwitchSeatPayload.TYPE, SwitchSeatPayload.CODEC)
+        PayloadTypeRegistry.serverboundPlay().register(SecondaryFirePayload.TYPE, SecondaryFirePayload.CODEC)
         PayloadTypeRegistry.clientboundPlay().registerLarge(ContentSyncPayload.TYPE, ContentSyncPayload.CODEC, 8 * 1024 * 1024)
     }
 }

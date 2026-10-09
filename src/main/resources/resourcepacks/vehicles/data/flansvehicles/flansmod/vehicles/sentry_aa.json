@@ -1,0 +1,71 @@
+{
+  "name": "23mm Air-Defence Sentry",
+  "type": "static",
+  "health": 90,
+  "armor": 0.2,
+  "max_speed": 0.0,
+  "max_reverse_speed": 0.0,
+  "collision_damage": 0,
+  "death_explosion": 2.0,
+  "camera_distance": 5,
+  "fuel": {
+    "capacity": 0
+  },
+  "parts": {
+    "hull": {
+      "box": [
+        -0.6,
+        0,
+        -0.6,
+        0.6,
+        1.4,
+        1.0
+      ],
+      "role": "hull"
+    }
+  },
+  "lay_with_keys": false,
+  "storage": 18,
+  "sentry": {
+    "range": 90,
+    "targets": [
+      "aircraft",
+      "monsters"
+    ],
+    "turn_speed": 8
+  },
+  "seats": [
+    {
+      "position": [
+        0.0,
+        0.3,
+        -0.85
+      ],
+      "gun": "flansvehicles:sentry_23mm",
+      "turret": true,
+      "pivot": [
+        0,
+        1.17,
+        0
+      ],
+      "muzzle": [
+        0,
+        0,
+        1.6
+      ],
+      "sight": [
+        0,
+        0.17,
+        0.27
+      ],
+      "min_pitch": -5,
+      "max_pitch": 85,
+      "yaw_bone": "head",
+      "pitch_bone": "gun"
+    }
+  ],
+  "model": {
+    "texture": "flansvehicles:textures/vehicle/vehicles.png"
+  },
+  "icon": "flansvehicles:sentry_aa"
+}

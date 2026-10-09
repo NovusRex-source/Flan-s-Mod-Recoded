@@ -1,0 +1,7 @@
+{
+  "name": "155mm HE Shell",
+  "caliber": "155mm",
+  "max_stack": 8,
+  "icon": "flansvehicles:155mm_howitzer_he",
+  "projectile": "flansvehicles:155mm_howitzer_he"
+}

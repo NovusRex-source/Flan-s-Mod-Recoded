@@ -1,0 +1,11 @@
+{
+  "name": "Watchtower",
+  "category": "tower",
+  "y_offset": 0,
+  "price": 600,
+  "size": [
+    5,
+    10,
+    5
+  ]
+}

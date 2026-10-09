@@ -1,0 +1,7 @@
+{
+  "name": "M1928 Haversack",
+  "type": "backpack",
+  "slots": 18,
+  "icon": "flansww2:m1928_haversack",
+  "faction": "flansww2:usa"
+}

@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "SSS ",
+    "PPP ",
+    "  P "
+  ],
+  "key": {
+    "P": "#minecraft:planks",
+    "S": "flansmod:sandbags"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:trench_corner"
+    }
+  }
+}

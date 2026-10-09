@@ -5,7 +5,12 @@
   "explosion": {
     "power": 2.4,
     "fire": false,
-    "break_blocks": false
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 2.0,
+      "max_resistance": 0.5,
+      "chance": 0.6
+    }
   },
   "faction": "flansww2:usa",
   "icon": "flansww2:mk2"

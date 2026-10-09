@@ -1,0 +1,9 @@
+{
+  "name": "Vickers Belt Box (250)",
+  "caliber": "303",
+  "capacity": 250,
+  "guns": [
+    "flansww2:vickers_mounted"
+  ],
+  "icon": "flansww2:vickers_belt_250"
+}

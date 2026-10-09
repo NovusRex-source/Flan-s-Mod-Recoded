@@ -1,0 +1,8 @@
+{
+  "name": "23\u00d7152mm HEI",
+  "caliber": "23x152",
+  "icon": "flansvehicles:23x152_hei",
+  "damage_multiplier": 0.9,
+  "explosion": 1.0,
+  "fire_seconds": 3
+}

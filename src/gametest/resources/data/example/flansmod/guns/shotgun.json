@@ -1,11 +1,70 @@
 {
-  "name": "Test Shotgun",
+  "name": "Example Shotgun",
+  "category": "shotgun",
   "damage": 3,
   "pellets": 8,
   "spread": 8,
   "rpm": 60,
   "fire_mode": "semi",
+  "fire_modes": [
+    "safe",
+    "semi"
+  ],
   "magazines": [
     "example:shotgun_mag"
-  ]
+  ],
+  "sounds": {
+    "shoot": "flansbasic:gun.shotgun.shoot",
+    "reload": "flansbasic:gun.reload",
+    "empty": "flansbasic:gun.empty"
+  },
+  "model": {
+    "geo": "flansbasic:gun/m870",
+    "texture": "flansbasic:textures/gun/basic.png",
+    "animations": "flansbasic:gun/m870"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.31,
+        0.31,
+        0.31
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        -90,
+        0
+      ],
+      "translation": [
+        -1.5,
+        -0.5,
+        0
+      ],
+      "scale": [
+        0.31,
+        0.31,
+        0.31
+      ]
+    },
+    "ads": {
+      "translation": [
+        -1.0,
+        7.7,
+        -6
+      ]
+    }
+  },
+  "rail_ads": 7.2
 }

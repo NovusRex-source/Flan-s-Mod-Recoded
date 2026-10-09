@@ -1,0 +1,25 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "RPR",
+    "NEN"
+  ],
+  "key": {
+    "E": {
+      "fabric:type": "fabric:components",
+      "base": "flansmod:part",
+      "components": {
+        "flansmod:part": "flansvehicles:engine"
+      }
+    },
+    "N": "minecraft:iron_nugget",
+    "P": "minecraft:piston",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "flansmod:vehicle_upgrade",
+    "components": {
+      "flansmod:vehicle_upgrade": "flansvehicles:supercharger"
+    }
+  }
+}

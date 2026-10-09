@@ -1,0 +1,19 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "E E",
+    "MMM",
+    "MMM"
+  ],
+  "key": {
+    "E": "minecraft:string",
+    "M": "#minecraft:wool"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansww2:veshmeshok"
+    }
+  }
+}

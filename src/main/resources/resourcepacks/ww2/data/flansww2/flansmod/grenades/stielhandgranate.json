@@ -6,7 +6,12 @@
   "explosion": {
     "power": 2.6,
     "fire": false,
-    "break_blocks": false
+    "break_blocks": false,
+    "block_damage": {
+      "radius": 2.5,
+      "max_resistance": 1.5,
+      "chance": 0.6
+    }
   },
   "faction": "flansww2:axis",
   "icon": "flansww2:stielhandgranate"

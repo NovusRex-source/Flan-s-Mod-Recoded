@@ -1,0 +1,19 @@
+{
+  "name": "First Aid Kit",
+  "type": "medical",
+  "consume_seconds": 3.0,
+  "max_stack": 4,
+  "effects": [
+    {
+      "effect": "minecraft:instant_health",
+      "duration": 1,
+      "amplifier": 1
+    },
+    {
+      "effect": "minecraft:regeneration",
+      "duration": 200,
+      "amplifier": 0
+    }
+  ],
+  "icon": "flansbasic:first_aid_kit"
+}

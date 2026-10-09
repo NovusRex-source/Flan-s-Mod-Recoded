@@ -33,10 +33,14 @@ object FlansMod : ModInitializer {
 
     override fun onInitialize() {
         FlansComponents.init()
+        com.flansmod.recoded.utility.Utilities.init()
         FlansBlocks.init()
         FlansBlockEntities.init()
         com.flansmod.recoded.fortification.Fortifications.init()
         com.flansmod.recoded.gamemode.Battles.init()
+        com.flansmod.recoded.gamemode.BattleWall.init()
+        com.flansmod.recoded.movement.Stance.init()
+        com.flansmod.recoded.gear.GearItems.init()
         FlansMenus.init()
         FlansRecipes.init()
         // Since 1.21.2 vanilla does not send recipes to clients; recipe viewers need bench recipes there.
@@ -55,6 +59,7 @@ object FlansMod : ModInitializer {
         GunHandler.init()
         AttachmentHandler.init()
         com.flansmod.recoded.combat.VehicleWeapons.init()
+        com.flansmod.recoded.aircraft.Aircraft.init()
         com.flansmod.recoded.item.ClothingItem.init()
         com.flansmod.recoded.bench.WeaponMenu.init()
         com.flansmod.recoded.bench.VehicleMenu.init()

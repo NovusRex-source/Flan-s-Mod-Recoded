@@ -1,0 +1,18 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "MMM",
+    "MEM"
+  ],
+  "key": {
+    "E": "minecraft:string",
+    "M": "#minecraft:wool"
+  },
+  "result": {
+    "id": "flansmod:gear",
+    "count": 1,
+    "components": {
+      "flansmod:gear": "flansbasic:soft_armor_insert"
+    }
+  }
+}

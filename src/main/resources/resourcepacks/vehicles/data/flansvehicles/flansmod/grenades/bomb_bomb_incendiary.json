@@ -1,0 +1,14 @@
+{
+  "name": "250 kg Incendiary",
+  "contact": true,
+  "throwable": false,
+  "trail": true,
+  "gravity": 0.04,
+  "fuse_ticks": 600,
+  "icon": "flansvehicles:bomb_bomb_incendiary",
+  "explosion": {
+    "power": 2.5,
+    "break_blocks": true,
+    "fire": true
+  }
+}

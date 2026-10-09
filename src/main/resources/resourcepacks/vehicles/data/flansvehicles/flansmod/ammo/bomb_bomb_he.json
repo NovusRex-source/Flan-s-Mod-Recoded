@@ -1,0 +1,7 @@
+{
+  "name": "250 kg HE Bomb",
+  "caliber": "bomb",
+  "max_stack": 8,
+  "icon": "flansvehicles:bomb_bomb_he",
+  "projectile": "flansvehicles:bomb_bomb_he"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Type 63 Launcher (12 tubes)",
+  "mounted": true,
+  "category": "mounted",
+  "damage": 0,
+  "rpm": 120,
+  "fire_mode": "auto",
+  "reload_ticks": 160,
+  "velocity": 2.2,
+  "spread": 1.2,
+  "ads_spread": 0.48,
+  "ads_zoom": 1.0,
+  "lifetime_ticks": 600,
+  "sounds": {
+    "shoot": "flansvehicles:vehicle.rocket.shoot",
+    "reload": "flansvehicles:vehicle.reload",
+    "empty": "flansvehicles:vehicle.empty"
+  },
+  "recoil": {
+    "pitch": 0.3,
+    "yaw": 0.2
+  },
+  "tracer": null
+}

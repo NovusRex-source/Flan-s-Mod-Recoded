@@ -1,0 +1,9 @@
+{
+  "name": "Hydra 70 Rocket Pod (7)",
+  "caliber": "70mm",
+  "capacity": 7,
+  "guns": [
+    "flansvehicles:hydra70"
+  ],
+  "icon": "flansvehicles:hydra_pod_7"
+}

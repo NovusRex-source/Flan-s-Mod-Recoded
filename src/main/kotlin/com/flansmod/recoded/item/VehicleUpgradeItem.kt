@@ -33,6 +33,7 @@ class VehicleUpgradeItem(properties: Properties) : Item(properties) {
         percent("health", def.healthMultiplier.toDouble())
         percent("fuel_capacity", def.fuelCapacityMultiplier.toDouble())
         percent("fuel_consumption", def.fuelConsumptionMultiplier.toDouble())
+        if (def.storageBonus != 0) line(Component.translatable("item.flansmod.vehicle_upgrade.storage", "%+d".format(def.storageBonus)))
         if (def.armorBonus != 0f) line(Component.translatable("item.flansmod.vehicle_upgrade.armor", "%+d%%".format((def.armorBonus * 100).toInt())))
         line(Component.translatable("item.flansmod.vehicle_upgrade.how"))
     }

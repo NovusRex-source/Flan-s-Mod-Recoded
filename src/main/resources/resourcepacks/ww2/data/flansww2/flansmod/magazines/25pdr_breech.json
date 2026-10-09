@@ -1,0 +1,9 @@
+{
+  "name": "Breech (1)",
+  "caliber": "25pdr",
+  "capacity": 1,
+  "guns": [
+    "flansww2:qf25pdr_gun"
+  ],
+  "internal": true
+}

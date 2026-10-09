@@ -229,6 +229,56 @@
     ],
     "subtitle": "subtitles.flansww2.vehicle.mortar.shoot"
   },
+  "vehicle.bomb.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:random/click",
+        "volume": 1.0,
+        "pitch": 0.5
+      },
+      {
+        "name": "minecraft:block/iron_door/open1",
+        "volume": 0.8,
+        "pitch": 1.3
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.bomb.shoot"
+  },
+  "vehicle.rocket.shoot": {
+    "sounds": [
+      {
+        "name": "minecraft:fireworks/launch1",
+        "volume": 1.6,
+        "pitch": 0.6
+      },
+      {
+        "name": "minecraft:fireworks/largeblast_far1",
+        "volume": 1.2,
+        "pitch": 1.4
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.rocket.shoot"
+  },
+  "vehicle.plane.engine": {
+    "sounds": [
+      {
+        "name": "minecraft:minecart/base",
+        "volume": 0.9,
+        "pitch": 1.4
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.plane.engine"
+  },
+  "vehicle.helicopter.engine": {
+    "sounds": [
+      {
+        "name": "minecraft:minecart/base",
+        "volume": 1.0,
+        "pitch": 0.45
+      }
+    ],
+    "subtitle": "subtitles.flansww2.vehicle.helicopter.engine"
+  },
   "vehicle.reload": {
     "sounds": [
       {

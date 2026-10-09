@@ -1,0 +1,7 @@
+{
+  "name": "122mm Smoke Shell",
+  "caliber": "122mm",
+  "max_stack": 8,
+  "icon": "flansww2:122mm_howitzer_smoke",
+  "projectile": "flansww2:122mm_howitzer_smoke"
+}
