@@ -37,7 +37,7 @@ object TypeTabs {
         TypeTab("fortifications", null) {
             com.flansmod.recoded.fortification.Fortifications.ALL.map { ItemStack(it) } + CreativeContent.structures() +
                 listOf(com.flansmod.recoded.registry.FlansItems.TEAM_FLAG, com.flansmod.recoded.registry.FlansItems.BATTLE_SPAWN, com.flansmod.recoded.registry.FlansItems.BATTLE_BORDER,
-                    com.flansmod.recoded.registry.FlansItems.BATTLE_MASTER).map(::ItemStack)
+                    com.flansmod.recoded.registry.FlansItems.BATTLE_MASTER).map(::ItemStack) + CreativeContent.soldiers()
         },
         TypeTab("crafting", null) { CreativeContent.crafting() },
     )

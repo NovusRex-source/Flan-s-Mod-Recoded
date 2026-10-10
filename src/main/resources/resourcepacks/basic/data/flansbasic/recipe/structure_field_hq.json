@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "SSSSSS",
+    "CCNNCC",
+    "CCDCCC",
+    "CCCCCC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete",
+    "D": "flansmod:bunker_door",
+    "N": "minecraft:glass_pane",
+    "S": "flansmod:sandbags"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:field_hq"
+    }
+  }
+}

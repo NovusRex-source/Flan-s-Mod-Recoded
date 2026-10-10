@@ -1,0 +1,56 @@
+{
+  "name": "Assault",
+  "order": 5,
+  "cost": 240,
+  "cooldown_seconds": 12,
+  "officer_chance": 0.2,
+  "officer": "flanstrenches:officer",
+  "description": "Three storm troopers with submachine guns and grenades for clearing trenches. Fast.",
+  "soldiers": [
+    {
+      "role": "assault",
+      "guns": [
+        "smg",
+        "shotgun",
+        "rifle"
+      ],
+      "health": 22,
+      "speed": 1.15,
+      "range": 24,
+      "grenades": {
+        "range": 14,
+        "cooldown_seconds": 10
+      }
+    },
+    {
+      "role": "assault",
+      "guns": [
+        "smg",
+        "shotgun",
+        "rifle"
+      ],
+      "health": 22,
+      "speed": 1.15,
+      "range": 24,
+      "grenades": {
+        "range": 14,
+        "cooldown_seconds": 10
+      }
+    },
+    {
+      "role": "assault",
+      "guns": [
+        "smg",
+        "shotgun",
+        "rifle"
+      ],
+      "health": 22,
+      "speed": 1.15,
+      "range": 24,
+      "grenades": {
+        "range": 14,
+        "cooldown_seconds": 10
+      }
+    }
+  ]
+}

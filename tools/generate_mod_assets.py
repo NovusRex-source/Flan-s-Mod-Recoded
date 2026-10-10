@@ -151,6 +151,37 @@ def item_icons():
         "type": "minecraft:select", "property": "minecraft:custom_model_data", "index": 0,
         "cases": [{"when": t, "model": {"type": "minecraft:model", "model": f"flansmod:item/fuel_can_{t}"}} for t in ("petrol", "diesel")],
         "fallback": {"type": "minecraft:model", "model": "flansmod:item/fuel_can_empty"}}})
+    soldier_icon(folder)
+
+
+def soldier_icon(folder):
+    """Soldier spawn item: base (face, rifle, boots), a uniform layer tinted with the faction colour and an attitude
+    badge tinted with the attitude colour (custom model data colours 0 and 1, set by SoldierItem)."""
+    base = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    d = ImageDraw.Draw(base)
+    d.rectangle((6, 4, 9, 5), fill=(222, 178, 140)); d.point((7, 4), fill=(60, 40, 30)); d.point((9, 4), fill=(60, 40, 30))  # face
+    for i in range(9):  # rifle across the chest
+        d.point((3 + i, 12 - i), fill=(70, 50, 34) if i < 4 else (60, 62, 66))
+    d.rectangle((5, 14, 7, 15), fill=(50, 40, 32)); d.rectangle((8, 14, 10, 15), fill=(50, 40, 32))  # boots
+    base.save(folder / "soldier_base.png")
+    uniform = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    d = ImageDraw.Draw(uniform)
+    light, mid, dark = (235, 235, 235), (200, 200, 200), (160, 160, 160)
+    d.rectangle((5, 1, 10, 3), fill=light); d.rectangle((4, 3, 11, 3), fill=dark)  # helmet and brim
+    d.rectangle((5, 6, 10, 10), fill=mid); d.line((5, 8, 10, 8), fill=dark)  # tunic and belt
+    d.rectangle((4, 6, 4, 10), fill=dark); d.rectangle((11, 6, 11, 10), fill=dark)  # arms
+    d.rectangle((5, 11, 7, 13), fill=mid); d.rectangle((8, 11, 10, 13), fill=light)  # trousers
+    uniform.save(folder / "soldier_uniform.png")
+    badge = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    d = ImageDraw.Draw(badge)
+    d.rectangle((12, 11, 15, 14), fill=(190, 190, 190)); d.rectangle((13, 12, 14, 13), fill=(255, 255, 255))
+    badge.save(folder / "soldier_badge.png")
+    write(ASSETS / "models/item/soldier.json", {"parent": "minecraft:item/generated", "textures": {
+        "layer0": "flansmod:item/soldier_base", "layer1": "flansmod:item/soldier_uniform", "layer2": "flansmod:item/soldier_badge"}})
+    write(ASSETS / "items/soldier.json", {"model": {"type": "minecraft:model", "model": "flansmod:item/soldier", "tints": [
+        {"type": "minecraft:constant", "value": -1},
+        {"type": "minecraft:custom_model_data", "index": 0, "default": -7829368},
+        {"type": "minecraft:custom_model_data", "index": 1, "default": -1}]}})
 
 
 def machine_blocks():

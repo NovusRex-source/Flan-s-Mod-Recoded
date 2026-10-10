@@ -106,7 +106,9 @@ class BattleMenuScreen : Screen(Component.translatable("gui.flansmod.battle.menu
         fun init() {
             ClientTickEvents.END_CLIENT_TICK.register { mc ->
                 while (KEY.consumeClick()) {
-                    if (BattleHud.current != null) mc.gui.setScreen(BattleMenuScreen())
+                    // Trenches: the command screen first (it links to this scoreboard).
+                    if (BattleHud.current?.trench != null) mc.gui.setScreen(com.flansmod.recoded.client.trenches.TrenchCommandScreen())
+                    else if (BattleHud.current != null) mc.gui.setScreen(BattleMenuScreen())
                     else mc.player?.sendOverlayMessage(Component.translatable("gui.flansmod.battle.not_in_battle"))
                 }
                 borderParticles(mc)

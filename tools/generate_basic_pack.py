@@ -1246,7 +1246,8 @@ def main():
 
     # Structure kits (bunkers, trenches, tower, streets, ...): vanilla structure templates + definitions + bench recipes.
     structure_key = {"C": "flansmod:reinforced_concrete", "S": "flansmod:sandbags", "P": "#minecraft:planks", "L": "#minecraft:logs",
-                     "D": "flansmod:bunker_door", "G": "minecraft:gravel", "W": "flansmod:barbed_wire", "H": "flansmod:czech_hedgehog"}
+                     "D": "flansmod:bunker_door", "G": "minecraft:gravel", "W": "flansmod:barbed_wire", "H": "flansmod:czech_hedgehog",
+                     "B": "minecraft:bricks", "T": "minecraft:stone_bricks", "N": "minecraft:glass_pane", "I": "minecraft:iron_ingot"}
     for sid, pattern in ss.write_structures(DATA, NS).items():
         bench(f"structure_{sid}", pattern, {ch: structure_key[ch] for row in pattern for ch in row if ch != " "},
               {"id": "flansmod:structure", "components": {"flansmod:structure": f"{NS}:{sid}"}}, extend=True)

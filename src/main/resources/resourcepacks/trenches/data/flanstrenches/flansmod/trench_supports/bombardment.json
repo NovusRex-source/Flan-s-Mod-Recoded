@@ -1,0 +1,11 @@
+{
+  "name": "Bombard",
+  "order": 1,
+  "type": "barrage",
+  "cost": 750,
+  "cooldown_seconds": 90,
+  "shells": 16,
+  "power": 3.2,
+  "duration_seconds": 8,
+  "description": "Sixteen heavy shells over eight seconds. Friend or foe."
+}

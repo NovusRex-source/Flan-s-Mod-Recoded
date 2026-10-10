@@ -1,0 +1,10 @@
+{
+  "name": "Gas",
+  "order": 2,
+  "type": "gas",
+  "cost": 500,
+  "cooldown_seconds": 75,
+  "radius": 4.5,
+  "duration_seconds": 15,
+  "description": "Clouds of poison gas linger in the trench for 15 seconds and hurt everyone in them."
+}

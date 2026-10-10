@@ -98,6 +98,8 @@ data class BattleState(
     val watchers: Map<String, String> = emptyMap(),
     /** Default spawn points ([BattleSpawnBlock]) by [Post.key] → team: used while the team has no flag post. */
     val spawns: Map<String, String> = emptyMap(),
+    /** Trenches mode: funds, commanders, bunkers, wire, jobs, shells in flight. */
+    val trench: com.flansmod.recoded.trenches.TrenchState = com.flansmod.recoded.trenches.TrenchState(),
 ) {
     @Serializable
     data class Member(val team: String, val name: String)
@@ -148,8 +150,14 @@ class BattleMasterBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(Fl
     fun defaultSpawn(team: String): BlockPos? = state.spawns.entries.filter { it.value == team }.minOfOrNull { it.key }
         ?.split(",")?.map(String::toInt)?.let { BlockPos(it[0], it[1], it[2]) }
 
-    /** Where [team] respawns: a flag post, else its default spawn point; null = nowhere (the fallen spectate). */
-    fun spawn(team: String): BlockPos? = flag(team) ?: defaultSpawn(team)
+    /**
+     * Where [team] respawns: a flag post, else its default spawn point; null = nowhere (the fallen spectate).
+     * Trenches: the most forward bunker the side holds, else its headquarters.
+     */
+    fun spawn(team: String): BlockPos? {
+        if (settings.mode == BattleMode.TRENCHES) com.flansmod.recoded.trenches.TrenchRules.spawn(this, team)?.let { return it }
+        return flag(team) ?: defaultSpawn(team)
+    }
 
     fun setSpawn(pos: BlockPos, team: String?) {
         state = state.copy(spawns = if (team == null) state.spawns - Post.key(pos) else state.spawns + (Post.key(pos) to team))
@@ -339,7 +347,7 @@ data class BattleMasterView(
     }
 }
 
-/** No slots: buttons only (vanilla menu buttons). 0..15 join team, [LEAVE], [ENTER], [SPECTATE], [START], [STOP], [SHOP] + team. */
+/** No slots: buttons only (vanilla menu buttons). 0..15 join team, [LEAVE], [ENTER], [SPECTATE], [START], [STOP], [BUILD_FIELD], [SHOP] + team. */
 class BattleMasterMenu(id: Int, inventory: Inventory, val view: BattleMasterView, private val master: BattleMasterBlockEntity? = null) :
     AbstractContainerMenu(FlansMenus.BATTLE_MASTER, id) {
 
@@ -357,6 +365,10 @@ class BattleMasterMenu(id: Int, inventory: Inventory, val view: BattleMasterView
             }
             START -> if (master.canManage(p)) Battles.start(master, p)
             STOP -> if (master.canManage(p)) Battles.end(master, master.state.scores.maxByOrNull { it.value }?.key)
+            BUILD_FIELD -> if (master.canManage(p) && !master.running) {
+                val built = (master.level as? net.minecraft.server.level.ServerLevel)?.let { com.flansmod.recoded.trenches.TrenchField.build(master, it, p.direction) } == true
+                Battles.tell(p, if (built) "message.flansmod.trenches.field_built" else "message.flansmod.trenches.field_failed")
+            }
             in SHOP until SHOP + master.settings.teams.size -> {
                 if (master.canManage(p)) ShopEditorMenu.open(p, master, id - SHOP)
                 return true
@@ -376,6 +388,8 @@ class BattleMasterMenu(id: Int, inventory: Inventory, val view: BattleMasterView
         const val SPECTATE = 102
         const val START = 200
         const val STOP = 201
+        /** Trenches: build the battlefield in the direction the manager looks. */
+        const val BUILD_FIELD = 202
         const val SHOP = 300
     }
 }

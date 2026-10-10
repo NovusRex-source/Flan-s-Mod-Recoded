@@ -1,0 +1,11 @@
+{
+  "name": "Warehouse",
+  "category": "building",
+  "y_offset": -1,
+  "price": 2000,
+  "size": [
+    21,
+    8,
+    15
+  ]
+}

@@ -58,7 +58,7 @@ object FactionTabs {
         )
     }
 
-    /** Weapons with their ammunition (only magazines that fit them, incl. vehicle guns), explosives, vehicles, uniforms. */
+    /** Weapons with their ammunition (only magazines that fit them, incl. vehicle guns), explosives, vehicles, uniforms, soldiers. */
     fun items(faction: Identifier): List<ItemStack> {
         val mine = { id: Identifier -> factionOf(id) == faction }
         // Hand guns of the faction plus its vehicles' guns (for tank shells and belt boxes).
@@ -68,7 +68,7 @@ object FactionTabs {
         val ammo = CreativeContent.ammunition(calibers = calibers).filter { it.item !is MagazineItem || it.magazineId() in magazines }
         return CreativeContent.weapons(mine) + ammo.filter { it.item is AmmoItem || it.item is MagazineItem } + CreativeContent.explosives(mine) +
             CreativeContent.vehicles(mine, tools = false).filter { it.vehicleUpgrade() == null } +
-            CreativeContent.equipment(mine)
+            CreativeContent.equipment(mine) + CreativeContent.soldiers(faction)
     }
 
     private fun ItemStack.magazineId() = get(com.flansmod.recoded.registry.FlansComponents.MAGAZINE)?.magazine

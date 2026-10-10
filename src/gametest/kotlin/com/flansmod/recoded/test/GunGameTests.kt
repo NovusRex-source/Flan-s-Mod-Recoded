@@ -422,4 +422,29 @@ class GunGameTests {
             helper.assertValueEqual(player.inventory.countItem(Items.IRON_NUGGET), 5, "unrelated items untouched")
         }
     }
+
+    @GameTest(maxTicks = 80)
+    fun aReloadInterruptedByABattleLeavesNoStaleFlag(helper: GameTestHelper) {
+        val (player, stack) = helper.withGun("after_battle", accurate)
+        player.inventory.setItem(9, magazineOf(stack, 5))
+        stack.ammo = 1
+        helper.setBlock(BlockPos(1, 1, 1), com.flansmod.recoded.registry.FlansBlocks.BATTLE_MASTER)
+        val master = helper.getBlockEntity(BlockPos(1, 1, 1), com.flansmod.recoded.gamemode.BattleMasterBlockEntity::class.java)
+        master.state = master.state.copy(settings = com.flansmod.recoded.gamemode.BattleSettings(countdownSeconds = 0))
+        com.flansmod.recoded.gamemode.Battles.join(player, master, "Red")
+        helper.setBlock(BlockPos(4, 1, 4), com.flansmod.recoded.registry.FlansBlocks.TEAM_FLAG)
+        helper.getBlockEntity(BlockPos(4, 1, 4), com.flansmod.recoded.gamemode.TeamFlagBlockEntity::class.java).claim(player)
+        // Reloading when the battle starts: the gun goes into the stash with its reloading flag.
+        GunHandler.reload(player)
+        com.flansmod.recoded.gamemode.Battles.start(master, null)
+        helper.runAfterDelay(10) {
+            com.flansmod.recoded.gamemode.Battles.end(master, null)
+            com.flansmod.recoded.gamemode.Battles.quit(player)
+            helper.runAfterDelay(2) {
+                helper.assertFalse(player.mainHandItem.has(com.flansmod.recoded.registry.FlansComponents.RELOADING), "no stale reloading flag after the battle")
+                GunHandler.reload(player)
+                helper.succeedWhen { helper.assertValueEqual(player.mainHandItem.ammo, 5, "reloads after the battle") }
+            }
+        }
+    }
 }

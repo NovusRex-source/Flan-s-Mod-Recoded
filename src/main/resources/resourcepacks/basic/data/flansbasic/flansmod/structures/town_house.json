@@ -1,0 +1,11 @@
+{
+  "name": "Town House",
+  "category": "building",
+  "y_offset": -1,
+  "price": 1200,
+  "size": [
+    9,
+    14,
+    9
+  ]
+}

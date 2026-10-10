@@ -20,6 +20,8 @@ degrees. Unknown fields are ignored, comments and trailing commas are allowed.
 | [Vehicle upgrades](#vehicle-upgrades) | `vehicle_upgrades/` |
 | [Factions](#factions) | `factions/` |
 | [Structure kits](#structure-kits) | `structures/` |
+| [Trench units](#trench-units) | `trench_units/` |
+| [Trench supports](#trench-supports) | `trench_supports/` |
 
 ## Guns
 
@@ -550,4 +552,92 @@ A sentry turret: the `sentry` section of an emplacement (`static`) definition. W
 | `price` | integer | `300` | Price in the generated battle shop. |
 | `size` | list of integer | `[]` | Footprint for the tooltip: width, height, depth in blocks (filled in by the generator). |
 | `faction` | id | - | Side this belongs to (a faction id): faction creative tab and tooltip line. |
+
+## Trench units
+
+`data/<ns>/flansmod/trench_units/<name>.json` - A unit the commander of a Trenches battle can send in, from `data/<namespace>/flansmod/trench_units/<name>.json`: a squad of `soldiers` for `cost` team funds, available again after `cooldownSeconds`. With `officerChance` an officer (the first soldier of unit `officer`) joins the squad, as in the original game where officers turn up at random.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `name` | text | **required** | Display name (a lang key `<type>.<namespace>.<name>` overrides it). |
+| `description` | text | `""` |  |
+| `cost` | integer | `100` |  |
+| `cooldown_seconds` | number | `5` |  |
+| `soldiers` | list of TrenchSoldier | `[TrenchSoldier()]` |  |
+| `officer_chance` | number | `0.0` |  |
+| `officer` | id | - |  |
+| `order` | integer | `0` | Position in the command screen. |
+| `buyable` | true/false | `true` | false: not sold on its own (e.g. the officer that joins other squads). |
+
+### TrenchSoldier
+
+One soldier of a `TrenchUnitDefinition`.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `role` | TrenchRole | `"rifleman"` |  |
+| `guns` | list of text | `["sniper", "dmr", "rifle"]` | Gun categories (`rifle`, `sniper`, `dmr`, `smg`, `lmg`, `pistol`, `shotgun`, ...) in order of preference; the gun is picked from the team's faction (any faction for teams without one). Launchers are never used. |
+| `scoped` | true/false | - | true: only guns with a scope overlay, false: only without one, null: either. |
+| `health` | number | `20.0` |  |
+| `speed` | number | `1.0` | Walking speed multiplier. |
+| `spread` | number | `1` | Bullet spread multiplier (lower is more accurate). |
+| `range` | number | `0.0` | How far they engage, in blocks (0: the gun's reach, at most 48). |
+| `fire_delay` | number | `1` | Multiplier of the pause between shots. |
+| `loader` | true/false | `false` | Takes over the squad machine gunner's gun when the gunner falls. |
+| `mortar` | Mortar | - |  |
+| `grenades` | Grenades | - |  |
+| `aura` | Aura | - |  |
+
+**TrenchRole** (text): `rifleman`, `machine_gunner`, `sniper`, `mortar`, `engineer`, `assault`, `officer` - What a trench soldier does besides shooting; `callsign` names them in the field (e.g. "Gunner 7a").
+
+### Mortar
+
+Mortar shells: explosion `power`, seconds between rounds, `range` (and no closer than `minRange`), `scatter` in blocks.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `power` | number | `2.5` |  |
+| `reload_seconds` | number | `9` |  |
+| `range` | number | `70.0` |  |
+| `min_range` | number | `12.0` |  |
+| `scatter` | number | `3.0` |  |
+
+### Grenades
+
+Grenade throwing: the grenade (default: a fragmentation grenade of the faction), throw range, seconds between throws.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `grenade` | id | - |  |
+| `range` | number | `14.0` |  |
+| `cooldown_seconds` | number | `10` |  |
+
+### Aura
+
+Allies within `radius` shoot faster (`fireDelay`) and straighter (`spread`).
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `radius` | number | `10.0` | Radius in blocks. |
+| `fire_delay` | number | `0.7` |  |
+| `spread` | number | `0.7` |  |
+
+## Trench supports
+
+`data/<ns>/flansmod/trench_supports/<name>.json` - Off-map support the commander calls on a trench, from `data/<namespace>/flansmod/trench_supports/<name>.json`.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `name` | text | **required** | Display name (a lang key `<type>.<namespace>.<name>` overrides it). |
+| `description` | text | `""` |  |
+| `type` | TrenchSupportType | `"barrage"` |  |
+| `cost` | integer | `400` |  |
+| `cooldown_seconds` | number | `45` |  |
+| `shells` | integer | `8` | Barrage: number of shells and their explosion power, spread over `durationSeconds`. |
+| `power` | number | `2.5` |  |
+| `duration_seconds` | number | `4` | Barrage: how long the shells keep falling; gas: how long the clouds linger. |
+| `radius` | number | `4` | Gas: radius of each cloud. |
+| `order` | integer | `0` |  |
+
+**TrenchSupportType** (text): `barrage`, `gas`
 

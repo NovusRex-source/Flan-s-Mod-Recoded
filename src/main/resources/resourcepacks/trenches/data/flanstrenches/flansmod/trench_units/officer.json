@@ -1,0 +1,22 @@
+{
+  "name": "Officer",
+  "order": 7,
+  "cost": 180,
+  "cooldown_seconds": 30,
+  "description": "Inspires the men around him: they fire faster and straighter. Also joins squads at random.",
+  "soldiers": [
+    {
+      "role": "officer",
+      "guns": [
+        "pistol",
+        "smg"
+      ],
+      "health": 24,
+      "aura": {
+        "radius": 10,
+        "fire_delay": 0.7,
+        "spread": 0.7
+      }
+    }
+  ]
+}

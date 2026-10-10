@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "flansmod:item/soldier_base",
+    "layer1": "flansmod:item/soldier_uniform",
+    "layer2": "flansmod:item/soldier_badge"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Engineers",
+  "order": 4,
+  "cost": 160,
+  "cooldown_seconds": 10,
+  "description": "Two sappers: build bunkers (cover and a forward spawn point), lay and cut barbed wire.",
+  "soldiers": [
+    {
+      "role": "engineer",
+      "guns": [
+        "smg",
+        "shotgun",
+        "pistol"
+      ],
+      "health": 18
+    },
+    {
+      "role": "engineer",
+      "guns": [
+        "smg",
+        "shotgun",
+        "pistol"
+      ],
+      "health": 18
+    }
+  ]
+}

@@ -131,6 +131,11 @@ object FlansComponents {
         persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC)
     }
 
+    /** Which soldier a soldier spawn item places: faction and attitude. */
+    val SOLDIER: DataComponentType<com.flansmod.recoded.gamemode.SoldierSpawn> = register("soldier") {
+        persistent(com.flansmod.recoded.gamemode.SoldierSpawn.CODEC).networkSynchronized(com.flansmod.recoded.gamemode.SoldierSpawn.STREAM_CODEC.cast())
+    }
+
     /** Contents of a fuel can. */
     val FUEL_CAN: DataComponentType<com.flansmod.recoded.fuel.FuelStack> = register("fuel_can") {
         persistent(com.flansmod.recoded.fuel.FuelStack.CODEC).networkSynchronized(com.flansmod.recoded.fuel.FuelStack.STREAM_CODEC.cast())
@@ -242,6 +247,11 @@ object FlansItems {
     val STRUCTURE: com.flansmod.recoded.item.StructureItem = Registry.register(
         BuiltInRegistries.ITEM, FlansMod.id("structure"),
         com.flansmod.recoded.item.StructureItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("structure"))).stacksTo(16)),
+    )
+
+    val SOLDIER: com.flansmod.recoded.item.SoldierItem = Registry.register(
+        BuiltInRegistries.ITEM, FlansMod.id("soldier"),
+        com.flansmod.recoded.item.SoldierItem(Item.Properties().setId(ResourceKey.create(Registries.ITEM, FlansMod.id("soldier")))),
     )
 
     private fun blockItem(name: String, block: net.minecraft.world.level.block.Block): BlockItem = Registry.register(

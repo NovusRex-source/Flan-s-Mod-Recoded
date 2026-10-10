@@ -1,0 +1,11 @@
+{
+  "name": "Ruined House",
+  "category": "building",
+  "y_offset": -1,
+  "price": 800,
+  "size": [
+    9,
+    14,
+    9
+  ]
+}

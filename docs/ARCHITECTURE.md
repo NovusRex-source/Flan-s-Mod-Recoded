@@ -309,8 +309,9 @@ flowchart TD
 | `BattleSpawn.kt` | default spawn points, assigned to a team by a moderator |
 | `BattleBorder.kt` | border markers |
 | `BattleWall.kt` | the border wall (built in batches, solid only for fighters) and `protects()` for battles without block damage |
-| `ShopEditor.kt` | the per-team shop editor menu |
-| `SoldierEntity` | bots: `PathfinderMob` with faction gear, `GunAttackGoal` (real bullets), `ObjectiveGoal` (mode objective), door opening |
+| `ShopEditor.kt` | the per-team shop editor menu, `ShopCatalog` (everything a shop can sell, by group and faction) and the search payload |
+| `SoldierEntity` | bots: `PathfinderMob` with faction gear, `GunAttackGoal` (real bullets), `ObjectiveGoal` (mode objective), door opening; outside battles (`masterPos` null) a placed soldier with `faction` and `attitude` |
+| `FactionSoldiers.kt` | `SoldierAttitude` (friendly, enemy, neutral, inactive = NoAI), `SoldierSpawn` (component of the `flansmod:soldier` item, `SoldierItem`), who fights whom, and no friendly fire between allies |
 
 Key ideas:
 
@@ -321,6 +322,31 @@ Key ideas:
 - **Sessions:** each start creates a session id. Players and bots from an older session are restored or removed.
 - **Bots** leave the roster only when they die or are removed (`SoldierEntity.remove` → `BattleRules.botGone`),
   because `level.getEntity` doesn't see entities in loaded chunks that aren't ticking.
+
+### `trenches`: the Trenches mode
+
+`BattleMode.TRENCHES` is a battle like the others (teams, roster, bots, HUD, spectating, border all come from
+`gamemode`); `BattleRules` hands its tick to `TrenchRules`, and trench soldiers are `SoldierEntity` bots with a unit.
+
+| Class | Role |
+|---|---|
+| `TrenchDefinitions.kt` | `TrenchUnitDefinition` (squad: soldiers with role, gun categories, stats, mortar/grenades/aura), `TrenchSupportDefinition` (barrage, gas); registries `TrenchUnits`, `TrenchSupports` (`data/<ns>/flansmod/trench_units|trench_supports`, server only - the command screen gets names and costs through the status) |
+| `TrenchState.kt` | `TrenchSettings` (in `BattleSettings.trenches`), `TrenchState` (in `BattleState.trench`: funds, commanders, cooldowns, bunkers, wire, HQ capture, jobs, shells in flight, force-loaded chunks), `TrenchView` (sent inside `BattleStatus`), `TrenchCommandPayload` |
+| `TrenchLayout` | the lane from the posts: first team's base (zone 0), hill posts ordered along the axis, second team's base; `zoneAt`, `slot` (where soldier n stands in a zone) |
+| `TrenchRules` | the tick (income, captures, storming a HQ, slots, officer auras, mortars, grenades, engineering jobs, shells, the AI), cover, the MG loader, and the commands: `buy`, `order`, `orderAll`, `support`, `job`; the command screen's view |
+| `TrenchAi` | the computer commander: buying by role mix, moving up and pushing on, falling back, supports, bunkers and wire |
+| `TrenchField` | builds the field in front of the Battle Master and registers its posts and border |
+
+Key ideas:
+
+- **Zones** are indices into the lane: 0 = the first team's headquarters, the last = the second team's. A soldier's
+  `order` is the zone it should be in, `slot` its place there; `ObjectiveGoal` walks it there and `TrenchFireGoal`
+  shoots without leaving it.
+- **Bases** are a team's posts that are not hills (`master.flag(team)` would return a captured trench line).
+- The field's chunks are **force-loaded** while the battle runs: soldiers out of every player's range would stand still
+  and `level.getEntity` would not find them.
+- Shells are scheduled (`TrenchShell`) and explode without breaking blocks; barrage shells have no shooter and hit
+  everyone, mortar shells spare the mortar's side.
 
 ### `contentpack`, `network`, `registry`
 
@@ -346,6 +372,7 @@ All under `com.flansmod.recoded.client` in `src/client/kotlin`.
 | `gear` | `GearClient` | backpack key, binocular zoom, backpack on the back (`BackpackLayer`), parachute canopy (`ParachuteLayer`) and sink rate, laser dots, gear slot frames |
 | `movement` | `MovementClient` | prone key, slide, climbing |
 | `gamemode` | `BattleScreens` (Battle Master, flag post, shop editor, spawn point, Cloth settings), `BattleHud`, `BattleMenuScreen` (M), `SoldierRenderer` | battle UI; bots drawn with the vanilla player model and armour layer |
+| `trenches` | `TrenchCommandScreen` (M in a Trenches battle) | the lane, orders, engineering, supports and squads; keys A/D, W/S, 1-8 |
 | `bench` | `WeaponsBenchScreen`, `WeaponMenuScreen` | bench and weapon menu screens |
 | `fuel` | `FuelScreens`, `MineRenderer` | fuel machine screens, mines on the ground |
 | `tab` | `TypeTabs`, `FactionTabs`, `PackTabs`, `CreativeContent` | creative tabs by type, per faction and (optionally) per pack; `CreativeContent` decides order and grouping |
@@ -389,6 +416,7 @@ not the JSON or PNG files.
 | `generate_ww2_pack.py` | `resourcepacks/ww2` (`flansww2`), including the fighters, using the writers of the two generators above |
 | `structuresmith.py` | (module) structure templates (`.nbt`, 26.3 palette format: `id`/`properties`) |
 | `generate_mod_assets.py` | the mod's own assets: blocks, GUIs, icons, recipes, loot tables, tags |
+| `generate_trenches_pack.py` | `resourcepacks/trenches` (`flanstrenches`): Trenches squads and supports |
 | `generate_example_pack.py` | the `example` pack for tests and the dev client |
 | `generate_docs.py` | `docs/DEFINITIONS.md` from the Kotlin definition classes |
 

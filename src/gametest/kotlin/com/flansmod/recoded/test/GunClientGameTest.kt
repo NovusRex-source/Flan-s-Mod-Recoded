@@ -138,7 +138,8 @@ class GunClientGameTest : FabricClientGameTest {
                 Guns.all.values.count { !it.mounted } + Magazines.all.values.count { !it.internal } + AmmoTypes.all.size + Attachments.all.size +
                     Grenades.all.values.count { it.throwable } + com.flansmod.recoded.gun.Clothing.all.size + com.flansmod.recoded.gun.Gear.all.size + com.flansmod.recoded.gun.Parts.all.size + 1 +
                     com.flansmod.recoded.gun.Vehicles.all.size + com.flansmod.recoded.gun.VehicleUpgrades.all.size + com.flansmod.recoded.client.tab.CreativeContent.vehicleTools().size +
-                    com.flansmod.recoded.fortification.Fortifications.ALL.size + com.flansmod.recoded.gun.Structures.all.size + 4 // team flag, spawn point, border marker, battle master
+                    com.flansmod.recoded.fortification.Fortifications.ALL.size + com.flansmod.recoded.gun.Structures.all.size + 4 + // team flag, spawn point, border marker, battle master
+                    (com.flansmod.recoded.gun.Factions.all.size + 1) * com.flansmod.recoded.gamemode.SoldierAttitude.entries.size // soldiers: any faction + each
             }
             val listed = context.client { mc ->
                 listOf("weapons", "ammo", "attachments", "vehicles", "equipment", "fortifications", "crafting").sumOf { type ->

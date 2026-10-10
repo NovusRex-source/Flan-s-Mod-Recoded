@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    " PPPP ",
+    "PPPPPP",
+    "PNPPNP",
+    "LPDPPL"
+  ],
+  "key": {
+    "D": "flansmod:bunker_door",
+    "L": "#minecraft:logs",
+    "N": "minecraft:glass_pane",
+    "P": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:barracks"
+    }
+  }
+}

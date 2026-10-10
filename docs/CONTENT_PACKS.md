@@ -372,6 +372,32 @@ two blocks deep. `template` defaults to the definition's own id. Give it a bench
 
 ---
 
+## 8b. Squads and supports for Trenches
+
+The Trenches battle mode sends squads defined in `data/<ns>/flansmod/trench_units/` and calls supports from
+`data/<ns>/flansmod/trench_supports/`. Soldiers get a gun of their team's faction by category (in order of
+preference), so a squad works for every faction:
+
+```json
+{
+  "name": "Grenadiers", "cost": 200, "cooldown_seconds": 8, "order": 9,
+  "description": "Two riflemen who also throw grenades.",
+  "officer_chance": 0.1, "officer": "flanstrenches:officer",
+  "soldiers": [
+    { "role": "assault", "guns": ["rifle", "sniper"], "scoped": false, "health": 22, "grenades": { "range": 16, "cooldown_seconds": 8 } },
+    { "role": "rifleman", "guns": ["rifle", "sniper"], "scoped": false }
+  ]
+}
+```
+
+Roles: `rifleman`, `machine_gunner` (a `"loader": true` soldier of the squad takes over its gun), `sniper`, `mortar`
+(with `mortar`: power, reload, range), `engineer`, `assault` (with `grenades`), `officer` (with `aura`). A support is
+`{"name": "Barrage", "type": "barrage", "cost": 400, "cooldown_seconds": 45, "shells": 8, "power": 2.5,
+"duration_seconds": 4}` or a `"gas"` cloud (`radius`, `duration_seconds`). The built-in Trenches pack
+(`tools/generate_trenches_pack.py`) has the full set.
+
+---
+
 ## 9. Testing your pack
 
 1. Put the folder into `contentpacks/` (on a server, on both the server and the clients).

@@ -1,0 +1,11 @@
+{
+  "name": "Field Headquarters",
+  "category": "base",
+  "y_offset": -1,
+  "price": 2500,
+  "size": [
+    15,
+    11,
+    13
+  ]
+}

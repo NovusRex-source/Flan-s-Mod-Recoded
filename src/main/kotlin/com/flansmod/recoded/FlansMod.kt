@@ -27,7 +27,8 @@ object FlansMod : ModInitializer {
     val LOGGER = LoggerFactory.getLogger(MOD_ID)
 
     /** Built-in content packs shipped in the jar under `resourcepacks/<name>`, with their display names. */
-    val BUILTIN_PACKS = mapOf("basic" to "Flan's Mod: Basic Pack", "vehicles" to "Flan's Mod: Vehicles Pack", "ww2" to "Flan's Mod: WW2 Pack")
+    val BUILTIN_PACKS = mapOf("basic" to "Flan's Mod: Basic Pack", "vehicles" to "Flan's Mod: Vehicles Pack", "ww2" to "Flan's Mod: WW2 Pack",
+        "trenches" to "Flan's Mod: Trenches")
 
     fun id(path: String): Identifier = Identifier.fromNamespaceAndPath(MOD_ID, path)
 
@@ -38,6 +39,7 @@ object FlansMod : ModInitializer {
         FlansBlockEntities.init()
         com.flansmod.recoded.fortification.Fortifications.init()
         com.flansmod.recoded.gamemode.Battles.init()
+        com.flansmod.recoded.gamemode.FactionSoldiers.init()
         com.flansmod.recoded.gamemode.BattleWall.init()
         com.flansmod.recoded.movement.Stance.init()
         com.flansmod.recoded.gear.GearItems.init()

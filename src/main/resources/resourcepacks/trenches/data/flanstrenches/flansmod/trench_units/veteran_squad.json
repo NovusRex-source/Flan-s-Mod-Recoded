@@ -1,0 +1,59 @@
+{
+  "name": "Veterans",
+  "order": 6,
+  "cost": 280,
+  "cooldown_seconds": 15,
+  "officer_chance": 0.25,
+  "officer": "flanstrenches:officer",
+  "description": "Four veterans: tougher and more accurate than fresh riflemen.",
+  "soldiers": [
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false,
+      "health": 26,
+      "spread": 0.7,
+      "fire_delay": 0.85
+    },
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false,
+      "health": 26,
+      "spread": 0.7,
+      "fire_delay": 0.85
+    },
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false,
+      "health": 26,
+      "spread": 0.7,
+      "fire_delay": 0.85
+    },
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false,
+      "health": 26,
+      "spread": 0.7,
+      "fire_delay": 0.85
+    }
+  ]
+}

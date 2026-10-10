@@ -73,7 +73,8 @@ object Content {
 
     fun init() {
         val loader = ResourceLoader.get(PackType.SERVER_DATA)
-        listOf(Guns, Attachments, AmmoTypes, Grenades, Magazines, Parts, Clothing, Vehicles, VehicleUpgrades, Factions, Gear, Structures).forEach { loader.registerReloadListener(FlansMod.id(it.folder), it.listener) }
+        listOf(Guns, Attachments, AmmoTypes, Grenades, Magazines, Parts, Clothing, Vehicles, VehicleUpgrades, Factions, Gear, Structures,
+            com.flansmod.recoded.trenches.TrenchUnits, com.flansmod.recoded.trenches.TrenchSupports).forEach { loader.registerReloadListener(FlansMod.id(it.folder), it.listener) }
 
         ServerPlayConnectionEvents.JOIN.register { handler, _, _ -> ServerPlayNetworking.send(handler.player, syncPayload()) }
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register { server, _, success -> if (success) resync(server) }

@@ -20,6 +20,7 @@ import net.minecraft.world.inventory.ContainerInput
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import com.flansmod.recoded.gun.MagazineContents
+import com.flansmod.recoded.item.loadedMagazine
 import com.flansmod.recoded.registry.FlansBlocks
 import com.mojang.blaze3d.platform.InputConstants
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest
@@ -126,6 +127,9 @@ class BattleClientGameTest : FabricClientGameTest {
                 menu.clicked(0, 0, ContainerInput.PICKUP, player)
                 menu.setCarried(ItemStack.EMPTY)
                 menu.clickMenuButton(player, ShopEditorMenu.PRICE + 4)
+                // From the catalog (USA's guns), without owning it.
+                menu.clickMenuButton(player, ShopEditorMenu.CATEGORY + com.flansmod.recoded.gamemode.ShopCategory.GUNS.ordinal)
+                menu.clicked(ShopEditorMenu.CATALOG_SLOT, 0, ContainerInput.PICKUP, player)
                 menu.broadcastChanges()
             }
             context.waitTicks(5)
@@ -163,6 +167,31 @@ class BattleClientGameTest : FabricClientGameTest {
             server.runCommand("tp @a ${master.x + 4.5} ${master.y} ${master.z - 18.5} 160 10")
             context.waitTicks(20)
             context.takeScreenshot("flansmod-battle-border")
+            // Killed mid-reload, then respawned: reloading works for the new life (state used to stick to the dead player).
+            server.runCommand("effect clear @a")
+            fun giveGlock() = server.compute { s ->
+                val p = s.playerList.players.first()
+                p.inventory.selectedSlot = 0
+                p.inventory.setItem(0, com.flansmod.recoded.item.GunItem.stackFor(Identifier.parse("flansbasic:glock17"), loaded = false))
+                p.inventory.setItem(9, com.flansmod.recoded.item.MagazineItem.stackFor(Identifier.parse("flansbasic:glock_17"), full = true))
+            }
+            fun reloadWithR(what: String) {
+                context.waitTicks(5)
+                context.input.pressKey(InputConstants.KEY_R)
+                context.waitTicks(60)
+                check(server.compute { s -> s.playerList.players.first().mainHandItem.loadedMagazine?.rounds } == 17) { "R reloads $what" }
+            }
+            giveGlock()
+            context.waitTicks(5)
+            context.input.pressKey(InputConstants.KEY_R)
+            context.waitTicks(2)
+            server.runCommand("kill @a")
+            context.waitTicks(20)
+            context.runOnClient<RuntimeException> { mc -> mc.player!!.respawn() }
+            context.waitTicks(40)
+            giveGlock()
+            reloadWithR("after respawning in the battle")
+            server.runCommand("effect give @a resistance infinite 4 true")
             server.compute { s -> Battles.end(s.overworld().getBlockEntity(master) as BattleMasterBlockEntity, "USA") }
             server.runCommand("effect clear @a")
             context.waitTicks(20)
@@ -171,11 +200,15 @@ class BattleClientGameTest : FabricClientGameTest {
                 "bots leave with the battle"
             }
 
+            giveGlock()
+            reloadWithR("after the battle")
             context.waitTicks(60) // the "wins" title fades
             // Structure kits, three per picture, placed facing south (away from the camera), seen from above.
             server.runCommand("gamemode spectator @a")
             // Airfield kits (runway, hangar) are too big for this grid; AircraftClientGameTest shows them.
-            val ids = server.compute { Structures.all.filterValues { it.category != "airfield" }.keys.sortedBy { it.path } }
+            val all = server.compute { Structures.all.filterValues { it.category != "airfield" } }
+            val ids = all.filterValues { it.category !in setOf("building", "base") && (it.size.getOrNull(0) ?: 0) <= 9 && (it.size.getOrNull(2) ?: 0) <= 9 }
+                .keys.sortedBy { it.path }
             ids.chunked(3).forEachIndexed { row, chunk ->
                 val z = base.z + 30 + row * 30
                 server.compute { s ->
@@ -184,6 +217,14 @@ class BattleClientGameTest : FabricClientGameTest {
                 server.runCommand("tp @a ${base.x + 0.5} ${base.y + 9} ${z - 8.5} 0 32")
                 context.waitTicks(30)
                 context.takeScreenshot("flansmod-battle-structures-$row")
+            }
+            // Large buildings one at a time, seen from the front left corner.
+            (all.keys - ids.toSet()).sortedBy { it.path }.forEachIndexed { i, id ->
+                val z = base.z + 30 + (ids.size + 2) / 3 * 30 + i * 40
+                server.compute { s -> StructureItem.place(s.overworld(), id, Structures[id]!!, BlockPos(base.x, base.y - 1, z), Direction.SOUTH) }
+                server.runCommand("tp @a ${base.x + 20.5} ${base.y + 14} ${z + 32.5} 140 25")
+                context.waitTicks(30)
+                context.takeScreenshot("flansmod-battle-building-${id.path}")
             }
             server.runCommand("gamemode survival @a")
 

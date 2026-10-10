@@ -1,0 +1,21 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "  BB  ",
+    " BBBB ",
+    "BNBBNB",
+    "BBDPBB"
+  ],
+  "key": {
+    "B": "minecraft:bricks",
+    "D": "flansmod:bunker_door",
+    "N": "minecraft:glass_pane",
+    "P": "#minecraft:planks"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:town_house"
+    }
+  }
+}

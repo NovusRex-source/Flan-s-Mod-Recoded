@@ -36,7 +36,7 @@ object BattleHud {
         HudElementRegistry.attachElementAfter(VanillaHudElements.BOSS_BAR, FlansMod.id("battle")) { g, _ ->
             val s = current ?: return@attachElementAfter
             val mc = Minecraft.getInstance()
-            if (mc.gui.screen() is BattleMenuScreen) return@attachElementAfter
+            if (mc.gui.screen() is BattleMenuScreen || mc.gui.screen() is com.flansmod.recoded.client.trenches.TrenchCommandScreen) return@attachElementAfter
             val font = mc.font
             val lines = buildList {
                 val time = when {
@@ -52,7 +52,21 @@ object BattleHud {
                     val limit = if (s.scoreLimit > 0) "/${s.scoreLimit}" else ""
                     add(Component.literal("${t.name}  ${t.score}$limit$tag$spawn") to (0xFF000000.toInt() or t.rgb))
                 }
-                if (s.running && s.mode != BattleMode.TEAM_DEATHMATCH) for (post in s.posts.filter { s.mode != BattleMode.KING_OF_THE_HILL || it.hill }) {
+                val trench = s.trench
+                if (trench != null) {
+                    // The lane in one line, your headquarters on the left; then funds and soldiers.
+                    val zones = if (trench.side == 1) trench.zones.reversed() else trench.zones
+                    val lane = Component.empty()
+                    for (z in zones) lane.append(Component.literal(if (z.base) "■ " else if (z.bunker) "▣ " else "▮ ")
+                        .withColor(if (z.owner >= 0) teamRgb(s, trench.teams[z.owner]) else 0x909090))
+                    add(lane to 0xFFFFFFFF.toInt())
+                    val side = trench.side.coerceAtLeast(0)
+                    add(Component.translatable("gui.flansmod.trenches.hud_funds", trench.funds.getOrElse(side) { 0 }, trench.income.getOrElse(side) { 0 },
+                        trench.soldiers.getOrElse(side) { 0 }) to 0xFFFFE070.toInt())
+                    trench.hq.forEachIndexed { i, p ->
+                        if (p > 0) add(Component.translatable("gui.flansmod.trenches.hud_hq", trench.teams[i], (p * 100).toInt()) to 0xFFFF7070.toInt())
+                    }
+                } else if (s.running && s.mode != BattleMode.TEAM_DEATHMATCH) for (post in s.posts.filter { s.mode != BattleMode.KING_OF_THE_HILL || it.hill }) {
                     add(postLine(s, post) to (0xFF000000.toInt() or teamRgb(s, post.team)))
                 }
                 if (s.inBattle) add(Component.translatable("gui.flansmod.flag.money", s.money) to 0xFFFFE070.toInt())
@@ -64,6 +78,7 @@ object BattleHud {
             val banner = when {
                 s.carrying != null -> Component.translatable("gui.flansmod.battle.carrying", s.carrying!!) to 0xFFFFD27F.toInt()
                 s.waiting -> Component.translatable("gui.flansmod.battle.waiting") to 0xFFFF7070.toInt()
+                s.spectating && s.trench != null -> Component.translatable("gui.flansmod.trenches.spectating_hint") to 0xFFAAAAAA.toInt()
                 s.spectating -> Component.translatable("gui.flansmod.battle.spectating_hint") to 0xFFAAAAAA.toInt()
                 else -> null
             }

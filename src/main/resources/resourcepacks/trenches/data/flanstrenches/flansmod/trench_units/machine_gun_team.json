@@ -1,0 +1,30 @@
+{
+  "name": "MG Team",
+  "order": 1,
+  "cost": 220,
+  "cooldown_seconds": 10,
+  "officer_chance": 0.1,
+  "officer": "flanstrenches:officer",
+  "description": "A machine gunner and his loader: murderous fire at short range. The loader takes over the gun.",
+  "soldiers": [
+    {
+      "role": "machine_gunner",
+      "guns": [
+        "lmg"
+      ],
+      "health": 22,
+      "range": 32,
+      "fire_delay": 0.9
+    },
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false,
+      "loader": true
+    }
+  ]
+}

@@ -104,12 +104,19 @@ object CreativeContent {
         com.flansmod.recoded.gun.Gear.all.filter { filter(it.key) }.entries.sortedWith(compareBy({ it.value.type.ordinal }, { it.value.slots }, { it.value.name }))
             .map { com.flansmod.recoded.gear.GearItem.stackFor(it.key) }
 
-    private val STRUCTURE_ORDER = listOf("bunker", "trench", "nest", "tower", "checkpoint", "street")
+    private val STRUCTURE_ORDER = listOf("base", "bunker", "building", "trench", "nest", "tower", "checkpoint", "street")
 
     /** Structure kits by category (bunkers, trenches, ..., streets), then name. */
     fun structures(filter: (Identifier) -> Boolean = { true }): List<ItemStack> = com.flansmod.recoded.gun.Structures.all.filter { filter(it.key) }.entries
         .sortedWith(compareBy({ order(STRUCTURE_ORDER, it.value.category) }, { it.value.name }))
         .map { com.flansmod.recoded.item.StructureItem.stackFor(it.key) }
+
+    /** Soldier spawn items: every attitude for soldiers of any faction, then for each faction (in faction order). */
+    fun soldiers(faction: Identifier? = null): List<ItemStack> {
+        val factions = if (faction != null) listOf(faction)
+            else listOf<Identifier?>(null) + com.flansmod.recoded.gun.Factions.all.entries.sortedWith(compareBy({ it.key.namespace }, { it.value.order })).map { it.key }
+        return factions.flatMap { f -> com.flansmod.recoded.gamemode.SoldierAttitude.entries.map { com.flansmod.recoded.item.SoldierItem.stackFor(f, it) } }
+    }
 
     fun crafting(filter: (Identifier) -> Boolean = { true }, withBench: Boolean = true): List<ItemStack> =
         (if (withBench) listOf(ItemStack(FlansItems.WEAPONS_BENCH)) else emptyList()) +

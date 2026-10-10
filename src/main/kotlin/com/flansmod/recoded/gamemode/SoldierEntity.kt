@@ -41,19 +41,61 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.ValueInput
 import net.minecraft.world.level.storage.ValueOutput
 import net.minecraft.world.phys.Vec3
+import com.flansmod.recoded.trenches.TrenchRole
+import com.flansmod.recoded.trenches.TrenchRules
+import com.flansmod.recoded.trenches.TrenchSoldier
+import com.flansmod.recoded.trenches.TrenchUnits
+import net.minecraft.resources.Identifier
+import net.minecraft.world.damagesource.DamageSource
 import java.util.EnumSet
+import java.util.UUID
 
 /**
- * A bot fighting for a team ("fill teams with bots"). It wears its team faction's clothing and carries one of its guns,
+ * A bot fighting for a team ("fill teams with bots", or a unit sent in by a Trenches commander). It wears its team faction's clothing and carries one of its guns,
  * fires real server-side bullets ([Ballistics]) at enemy players and bots it can see and otherwise heads for the
  * mode's objective: hills to take, enemy flags to steal (and home to deliver), enemy bases, opening doors on the way. It belongs to one battle
  * session and disappears when that ends. Drops nothing.
+ *
+ * Soldiers spawned outside a battle ([masterPos] null, e.g. with a soldier spawn item) wear [faction]'s gear and
+ * behave by their [attitude] ([FactionSoldiers]): friendly, enemy, neutral or inactive; they stay near where they were
+ * placed and never despawn.
+ *
+ * Trench units ([unit] set) keep to their orders instead: they walk to their place ([slot]) in the zone they were
+ * ordered to ([order]) and fire at what comes into range without leaving it; their role ([TrenchRules]) adds mortar
+ * rounds, grenades, engineering work or an officer's aura, and trenches give them cover.
  */
 class SoldierEntity(type: EntityType<out SoldierEntity>, level: Level) : PathfinderMob(type, level) {
     var masterPos: BlockPos? = null
     var team = ""
     var session = ""
     var callsign = ""
+
+    // Trenches: unit definition and which of its soldiers this is, role (a loader becomes a machine gunner), the zone
+    // it is ordered to and its place there, squad spawn order (keeps places stable), the squad's machine gunner.
+    var unit: Identifier? = null
+    var member = 0
+    var role: TrenchRole? = null
+    var order = 0
+    var slot = 0
+    var serial = 0
+    var partner: UUID? = null
+    /** Officer aura over this soldier right now (set by [TrenchRules] every second, not saved). */
+    var inspired: TrenchSoldier.Aura? = null
+    /** Next mortar round or grenade throw (game time, not saved). */
+    var nextSpecial = 0L
+
+    val isTrenchUnit get() = unit != null
+    val trenchSoldier: TrenchSoldier? get() = TrenchUnits[unit]?.soldiers?.getOrNull(member)
+
+    /** Outside battles: the faction whose gear it wears (null: any) and how it behaves. */
+    var faction: Identifier? = null
+    var attitude: SoldierAttitude = SoldierAttitude.NEUTRAL
+        set(value) {
+            field = value
+            isNoAi = value == SoldierAttitude.INACTIVE && masterPos == null
+        }
+    /** Gear handed out (soldiers placed by commands or spawn items get theirs on the first tick). */
+    private var equipped = false
 
     private var nextShot = 0L
     private var roundsLeft = -1
@@ -74,21 +116,70 @@ class SoldierEntity(type: EntityType<out SoldierEntity>, level: Level) : Pathfin
         goalSelector.addGoal(0, FloatGoal(this))
         goalSelector.addGoal(1, OpenDoorGoal(this, true))
         goalSelector.addGoal(1, GunAttackGoal(this))
+        goalSelector.addGoal(1, TrenchFireGoal(this))
         goalSelector.addGoal(2, ObjectiveGoal(this))
         goalSelector.addGoal(3, WaterAvoidingRandomStrollGoal(this, 0.8))
         goalSelector.addGoal(4, RandomLookAroundGoal(this))
-        targetSelector.addGoal(1, HurtByTargetGoal(this))
+        targetSelector.addGoal(1, object : HurtByTargetGoal(this) {
+            override fun canUse() = super.canUse() && FactionSoldiers.retaliates(this@SoldierEntity, lastHurtByMob)
+        })
         targetSelector.addGoal(2, NearestAttackableTargetGoal(this, LivingEntity::class.java, 5, true, false) { target, _ ->
-            Battles.enemies(this, target) && !target.isSpectator
+            !target.isSpectator && if (masterPos == null) FactionSoldiers.hostile(this, target) else Battles.enemies(this, target)
         })
     }
 
     override fun tick() {
         super.tick()
-        if (!level().isClientSide() && tickCount % 20 == 0 && battle() == null) discard()
+        if (level().isClientSide()) return
+        if (masterPos == null) {
+            if (!equipped) equip(faction, null)
+        } else if (tickCount % 20 == 0 && battle() == null) discard()
+    }
+
+    /** [gun] (else a random bullet gun of [faction], any faction when null) and a random uniform of the faction. */
+    fun equip(faction: Identifier?, gun: Identifier?) {
+        equipped = true
+        val guns = Guns.all.filter { (gunId, g) ->
+            !g.mounted && (faction == null || g.faction == faction) && GunItem.stackFor(gunId).let { s -> s.loadedMagazine?.ammoDefinition?.projectile == null && s.loadedMagazine != null }
+        }.keys.toList()
+        (gun ?: guns.randomOrNull())?.let { setItemSlot(EquipmentSlot.MAINHAND, GunItem.stackFor(it)) }
+        Clothing.all.filter { faction == null || it.value.faction == faction }.entries.groupBy { it.value.slot }.forEach { (slot, options) ->
+            val equipment = when (slot) { "head" -> EquipmentSlot.HEAD; "chest" -> EquipmentSlot.CHEST; "legs" -> EquipmentSlot.LEGS; "feet" -> EquipmentSlot.FEET; else -> null }
+                ?: return@forEach
+            setItemSlot(equipment, ClothingItem.stackFor(options.random().key))
+        }
+    }
+
+    /** "Axis Soldier" - for death messages and the name tag when nobody named it. */
+    override fun getTypeName(): Component {
+        if (masterPos != null || faction == null) return super.getTypeName()
+        return Component.translatable("entity.flansmod.soldier.of", com.flansmod.recoded.gun.Factions[faction]?.name ?: faction.toString())
+    }
+
+    /** Creative mode: sneak + right click with an empty hand switches a soldier's attitude (outside battles). */
+    override fun mobInteract(player: net.minecraft.world.entity.player.Player, hand: net.minecraft.world.InteractionHand): net.minecraft.world.InteractionResult {
+        if (masterPos == null && player.isCreative && player.isShiftKeyDown && player.getItemInHand(hand).isEmpty) {
+            if (!level().isClientSide()) {
+                attitude = attitude.next()
+                target = null
+                player.sendOverlayMessage(Component.translatable("message.flansmod.soldier.attitude", Component.translatable("soldier.flansmod.attitude.${attitude.key}")
+                    .withColor(attitude.rgb)))
+            }
+            return net.minecraft.world.InteractionResult.SUCCESS
+        }
+        return super.mobInteract(player, hand)
     }
 
     override fun removeWhenFarAway(distance: Double) = false
+
+    /** Trench units take less from bullets and shells in a trench, more so in a bunker ([TrenchRules.cover]). */
+    override fun hurtServer(level: ServerLevel, source: DamageSource, amount: Float): Boolean =
+        super.hurtServer(level, source, if (isTrenchUnit) amount * TrenchRules.cover(this, source) else amount)
+
+    override fun die(source: DamageSource) {
+        super.die(source)
+        if (!level().isClientSide() && isTrenchUnit) TrenchRules.fallen(this)
+    }
 
     /** Dead or discarded (not just unloaded): off its battle's roster. */
     override fun remove(reason: RemovalReason) {
@@ -100,8 +191,9 @@ class SoldierEntity(type: EntityType<out SoldierEntity>, level: Level) : Pathfin
 
     // ------------------------------------------------------------------------------------------- shooting
 
-    /** How far the bot engages: the gun's bullet reach, at most 48 blocks. */
-    val range: Double get() = mainHandItem.shotDefinition?.let { it.velocity * it.lifetimeTicks * 0.8 }?.coerceAtMost(48.0) ?: 0.0
+    /** How far the bot engages: a trench soldier's own range, else the gun's bullet reach, at most 48 blocks. */
+    val range: Double get() = trenchSoldier?.range?.takeIf { it > 0 && !mainHandItem.isEmpty }
+        ?: mainHandItem.shotDefinition?.let { it.velocity * it.lifetimeTicks * 0.8 }?.coerceAtMost(48.0) ?: 0.0
 
     /** Fires at [target] when the gun is ready: short bursts, then a pause; a reload when the magazine is spent. */
     fun fireAt(target: LivingEntity) {
@@ -119,12 +211,14 @@ class SoldierEntity(type: EntityType<out SoldierEntity>, level: Level) : Pathfin
         }
         roundsLeft--
         burst++
-        // Semi-automatic guns at a human pace; automatic ones in bursts of 3-5.
+        // Semi-automatic guns at a human pace; automatic ones in bursts of 3-5. Trench soldiers: their own pace, faster
+        // and straighter near an officer.
+        val delay = (trenchSoldier?.fireDelay ?: 1f) * (inspired?.fireDelay ?: 1f)
         val pause = if (burst >= 3 + random.nextInt(3)) 15 + random.nextInt(15).also { burst = 0 } else 0
-        nextShot = level.gameTime + gun.ticksBetweenShots.coerceAtLeast(if (FireMode.AUTO in gun.availableModes) 1 else 6) + pause
+        nextShot = level.gameTime + ((gun.ticksBetweenShots.coerceAtLeast(if (FireMode.AUTO in gun.availableModes) 1 else 6) + pause) * delay).toLong().coerceAtLeast(1)
 
         val aim = target.boundingBox.center.add(0.0, target.bbHeight * 0.1, 0.0).subtract(eyePosition).normalize()
-        val spread = gun.spread * 1.5f + 1.5f
+        val spread = (gun.spread * 1.5f + 1.5f) * (trenchSoldier?.spread ?: 1f) * (inspired?.spread ?: 1f)
         val directions = List(gun.pellets.coerceAtLeast(1)) { GunHandler.scatter(this, aim, spread) }
         directions.forEach { Ballistics.fire(this, gun, magazine.ammoDefinition, it) }
         val payload = ShotPayload(id, stack.gunId ?: return, eyePosition, directions)
@@ -143,6 +237,17 @@ class SoldierEntity(type: EntityType<out SoldierEntity>, level: Level) : Pathfin
         output.putString("Team", team)
         output.putString("Session", session)
         output.putString("Callsign", callsign)
+        faction?.let { output.putString("Faction", it.toString()) }
+        output.putString("Attitude", attitude.key)
+        output.putBoolean("Equipped", equipped)
+        unit?.let {
+            output.putString("TrenchUnit", it.toString())
+            output.putInt("TrenchMember", member)
+            role?.let { r -> output.putString("TrenchRole", r.name) }
+            output.putInt("TrenchOrder", order)
+            output.putInt("TrenchSerial", serial)
+            partner?.let { p -> output.putString("TrenchPartner", p.toString()) }
+        }
     }
 
     override fun readAdditionalSaveData(input: ValueInput) {
@@ -151,6 +256,15 @@ class SoldierEntity(type: EntityType<out SoldierEntity>, level: Level) : Pathfin
         team = input.getStringOr("Team", "")
         session = input.getStringOr("Session", "")
         callsign = input.getStringOr("Callsign", "")
+        faction = input.getString("Faction").map(Identifier::tryParse).orElse(null)
+        equipped = input.getBooleanOr("Equipped", false)
+        attitude = SoldierAttitude.byKey(input.getStringOr("Attitude", "neutral"))
+        unit = input.getString("TrenchUnit").map(Identifier::tryParse).orElse(null)
+        member = input.getIntOr("TrenchMember", 0)
+        role = input.getString("TrenchRole").map { runCatching { TrenchRole.valueOf(it) }.getOrNull() }.orElse(null)
+        order = input.getIntOr("TrenchOrder", 0)
+        serial = input.getIntOr("TrenchSerial", 0)
+        partner = input.getString("TrenchPartner").map { runCatching { UUID.fromString(it) }.getOrNull() }.orElse(null)
     }
 
     companion object {
@@ -158,10 +272,10 @@ class SoldierEntity(type: EntityType<out SoldierEntity>, level: Level) : Pathfin
             .add(Attributes.MAX_HEALTH, 20.0).add(Attributes.MOVEMENT_SPEED, 0.3).add(Attributes.FOLLOW_RANGE, 48.0)
 
         /**
-         * A bot for [team] at [at]: random gun and clothing of the team's faction (any faction when the team has none).
-         * Launchers are left out - bots fire bullets.
+         * A bot for [team] at [at]: [gun], else a random gun of the team's faction (any faction when the team has none),
+         * and random clothing of the faction. Launchers are left out - bots fire bullets.
          */
-        fun deploy(master: BattleMasterBlockEntity, level: ServerLevel, team: BattleTeam, callsign: String, at: BlockPos): SoldierEntity? {
+        fun deploy(master: BattleMasterBlockEntity, level: ServerLevel, team: BattleTeam, callsign: String, at: BlockPos, gun: Identifier? = null): SoldierEntity? {
             val soldier = FlansEntities.SOLDIER.create(level, EntitySpawnReason.EVENT) ?: return null
             soldier.masterPos = master.blockPos
             soldier.team = team.name
@@ -169,16 +283,8 @@ class SoldierEntity(type: EntityType<out SoldierEntity>, level: Level) : Pathfin
             soldier.callsign = callsign
             soldier.snapTo(at.x + 0.5, at.y.toDouble(), at.z + 0.5, level.random.nextFloat() * 360f, 0f)
             soldier.customName = Component.literal(callsign).withColor(team.teamColor.rgb())
-            val faction = team.faction
-            val guns = Guns.all.filter { (gunId, g) ->
-                !g.mounted && (faction == null || g.faction == faction) && GunItem.stackFor(gunId).let { s -> s.loadedMagazine?.ammoDefinition?.projectile == null && s.loadedMagazine != null }
-            }.keys.toList()
-            guns.randomOrNull()?.let { soldier.setItemSlot(EquipmentSlot.MAINHAND, GunItem.stackFor(it)) }
-            Clothing.all.filter { faction == null || it.value.faction == faction }.entries.groupBy { it.value.slot }.forEach { (slot, options) ->
-                val equipment = when (slot) { "head" -> EquipmentSlot.HEAD; "chest" -> EquipmentSlot.CHEST; "legs" -> EquipmentSlot.LEGS; "feet" -> EquipmentSlot.FEET; else -> null }
-                    ?: return@forEach
-                soldier.setItemSlot(equipment, ClothingItem.stackFor(options.random().key))
-            }
+            soldier.faction = team.faction
+            soldier.equip(team.faction, gun)
             master.state = master.state.copy(bots = master.state.bots + (soldier.stringUUID to team.name))
             Battles.stats(master, "bot:$callsign", callsign, team.name, bot = true) { it }
             level.addFreshEntity(soldier)
@@ -199,7 +305,7 @@ private class GunAttackGoal(private val soldier: SoldierEntity) : Goal() {
 
     override fun canUse(): Boolean {
         val target = soldier.target ?: return false
-        return target.isAlive && soldier.range > 0 && soldier.battle()?.inCountdown == false
+        return !soldier.isTrenchUnit && target.isAlive && soldier.range > 0 && (soldier.masterPos == null || soldier.battle()?.inCountdown == false)
     }
 
     override fun requiresUpdateEveryTick() = true
@@ -221,6 +327,29 @@ private class GunAttackGoal(private val soldier: SoldierEntity) : Goal() {
 }
 
 /**
+ * Trench units hold their ground: they look at and shoot the target when it is in sight and range, but never go after
+ * it (only [ObjectiveGoal] moves them, to where they were ordered) - so they keep firing while advancing too.
+ */
+private class TrenchFireGoal(private val soldier: SoldierEntity) : Goal() {
+    init {
+        flags = EnumSet.of(Flag.LOOK)
+    }
+
+    override fun canUse(): Boolean {
+        val target = soldier.target ?: return false
+        return soldier.isTrenchUnit && target.isAlive && soldier.range > 0 && soldier.battle()?.inCountdown == false
+    }
+
+    override fun requiresUpdateEveryTick() = true
+
+    override fun tick() {
+        val target = soldier.target ?: return
+        soldier.lookControl.setLookAt(target, 60f, 60f)
+        if (soldier.distanceTo(target) <= soldier.range && soldier.sensing.hasLineOfSight(target)) soldier.fireAt(target)
+    }
+}
+
+/**
  * Head for the battle mode's objective: hills not held by the team or its allies (king of the hill, conquest), the
  * nearest enemy flag - or home while carrying one (capture the flag), the nearest enemy base (team deathmatch).
  * Back inside the border first.
@@ -234,19 +363,31 @@ private class ObjectiveGoal(private val soldier: SoldierEntity) : Goal() {
 
     override fun canUse(): Boolean {
         val master = soldier.battle()?.takeIf { !it.inCountdown } ?: return false
-        goal = objective(master)?.takeIf { it.distanceToSqr(soldier.position()) > 4.0 }
+        goal = objective(master)?.takeIf { it.distanceToSqr(soldier.position()) > if (soldier.isTrenchUnit) 1.2 else 4.0 }
         return goal != null
     }
 
-    override fun canContinueToUse() = !soldier.navigation.isDone && soldier.target == null
+    // Trench units walk on under fire; their destination changes with new orders.
+    override fun canContinueToUse() = !soldier.navigation.isDone && (soldier.isTrenchUnit || soldier.target == null)
 
     override fun start() {
         goal?.let { soldier.navigation.moveTo(it.x, it.y, it.z, 1.0) }
     }
 
+    override fun tick() {
+        if (!soldier.isTrenchUnit || soldier.tickCount % 20 != 0) return
+        val master = soldier.battle() ?: return
+        val now = TrenchRules.destination(master, soldier) ?: return
+        if (goal?.distanceToSqr(now) ?: Double.MAX_VALUE > 2.0) {
+            goal = now
+            soldier.navigation.moveTo(now.x, now.y, now.z, 1.0)
+        }
+    }
+
     override fun stop() = soldier.navigation.stop()
 
     private fun objective(master: BattleMasterBlockEntity): Vec3? {
+        if (soldier.isTrenchUnit) return TrenchRules.destination(master, soldier)
         master.borderBox()?.let { box -> if (!box.contains(soldier.position())) return box.center.with(net.minecraft.core.Direction.Axis.Y, soldier.y) }
         val settings = master.settings
         val here = soldier.position()
@@ -259,7 +400,7 @@ private class ObjectiveGoal(private val soldier: SoldierEntity) : Goal() {
             BattleMode.CAPTURE_THE_FLAG ->
                 if (master.state.carriers.containsKey(soldier.stringUUID)) master.posts(soldier.team)
                 else posts.filter { enemy(it.team) && !it.locked && !master.carried(Post.key(it.blockPos)) }
-            BattleMode.TEAM_DEATHMATCH -> posts.filter { enemy(it.team) }
+            BattleMode.TEAM_DEATHMATCH, BattleMode.TRENCHES -> posts.filter { enemy(it.team) }
         }.minByOrNull { it.blockPos.distToCenterSqr(here) } ?: return null
         return Vec3.atBottomCenterOf(target.blockPos)
     }

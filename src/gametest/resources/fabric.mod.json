@@ -16,7 +16,9 @@
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.ContentGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.UtilityGameTests" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BattleGameTests" },
-      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GearMovementGameTests" }
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GearMovementGameTests" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.TrenchGameTests" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.FactionSoldierGameTests" }
     ],
     "fabric-client-gametest": [
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GunClientGameTest" },
@@ -27,7 +29,9 @@
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.BattleClientGameTest" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.GearMovementClientGameTest" },
       { "adapter": "kotlin", "value": "com.flansmod.recoded.test.AircraftClientGameTest" },
-      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.UtilityClientGameTest" }
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.UtilityClientGameTest" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.TrenchClientGameTest" },
+      { "adapter": "kotlin", "value": "com.flansmod.recoded.test.SoldierClientGameTest" }
     ]
   },
   "depends": { "flansmod": "*" }

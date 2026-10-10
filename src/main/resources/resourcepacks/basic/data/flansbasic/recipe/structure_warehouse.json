@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "CCCCCC",
+    "CNCCNC",
+    "C    C",
+    "CTTTTC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete",
+    "N": "minecraft:glass_pane",
+    "T": "minecraft:stone_bricks"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:warehouse"
+    }
+  }
+}

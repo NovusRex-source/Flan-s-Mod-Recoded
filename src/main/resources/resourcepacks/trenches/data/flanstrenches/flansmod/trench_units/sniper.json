@@ -1,0 +1,21 @@
+{
+  "name": "Sniper",
+  "order": 2,
+  "cost": 150,
+  "cooldown_seconds": 12,
+  "description": "A marksman: long range, slow and deadly.",
+  "soldiers": [
+    {
+      "role": "sniper",
+      "guns": [
+        "sniper",
+        "dmr"
+      ],
+      "scoped": true,
+      "health": 16,
+      "range": 64,
+      "spread": 0.35,
+      "fire_delay": 1.8
+    }
+  ]
+}

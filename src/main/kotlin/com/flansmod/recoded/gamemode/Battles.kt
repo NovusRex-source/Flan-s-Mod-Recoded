@@ -204,6 +204,9 @@ object Battles {
     /** Out of the battle: battle items are gone, the stored inventory, game mode and spawn point come back. Membership stays. */
     fun exit(player: ServerPlayer) {
         val data = data(player)?.takeIf { it.inBattle } ?: return
+        // On the death screen: items given to the dead player object are gone after respawning (no keepInventory),
+        // so the stash comes back on respawn instead (AFTER_RESPAWN).
+        if (player.isDeadOrDying) return
         val master = master(player.level().server, data.master)
         val inventory = player.inventory
         inventory.clearContent()
@@ -273,7 +276,10 @@ object Battles {
         player.setAttached(BattleSpectator.ATTACHMENT, BattleSpectator(master.globalPos, GlobalPos.of(player.level().dimension(), player.blockPosition()), player.gameMode().serializedName))
         master.state = master.state.copy(watchers = master.state.watchers + (player.uuid.toString() to player.scoreboardName))
         player.setGameMode(GameType.SPECTATOR)
-        player.teleportTo(level, master.blockPos.x + 0.5, master.blockPos.y + 12.0, master.blockPos.z + 0.5, emptySet(), player.yRot, 45f, true)
+        // Trenches: a commander's view from above their own headquarters, down the lane.
+        val view = if (master.settings.mode == BattleMode.TRENCHES) com.flansmod.recoded.trenches.TrenchRules.commanderView(master, data(player)?.team) else null
+        if (view != null) player.teleportTo(level, view.first.x, view.first.y, view.first.z, emptySet(), view.second, 40f, true)
+        else player.teleportTo(level, master.blockPos.x + 0.5, master.blockPos.y + 12.0, master.blockPos.z + 0.5, emptySet(), player.yRot, 45f, true)
         tell(player, "message.flansmod.battle.spectating", master.settings.name)
         syncStatus(player, master)
     }
@@ -296,7 +302,10 @@ object Battles {
     fun start(master: BattleMasterBlockEntity, by: ServerPlayer?) {
         if (master.running) return
         val bots = master.settings.fillWithBots && master.settings.teamSize > 0
-        if (master.state.roster.isEmpty() && !bots) return by?.let { tell(it, "message.flansmod.battle.no_players") } ?: Unit
+        val trenches = master.settings.mode == BattleMode.TRENCHES
+        if (trenches && com.flansmod.recoded.trenches.TrenchLayout.of(master) == null) return by?.let { tell(it, "message.flansmod.trenches.no_field") } ?: Unit
+        // Trenches can be left to the computer on both sides (and watched).
+        if (master.state.roster.isEmpty() && !bots && !trenches) return by?.let { tell(it, "message.flansmod.battle.no_players") } ?: Unit
         val level = master.level as? ServerLevel ?: return
         val teams = master.settings.teams.map { it.name }.filter { t -> bots || master.members(t).isNotEmpty() }
         master.state = master.state.copy(running = true, session = UUID.randomUUID().toString(), startTick = level.gameTime,
@@ -308,7 +317,11 @@ object Battles {
         // Keep the battle ticking (time limit, income, bots) wherever the fighters are.
         level.setChunkForced(master.blockPos.x shr 4, master.blockPos.z shr 4, true)
         master.syncScoreboard()
-        online(master).filter { master.teamOf(it.uuid) != null }.forEach { enter(it, master) }
+        if (trenches) {
+            // Commanders choose: command (M) from where they are or from above, or enter at their headquarters to fight.
+            com.flansmod.recoded.trenches.TrenchRules.start(master)
+            online(master).filter { master.teamOf(it.uuid) != null }.forEach { tell(it, "message.flansmod.trenches.started") }
+        } else online(master).filter { master.teamOf(it.uuid) != null }.forEach { enter(it, master) }
         broadcast(master, Component.translatable("message.flansmod.battle.started", master.settings.name).withStyle(ChatFormatting.GOLD))
     }
 
@@ -318,6 +331,7 @@ object Battles {
         val fighters = onlineFighters(master)
         val level = master.level as? ServerLevel
         BattleRules.removeBots(master)
+        if (master.settings.mode == BattleMode.TRENCHES) com.flansmod.recoded.trenches.TrenchRules.end(master)
         val carried = master.state.carriers.values
         master.state = master.state.copy(running = false, carriers = emptyMap())
         carried.forEach { key -> master.state.posts[key]?.let { (level?.getBlockEntity(it.blockPos) as? TeamFlagBlockEntity)?.updateLook() } }
@@ -402,9 +416,9 @@ object Battles {
     fun suggestedPrice(stack: ItemStack): Int =
         (defaultShop(null) + defaultShop(factionOf(stack))).firstOrNull { ItemStack.isSameItemSameComponents(it.stack, stack) }?.price ?: 100
 
-    private fun factionOf(stack: ItemStack): Identifier? = listOf(
+    internal fun factionOf(stack: ItemStack): Identifier? = listOf(
         com.flansmod.recoded.registry.FlansComponents.GUN, com.flansmod.recoded.registry.FlansComponents.CLOTHING,
-        com.flansmod.recoded.registry.FlansComponents.VEHICLE, com.flansmod.recoded.registry.FlansComponents.GRENADE,
+        com.flansmod.recoded.registry.FlansComponents.VEHICLE, com.flansmod.recoded.registry.FlansComponents.GRENADE, com.flansmod.recoded.registry.FlansComponents.GEAR,
     ).firstNotNullOfOrNull { stack.get(it) }?.let(::factionOf)
 
     /** Guns (each followed by its ammunition), explosives, uniforms, vehicles, field gear, structures and food. */
@@ -491,6 +505,9 @@ object Battles {
                 waiting = data?.waiting == true, spectating = watching,
                 carrying = master.state.carriers[player.uuid.toString()]?.let { master.state.posts[it]?.label },
                 nearFlag = data?.inBattle == true && master.posts(myTeam).any { it.blockPos.closerToCenterThan(player.position(), 6.0) },
+                trench = if (master.running && master.settings.mode == BattleMode.TRENCHES) (master.level as? ServerLevel)?.let {
+                    com.flansmod.recoded.trenches.TrenchRules.view(master, it, player, data?.team)
+                } else null,
             )
         }
         ServerPlayNetworking.send(player, BattleStatusPayload(status))
@@ -505,6 +522,8 @@ object Battles {
         PayloadTypeRegistry.clientboundPlay().register(BattleStatusPayload.TYPE, BattleStatusPayload.CODEC)
         PayloadTypeRegistry.serverboundPlay().register(BattleSettingsPayload.TYPE, BattleSettingsPayload.CODEC)
         PayloadTypeRegistry.serverboundPlay().register(BattleActionPayload.TYPE, BattleActionPayload.CODEC)
+        ShopEditorMenu.init()
+        com.flansmod.recoded.trenches.TrenchRules.init()
         ServerPlayNetworking.registerGlobalReceiver(BattleSettingsPayload.TYPE) { payload, context ->
             val player = context.player()
             val master = player.level().getBlockEntity(payload.pos) as? BattleMasterBlockEntity ?: return@registerGlobalReceiver
@@ -560,6 +579,7 @@ object Battles {
             if (killer != null && killerTeam != null && km == master && killer != entity && !master.settings.friendly(killerTeam, victimTeam)) {
                 stats(master, statsKey(killer), statsName(killer), killerTeam, killer is SoldierEntity) { it.copy(kills = it.kills + 1) }
                 if (killer is ServerPlayer) addMoney(killer, master.settings.killReward)
+                if (master.settings.mode == BattleMode.TRENCHES) com.flansmod.recoded.trenches.TrenchRules.killed(master, killerTeam)
                 broadcast(master, Component.translatable("message.flansmod.battle.kill",
                     killer.displayName!!.copy().withColor(master.settings.team(killerTeam)?.teamColor?.rgb() ?: 0xFFFFFF),
                     entity.displayName!!.copy().withColor(master.settings.team(victimTeam)?.teamColor?.rgb() ?: 0xFFFFFF)))
@@ -571,7 +591,7 @@ object Battles {
         // Respawn at a flag post, briefly protected (keep-loadout battles hand the gear back) - or wait as a spectator.
         ServerPlayerEvents.AFTER_RESPAWN.register { _, player, alive ->
             if (alive) return@register
-            val (data, master) = activeBattle(player) ?: return@register
+            val (data, master) = activeBattle(player) ?: return@register exit(player) // the battle ended while dead
             if (master.spawn(data.team) == null) return@register wait(player, master, data)
             toSpawn(player, master, data.team)
             data.loadout.forEachIndexed { i, stack -> if (i < player.inventory.containerSize) player.inventory.setItem(i, stack) }
@@ -616,6 +636,8 @@ data class BattleStatus(
     val carrying: String? = null,
     /** Close enough to your own flag post to leave the battle. */
     val nearFlag: Boolean = false,
+    /** Trenches mode: the lane, funds, units and orders for the command screen. */
+    val trench: com.flansmod.recoded.trenches.TrenchView? = null,
 ) {
     @Serializable
     data class Team(val name: String, val rgb: Int, val score: Int, val friendly: Boolean, val hasSpawn: Boolean = true)

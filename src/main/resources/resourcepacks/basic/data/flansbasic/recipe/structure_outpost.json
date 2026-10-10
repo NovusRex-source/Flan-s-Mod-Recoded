@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "CSSSSC",
+    "S    S",
+    "S CC S",
+    "CSDDSC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete",
+    "D": "flansmod:bunker_door",
+    "S": "flansmod:sandbags"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:outpost"
+    }
+  }
+}

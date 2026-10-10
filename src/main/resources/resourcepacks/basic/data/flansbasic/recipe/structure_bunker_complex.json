@@ -1,0 +1,20 @@
+{
+  "type": "flansmod:weapon_assembly",
+  "pattern": [
+    "CCCCCC",
+    "CCCCCC",
+    "CDCCDC",
+    "CCIICC"
+  ],
+  "key": {
+    "C": "flansmod:reinforced_concrete",
+    "D": "flansmod:bunker_door",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "flansmod:structure",
+    "components": {
+      "flansmod:structure": "flansbasic:bunker_complex"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Mortar",
+  "order": 3,
+  "cost": 280,
+  "cooldown_seconds": 18,
+  "description": "Shells the enemy trenches in reach from a trench behind the front. Long reload.",
+  "soldiers": [
+    {
+      "role": "mortar",
+      "guns": [
+        "pistol",
+        "smg"
+      ],
+      "range": 16,
+      "health": 18,
+      "mortar": {
+        "power": 2.6,
+        "reload_seconds": 9,
+        "range": 70,
+        "min_range": 12,
+        "scatter": 3
+      }
+    },
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false
+    }
+  ]
+}

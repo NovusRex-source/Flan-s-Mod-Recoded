@@ -1,0 +1,38 @@
+{
+  "name": "Riflemen",
+  "order": 0,
+  "cost": 100,
+  "cooldown_seconds": 4,
+  "officer_chance": 0.15,
+  "officer": "flanstrenches:officer",
+  "description": "Three riflemen: cheap, steady, the backbone of every attack and defence.",
+  "soldiers": [
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false
+    },
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false
+    },
+    {
+      "role": "rifleman",
+      "guns": [
+        "sniper",
+        "dmr",
+        "rifle"
+      ],
+      "scoped": false
+    }
+  ]
+}

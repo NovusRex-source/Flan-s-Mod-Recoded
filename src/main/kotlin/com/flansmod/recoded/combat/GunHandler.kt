@@ -21,6 +21,7 @@ import com.flansmod.recoded.network.ReloadPayload
 import com.flansmod.recoded.network.ShootPayload
 import com.flansmod.recoded.network.ShotPayload
 import com.geckolib.animatable.GeoItem
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -37,7 +38,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
-import java.util.WeakHashMap
+import java.util.UUID
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tan
@@ -56,9 +57,10 @@ object GunHandler {
         var reloadSlot = -1
     }
 
-    // Weak keys: a respawned or disconnected player is a new/dead object, so stale state just disappears.
-    private val states = WeakHashMap<ServerPlayer, State>()
-    private val ServerPlayer.gunState get() = states.getOrPut(this, ::State)
+    // Keyed by UUID, not by the player object: entities compare by entity id and a respawned ServerPlayer keeps the
+    // dead one's id, so an object-keyed map handed the new player's state to the dead object (reloads never finished).
+    private val states = HashMap<UUID, State>()
+    private val ServerPlayer.gunState get() = states.getOrPut(uuid, ::State)
 
     private val ADS_SLOWDOWN = FlansMod.id("ads_slowdown")
     private const val NIGHT_VISION_TICKS = 260 // above vanilla's 200-tick flicker threshold
@@ -70,8 +72,12 @@ object GunHandler {
         ServerPlayNetworking.registerGlobalReceiver(ReloadPayload.TYPE) { payload, ctx ->
             if (payload.unload) unload(ctx.player()) else reload(ctx.player())
         }
-        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> states.remove(handler.player) }
-        ServerTickEvents.END_SERVER_TICK.register { states.toList().forEach { (player, state) -> tick(player, state) } }
+        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> states.remove(handler.player.uuid) }
+        // A new life: nothing pending (a reload interrupted by death would otherwise finish on the respawned player).
+        ServerPlayerEvents.AFTER_RESPAWN.register { _, player, _ -> states.remove(player.uuid) }
+        ServerTickEvents.END_SERVER_TICK.register { server ->
+            server.playerList.players.forEach { player -> tick(player, states[player.uuid]) }
+        }
     }
 
     /** Trigger pulled by [player]; also the entry point for tests. */
@@ -157,9 +163,14 @@ object GunHandler {
         }
     }
 
-    private fun tick(player: ServerPlayer, state: State) {
-        val now = player.level().gameTime
+    private fun tick(player: ServerPlayer, state: State?) {
         val stack = player.mainHandItem
+        // Guns keep the reloading flag through deaths and battle stashes; without a pending reload it is stale.
+        if ((state == null || state.reloadDoneTick < 0) && stack.has(com.flansmod.recoded.registry.FlansComponents.RELOADING)) {
+            stack.remove(com.flansmod.recoded.registry.FlansComponents.RELOADING)
+        }
+        state ?: return
+        val now = player.level().gameTime
         val gun = stack.shotDefinition
         if (state.aiming && gun == null) setAiming(player, false)
         updateNightVision(player, state, state.aiming && gun?.scope?.nightVision == true)

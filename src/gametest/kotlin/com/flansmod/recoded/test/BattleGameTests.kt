@@ -19,6 +19,7 @@ import com.flansmod.recoded.gamemode.BattleRules
 import com.flansmod.recoded.gamemode.Post
 import com.flansmod.recoded.gamemode.ShopEditorMenu
 import com.flansmod.recoded.gamemode.ShopEditorView
+import com.flansmod.recoded.gamemode.ShopCategory
 import com.flansmod.recoded.gamemode.SoldierEntity
 import com.flansmod.recoded.gamemode.TeamFlagBlock
 import com.flansmod.recoded.gamemode.TeamFlagMenu
@@ -285,6 +286,41 @@ class BattleGameTests {
         helper.assertTrue(Battles.shop(master, "Blue")[0].stack.`is`(Items.DIAMOND).not(), "only Red's shop changed")
         menu.clicked(0, 0, ContainerInput.QUICK_MOVE, player)
         helper.assertTrue(Battles.shop(master, "Red")[0].stack.isEmpty, "shift-click removes it (a gap)")
+        helper.succeed()
+    }
+
+    @GameTest(maxTicks = 20)
+    fun theShopCatalogAddsAnythingWithoutOwningIt(helper: GameTestHelper) {
+        val master = helper.battle(BattleSettings())
+        val player = helper.makeMockServerPlayerInLevel()
+        master.owner = player.uuid
+        val axis = Identifier.parse("flansww2:axis")
+        // An edited shop that is a single gap: the catalog fills it.
+        master.shops = master.shops + ("Red" to listOf(com.flansmod.recoded.gamemode.ShopEntry.EMPTY))
+        val fresh = ShopEditorMenu(2, player.inventory, ShopEditorView(master.blockPos.asLong(), listOf("Red", "Blue"), 0, 0, axis.toString()), master)
+
+        helper.assertTrue(fresh.factionOnly, "a team with a faction starts with its faction's catalog")
+        fresh.clickMenuButton(player, ShopEditorMenu.CATEGORY + ShopCategory.GUNS.ordinal)
+        val guns = (0 until ShopEditorMenu.CATALOG_SIZE).map { fresh.getSlot(ShopEditorMenu.CATALOG_SLOT + it).item }.filter { !it.isEmpty }
+        helper.assertTrue(guns.isNotEmpty() && guns.all { it.item is com.flansmod.recoded.item.GunItem && com.flansmod.recoded.gun.factionOf(it.gunId!!) == axis },
+            "the gun group shows the Axis guns: ${guns.map { it.gunId }}")
+        fresh.search(player, "mp40")
+        val mp40 = fresh.getSlot(ShopEditorMenu.CATALOG_SLOT).item
+        helper.assertTrue(mp40.gunId?.path == "mp40", "search finds the MP 40: ${mp40.gunId}")
+
+        fresh.clicked(ShopEditorMenu.CATALOG_SLOT, 0, ContainerInput.PICKUP, player)
+        helper.assertTrue(player.inventory.isEmpty && fresh.carried.isEmpty, "nothing is taken from or given to the player")
+        fresh.clickMenuButton(player, ShopEditorMenu.SET_PRICE + 1234)
+        val first = Battles.shop(master, "Red").first()
+        helper.assertTrue(first.stack.gunId?.path == "mp40" && first.price == 1234, "added with the exact price: $first")
+
+        fresh.search(player, "")
+        fresh.clickMenuButton(player, ShopEditorMenu.CATEGORY + ShopCategory.OTHER.ordinal)
+        fresh.clicked(ShopEditorMenu.CATALOG_SLOT, 0, ContainerInput.PICKUP, player)
+        helper.assertTrue(fresh.selected == 1, "the next catalog item goes into the next free slot and is selected")
+        repeat(3) { fresh.clickMenuButton(player, ShopEditorMenu.COUNT + 3) }
+        val second = Battles.shop(master, "Red")[1]
+        helper.assertTrue(second.stack.`is`(Items.BREAD) && second.stack.count == 38, "amount raised by 30: $second")
         helper.succeed()
     }
 

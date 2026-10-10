@@ -3,7 +3,9 @@ package com.flansmod.recoded.client.gamemode
 import com.flansmod.recoded.FlansMod
 import com.flansmod.recoded.gamemode.BattleMasterMenu
 import com.flansmod.recoded.gamemode.BattleMode
+import com.flansmod.recoded.gamemode.ShopCategory
 import com.flansmod.recoded.gamemode.ShopEditorMenu
+import com.flansmod.recoded.gamemode.ShopSearchPayload
 import com.flansmod.recoded.gamemode.BattleSpawnMenu
 import com.flansmod.recoded.gamemode.BattleSettings
 import com.flansmod.recoded.gamemode.BattleSettingsPayload
@@ -15,6 +17,9 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.components.AbstractWidget
 import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.EditBox
+import net.minecraft.client.input.KeyEvent
+import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.client.renderer.Rect2i
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -69,6 +74,9 @@ class BattleMasterScreen(menu: BattleMasterMenu, inventory: Inventory, title: Co
         side(Component.translatable("gui.flansmod.battle.settings"), !view.running) {
             minecraft.gui.setScreen(BattleSettingsScreen.create(this, view.settings, BlockPos.of(view.pos)))
         }
+        if (view.settings.mode == BattleMode.TRENCHES) addRenderableWidget(Button.builder(Component.translatable("gui.flansmod.trenches.build")) { press(BattleMasterMenu.BUILD_FIELD) }
+            .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.translatable("gui.flansmod.trenches.build.tooltip")))
+            .bounds(leftPos + imageWidth + 4, topPos + 4 + row++ * 20, 90, 18).build()).active = !view.running
         view.teams.forEachIndexed { i, team ->
             side(Component.translatable("gui.flansmod.battle.shop", team.name).withColor(team.rgb)) { press(BattleMasterMenu.SHOP + i) }
         }
@@ -170,22 +178,54 @@ class TeamFlagScreen(menu: TeamFlagMenu, inventory: Inventory, title: Component)
 }
 
 /**
- * Shop editor: the team's shop as the flag post shows it. Drop items on slots (copies), click to select, price
- * buttons, remove/reset, team and page buttons on the right.
+ * Shop editor: the catalog of all loaded content on the left (category, faction filter, search, pages), the team's
+ * shop page and your inventory in the middle, teams, price (steps or exact), amount, remove and reset on the right.
  */
 class ShopEditorScreen(menu: ShopEditorMenu, inventory: Inventory, title: Component) :
-    AbstractContainerScreen<ShopEditorMenu>(menu, inventory, title, 176, 168), SideButtons {
+    AbstractContainerScreen<ShopEditorMenu>(menu, inventory, title, ShopEditorMenu.CATALOG_WIDTH + 176, 168), SideButtons {
     override fun sideAreas() = widgetsRightOf(leftPos + imageWidth)
 
     private val view get() = menu.view
+    private lateinit var search: EditBox
+    private lateinit var priceBox: EditBox
+    private lateinit var categoryButton: Button
+    private lateinit var factionButton: Button
+    private var shownCategory: ShopCategory? = null
+    private var shownFaction: Boolean? = null
+    private var shownSelection = -2
 
     init {
         inventoryLabelY = imageHeight - 94
     }
 
+    private fun press(id: Int) = minecraft.gameMode?.handleInventoryButtonClick(menu.containerId, id)
+
     override fun init() {
         super.init()
-        fun press(id: Int) = minecraft.gameMode?.handleInventoryButtonClick(menu.containerId, id)
+        // Centre the panel together with the button column, so the column stays on small screens.
+        leftPos = ((width - imageWidth - COLUMN) / 2).coerceAtLeast(2)
+        val main = leftPos + ShopEditorMenu.CATALOG_WIDTH
+        // Catalog filters.
+        search = addRenderableWidget(EditBox(font, leftPos + 7, topPos + 5, 80, 12, Component.translatable("gui.flansmod.shop.search")).apply {
+            setMaxLength(40)
+            setHint(Component.translatable("gui.flansmod.shop.search"))
+            setResponder { ClientPlayNetworking.send(ShopSearchPayload(it)) }
+        })
+        categoryButton = addRenderableWidget(Button.builder(Component.empty()) {
+            // Shift goes backwards through the groups.
+            val step = if (minecraft.hasShiftDown()) ShopCategory.entries.size - 1 else 1
+            press(ShopEditorMenu.CATEGORY + (menu.category.ordinal + step) % ShopCategory.entries.size)
+        }.bounds(leftPos + 7, topPos + 21, 110, 14).build())
+        factionButton = addRenderableWidget(Button.builder(Component.empty()) { press(ShopEditorMenu.FACTION) }
+            .bounds(leftPos + 7, topPos + 38, 64, 14).build()).apply { active = view.faction != null }
+        addRenderableWidget(Button.builder(Component.literal("<")) { press(ShopEditorMenu.CATALOG_PREV) }.bounds(leftPos + 75, topPos + 38, 20, 14).build())
+        addRenderableWidget(Button.builder(Component.literal(">")) { press(ShopEditorMenu.CATALOG_NEXT) }.bounds(leftPos + 97, topPos + 38, 20, 14).build())
+
+        // Shop pages.
+        addRenderableWidget(Button.builder(Component.literal("<")) { press(ShopEditorMenu.PREV) }.bounds(main + 126, topPos + 3, 20, 12).build())
+        addRenderableWidget(Button.builder(Component.literal(">")) { press(ShopEditorMenu.NEXT) }.bounds(main + 148, topPos + 3, 20, 12).build())
+
+        // Right column: teams, price, amount, remove, reset.
         val x = leftPos + imageWidth + 4
         view.teams.forEachIndexed { i, team ->
             addRenderableWidget(Button.builder(Component.literal(team)) { press(ShopEditorMenu.TEAM + i) }
@@ -196,39 +236,98 @@ class ShopEditorScreen(menu: ShopEditorMenu, inventory: Inventory, title: Compon
             addRenderableWidget(Button.builder(Component.literal("%+d".format(step))) { press(ShopEditorMenu.PRICE + i) }
                 .bounds(x + i % 3 * 31, y + i / 3 * 16, 29, 14).build())
         }
-        addRenderableWidget(Button.builder(Component.translatable("gui.flansmod.shop.remove")) { press(ShopEditorMenu.REMOVE) }.bounds(x, y + 36, 91, 14).build())
-        addRenderableWidget(Button.builder(Component.translatable("gui.flansmod.shop.reset")) { press(ShopEditorMenu.RESET) }.bounds(x, y + 52, 91, 14).build())
-        addRenderableWidget(Button.builder(Component.literal("<")) { press(ShopEditorMenu.PREV) }.bounds(leftPos + 126, topPos + 3, 20, 12).build())
-        addRenderableWidget(Button.builder(Component.literal(">")) { press(ShopEditorMenu.NEXT) }.bounds(leftPos + 148, topPos + 3, 20, 12).build())
+        priceBox = addRenderableWidget(EditBox(font, x + 1, y + 34, 56, 12, Component.translatable("gui.flansmod.shop.price", "")).apply {
+            setMaxLength(7)
+            setResponder { text -> text.filter(Char::isDigit).let { if (it != text) value = it } }
+        })
+        addRenderableWidget(Button.builder(Component.translatable("gui.flansmod.shop.set_price")) { setPrice() }.bounds(x + 62, y + 33, 29, 14).build())
+        ShopEditorMenu.COUNT_STEPS.forEachIndexed { i, step ->
+            addRenderableWidget(Button.builder(Component.literal("%+d".format(step))) { press(ShopEditorMenu.COUNT + i) }
+                .bounds(x + i * 23, y + 62, 22, 14).build())
+        }
+        addRenderableWidget(Button.builder(Component.translatable("gui.flansmod.shop.remove")) { press(ShopEditorMenu.REMOVE) }.bounds(x, y + 82, 91, 14).build())
+        addRenderableWidget(Button.builder(Component.translatable("gui.flansmod.shop.reset")) { press(ShopEditorMenu.RESET) }.bounds(x, y + 98, 91, 14).build())
+        shownCategory = null; shownFaction = null; shownSelection = -2
+    }
+
+    private fun setPrice() {
+        val price = priceBox.value.toIntOrNull() ?: return
+        if (menu.selected >= 0) press(ShopEditorMenu.SET_PRICE + price.coerceIn(0, ShopEditorMenu.MAX_PRICE))
+        priceBox.isFocused = false
+    }
+
+    override fun containerTick() {
+        super.containerTick()
+        // Button labels and the price box follow the synced menu data.
+        if (shownCategory != menu.category) {
+            shownCategory = menu.category
+            categoryButton.message = Component.translatable(menu.category.key)
+        }
+        if (shownFaction != menu.factionOnly) {
+            shownFaction = menu.factionOnly
+            factionButton.message = Component.translatable(if (menu.factionOnly) "gui.flansmod.shop.faction_only" else "gui.flansmod.shop.all_factions")
+        }
+        if (!priceBox.isFocused && (shownSelection != menu.selected || priceBox.value != menu.price.toString())) {
+            shownSelection = menu.selected
+            priceBox.value = if (menu.selected >= 0) menu.price.toString() else ""
+        }
+    }
+
+    // Typing into the search or price box must not close the screen (E) or trigger hotbar keys.
+    override fun keyPressed(event: KeyEvent): Boolean {
+        if (event.isEscape) return super.keyPressed(event)
+        if (priceBox.isFocused && (event.key() == InputConstants.KEY_RETURN || event.key() == InputConstants.KEY_NUMPADENTER)) return true.also { setPrice() }
+        for (box in listOf(search, priceBox)) if (box.isFocused) return box.keyPressed(event) || box.canConsumeInput() || super.keyPressed(event)
+        return super.keyPressed(event)
     }
 
     override fun extractBackground(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int, partialTick: Float) {
         super.extractBackground(graphics, mouseX, mouseY, partialTick)
+        // Catalog panel in vanilla's container look, one slot frame per catalog slot.
+        panel(graphics, leftPos, topPos, ShopEditorMenu.CATALOG_WIDTH - 2, imageHeight)
+        for (i in 0 until ShopEditorMenu.CATALOG_SIZE) {
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT, leftPos + 7 + i % ShopEditorMenu.CATALOG_COLUMNS * 18,
+                topPos + ShopEditorMenu.CATALOG_Y - 1 + i / ShopEditorMenu.CATALOG_COLUMNS * 18, 18, 18)
+        }
         // Vanilla's chest texture, cut down to three rows like a single chest.
+        val main = leftPos + ShopEditorMenu.CATALOG_WIDTH
         val texture = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png")
-        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, leftPos, topPos, 0f, 0f, imageWidth, 3 * 18 + 17, 256, 256)
-        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, leftPos, topPos + 3 * 18 + 17, 0f, 126f, imageWidth, 96, 256, 256)
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, main, topPos, 0f, 0f, 176, 3 * 18 + 17, 256, 256)
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, main, topPos + 3 * 18 + 17, 0f, 126f, 176, 96, 256, 256)
         val selected = menu.selected
         if (selected >= 0) {
-            val sx = leftPos + 7 + selected % 9 * 18
+            val sx = main + 7 + selected % 9 * 18
             val sy = topPos + 17 + selected / 9 * 18
             graphics.fill(sx, sy, sx + 18, sy + 1, GOLD); graphics.fill(sx, sy + 17, sx + 18, sy + 18, GOLD)
             graphics.fill(sx, sy, sx + 1, sy + 18, GOLD); graphics.fill(sx + 17, sy, sx + 18, sy + 18, GOLD)
         }
     }
 
+    private fun panel(graphics: GuiGraphicsExtractor, x: Int, y: Int, w: Int, h: Int) {
+        graphics.fill(x + 1, y, x + w - 1, y + h, 0xFF000000.toInt())
+        graphics.fill(x, y + 1, x + w, y + h - 1, 0xFF000000.toInt())
+        graphics.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0xFFFFFFFF.toInt())
+        graphics.fill(x + 2, y + 2, x + w - 1, y + h - 1, 0xFF555555.toInt())
+        graphics.fill(x + 2, y + 2, x + w - 2, y + h - 2, 0xFFC6C6C6.toInt())
+    }
+
     override fun extractLabels(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
-        graphics.fill(8, 6, 14, 12, 0xFF000000.toInt() or view.rgb)
-        graphics.text(font, title, 18, 5, DARK, false)
-        graphics.text(font, Component.literal("${menu.page + 1}/${menu.pages}"), 100, 5, DARK, false)
-        val price = if (menu.selected >= 0) Component.translatable("gui.flansmod.shop.price", menu.price) else Component.translatable("gui.flansmod.shop.select")
-        graphics.text(font, price, 8, inventoryLabelY, if (menu.selected >= 0) 0xFF8A6D00.toInt() else 0xFF606060.toInt(), false)
+        val main = ShopEditorMenu.CATALOG_WIDTH
+        graphics.text(font, Component.literal("${menu.catalogPage + 1}/${menu.catalogPages}"), 92, 7, DARK, false)
+        graphics.fill(main + 8, 6, main + 14, 12, 0xFF000000.toInt() or view.rgb)
+        graphics.text(font, title, main + 18, 5, DARK, false)
+        graphics.text(font, Component.literal("${menu.page + 1}/${menu.pages}"), main + 100, 5, DARK, false)
+        val price = if (menu.selected >= 0) Component.translatable("gui.flansmod.shop.price", menu.price).append("  ")
+            .append(Component.translatable("gui.flansmod.shop.amount", menu.count)) else Component.translatable("gui.flansmod.shop.select")
+        graphics.text(font, price, main + 8, inventoryLabelY, if (menu.selected >= 0) 0xFF8A6D00.toInt() else 0xFF606060.toInt(), false)
         val hint = Component.translatable("gui.flansmod.shop.hint")
-        graphics.text(font, hint, (imageWidth - font.width(hint)) / 2, imageHeight + 4, 0xFFFFFFFF.toInt())
+        graphics.text(font, hint, (width - font.width(hint)) / 2 - leftPos, imageHeight + 4, 0xFFFFFFFF.toInt())
     }
 
     private companion object {
         val GOLD = 0xFFFFC000.toInt()
+        const val COLUMN = 99
+        val SLOT: Identifier = Identifier.withDefaultNamespace("container/slot")
     }
 }
 
@@ -313,6 +412,28 @@ object BattleSettingsScreen {
         general.addEntry(entries.startBooleanToggle(text("friendly_fire"), settings.friendlyFire).setSaveConsumer { edited = edited.copy(friendlyFire = it) }.build())
         general.addEntry(entries.startBooleanToggle(text("keep_loadout"), settings.keepLoadout).setSaveConsumer { edited = edited.copy(keepLoadout = it) }.build())
         general.addEntry(entries.startIntField(text("respawn_protection"), settings.respawnProtection).setMin(0).setSaveConsumer { edited = edited.copy(respawnProtection = it) }.build())
+        // Trenches mode.
+        val trenches = builder.getOrCreateCategory(Component.translatable("gui.flansmod.battle.settings.trenches"))
+        val t = settings.trenches
+        fun tr(key: String) = Component.translatable("gui.flansmod.trenches.settings.$key")
+        fun trInt(key: String, value: Int, min: Int, max: Int, save: (com.flansmod.recoded.trenches.TrenchSettings, Int) -> com.flansmod.recoded.trenches.TrenchSettings) =
+            trenches.addEntry(entries.startIntField(tr(key), value).setMin(min).setMax(max).setTooltip(Component.translatable("gui.flansmod.trenches.settings.$key.tooltip"))
+                .setSaveConsumer { v -> edited = edited.copy(trenches = save(edited.trenches, v)) }.build())
+        trenches.addEntry(entries.startEnumSelector(tr("ai"), com.flansmod.recoded.trenches.TrenchAiLevel::class.java, t.ai)
+            .setEnumNameProvider { Component.translatable("gui.flansmod.trenches.ai.${it.name.lowercase()}") }.setTooltip(tr("ai.tooltip"))
+            .setSaveConsumer { edited = edited.copy(trenches = edited.trenches.copy(ai = it)) }.build())
+        trInt("start_funds", t.startFunds, 0, 100000) { s, v -> s.copy(startFunds = v) }
+        trInt("funds_per_second", t.fundsPerSecond, 0, 1000) { s, v -> s.copy(fundsPerSecond = v) }
+        trInt("trench_bonus", t.trenchBonus, 0, 1000) { s, v -> s.copy(trenchBonus = v) }
+        trInt("kill_bounty", t.killBounty, 0, 10000) { s, v -> s.copy(killBounty = v) }
+        trInt("unit_cap", t.unitCap, 1, 200) { s, v -> s.copy(unitCap = v) }
+        trInt("hq_capture_seconds", t.hqCaptureSeconds, 1, 600) { s, v -> s.copy(hqCaptureSeconds = v) }
+        trInt("bunker_cost", t.bunkerCost, 0, 100000) { s, v -> s.copy(bunkerCost = v) }
+        trInt("wire_cost", t.wireCost, 0, 100000) { s, v -> s.copy(wireCost = v) }
+        trInt("cut_cost", t.cutCost, 0, 100000) { s, v -> s.copy(cutCost = v) }
+        trInt("trenches", t.trenches, 1, 12) { s, v -> s.copy(trenches = v) }
+        trInt("spacing", t.spacing, 8, 40) { s, v -> s.copy(spacing = v) }
+        trInt("width", t.width, 5, 41) { s, v -> s.copy(width = v) }
         val shop = builder.getOrCreateCategory(Component.translatable("gui.flansmod.battle.settings.shop"))
         shop.addEntry(entries.startStrList(text("shop"), settings.shop).setTooltip(text("shop.tooltip")).setSaveConsumer { edited = edited.copy(shop = it) }.build())
         builder.setSavingRunnable {

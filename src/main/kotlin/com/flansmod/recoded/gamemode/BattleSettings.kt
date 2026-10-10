@@ -79,6 +79,8 @@ data class BattleSettings(
     @SerialName("block_damage") val blockDamage: Boolean = true,
     /** Build a wall along the border markers that fighters cannot pass (others walk through). */
     @SerialName("border_wall") val borderWall: Boolean = false,
+    /** Trenches mode: funds, units, computer commander, the field to build. */
+    val trenches: com.flansmod.recoded.trenches.TrenchSettings = com.flansmod.recoded.trenches.TrenchSettings(),
 ) {
     val gameType: GameType get() = if (gameMode.equals("adventure", true)) GameType.ADVENTURE else GameType.SURVIVAL
 
@@ -105,13 +107,18 @@ data class BattleSettings(
  *   time; every held hill scores over time.
  * - [CONQUEST]: like king of the hill, but team bases can be conquered too (unless locked) - a team without a flag
  *   post cannot respawn, and a team with nobody left standing is out.
+ * - [TRENCHES]: after the mobile game *Trenches*: the first two teams each have a headquarters (their flag post) at
+ *   either end of a lane of trench lines (hill posts). Commanders - players, from above or while fighting, or the
+ *   computer - spend team funds earned over time on squads and send them from trench to trench; taking the enemy
+ *   headquarters wins (when time runs out: the most trenches held). See [com.flansmod.recoded.trenches.TrenchRules].
  */
 @Serializable
 enum class BattleMode {
     @SerialName("team_deathmatch") TEAM_DEATHMATCH,
     @SerialName("capture_the_flag") CAPTURE_THE_FLAG,
     @SerialName("king_of_the_hill") KING_OF_THE_HILL,
-    @SerialName("conquest") CONQUEST;
+    @SerialName("conquest") CONQUEST,
+    @SerialName("trenches") TRENCHES;
 
     val killsScore get() = this == TEAM_DEATHMATCH || this == CONQUEST
 }

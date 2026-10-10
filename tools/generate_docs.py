@@ -25,6 +25,8 @@ TYPES = [
     ("Vehicle upgrades", "vehicle_upgrades", "VehicleUpgradeDefinition", "gun/VehicleUpgradeDefinition.kt"),
     ("Factions", "factions", "FactionDefinition", "gun/FactionDefinition.kt"),
     ("Structure kits", "structures", "StructureDefinition", "gun/StructureDefinition.kt"),
+    ("Trench units", "trench_units", "TrenchUnitDefinition", "trenches/TrenchDefinitions.kt"),
+    ("Trench supports", "trench_supports", "TrenchSupportDefinition", "trenches/TrenchDefinitions.kt"),
 ]
 
 

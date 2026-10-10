@@ -342,12 +342,27 @@ its front facing the way you look.
 
 - **Basic pack:** a concrete bunker, a pillbox, straight and corner trenches (dug in, with fire step and parapet), a
   sandbag gun nest, a watchtower, a roadblock, and streets (straight and crossing; chain them forwards).
+- **Large battle buildings (Basic pack):** a **Fortified Outpost** (25 × 25: corner towers with ladders, sandbag walls
+  with firing gaps, gate, command hut, gun nest), a two-storey **Field Headquarters** (map room, quarters, roof
+  terrace with observation room), a **Bunker Complex** (three gun rooms, corridor, quarters, command room, ammunition
+  store, roof cupola), a **Gun Casemate** for artillery, a **Town House** and a shelled **Ruined House** to fight
+  through, **Barracks** and a **Warehouse** (crates for cover, catwalks under high windows).
 - **Vehicles pack:** the runway and the aircraft hangar.
 
 <p>
 <img src="docs/images/structures-1.jpg" width="32%" alt="Pillbox, gun nest, bunker">
 <img src="docs/images/structures-2.jpg" width="32%" alt="Streets and roadblock">
 <img src="docs/images/structures-3.jpg" width="32%" alt="Watchtower and trenches">
+</p>
+<p>
+<img src="docs/images/building-outpost.jpg" width="32%" alt="Fortified outpost">
+<img src="docs/images/building-field-hq.jpg" width="32%" alt="Field headquarters">
+<img src="docs/images/building-bunker-complex.jpg" width="32%" alt="Bunker complex">
+</p>
+<p>
+<img src="docs/images/building-town-house.jpg" width="32%" alt="Town house">
+<img src="docs/images/building-ruined-house.jpg" width="32%" alt="Ruined house">
+<img src="docs/images/building-warehouse.jpg" width="32%" alt="Warehouse">
 </p>
 
 ---
@@ -374,8 +389,11 @@ bots. Your own inventory is safe: it waits at your flag post while you fight.
 4. **Optional: Border Markers.** Two or more markers near the Battle Master span the battle area, and fighters can't
    leave it. With *border wall* on, a striped wall rises along the edge that only fighters bump into.
 5. **Optional: the shop editor.** By default each team's shop is generated from all content (only its faction's gear
-   when the team has a faction). With **Shop: <team>** you lay it out yourself: drop items on slots (copies, so
-   nothing leaves your inventory), click one and set its price.
+   when the team has a faction). With **Shop: <team>** you lay it out yourself. The **catalog** on the left lists
+   everything the loaded packs offer (guns, ammunition, attachments, explosives, uniforms, gear, vehicles, structures),
+   filtered by group, by the team's faction and by a search box; click an item to put it in the shop – you don't
+   need to own it. You can also drop your own items on slots (copies, so nothing leaves your inventory). Click a shop
+   item to select it, then change its price with the step buttons or type an exact price, and set how many are sold.
 
 <p>
 <img src="docs/images/battle-master.jpg" width="49%" alt="Battle Master">
@@ -432,6 +450,98 @@ bots. Your own inventory is safe: it waits at your flag post while you fight.
 
 ---
 
+## Soldiers
+
+Soldiers of every faction can be placed in the world outside battles, e.g. to guard a base, as an enemy patrol or
+as target dummies. The **Soldier** items (*Fortifications & Battles* tab and each faction's tab) come in four
+attitudes; right-click a block to place one. It wears its faction's uniform, carries one of its guns, stays within
+16 blocks of where it was placed and never despawns. The icon shows the faction's colour and an attitude badge.
+
+| Attitude | Behaviour |
+|---|---|
+| **Friendly** (green) | fights monsters and enemy soldiers, never hurts players or other friendly soldiers |
+| **Enemy** (red) | attacks players (not in creative), friendly soldiers and enemy soldiers of *other* factions; spares its own faction |
+| **Neutral** (yellow) | starts nothing, but shoots back at whoever attacks it |
+| **Inactive** (grey) | stands still and does nothing: a target dummy or decoration |
+
+In creative mode, sneak + right-click a soldier with an empty hand to switch its attitude. Without the WW2 pack there
+are faction-less soldiers with gear from all packs.
+
+<p>
+<img src="docs/images/soldiers-lineup.jpg" width="49%" alt="Soldiers of the four WW2 factions">
+<img src="docs/images/soldiers-items.jpg" width="49%" alt="Soldier items by faction and attitude">
+</p>
+
+---
+
+## Trenches
+
+A battle mode after the mobile game *Trenches* (Thunder Game Works, 2009), delivered with the built-in **Trenches**
+pack. Two sides each have a headquarters bunker at either end of a lane of trench lines. You don't (only) fight
+yourself: you **command**. Funds come in over time; you spend them on squads and send them from trench to trench.
+Whoever takes the enemy headquarters wins.
+
+### Setting up
+
+1. Place a **Battle Master**, open **Settings**, pick the mode **Trenches** and two teams (with factions, e.g.
+   `British:gold:flansww2:uk` and `Germans:dark_gray:flansww2:axis`). The *Trenches* page has the funds, the computer
+   commander (off, easy, normal, hard), costs, and the size of the field.
+2. Press **Build trench field** while looking where the field should go. The Battle Master levels a strip of churned
+   ground with shell craters, digs the trench lines (duckboards, revetments, sandbag parapets with gaps to climb out)
+   and puts a concrete headquarters at both ends. The first team's headquarters is the one next to the Battle Master.
+   Hand-made maps work too: two team flag posts as headquarters, and flag posts marked as hills as the trench lines.
+3. Join a team (or none, to leave both sides to the computer) and press **Start**.
+
+### Playing
+
+- **Command (M):** the command screen shows the lane, your headquarters on the left. Every trench shows its owner,
+  your soldiers there (▲, with those still on their way), the enemy's (▼), bunkers (▣), barbed wire (✕) between
+  trenches, captures and engineering work. Use it from wherever you are: in the field, from the lobby, or **from
+  above** (the *View from above* button makes you a spectator over your headquarters).
+- **Squads** (keys 1-8 in the screen) cost funds and need time before the next one of the same kind. They start at
+  your headquarters, or at your most forward bunker, and march into your first trench:
+
+  | Squad | Soldiers |
+  |---|---|
+  | Riflemen | three riflemen with their faction's rifle |
+  | MG Team | a machine gunner and his loader, who takes over the gun if the gunner falls |
+  | Sniper | one marksman, long range |
+  | Mortar | a mortar crew that shells enemy-held trenches in reach, and a rifleman |
+  | Engineers | two sappers for the engineering jobs below |
+  | Assault | three storm troopers with submachine guns and grenades |
+  | Veterans | four tougher, more accurate riflemen |
+  | Officer | inspires the soldiers around him (faster, straighter fire); also joins squads at random |
+
+  Soldiers carry their faction's guns by category, so every faction of every pack works.
+- **Orders:** select a trench (click, or A/D) and send its soldiers one trench forward or back (W/S: one, with Shift:
+  all, or the buttons for 1, 3 and all). *Line ▶/◀* moves everyone at once. Soldiers keep firing while they cross no
+  man's land, and stay in their trench otherwise.
+- **Trenches** belong to the side that holds them alone for a moment. In a trench soldiers take less damage, in a
+  bunker even less. Every trench you hold adds income.
+- **Engineers** turn a trench you hold into a **bunker** (much better cover, a sandbag wall with firing slits, and a
+  forward spawn point), lay **barbed wire** in front of it, or **cut** the wire ahead.
+- **Supports** fall on the selected trench: a **barrage**, a heavier **bombardment**, and **poison gas** that lingers.
+  They hit friend and foe alike.
+- **Winning:** attackers alone in the enemy headquarters take it over after a while (defenders push them back). When
+  time runs out, the side holding more trenches wins.
+- **The computer** commands every side without a human commander online: it keeps a mix of squads, brings soldiers up
+  to the front, attacks when it clearly outnumbers the next trench, falls back when overwhelmed, has bunkers and
+  wire built and calls supports on crowded enemy trenches. Play against it, let it fight beside your friends, or
+  watch two computer sides.
+- You can also fight in person: enter the battle at your headquarters like in any battle.
+
+<p>
+<img src="docs/images/trenches-field.jpg" width="49%" alt="A trench field">
+<img src="docs/images/trenches-command-battle.jpg" width="49%" alt="The command screen during a battle">
+</p>
+<p>
+<img src="docs/images/trenches-above.jpg" width="32%" alt="Commanding from above">
+<img src="docs/images/trenches-trench.jpg" width="32%" alt="Soldiers in a trench">
+<img src="docs/images/trenches-headquarters.jpg" width="32%" alt="A headquarters bunker">
+</p>
+
+---
+
 ## Controls
 
 | Key | Action |
@@ -446,7 +556,7 @@ bots. Your own inventory is safe: it waits at your flag post while you fight.
 | N | Artillery map (on a mortar or howitzer) |
 | Z | Lie down / stand up |
 | B | Open your backpack |
-| M | Battle menu |
+| M | Battle menu (Trenches: command screen; in it A/D select, W/S orders, 1-8 squads) |
 | Sneak while sprinting | Slide |
 | Space while falling | Open your parachute |
 | W A S D, Space | Drive and brake; on a mortar or howitzer: elevation, traverse, fine adjustment |
@@ -466,6 +576,7 @@ content pack.
 | **Basic** | `flansbasic` | 24 modern guns (pistols to anti-materiel rifles, LMGs, M79, RPG-7), magazines, all ammo types, 16 attachments, grenades, army and spec-ops uniforms, backpacks, armour plates, medical gear, binoculars, field map, flashlight, compass, gun parts, 9 structure kits |
 | **Vehicles** | `flansvehicles` | M151 jeep, Humvee (M2), M35 truck, BTR-80, M2 Bradley, M1 Abrams, T-72; UH-1H and AH-6 helicopters; M252 mortar, M777 howitzer, Type 63 rocket launcher, ZU-23-2 AA gun, M2HB and Mk 19 on tripods, M240 and 23 mm sentry turrets; tank, mortar and howitzer shells, rockets, bombs, HEI and HE-FRAG rounds; upgrades, vehicle parts, mines, parachute, runway and hangar kits |
 | **WW2** | `flansww2` | 4 factions (Axis, USA, UK, Soviet Union): 21 guns, 9 grenades, 5 mines, uniforms, packs; Willys, Kübelwagen, GAZ-67, Universal Carrier, Sherman, Cromwell, Panzer IV, Tiger I, T-34-85; Spitfire, Bf 109, P-51 and Yak-3 fighters; Ju 87, SBD, Il-2 and Fairey Battle attack planes; four mortars, leFH 18, M2A1, QF 25-pounder and M-30 howitzers, 2 cm Flak 38; MG 42, M1919, Vickers and Maxim emplacements |
+| **Trenches** | `flanstrenches` | squads and supports of the Trenches battle mode: riflemen, MG teams, snipers, mortars, engineers, assault troops, veterans, officers; barrage, bombardment, poison gas |
 
 The WW2 pack needs the other two: shared calibers come from Basic, and vehicle parts and some ammunition from
 Vehicles.

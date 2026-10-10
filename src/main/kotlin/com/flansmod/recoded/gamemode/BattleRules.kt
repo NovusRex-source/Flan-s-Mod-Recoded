@@ -57,6 +57,10 @@ object BattleRules {
             BattleMode.KING_OF_THE_HILL, BattleMode.CONQUEST -> captures(master, level)
             BattleMode.CAPTURE_THE_FLAG -> if (time % 5 == 0L) flags(master, level)
             BattleMode.TEAM_DEATHMATCH -> Unit
+            BattleMode.TRENCHES -> {
+                com.flansmod.recoded.trenches.TrenchRules.tick(master, level)
+                if (!master.running) return
+            }
         }
         if (time % 10 == 0L) border(master, level)
         if (time % 20 == 0L) {
@@ -241,7 +245,8 @@ object BattleRules {
             if (level.getEntity(UUID.fromString(id)) != null) lastSeen[key] = level.gameTime
             else if (level.gameTime - lastSeen.getOrPut(key) { level.gameTime } > LOST_TICKS) botGone(master, id)
         }
-        if (!settings.fillWithBots || settings.teamSize <= 0) return
+        // Trenches: soldiers come only when a commander sends them.
+        if (!settings.fillWithBots || settings.teamSize <= 0 || settings.mode == BattleMode.TRENCHES) return
         for (team in settings.teams) {
             val players = Battles.onlineFighters(master).count { Battles.data(it)?.team == team.name }
             val count = master.state.bots.count { it.value == team.name }
